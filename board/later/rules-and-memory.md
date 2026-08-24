@@ -14,7 +14,7 @@
              rule that has to be found in a document), or the count of
              tree-facts a session has had to carry passes five.  Count
              so far: 1 — "a per-invocation budget does not bound a
-             principal" (doc/kaizen/2026-08-24.md).  The person-fact
+             principal" (doc/kaizen/2026-08-24-1727.md).  The person-fact
              written the same day stays private and is not counted
     see      ~/gestate/spec/rules.md, ~/gestate/doc/memory/README.md —
              the shapes, when the event arrives

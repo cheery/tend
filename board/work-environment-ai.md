@@ -337,7 +337,7 @@ tolerated, not owned, and its criterion is now Henri's *how far would
 it reach* rather than *did it flare*.
 
 **And a constraint on the vocabulary, from Henri's kaizen the same
-evening** (`doc/kaizen/2026-08-24.md`): *anything mechanically
+evening** (`doc/kaizen/2026-08-24-1727.md`): *anything mechanically
 error-correctible is in domain*, so the reach table must not be
 programming-shaped in what it *covers*.  A leash that knows `cargo`
 and `pytest` and nothing else would encode the first domain's accidents

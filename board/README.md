@@ -54,14 +54,18 @@ worked, and each says what it waits on.
 ## What the days taught
 
 **Every session ends with a kaizen** — Henri, 2026-08-24: *"it's big
-thing to do after each session"* — one file per day in `doc/kaizen/`:
-what went right and why, what went wrong named as whose, what should
-change tomorrow.  It is not done when told; it is how a sitting ends.
-`tools/kaizen.sh` is the lamp that says today's is missing, at every
-commit and (as a hook) at every prompt.  The first, 2026-08-24, is the
-day this board went from one test to a hook that had refused a commit
-— and the day a session remade gestate's `pgrep` bug an hour after
-reading about it, and had to be told to write this.
+thing to do after each session"* — one file per session in
+`doc/kaizen/`, named `<date>-<HHMM>.md` by when it ended: what went
+right and why, what went wrong named as whose, what should change
+tomorrow.  It is not done when told; it is how a sitting ends.
+`tools/kaizen.sh` is the lamp: it lights while there are commits since
+the last kaizen, at every commit and (as a hook) at every prompt, and
+says which file to write.  Several sessions a day is the normal case
+(Henri, 2026-08-24), so the measure is commits, never the date.  The
+first, `2026-08-24-1727.md`, is the day this board went from one test
+to a hook that had refused a commit — and the day a session remade
+gestate's `pgrep` bug an hour after reading about it, and had to be
+told to write this.
 
 ## A word left for you
 
