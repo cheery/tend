@@ -64,6 +64,19 @@ class Desk:
             if self.log.exists() else []
 
 
+def test_the_hook_run_by_hand_records_nothing(tmp_path):
+    """**Tend's own regression, 2026-08-24.**  A session ran `--hook`
+    with an empty stdin to check a path and wrote a row into the real
+    log.  Without the harness's JSON there is no prompt, so there is
+    nothing to record — and the desk's clock is not touched."""
+    desk = Desk(tmp_path)
+    r = desk.run("--hook")                       # empty stdin
+    assert r.returncode == 0
+    assert "nothing recorded" in r.stderr
+    assert not desk.state.exists()
+    assert desk.lines() == []
+
+
 def test_a_session_may_not_grant_itself_a_sitting(tmp_path):
     """The asymmetry, in the direction that matters.  `CLAUDECODE` is set
     for Henri's own `!` commands too, so this refuses him as well — which

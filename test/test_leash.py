@@ -85,9 +85,22 @@ def test_every_invocation_leaves_one_ledger_line(tmp_path):
     rows = lines(tmp_path)
     assert len(rows) == 2
     for row in rows:
-        assert len(row) == 5, row
+        assert len(row) == 6, row
     assert rows[1][2] == "3", "the ledger keeps the exit code"
-    assert "sh -c exit 3" in rows[1][4], "and the command"
+    assert "sh -c exit 3" in rows[1][5], "and the command"
+
+
+def test_every_line_says_what_the_load_cost(tmp_path):
+    """**A load is a number** — the countermeasure for believing a
+    light one on 2026-08-24.  A spinner for a second shows about a
+    CPU-second; `true` shows about none; both are numbers, not names."""
+    leash(tmp_path, "-t", "30", "--", "sh", "-c",
+          "timeout 1 sh -c 'while :; do :; done'; true")
+    leash(tmp_path, "-t", "30", "--", "true")
+    spun, idle = (float(r[4].removeprefix("cpu=").removesuffix("s"))
+                  for r in lines(tmp_path))
+    assert spun >= 0.5, f"a second of spinning cost {spun}s?"
+    assert idle < 0.2
 
 
 def test_the_ledger_says_whether_the_budget_really_applied(tmp_path):

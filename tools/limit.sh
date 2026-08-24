@@ -140,7 +140,19 @@ if [ "$started" -eq 0 ] || [ "$gap" -ge "$GAP_MIN" ]; then
 fi
 
 if [ "${1:-}" = "--hook" ]; then
-  prompt="$(cat | jq -r '.prompt // ""')"
+  # **Only the harness may write the desk's clock.**  2026-08-24: a
+  # session ran `--hook` by hand with nothing on stdin to see whether a
+  # path expanded, and wrote a `prompt` row into Henri's own log — a
+  # ledger about a person, touched to test something else.  The
+  # harness always sends a JSON object; anything else is not a prompt
+  # and records nothing.  (Tend's copy only; the gestate twin has not
+  # got this yet — the sync debt named in the header.)
+  input="$(cat)"
+  if ! printf '%s' "$input" | jq -e 'type == "object"' >/dev/null 2>&1; then
+    echo "limit: --hook expects the harness's JSON on stdin; nothing recorded." >&2
+    exit 0
+  fi
+  prompt="$(printf '%s' "$input" | jq -r '.prompt // ""')"
   # The one grant a session cannot forge: a word Henri typed himself.
   if [[ "$prompt" =~ ^[[:space:]]*sitting([[:space:]]+([0-9]+))?[[:space:]]*$ ]]; then
     limit="${BASH_REMATCH[2]:-$LIMIT_MIN}"

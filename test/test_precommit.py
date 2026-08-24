@@ -66,6 +66,44 @@ def test_install_check_uninstall_in_a_scratch_repository(tmp_path):
     assert not hook.exists()
 
 
+def _scratch(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / "tools").mkdir()
+    (tmp_path / "tools" / "pre-commit.sh").write_text(HOOK.read_text(encoding="utf-8"))
+    git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t",
+                                     *a], cwd=tmp_path, capture_output=True, text=True)
+    run = lambda: subprocess.run(["sh", "tools/pre-commit.sh"], cwd=tmp_path,
+                                 capture_output=True, text=True)
+    return git, run
+
+
+def test_a_staged_file_deleted_from_the_tree_is_refused(tmp_path):
+    """**The countermeasure for 2026-08-24's polluted commit.**  The dud
+    card was staged, then deleted from the working tree; the gates
+    checked the tree, the commit took the index.  Now the hook refuses
+    the case before it runs anything."""
+    git, run = _scratch(tmp_path)
+    (tmp_path / "dud.md").write_text("no because\n")
+    git("add", "dud.md")
+    (tmp_path / "dud.md").unlink()
+    r = run()
+    assert r.returncode == 1
+    assert "staged content differs" in r.stderr
+    assert "dud.md" in r.stderr
+
+
+def test_a_staged_file_edited_since_is_refused_too(tmp_path):
+    """The other direction of the same gap: the tree passed with the
+    edit, the commit would carry the version without it."""
+    git, run = _scratch(tmp_path)
+    (tmp_path / "card.md").write_text("first\n")
+    git("add", "card.md")
+    (tmp_path / "card.md").write_text("second\n")
+    r = run()
+    assert r.returncode == 1
+    assert "card.md" in r.stderr
+
+
 def test_somebody_elses_hook_is_not_overwritten(tmp_path):
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     (tmp_path / "tools").mkdir()

@@ -29,7 +29,7 @@
 # unexpected silently).
 #
 # **The ledger** is one tab-separated line per invocation —
-# epoch, seconds, exit, budget, command — appended to
+# epoch, seconds, exit, budget, cpu, command — appended to
 # `~/.local/state/tend/leash.log` (override: TEND_LEASH_LOG).  Outside
 # the repository because when the machine was busy is the machine's
 # business, not the tree's; plain because you must be able to read it
@@ -109,11 +109,27 @@ else
 fi
 end=$(date +%s)
 
+# **A load is a number.**  2026-08-24: a run of gestate's suite beside
+# cargo was believed heavy because it was real, and it was a minute of
+# near-idle.  So every line says what the invocation cost in CPU
+# seconds — `times` is the shell's own account of waited-for children,
+# written to a file because a pipe or `$( )` would fork and a fork's
+# account starts at zero.
+acct=$(mktemp 2>/dev/null || echo "")
+cpu="?"
+if [ -n "$acct" ]; then
+    times > "$acct"
+    cpu=$(tail -1 "$acct" | awk '{ split($1,u,"m"); split($2,s,"m");
+                                   printf "%.1f", u[1]*60+u[2]+s[1]*60+s[2] }')
+    rm -f "$acct"
+fi
+
 # Never fatal: a ledger that can take the work down with it is worse
 # than a gap in the ledger.
 { mkdir -p "$(dirname "$LOG")" &&
-  printf '%s\t%s\t%s\t%s\t%s\n' \
-      "$start" "$((end - start))" "$rc" "t=$t c=${c}% m=${m:--} $how" "$*" \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+      "$start" "$((end - start))" "$rc" "t=$t c=${c}% m=${m:--} $how" \
+      "cpu=${cpu}s" "$*" \
       >> "$LOG"; } 2>/dev/null || true
 
 [ "$rc" -eq 124 ] && echo "leash: the ${t}s budget is spent — a hang is a crash." >&2

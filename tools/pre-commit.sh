@@ -84,6 +84,34 @@ SHIM
 esac
 
 cd "$root"
+
+# **The tree the gates check must be the tree being committed.**  Found
+# 2026-08-24, the hook's first day: a refused commit left its staging
+# behind, the next `git add <files> && git commit` committed the whole
+# index — a because-less card included — and the gates passed it,
+# because the card had been deleted from the working tree they check.
+# The deliberate gap (working tree, not index) stays; what closes is
+# the case where the two are visibly not the same thing.  Cheap: one
+# `git diff --quiet` per staged path.
+drift=""
+for p in $(git diff --cached --name-only); do
+    if ! git diff --quiet -- "$p" 2>/dev/null; then
+        drift="$drift
+    $p"
+    fi
+done
+if [ -n "$drift" ]; then
+    cat >&2 <<MSG
+pre-commit: refused — staged content differs from the working tree the gates check:
+$drift
+
+  What would be committed is not what was just tested.  A refused commit
+  leaves its staging behind, and this is usually that: stage what you
+  mean (git add -A), or clear the rest (git reset), and commit again.
+MSG
+    exit 1
+fi
+
 if python3 tools/suite.py; then
     exit 0
 fi
