@@ -51,6 +51,13 @@ demonstration).
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
 
+## What the days taught
+
+One file per sitting that ended with a kaizen, in `doc/kaizen/`.  The
+first, 2026-08-24, is the day this board went from one test to a hook
+that had refused a commit — and the day a session remade gestate's
+`pgrep` bug an hour after reading about it.
+
 ## What this tree does not have yet
 
 What the audit lists, and each absence is now a card or a shelf
