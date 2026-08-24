@@ -32,7 +32,7 @@ axis is the wrong axis, and that a process's conditions shape its output
 — and the evidence for *that* is not here but on the board: the same day
 this was kept, a session with every tool and a clean floor remade a
 known bug twice, and the hook and the orphan test caught what the model
-did not (`doc/kaizen/2026-08-24-1727.md`).  This file is the thesis stated
+did not (`doc/kaizen/2026-08-24-1549.md`).  This file is the thesis stated
 by a stranger; the board is the proof.
 
 It addresses its successor.  That is whoever is reading

@@ -69,7 +69,10 @@ def test_the_next_session_lights_it_again(tmp_path):
     r.commit()
     out = r.lamp().stdout
     assert "1 commit(s) since the last kaizen" in out
-    assert "doc/kaizen/" in out, "it says what file to write"
+    began = subprocess.run(["git", "log", "-1", "--format=%cd", "--date=format:%F-%H%M"],
+                           cwd=r.at, capture_output=True, text=True).stdout.strip()
+    assert f"doc/kaizen/{began}.md" in out, \
+        "the file is named by when the session began — its first uncovered commit"
 
 
 def test_an_empty_repository_says_nothing(tmp_path):

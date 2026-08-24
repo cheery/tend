@@ -20,8 +20,13 @@
 # the last kaizen** — the newest commit that touched `doc/kaizen/` is
 # the last session that ended properly, and anything after it is work
 # no kaizen covers.  A file is named `doc/kaizen/<date>-<HHMM>.md` by
-# when the session ended it; a session that goes on after its kaizen
-# owes another, or appends, and either puts the lamp out.
+# **when the session began** — Henri, the same night: the end is fuzzy
+# (a session may go on after its kaizen), the start is a fact.  And
+# the start is read from the tree, not a clock: the first commit since
+# the last kaizen is when this session's work began, so the lamp can
+# say the file's name and two sessions cannot disagree about it.  A
+# session that goes on after its kaizen owes another, or appends, and
+# either puts the lamp out.
 #
 # **Andon, not refusal** — gestate's rule for its rules cap, carried:
 # it never changes an exit code.  A commit refused for a missing kaizen
@@ -43,15 +48,17 @@ esac
 
 last=$(git -C "$root" log -1 --format=%H -- doc/kaizen/ 2>/dev/null || true)
 if [ -n "$last" ]; then
-    n=$(git -C "$root" log --oneline "$last..HEAD" 2>/dev/null | wc -l | tr -d ' ')
+    range="$last..HEAD"
     since="since the last kaizen ($(git -C "$root" log -1 --format=%h -- doc/kaizen/))"
 else
-    n=$(git -C "$root" log --oneline 2>/dev/null | wc -l | tr -d ' ')
+    range="HEAD"
     since="and no kaizen yet"
 fi
-
+n=$(git -C "$root" log --oneline "$range" 2>/dev/null | wc -l | tr -d ' ')
 if [ "$n" -eq 0 ]; then
     exit 0
 fi
-echo "🔴 kaizen: $n commit(s) $since — the session is not over until doc/kaizen/$(date +%F-%H%M).md is written."
+# The session began at its first uncovered commit.
+began=$(git -C "$root" log --reverse --format=%cd --date=format:%F-%H%M "$range" 2>/dev/null | head -1)
+echo "🔴 kaizen: $n commit(s) $since — the session is not over until doc/kaizen/$began.md is written."
 exit 0

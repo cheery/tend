@@ -71,7 +71,7 @@ in scope when being wrong can be made visible by a check the worker
 cannot write to, and the blast radius of being wrong can be bounded
 from outside.  Where wrongness is visible only to a person's judgement,
 the mechanism is a cord, not a gate — and an environment for a purpose
-is the choice of how much of each.  `doc/kaizen/2026-08-24-1727.md`.
+is the choice of how much of each.  `doc/kaizen/2026-08-24-1549.md`.
 
 ## Tend as a working platform
 
