@@ -274,3 +274,29 @@ wearing a card forever: build the supervised, budgeted runner for one
 principal's invocations — for a session, that is the suite, `cargo` and
 the polling loops — visible in the andon.  Smallest slice, real caller;
 capabilities, nodes and pull bolt onto it later.
+
+## 2026-08-24 — the two cheap measurements are taken, and day one is built
+
+`doc/mediation-order.md` holds both: the incident count (2
+session-shaped, 0 program-shaped, with the observer caveat read both
+ways) and the vocabulary trial on paper (the node's three static nouns
+cannot spell *exec with inherited budget*, which is every line of the
+session's list; the session vocabulary covers the node's as a
+degenerate case).  The order question now has its evidence; the
+settlement stays Henri's.
+
+The day-one slice is `tools/leash.sh` with `test/test_leash.py`:
+wall-clock kill, cgroup CPU quota where a systemd user manager runs, a
+plain ledger at `~/.local/state/tend/leash.log`, and the ledger says
+`scope`/`plain` so a budget that did not apply is never silent.  First
+real line in the ledger is this tree's own suite.  Per
+`~/gestate/doc/memory/decisions-arrive-shaped.md` it is an experiment:
+keep or revert on whether a leashed suite run leaves the underrun
+counter quiet where 2026-08-18's unleashed one made it flare — not run
+yet, so the leash is tolerated, not owned.  "Visible in the andon"
+waits on `card:cords.md`, which is what the ledger-not-lamp shape is
+for now.
+
+The card stays open: the broker, the supervisor's Erlang half, nodes
+and pull are all still absent, and the mediation-order decision is
+still to be made — now on evidence instead of argument.
