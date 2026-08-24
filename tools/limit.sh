@@ -17,13 +17,15 @@
 # sitting is the person's, not a tree's — one desk, one clock, whichever
 # project the prompt lands in.
 #
-# **The move completes with one edit that is Henri's**, because hook
-# config is enforcement and enforcement edits are not a session's:
-# in ~/gestate/.claude/settings.json, point the UserPromptSubmit hook at
-#     /home/cheery/tend/tools/limit.sh --hook
-# after which gestate's copy is dead weight a gestate session may
-# delete.  Until then the gestate copy stands and this one is checked by
-# `test/test_limit.py` here.
+# **Gestate keeps its own copy, on purpose.**  Henri, 2026-08-24: *"I
+# think it's better to keep gestate's limit intact for now.  So that it
+# can be tried on different machines."*  Gestate travels as one piece;
+# tend's copy is the one that governs sessions *here*, installed in
+# this tree's .claude/settings.json the same day.  On a machine that
+# has both, the two hooks read one state file and one log — one desk,
+# one clock — so nothing is counted twice.  The copies are twins, not
+# a pointer and a home: a fix in one is owed to the other by hand, and
+# this header is where that debt is written down.
 #
 #     tools/limit.sh              how long this sitting has run, and what is left
 #     tools/limit.sh reset        start a new sitting (refused inside a session)
