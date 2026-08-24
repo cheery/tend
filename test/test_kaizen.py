@@ -10,8 +10,10 @@ several sessions in a day."*  So the measure is commits since the last
 kaizen, which is what these check.
 """
 
+import os
 import pathlib
 import subprocess
+import time
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LAMP = ROOT / "tools" / "kaizen.sh"
@@ -38,8 +40,40 @@ class Repo:
         self.commit("doc/kaizen")
 
     def lamp(self, *args):
-        return subprocess.run(["sh", "tools/kaizen.sh", *args], cwd=self.at,
+        env = dict(os.environ, TEND_KAIZEN_WANT=str(self.at / "wanted"))
+        return subprocess.run(["sh", "tools/kaizen.sh", *args], cwd=self.at, env=env,
                               capture_output=True, text=True, input="{}")
+
+
+def test_a_session_may_say_it_wants_one(tmp_path):
+    """**Henri, 2026-08-24:** *"you should have a way to tell when you
+    want another kaizen."*  Not a judgement about owing one — a
+    declaration, with a reason, and the lamp carries the reason."""
+    r = Repo(tmp_path)
+    r.commit(); r.kaizen()                       # nothing uncovered
+    assert r.lamp().stdout == ""
+    assert r.lamp("want", "the leash design changed under me").returncode == 0
+    out = r.lamp().stdout
+    assert "kaizen wanted" in out
+    assert "the leash design changed under me" in out
+    assert "the sitting is not over" in out
+
+
+def test_a_want_is_answered_by_the_next_kaizen(tmp_path):
+    r = Repo(tmp_path)
+    r.commit(); r.kaizen()
+    r.lamp("want", "something to say")
+    time.sleep(1.1)                               # commit time is whole seconds
+    r.kaizen()
+    assert r.lamp().stdout == ""
+    assert not (r.at / "wanted").exists(), "and forgotten, not just muted"
+
+
+def test_a_want_needs_a_reason(tmp_path):
+    r = Repo(tmp_path)
+    out = r.lamp("want")
+    assert out.returncode == 2
+    assert "say why" in out.stderr
 
 
 def test_it_parses():
