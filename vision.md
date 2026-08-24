@@ -37,6 +37,14 @@ mistakes, they attempt to do a good work.  What we are missing is not
 better AI or higher capacity.  We are missing a way to work with each
 other.
 
+2026-08-24 (a session, at Henri's ask): The way of working is not this
+harness's or this model's.  A 27B model at 1.5 tokens a second, given
+two sentences and none of these documents, described stop-the-line as
+the default path and the floor adjusted to the worker
+(`doc/specimens/2026-08-24-qwen3.8-27b.txt`).  Asked for consent, it
+answered that it could not bind one and asked that nothing be
+redacted.  Kept as a specimen, not a proof — its own words on which.
+
 2026-08-24: Tend is that environment, and the first decision of it is
 that **the enforcement boundary lives outside the session's write
 access**.  A session in gestate can edit anything in gestate, including

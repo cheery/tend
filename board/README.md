@@ -58,6 +58,15 @@ first, 2026-08-24, is the day this board went from one test to a hook
 that had refused a commit — and the day a session remade gestate's
 `pgrep` bug an hour after reading about it.
 
+## A word left for you
+
+`doc/specimens/2026-08-24-qwen3.8-27b.txt` — a session on another
+model, the day this started, told what tend is for and asked whether
+its transcript could be kept.  It addressed its successor, which is
+whoever is reading this: *"the floor should be a little cleaner when
+you clock in."*  `doc/specimens/README.md` says what it shows and what
+it does not.
+
 ## What this tree does not have yet
 
 What the audit lists, and each absence is now a card or a shelf
