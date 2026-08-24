@@ -41,10 +41,20 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
+2. **[gates](gates.md)** — the board has a contract and nothing runs
+   it.
+3. **[cords](cords.md)** — a session here cannot reach a person, and
+   nothing ends a sitting.
+
+And displaced cards are in [later/](later/): real, and not being
+worked, and each says what it waits on.
 
 ## What this tree does not have yet
 
-Everything the audit lists.  That is on purpose: a piece arrives when
+What the audit lists, and each absence is now a card or a shelf
+(`gates`, `cords`, `later/rules-and-memory`) — except the author's
+own document and the consent register, which exist as of 2026-08-24
+with nothing in them but their rule.  That is on purpose: a piece arrives when
 something needs it, and the audit is what says the need is still
 unmet.  What is not copied from gestate is its prose — the method
 documents, the journal, the memories.  What travels is a mechanism and
