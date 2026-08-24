@@ -53,10 +53,15 @@ worked, and each says what it waits on.
 
 ## What the days taught
 
-One file per sitting that ended with a kaizen, in `doc/kaizen/`.  The
-first, 2026-08-24, is the day this board went from one test to a hook
-that had refused a commit — and the day a session remade gestate's
-`pgrep` bug an hour after reading about it.
+**Every session ends with a kaizen** — Henri, 2026-08-24: *"it's big
+thing to do after each session"* — one file per day in `doc/kaizen/`:
+what went right and why, what went wrong named as whose, what should
+change tomorrow.  It is not done when told; it is how a sitting ends.
+`tools/kaizen.sh` is the lamp that says today's is missing, at every
+commit and (as a hook) at every prompt.  The first, 2026-08-24, is the
+day this board went from one test to a hook that had refused a commit
+— and the day a session remade gestate's `pgrep` bug an hour after
+reading about it, and had to be told to write this.
 
 ## A word left for you
 

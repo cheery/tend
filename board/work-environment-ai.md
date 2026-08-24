@@ -339,8 +339,12 @@ it reach* rather than *did it flare*.
 **And a constraint on the vocabulary, from Henri's kaizen the same
 evening** (`doc/kaizen/2026-08-24.md`): *anything mechanically
 error-correctible is in domain*, so the reach table must not be
-programming-shaped.  A leash that knows `cargo` and `pytest` and
-nothing else would encode the first domain's accidents as the
-environment's vocabulary.  When the table is written from what a real
-run complains about, the runs should include something that is not a
-suite.
+programming-shaped in what it *covers*.  A leash that knows `cargo`
+and `pytest` and nothing else would encode the first domain's accidents
+as the environment's vocabulary.  When the table is written from what
+a real run complains about, the runs should include something that is
+not a suite.  Henri's correction the same night: *"in some sense it
+needs to be programming a bit"* — programming stays the medium; the
+table is written and read by programs and a session programs the
+environment it works in.  What must not be programming-shaped is the
+set of things it can say, not the way it says them.

@@ -113,6 +113,9 @@ MSG
 fi
 
 if python3 tools/suite.py; then
+    # The lamp, lit where somebody is already standing.  Never changes
+    # the exit code — `tools/kaizen.sh` says why.
+    sh tools/kaizen.sh || true
     exit 0
 fi
 
