@@ -1,6 +1,6 @@
 # gates — the board has a contract and nothing runs it
 
-    status   open
+    status   done — 2026-08-24
     because  `test/test_board.py` refuses a malformed card, and nothing
              runs it unless somebody remembers — a rule with no gate is
              a wish, and this tree's first day already has one wish
@@ -30,3 +30,25 @@ Three things, in order, each small:
 A commit with a card missing its `because`, refused at the hook.  Until
 that has happened once here, this is a practice tend is tolerating on
 gestate's say-so.
+
+## Done, 2026-08-24, all three and the demonstration
+
+1. `tools/suite.py` — runs everything under `test/` and says so; no
+   page, on purpose, until a slow test exists to need one.
+2. `tools/pre-commit.sh` — gestate's shape, marker `tend:`, installed
+   here by `tools/toolbox.sh` and checked by `test/test_precommit.py`
+   (which is why a fresh clone is red until toolbox runs — that is the
+   finding, not a broken test).
+3. `test/test_rules.py` — the boot surface's gate: `AGENTS.md` and
+   `CLAUDE.md`, one line each, pointing at `board/README.md`, agreeing
+   with each other.  It wears the audit's declared name so
+   `~/gestate/tools/seedaudit.py` finds it.
+
+**And the demonstration happened.**  `board/demonstration-dud.md` — a
+card with `status` and `asked` and no `because` — was staged and
+committed; the hook ran the suite, two gates named it
+(`test_every_card_says_why_it_exists[demonstration-dud]` and the
+priority check, which also caught that the card was unplaced), and the
+commit was refused with HEAD unmoved.  The dud was then deleted; it
+never reached the tree.  The practice is no longer tolerated on
+gestate's say-so — it has caught something here.

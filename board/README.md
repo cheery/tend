@@ -41,10 +41,12 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[gates](gates.md)** — the board has a contract and nothing runs
-   it.
-3. **[cords](cords.md)** — a session here cannot reach a person, and
+2. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
+
+`gates` finished 2026-08-24, the day it was opened — the hook is
+installed, and it has refused a commit once (`done/gates.md` has the
+demonstration).
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
@@ -52,7 +54,8 @@ worked, and each says what it waits on.
 ## What this tree does not have yet
 
 What the audit lists, and each absence is now a card or a shelf
-(`gates`, `cords`, `later/rules-and-memory`) — except the author's
+(`cords`, `later/rules-and-memory`; `gates` was one until 2026-08-24)
+— except the author's
 own document and the consent register, which exist as of 2026-08-24
 with nothing in them but their rule.  That is on purpose: a piece arrives when
 something needs it, and the audit is what says the need is still
