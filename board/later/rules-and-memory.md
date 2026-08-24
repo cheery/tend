@@ -7,9 +7,14 @@
              has had to carry across
     asked    Henri, 2026-08-24 — "add the needed cards so that the
              absent work is completed"
-    blocked  an event — the first rule that has to be found in a
-             document, or the first fact a session writes down for the
-             next one
+    blocked  Henri's rule, 2026-08-24, after the memory half's first
+             event arrived: it stays shelved "until there are rules as
+             well, or when there are more than 5 memories that could
+             live in tend" — either the rules half gets its event (a
+             rule that has to be found in a document), or the count of
+             tree-facts a session has had to carry passes five.  Count
+             so far: 0 (the one written was about the person and stays
+             private)
     see      ~/gestate/spec/rules.md, ~/gestate/doc/memory/README.md —
              the shapes, when the event arrives
              ~/gestate/tools/memoryindex.py — the boot index generated
@@ -34,8 +39,12 @@ this repository, which is the memory split's rule applied by hand
 before the piece exists: what is known about a person is not
 automatically the tree's.
 
-So the memory half is now unshelvable at Henri's word — the tiebreak is
-his — and the shape it needs is already known: a `doc/memory/` for the
+The shape it will need is already known: a `doc/memory/` for the
 tree's facts, a gate that refuses a person's facts landing there, and
-the private half staying where it is.  The rules half still has no
-event.
+the private half staying where it is.  **Henri's call the same day:
+not yet.**  One fact about a person is not volume, and the threshold is
+in the `blocked` line — the rules half's event, or more than five
+tree-facts.  A session that finds itself carrying a tree-fact for the
+next session adds it to the count there, with a line saying what the
+fact was; when the count passes five the card comes off the shelf with
+the list as its evidence.
