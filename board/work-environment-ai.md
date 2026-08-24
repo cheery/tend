@@ -300,3 +300,38 @@ for now.
 The card stays open: the broker, the supervisor's Erlang half, nodes
 and pull are all still absent, and the mediation-order decision is
 still to be made — now on evidence instead of argument.
+
+## 2026-08-24, later — the leash is one dial, held by two hands
+
+Henri, the same afternoon, on who the leash is for:
+
+> Caller of leash could be all parties.  Sessions, and people.
+> Sessions want that the working environment limits how far things
+> break if something goes terribly wrong, people want safety for their
+> files and work.  I think that leash should be adjustable, based on
+> how far the session must reach.
+
+And on who adjusts it:
+
+> Leash could be adjustable by both parties, such that user's leash
+> bounds it.  Bit like a safety harness but also a constraint.  Yeah,
+> no vocabulary yet.
+
+**Read by the session as:** budget (*how much*) and grant (*how far*)
+are one dial, reach; the person sets an outer bound and a session may
+tighten inside it and never loosen past it — the sitting limit's
+asymmetry again, applied to reach.  Both parties are callers of the
+same mechanism for different reasons: bounded blast radius for the
+session, files outside the radius for the person.  **No vocabulary
+yet** is the instruction: the reach table gets written from what a
+real run under bwrap complains about, not designed first.
+
+**The experiment ran, and could not be scored.**
+`doc/experiments/2026-08-24-flare.md`: five loads, none made the card
+run dry; the 2026-08-18 case no longer happens on demand, because the
+suite is a minute now and not twenty-five.  What the day did buy: the
+budget measurably binds (30.8 CPU-seconds free, 10.1 under `-c 100`),
+and the kill now takes the orphans too — found on the run's doorstep,
+which is the polling-shell shape of the incident.  The leash stays
+tolerated, not owned, and its criterion is now Henri's *how far would
+it reach* rather than *did it flare*.

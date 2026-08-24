@@ -80,5 +80,8 @@ found missing.  Per `~/gestate/doc/memory/decisions-arrive-shaped.md`
 this is an experiment, not a decision: the keep-or-revert question is
 whether it catches the 2026-08-18 case — a suite run under the leash
 while the machine plays audio should leave the underrun counter quiet
-where the unleashed run made it flare.  That comparison has not been
-run yet; until it has, the leash is tolerated, not owned.
+where the unleashed run made it flare.  That comparison was run the
+same afternoon and could not be scored — no load made the card run dry;
+`doc/experiments/2026-08-24-flare.md` has the table.  The leash is
+tolerated, not owned, on the criterion Henri set instead: how far would
+it reach.

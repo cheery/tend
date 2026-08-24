@@ -15,6 +15,8 @@ import pathlib
 import subprocess
 import time
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LEASH = ROOT / "tools" / "leash.sh"
 
@@ -53,6 +55,28 @@ def test_a_hang_is_a_crash(tmp_path):
     assert r.returncode == 124
     assert took < 20, f"the kill itself hung ({took:.0f}s)"
     assert "budget is spent" in r.stderr
+
+
+def test_the_kill_takes_the_orphans_too(tmp_path):
+    """**Found on the first real run's doorstep**, 2026-08-24: `timeout`
+    signals only the process it started.  A `suite.py` killed at its
+    budget would leave the fenced pytest it spawned running on, which is
+    the polling-shells shape of the very incident the leash is for.  In
+    scope mode the stop reaps the cgroup; this spawns a detached sleeper
+    with a marker nobody else uses and checks it did not survive."""
+    marker = "31415926"
+    r = leash(tmp_path, "-t", "1", "--", "sh", "-c",
+              f"sleep {marker} & sleep 300")
+    assert r.returncode == 124
+    how = lines(tmp_path)[0][3].split()[-1]
+    if how != "scope":
+        pytest.skip("no systemd user manager here; plain mode has this gap and says so")
+    time.sleep(0.5)
+    left = subprocess.run(["pgrep", "-f", f"[s]leep {marker}"],
+                          capture_output=True, text=True).stdout.split()
+    for pid in left:
+        subprocess.run(["kill", pid])
+    assert not left, f"the orphan outlived the leash: pids {left}"
 
 
 def test_every_invocation_leaves_one_ledger_line(tmp_path):

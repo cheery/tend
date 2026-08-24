@@ -84,14 +84,27 @@ fi
 start=$(date +%s)
 rc=0
 if [ "$how" = "scope" ]; then
+    # **The kill takes the whole scope, not the direct child.**  Found
+    # while planning the first real run, 2026-08-24: `timeout` signals
+    # only the process it started, so a killed `suite.py` would have
+    # left its fenced pytest running on — an orphan, which is the
+    # twelve-polling-shells shape of the incident this exists for.  A
+    # scope is a cgroup, so stopping the unit reaps everything in it.
+    unit="tend-leash-$$-$start"
     if [ -n "$m" ]; then
-        systemd-run --user --scope -q -p "CPUQuota=${c}%" -p "MemoryMax=$m" \
+        systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
+            -p "CPUQuota=${c}%" -p "MemoryMax=$m" \
             timeout -k 10 "$t" "$@" || rc=$?
     else
-        systemd-run --user --scope -q -p "CPUQuota=${c}%" \
+        systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
+            -p "CPUQuota=${c}%" \
             timeout -k 10 "$t" "$@" || rc=$?
     fi
+    systemctl --user stop "$unit.scope" >/dev/null 2>&1 || true
 else
+    # Plain mode kills only the direct child — an orphan a command
+    # leaves behind outlives its budget here.  The ledger's `plain` is
+    # what says this gap was in force.
     nice -n 10 timeout -k 10 "$t" "$@" || rc=$?
 fi
 end=$(date +%s)
