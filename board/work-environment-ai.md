@@ -335,3 +335,12 @@ and the kill now takes the orphans too — found on the run's doorstep,
 which is the polling-shell shape of the incident.  The leash stays
 tolerated, not owned, and its criterion is now Henri's *how far would
 it reach* rather than *did it flare*.
+
+**And a constraint on the vocabulary, from Henri's kaizen the same
+evening** (`doc/kaizen/2026-08-24.md`): *anything mechanically
+error-correctible is in domain*, so the reach table must not be
+programming-shaped.  A leash that knows `cargo` and `pytest` and
+nothing else would encode the first domain's accidents as the
+environment's vocabulary.  When the table is written from what a real
+run complains about, the runs should include something that is not a
+suite.

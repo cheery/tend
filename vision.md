@@ -63,6 +63,16 @@ person leading it.
 2026-08-24 (gestate, 2026-08-20): lets be slow and clever, and not rush
 so that we have time to figure things out, like tortoise fox.
 
+2026-08-24 (Henri, his kaizen at the end of the first day; placed
+here by a session at his ask): "Previously I thought this framing could
+be only applied to programming.  Now I know that anything mechanically
+error-correctible is in domain."  The test is operational: a domain is
+in scope when being wrong can be made visible by a check the worker
+cannot write to, and the blast radius of being wrong can be bounded
+from outside.  Where wrongness is visible only to a person's judgement,
+the mechanism is a cord, not a gate — and an environment for a purpose
+is the choice of how much of each.  `doc/kaizen/2026-08-24.md`.
+
 ## Tend as a working platform
 
 2026-08-24: Tend is designed for the use of AI — *"tekoälyn käyttöön
