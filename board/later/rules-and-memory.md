@@ -23,3 +23,19 @@ there warned against exactly this: *a seed audit assembled from what
 this tree happens to have would encode gestate's accidents as
 requirements.*  Two of the ten are needs that arrive with volume.
 When they do, this card comes off the shelf with the event written in.
+
+## The memory half's event arrived, 2026-08-24
+
+The first fact a session wrote down for the next one — and it is about
+the person, not the tree: Henri asked for something he said about
+himself to be remembered, *"private for now since we don't have memory
+system yet."*  It went into the session's own memory directory, outside
+this repository, which is the memory split's rule applied by hand
+before the piece exists: what is known about a person is not
+automatically the tree's.
+
+So the memory half is now unshelvable at Henri's word — the tiebreak is
+his — and the shape it needs is already known: a `doc/memory/` for the
+tree's facts, a gate that refuses a person's facts landing there, and
+the private half staying where it is.  The rules half still has no
+event.
