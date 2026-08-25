@@ -171,3 +171,22 @@ directory must pass through any fence here, or the sitting limit and
 the lamp are off inside it.  When this half is built, that bind comes
 first, and `--check` proves the clock is the host's before it proves
 `~/.ssh` is gone.
+
+## 2026-08-25, evening — the blast-radius half, built; the install is Henri's
+
+`tools/sandbox.sh` — the sessions-first fence of
+`doc/experiments/2026-08-25-both.md`, promoted: nine rows (`--rows`),
+five on by default, four off until asked; `--check` proves the sitting
+clock is the host's before it proves `~/.ssh` is gone, and grades the
+escape from outside.  `tools/fence-hook.sh` — gestate's hook inverted:
+every `Bash` call wrapped, a `REACH=row` request granted only inside
+`TEND_REACH_ALLOW`, which lives in the hook's own settings line and is
+Henri's bound; refused with a reason, never narrowed silently; no
+`NOFENCE`.  `test/test_sandbox.py`, `test/test_fence_hook.py` — the
+quoting round-trip is checked by running the rewritten command.
+`~/hook-installer.sh` is his, and inert until the hook existed.
+
+**Still owed**: the demonstration, in the manifesto's sense, for both
+halves — and for this one it has a date: the first sitting of
+ordinary work under the hook, counting what broke.  The card stays
+open until that sitting is written.

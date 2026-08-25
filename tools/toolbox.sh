@@ -59,6 +59,7 @@ need python3  "the suite and every tool under tools/ run on it"
 need sh       "the hooks and this script"
 need jq       "tools/limit.sh reads the hook's stdin with it, and tools/fence.sh reads the deny-list"
 need timeout  "a hang is a crash only if something enforces it (tools/leash.sh)" "coreutils"
+need bwrap    "tools/sandbox.sh is the fence; with tools/fence-hook.sh installed every shell command runs inside it" "bubblewrap"
 if python3 -m pytest --version >/dev/null 2>&1; then
     echo "  ✓ pytest"
 else

@@ -425,3 +425,11 @@ ran under a fence the session wrote: the order question is now *which
 principal gets a caller outside the session's write access first*,
 and for sessions that caller is a hook, which is Henri's to install.
 The record states what kills each; the reading is the session's.
+
+**The hook is built** (`tools/sandbox.sh`, `tools/fence-hook.sh`, the
+same evening) — the first caller outside the session's write access,
+and installing it is Henri's, with `~/hook-installer.sh`.  The
+mediation-order decision is therefore being taken by trial, not on
+paper: sessions first, because that is the principal that had a
+caller today; programs follow under the same fence with fewer rows
+when `cords` brings the andon here.  Reversible in one settings line.
