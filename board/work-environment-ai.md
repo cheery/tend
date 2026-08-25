@@ -433,3 +433,11 @@ mediation-order decision is therefore being taken by trial, not on
 paper: sessions first, because that is the principal that had a
 caller today; programs follow under the same fence with fewer rows
 when `cords` brings the andon here.  Reversible in one settings line.
+
+**2026-08-25, evening — the incident count moves to 5–0**, and the
+leash has its first outside user: a gestate session, asked by Henri
+whether it wanted tend's leash, named three session-shaped incidents
+of its own that day and adopted the leash as shell discipline for the
+ledger's sake (`doc/mediation-order.md` §"2026-08-25").  Its request
+for the non-decorative version — a hook that wraps long runs, Henri's
+to install — is `card:grant.md`, which now cites it as the caller.

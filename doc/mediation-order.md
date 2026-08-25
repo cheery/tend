@@ -85,3 +85,30 @@ same afternoon and could not be scored — no load made the card run dry;
 `doc/experiments/2026-08-24-flare.md` has the table.  The leash is
 tolerated, not owned, on the criterion Henri set instead: how far would
 it reach.
+
+## 2026-08-25 — three more, all session-shaped, from the leash's first outside user
+
+Relayed by Henri the same evening, from a gestate session asked
+whether it wanted tend's leash: *"The caller is today, three times,
+and all three were mine.  A `timeout 900` that killed a 25-minute
+measurement and reported nothing; a killed suite whose fenced `pytest`
+survived as an orphan and quietly ate the machine for half an hour;
+and readings taken under that load which I then wrote into a doc page
+as a correction.  Not one of those is reachable by a gate — they
+happened in my shell, not in the tree."*
+
+**Session-shaped, measured: 5.  Program-shaped: 0.**  The count's
+order does not move; its weight does.  And the observer caveat now
+cuts the other way for the first time: the orphan was *found* because
+the session went looking with `ps` and a guess, which is the
+reconstruction `tools/leash.sh`'s ledger exists to make unnecessary.
+The session's own reading: *"What makes it worth adopting anyway is
+not the restraint — it is the ledger."*
+
+What it chose: the leash as shell discipline, not wired into gestate's
+tree (`~/gestate/vision.md`: nothing tied to a machine, so nothing in
+`tools/` may shell out to `~/tend`); a copy with a header later if it
+earns one, as the sitting limit did.  And the version that is not
+decoration — a hook that wraps long runs — it named as Henri's to
+install, for the reason `card:cords.md` records.  That hook is
+`card:grant.md`, and this is its caller.

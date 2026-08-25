@@ -8,7 +8,11 @@
              which is the half of 2026-08-18 the fence does not cover
     asked    Henri, 2026-08-25 — "Put those three on the board as cards.
              They are excellent waypoints."  The second of the three
-    see      card:work-environment-ai.md §"2026-08-24, later" — Henri:
+    see      doc/mediation-order.md §"2026-08-25" — the caller: three
+             session-shaped incidents in gestate the day this was carded,
+             an orphaned pytest among them, reported by the session that
+             caused them when asked if it wanted the leash
+             card:work-environment-ai.md §"2026-08-24, later" — Henri:
              "budget (how much) and grant (how far) are one dial"; this
              card is that sentence becoming a mechanism
              tools/leash.sh, tools/sandbox.sh — the two dials as they
