@@ -190,3 +190,29 @@ quoting round-trip is checked by running the rewritten command.
 halves — and for this one it has a date: the first sitting of
 ordinary work under the hook, counting what broke.  The card stays
 open until that sitting is written.
+
+## 2026-08-25, 07:14 — installed, and the demonstration happened within the hour
+
+Henri ran `~/hook-installer.sh`.  The first command under the hook ran
+**unfenced**: it contained `sh -n tools/sandbox.sh`, and the hook's
+first version skipped any command *containing* the fence's name.  The
+probes in that same command then went through, and the session's
+"restore from HEAD" removed Henri's hook line, because the settings
+commit had been refused by the gate a minute earlier and HEAD did not
+have it.  Two findings, one mistake, all the session's; the hook now
+passes through exactly `tools/sandbox.sh --check` and `--rows` and
+nothing else, with tests for the five shapes that must not escape.
+
+**And the demonstration** — *this is what it caught, that had gone
+through*: `tools/sandbox.sh` now binds `.claude/` read-only over the
+tree, and from inside the fence the morning's two open routes fail —
+`python3 -c`: *Read-only file system*; `mv`: refused; `touch`: refused.
+`test_sandbox.py::test_the_restraints_are_read_only_inside` holds it.
+A session's shell can no longer edit its own restraints, which is the
+sentence the audit calls this piece by.  What is still open: the
+harness's own edit tools are the deny-list's job, not the fence's; the
+fence's own tests skip at the gate (the gate runs inside it); and the
+rows a session may ask for are none until Henri sets
+`TEND_REACH_ALLOW` on the hook's line.  The blast-radius half is built
+and the card stays open for one more thing: a sitting of ordinary work
+under it with the hole closed, counted.

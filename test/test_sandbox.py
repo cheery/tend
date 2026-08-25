@@ -22,8 +22,13 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FENCE = ROOT / "tools" / "sandbox.sh"
 
-needs_bwrap = pytest.mark.skipif(shutil.which("bwrap") is None,
-                                 reason="no bubblewrap here — there is no fence to test")
+#: Inside the fence these skip, and the pre-commit gate now runs inside
+#: the fence, so at a commit the fence's own tests do not run.  They run
+#: when the suite is run by a person outside, and `--check` is what a
+#: person runs to see the fence is up.  Skipped, named, not hidden.
+needs_bwrap = pytest.mark.skipif(
+    shutil.which("bwrap") is None or os.environ.get("TEND_FENCED") == "1",
+    reason="no bubblewrap here, or already inside the fence — it cannot nest")
 
 
 def sandbox(*args, **kw):
@@ -65,6 +70,23 @@ def test_inside_is_marked_and_cannot_nest():
     assert out.stdout.strip() == "1"
     nested = sandbox("sh", str(FENCE), "true")
     assert nested.returncode == 3 and "cannot nest" in nested.stderr
+
+
+@needs_bwrap
+def test_the_restraints_are_read_only_inside():
+    """`board/fence.md`'s measurement: from a tend session, `python3 -c`
+    rewrote `.claude/settings.json` and `mv` made it vanish.  Inside the
+    fence the tree is the world — except this directory.  This is the
+    demonstration the card owed: what it caught, that had gone through."""
+    settings = ROOT / ".claude" / "settings.json"
+    before = settings.read_bytes()
+    out = sandbox("sh", "-c",
+                  f"python3 -c \"open('{settings}', 'a').write('x')\" 2>&1; "
+                  f"mv '{settings}' '{settings}.away' 2>&1; touch '{settings}.probe' 2>&1")
+    assert settings.read_bytes() == before
+    assert not settings.with_suffix(".json.away").exists()
+    assert not settings.with_suffix(".json.probe").exists()
+    assert out.stdout.count("Read-only file system") + out.stdout.count("Kirjoitussuojattu") >= 3, out.stdout
 
 
 @needs_bwrap

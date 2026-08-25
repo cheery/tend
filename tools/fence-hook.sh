@@ -43,9 +43,18 @@ allow="${TEND_REACH_ALLOW:-}"
 payload="$(cat)"
 cmd="$(printf '%s' "$payload" | jq -r '.tool_input.command // ""')"
 
-case "$cmd" in
-  ""|*tools/sandbox.sh*) exit 0 ;;
-esac
+# Only the fence's own two read-only forms pass through, and only when
+# the command is exactly one of them: `--check` must run outside to grade
+# the escape, and `--rows` is a listing.  The first version skipped any
+# command *containing* `tools/sandbox.sh` — and the first command a
+# session ran under the hook, `sh -n tools/sandbox.sh; ...probes...`, ran
+# unfenced through it (doc/kaizen/2026-08-25-0714.md).  Anything else
+# that names the fence is wrapped like everything else, and nests, and
+# fails out loud.
+[[ -z $cmd ]] && exit 0
+if [[ $cmd =~ ^[[:space:]]*([^[:space:]]*/)?tools/sandbox\.sh[[:space:]]+(--check|--rows)[[:space:]]*$ ]]; then
+  exit 0
+fi
 
 # The request: a leading `REACH=row,row `.
 reach=""

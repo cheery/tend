@@ -93,6 +93,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib64 /lib64 --symlink usr/sbin /sbin
   --ro-bind /etc /etc --proc /proc --dev /dev --tmpfs /tmp --tmpfs $HOME
   --bind $root $root --chdir $root
+  --ro-bind $root/.claude $root/.claude
   --bind $HOME/.local/state $HOME/.local/state
   --dir $rt --bind-try $rt/gestate-sitting-$uid $rt/gestate-sitting-$uid
   --ro-bind-try $HOME/.gitconfig $HOME/.gitconfig

@@ -10,6 +10,7 @@ and only running the result shows that.
 """
 
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -19,8 +20,9 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOK = ROOT / "tools" / "fence-hook.sh"
 
-needs_bwrap = pytest.mark.skipif(shutil.which("bwrap") is None,
-                                 reason="no bubblewrap here — the rewritten command cannot run")
+needs_bwrap = pytest.mark.skipif(
+    shutil.which("bwrap") is None or os.environ.get("TEND_FENCED") == "1",
+    reason="no bubblewrap here, or already inside the fence — the rewritten command cannot run")
 
 
 def hook(command, allow=None):
@@ -46,9 +48,26 @@ def test_an_empty_command_passes_through():
     assert hook("") is None
 
 
-def test_a_command_already_under_the_fence_passes_through():
+def test_only_the_fences_two_read_only_forms_pass_through():
     assert hook("tools/sandbox.sh --check") is None
-    assert hook(f"{ROOT}/tools/sandbox.sh bash -c 'ls'") is None
+    assert hook(f"  {ROOT}/tools/sandbox.sh --rows ") is None
+
+
+@pytest.mark.parametrize("command", [
+    "sh -n tools/sandbox.sh; cat .claude/settings.json",
+    "tools/sandbox.sh --check; ls",
+    "tools/sandbox.sh --reach net,audio bash -c 'curl example.com'",
+    f"{ROOT}/tools/sandbox.sh bash -c 'ls'",
+    "echo tools/sandbox.sh",
+])
+def test_merely_naming_the_fence_does_not_escape_it(command):
+    """The first command a session ran under the hook, on 2026-08-25, was
+    `sh -n tools/sandbox.sh; ...` and it ran unfenced, because the first
+    version skipped anything *containing* the fence's name.  A session
+    choosing its own rows by calling the fence directly is the same hole
+    from the other side.  All of these are wrapped; the ones that then
+    nest fail out loud, which is the right failure."""
+    assert rewritten(command).startswith(f"{ROOT}/tools/sandbox.sh bash -c ")
 
 
 def test_everything_else_is_wrapped():
