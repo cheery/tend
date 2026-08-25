@@ -116,6 +116,9 @@ two are on no card.
 
 ## What this document is not
 
+*Self-shaped until Henri reads it — the rule below binds sessions and a
+session drafted it (`doc/kaizen/2026-08-24-1758.md`, item 1).*
+
 It is not the architecture — that is in `board/work-environment-ai.md`
 and is marked suspected there.  It is not a promise that all sixteen
 will be built; `vision.md` says ease of use wins when the platform
