@@ -57,7 +57,7 @@ echo "  required"
 need git      "the tree is a repository and the gates hang off its hooks"
 need python3  "the suite and every tool under tools/ run on it"
 need sh       "the hooks and this script"
-need jq       "tools/limit.sh reads the hook's stdin with it"
+need jq       "tools/limit.sh reads the hook's stdin with it, and tools/fence.sh reads the deny-list"
 need timeout  "a hang is a crash only if something enforces it (tools/leash.sh)" "coreutils"
 if python3 -m pytest --version >/dev/null 2>&1; then
     echo "  ✓ pytest"
@@ -74,6 +74,17 @@ else
     echo "  · systemd user manager — absent; tools/leash.sh degrades to nice + timeout"
 fi
 want bash "tools/limit.sh needs it only when installed as a hook"
+
+echo
+echo "  the fence"
+if sh "$root/tools/fence.sh" >/dev/null 2>&1; then
+    echo "  ✓ .claude/settings.json — the deny-list and the hooks are in force"
+else
+    echo "  ✗ the fence is down — tools/fence.sh says which line; the settings"
+    echo "    file is not this script's to edit (hook config is enforcement, and"
+    echo "    the edit is the person's — test/test_fence.py has the jq)"
+    missing=1
+fi
 
 echo
 if $check_only; then

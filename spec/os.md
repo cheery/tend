@@ -5,7 +5,9 @@ tree 2026-08-25 at his ask — "so that we have more clear idea of what
 we're striving for."  His words are the Finnish and the first line, kept
 verbatim; the English beside each is a session's rendering and is his
 to correct.  Until now the list lived only outside the tree and as one
-paraphrasing sentence in `board/work-environment-ai.md`.*
+paraphrasing sentence in `board/work-environment-ai.md`.  Read and
+approved by Henri, 2026-08-25 — the renderings and the rule at the
+foot, which a session drafted, are his from that date.*
 
 *This is a property sheet, not a vision and not a card.  A line in
 `vision.md` has already decided something; a card names a problem; a
@@ -115,9 +117,6 @@ pocket as a latency optimisation, not as the state model); the first
 two are on no card.
 
 ## What this document is not
-
-*Self-shaped until Henri reads it — the rule below binds sessions and a
-session drafted it (`doc/kaizen/2026-08-24-1758.md`, item 1).*
 
 It is not the architecture — that is in `board/work-environment-ai.md`
 and is marked suspected there.  It is not a promise that all sixteen
