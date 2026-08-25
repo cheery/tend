@@ -168,3 +168,32 @@ node *run through* keep (`keep --allow <the node's dir> -- node.py`), so
 the real program gains the boundary, the grant still outside it.  That,
 and write-scoping, are what remain before this problem is more than
 demonstrated.
+
+## 2026-08-25, later — the next slice: the pull node runs through keep
+
+Henri: *"do the next slice."*  The first real program now gains the
+boundary, the grant still outside it:
+
+    keep --allow node --allow <statedir> -- /usr/bin/python3 node/node.py --state <statedir>/n.state run
+
+Handed its own code (`node/`) and a state directory and nothing else,
+the node opens, runs and stops itself — and writes its state, because
+keep governs *reads* and the fence allows the write.  From that same
+grant, `cat board/README.md` and the leash ledger are both *Lupa evätty*.
+`test_keep.py::test_the_pull_node_runs_confined_under_keep` holds it.
+
+**The node itself did not change** — 86 lines, no ctypes, no vocabulary.
+The boundary is composed around it the way the leash and the fence are
+(`leash → sandbox → keep → program`), which is the whole reason shape A
+was chosen: the program cannot bound itself, so something outside it
+does.  The state-directory exposure the card named — the node beside the
+ledger and the sitting clock — is closed for the node that asks to be
+run this way.
+
+**What is still open**, narrowed: keep governs reads, so a confined
+program can still *write* where the fence allows — write-scoping is the
+next Landlock bit, for when a caller needs it.  And nothing yet *makes*
+the node run under keep — the fence-hook wraps shell commands, not
+program launches; wiring keep into the launch path (so a program is
+confined by default, not by remembering the incantation) is the step
+after write-scoping.  Both are named; neither is silent.

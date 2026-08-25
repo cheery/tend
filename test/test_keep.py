@@ -99,6 +99,35 @@ def test_a_system_program_still_runs(tmp_path):
     assert "ran true" in r.stdout
 
 
+@needs_landlock
+def test_the_pull_node_runs_confined_under_keep(tmp_path):
+    """`board/keep.md`'s next slice: the first real program, run *through*
+    keep — the grant outside it — gains the boundary.  Handed its own code
+    and a state directory and nothing else, the node opens, runs and stops
+    (it writes state where the fence allows; keep governs reads), while a
+    read of the tree from the same grant is refused.  The node itself is
+    unchanged — the boundary is composed around it, not built into it."""
+    node = ROOT / "node" / "node.py"
+    state = tmp_path / "n.state"
+    syspy = "/usr/bin/python3"
+    if not os.path.exists(syspy):
+        pytest.skip("no system python3 to run the node confined")
+    # handed: the node's own directory (its code) and the state directory.
+    r = keep("--allow", str(node.parent), "--allow", str(tmp_path), "--",
+             syspy, str(node), "--state", str(state),
+             "run", "--idle", "0.4", "--poll", "0.05")
+    assert r.returncode == 0, r.stderr
+    assert state.exists(), "the node could not open where it was left"
+    import json
+    assert json.loads(state.read_text())["generations"] == 1
+
+    # the same grant is blind to the tree it was not handed.
+    blind = keep("--allow", str(node.parent), "--allow", str(tmp_path), "--",
+                 "sh", "-c", f"cat {ROOT/'board'/'README.md'}")
+    assert blind.returncode != 0
+    assert "founding" not in blind.stdout
+
+
 def test_nothing_to_run_is_refused_out_loud():
     r = keep("--allow", "/tmp")
     assert r.returncode == 2 and "nothing to run" in r.stderr

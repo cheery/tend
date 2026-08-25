@@ -48,9 +48,13 @@
 # this tree found first.  The escape probe is read from outside, because
 # a sandbox cannot be trusted to grade its own escape.
 #
-# **It cannot nest** — a second bwrap inside the first cannot make its
-# namespaces — so `TEND_FENCED=1` is set inside, this script refuses to
-# run there, and the hook skips a command already carrying this name.
+# **It refuses to nest** — not because it cannot.  On this kernel a
+# second bwrap inside the first *does* isolate: the tree vanishes, the
+# home is empty, /usr stays read-only (verified 2026-08-25, from inside).
+# It refuses by *policy* — re-fencing an already-fenced session buys
+# nothing, and `--check` must run *outside* to grade the escape — so
+# `TEND_FENCED=1` is set inside, this script refuses to run there, and
+# the hook skips a command already carrying this name.
 # Paths with spaces are not handled; none of the paths this binds have
 # any, and that is checked rather than assumed.
 set -eu
