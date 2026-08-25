@@ -51,6 +51,24 @@ set -eu
 
 LOG="${TEND_LEASH_LOG:-$HOME/.local/state/tend/leash.log}"
 
+# **The inner half of scope mode: the process that reads the counter is
+# inside the scope, after the work and before its own exit.**  Measured
+# 2026-08-25 (card:grant.md): `CPUUsageNSec` is `[not set]` the moment
+# the scope's last process is gone — read from the caller, after
+# `systemd-run` returns, it is always gone; read from inside, by the
+# shell that ran the work, it is the number (3000085000 for a 3s burn).
+# Not a race, a boundary.  So the scope runs this script again with
+# `--inner`, which runs the work under `timeout`, writes the scope's own
+# tally to a file the outer half is holding, and exits with the work's
+# code.  Never a user-facing form; the outer half is the interface.
+if [ "${1:-}" = --inner ]; then
+    acct=$2; unit=$3; t=$4; shift 4
+    rc=0
+    timeout -k 10 "$t" "$@" || rc=$?
+    systemctl --user show "$unit" -p CPUUsageNSec --value > "$acct" 2>/dev/null || true
+    exit "$rc"
+fi
+
 cores=$( (command -v nproc >/dev/null 2>&1 && nproc) || echo 2 )
 t=900
 c=$((cores * 50))
@@ -91,26 +109,28 @@ if [ "$how" = "scope" ]; then
     # twelve-polling-shells shape of the incident this exists for.  A
     # scope is a cgroup, so stopping the unit reaps everything in it.
     unit="tend-leash-$$-$start"
+    # **The CPU figure is the cgroup's own, read from inside the scope
+    # by `--inner` (top of this file).**  `times` (below, for plain mode)
+    # accounts only for this shell's waited-for children — and in scope
+    # mode the work is a child of the user manager, not of this shell, so
+    # `times` sees the `systemd-run` client and not the suite: cpu=1.3s
+    # for a 25-minute run, found by the leash's first outside user on
+    # 2026-08-25.  The first fix read the counter here, after the scope
+    # returned, and got `?` every time: the counter is gone with the
+    # scope's last process.  Empty or the uint64 "not set" sentinel still
+    # becomes `?` below — an honest gap, never `times`'s wrong number.
+    acct=$(mktemp 2>/dev/null || echo /dev/null)
     if [ -n "$m" ]; then
         systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
             -p CPUAccounting=yes -p "CPUQuota=${c}%" -p "MemoryMax=$m" \
-            timeout -k 10 "$t" "$@" || rc=$?
+            sh "$0" --inner "$acct" "$unit.scope" "$t" "$@" || rc=$?
     else
         systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
             -p CPUAccounting=yes -p "CPUQuota=${c}%" \
-            timeout -k 10 "$t" "$@" || rc=$?
+            sh "$0" --inner "$acct" "$unit.scope" "$t" "$@" || rc=$?
     fi
-    # **The CPU figure is the cgroup's own, read before the scope is
-    # stopped.**  `times` (below, for plain mode) accounts only for this
-    # shell's waited-for children — and in scope mode the work is a child
-    # of the user manager, not of this shell, so `times` sees the
-    # `systemd-run` client and not the suite: cpu=1.3s for a 25-minute
-    # run, found by the leash's first outside user on 2026-08-25, the day
-    # after this was written.  `CPUAccounting=yes` makes the scope count;
-    # this reads the count while the unit still exists.  Empty or the
-    # uint64 "not set" sentinel becomes `?` below — an honest gap, never
-    # `times`'s wrong number.
-    cpu_ns=$(systemctl --user show "$unit.scope" -p CPUUsageNSec --value 2>/dev/null || true)
+    cpu_ns=$(cat "$acct" 2>/dev/null || true)
+    [ "$acct" != /dev/null ] && rm -f "$acct"
     systemctl --user stop "$unit.scope" >/dev/null 2>&1 || true
 else
     # Plain mode kills only the direct child — an orphan a command
@@ -155,5 +175,8 @@ fi
       "cpu=${cpu}s" "$*" \
       >> "$LOG"; } 2>/dev/null || true
 
-[ "$rc" -eq 124 ] && echo "leash: the ${t}s budget is spent — a hang is a crash." >&2
+# 124 is `timeout`'s code, and the command's own `timeout` says it too:
+# a 3s inner burn read as "the 900s budget is spent" on 2026-08-25.  The
+# budget is spent only if the clock agrees.
+[ "$rc" -eq 124 ] && [ $((end - start)) -ge "$t" ] && echo "leash: the ${t}s budget is spent — a hang is a crash." >&2
 exit "$rc"

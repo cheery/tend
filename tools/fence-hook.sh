@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #: asked-by: Henri, 2026-08-25 — "show me the hook"; then he ran ~/hook-installer.sh against a hook that did not exist yet, which is the word
 #
-# tools/fence-hook.sh — every shell command a session runs, runs inside the fence.
+# tools/fence-hook.sh — every shell command a session runs, runs under the leash, inside the fence.
 #
 # A `PreToolUse` hook on `Bash`.  Claude Code hands it the tool call as
 # JSON on stdin before running it; this rewrites the command to run under
-# `tools/sandbox.sh`, or refuses it out loud.  Installed by Henri, with
-# `~/hook-installer.sh`, because hook config is enforcement and the
-# settings file is his.
+# `tools/leash.sh` and, within that, `tools/sandbox.sh` — or refuses it
+# out loud.  Installed by Henri, with `~/hook-installer.sh`, because hook
+# config is enforcement and the settings file is his.
 #
 # **Borrowed from `~/gestate/tools/fence-hook.sh` and inverted.**  Gestate
 # wraps `pytest` and `cargo` and nothing else, because its fence answers
@@ -20,6 +20,20 @@
 # non-wrap is the hole.  What gestate learned about quoting is kept
 # whole: `jq -Rsr ... @sh`, raw in and raw out, because the JSON-encoded
 # form reached bash with its escapes doubled.
+#
+# **The two dials are turned together, and in this order: the leash
+# outside, the fence inside** (card:grant.md, measured 2026-08-25).  The
+# budget is a cgroup the user manager makes, and the manager spawns
+# what it is asked to on the host — so a bus socket handed *inside* the
+# fence let a fenced session run anything unfenced through it.  An
+# escape, not a dial.  The other order — fence outside, leash inside —
+# was what this hook did first, and the ledger said `plain` for every
+# fenced run.  Now the hook, which runs on the host, starts the scope
+# there; bwrap and the whole fenced tree live inside it, the quota binds
+# (measured: 1.51 CPU-s for 3 s at 50%), and stopping the scope reaps
+# everything the command left behind.  The leash's defaults are the
+# grant for now; a session cannot ask for more, and the ledger line at
+# `~/.local/state/tend/leash.log` is the observer.
 #
 # **The dial, and who holds it.**  A command may ask for rows the fence
 # keeps off — `REACH=audio tools/andon.sh` — and the request is granted
@@ -80,9 +94,9 @@ done
 
 quoted="$(printf '%s' "$cmd" | jq -Rsr 'rtrimstr("\n") | @sh')"
 if [[ -n $reach ]]; then
-  wrapped="$root/tools/sandbox.sh --reach $reach bash -c $quoted"
+  wrapped="$root/tools/leash.sh -- $root/tools/sandbox.sh --reach $reach bash -c $quoted"
 else
-  wrapped="$root/tools/sandbox.sh bash -c $quoted"
+  wrapped="$root/tools/leash.sh -- $root/tools/sandbox.sh bash -c $quoted"
 fi
 
 jq -n --arg w "$wrapped" --arg r "$reach" \
@@ -90,6 +104,6 @@ jq -n --arg w "$wrapped" --arg r "$reach" \
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     updatedInput: ($orig + {command: $w}),
-    permissionDecisionReason: ("fenced: tools/sandbox.sh" + (if $r == "" then "" else " --reach " + $r end))
+    permissionDecisionReason: ("leashed and fenced: tools/leash.sh -- tools/sandbox.sh" + (if $r == "" then "" else " --reach " + $r end))
   }
 }'

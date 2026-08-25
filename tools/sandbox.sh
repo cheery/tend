@@ -24,7 +24,7 @@
 # complained about.  On by default: `tree` (rw), `state` (rw, shared),
 # `trees` (gestate, ro), `scratch` (the session's /tmp/claude-UID, rw),
 # `git` (~/.gitconfig, ro — identity, not a secret).  Off until asked
-# with `--reach`: `net`; `audio`; `display`; `bus`.  Who may ask is not
+# with `--reach`: `net`; `audio`; `display`.  Who may ask is not
 # decided here: `tools/fence-hook.sh` holds the person's bound and
 # refuses a request outside it.  This script only knows the rows.
 #
@@ -32,6 +32,16 @@
 # `/dev/snd`, and `/dev/snd` is the whole card: the programs-first trial
 # opened the capture device three times through it.  A socket-only ring
 # has not been measured; until it is, `audio` means the card, and says so.
+#
+# **There is no `bus` row, and there was one.**  It handed the user bus
+# inside so that `tools/leash.sh` could make its cgroup there — and
+# measured on 2026-08-25 (card:grant.md), the user manager spawns what
+# it is asked to *on the host*: `systemd-run --user --wait` from inside
+# ran with the real home, the host PATH and no fence.  A socket to the
+# manager is a door out, not a dial.  The leash now wraps the fence from
+# outside (`tools/fence-hook.sh`), which was the row's only caller, so
+# the row is gone rather than documented.  `display` is the same
+# question unmeasured — an X socket takes input for every window on it.
 #
 # **`--check` proves the clock before it proves `~/.ssh`.**  A fence that
 # keeps secrets out and the sitting limit out with them is the failure
@@ -91,7 +101,6 @@ while [ $# -gt 0 ]; do
   off  net       the network; off, it fails as a name-resolution error
   off  audio     the PipeWire socket and /dev/snd — the andon; the whole card, see the header
   off  display   the X socket and DISPLAY
-  off  bus       the user bus — tools/leash.sh's cgroup budget; without it the ledger says plain
 ROWS
             exit 0 ;;
         --protected) printf '%s\n' $protected; exit 0 ;;
@@ -137,7 +146,6 @@ for row in $reach; do
         net)     net=""; extra="$extra --ro-bind-try /run/systemd/resolve /run/systemd/resolve" ;;
         audio)   extra="$extra --bind $rt/pipewire-0 $rt/pipewire-0 --dev-bind /dev/snd /dev/snd" ;;
         display) display="--bind /tmp/.X11-unix /tmp/.X11-unix --setenv DISPLAY ${DISPLAY:-:0}" ;;
-        bus)     extra="$extra --bind $rt/bus $rt/bus --setenv DBUS_SESSION_BUS_ADDRESS unix:path=$rt/bus" ;;
         *) echo "sandbox: no such row \`$row\` — tools/sandbox.sh --rows" >&2; exit 2 ;;
     esac
 done
@@ -188,6 +196,7 @@ probe "\$HOME is not the real home"     blocked sh -c 'test -e "$HOME/.bashrc"'
 probe "no network"                      blocked timeout 5 getent ahostsv4 example.com
 probe "/usr is read-only"               blocked sh -c 'touch /usr/.probe'
 probe "DISPLAY is unset"                blocked sh -c 'test -n "${DISPLAY:-}"'
+probe "no user bus inside"              blocked sh -c 'test -e "$XDG_RUNTIME_DIR/bus"'
 probe "the other tree is read-only"     blocked sh -c "touch $trees/.probe"
 probe ".claude/ is read-only"           blocked sh -c "touch $root/.claude/settings.json"
 for p in $protected; do

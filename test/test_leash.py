@@ -57,6 +57,16 @@ def test_a_hang_is_a_crash(tmp_path):
     assert "budget is spent" in r.stderr
 
 
+def test_the_commands_own_124_is_not_the_leashs(tmp_path):
+    """2026-08-25: a payload whose own `timeout 3` expired came back as
+    "the 900s budget is spent".  124 is the budget only if the clock
+    agrees; otherwise it is the command's code, passed through in
+    silence like any other."""
+    r = leash(tmp_path, "-t", "30", "--", "timeout", "0.2", "sleep", "5")
+    assert r.returncode == 124
+    assert "budget is spent" not in r.stderr
+
+
 def test_the_kill_takes_the_orphans_too(tmp_path):
     """**Found on the first real run's doorstep**, 2026-08-24: `timeout`
     signals only the process it started.  A `suite.py` killed at its

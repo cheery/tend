@@ -118,3 +118,70 @@ section above).  This cannot be verified from a fenced session — the
 bus does not work there — so its demonstration is the gestate session's
 or Henri's, as this one has been.  `367c531`'s scope read stays as the
 honest `?` until the service path replaces it.
+
+## 2026-08-25, afternoon — measured with the row granted: the scope works inside, and the row is a door out
+
+Henri: *"would you like to do grant next?"* — with `bus` in
+`TEND_REACH_ALLOW` since 13:46.  Four measurements from inside the fence
+with `REACH=bus`, and each moves the card:
+
+1. **The bus is delivered inside now** — `DBUS_SESSION_BUS_ADDRESS`
+   set, the socket bound, `busctl --user list` answers — and
+   **`systemd-run --user --scope` works from inside bwrap**: a 3 s burn
+   under `CPUQuota=50%` cost 1.51 CPU-s.  The section above that says a
+   scope "cannot be made in bwrap's namespaces" was the row not
+   delivering a socket that day, read as a namespace limit.  Wrong, and
+   kept.
+2. **The row is an escape.**  `systemd-run --user --wait --pipe` from
+   inside ran its payload with `fenced=no`, `home=/home/cheery`, the
+   host `PATH`: the user manager spawns on the host, and a fenced
+   session holding its socket can run anything unfenced through it.
+   The section above called that "every service on the bus"; it is the
+   whole machine at the session's uid.  The row is gone from
+   `tools/sandbox.sh` — its one caller, the leash, no longer needs it —
+   and `--check` now proves no bus inside.  *`display` is the same
+   question unmeasured; its own line.*
+3. **The counter is a boundary, not a race, and the boundary is a
+   process.**  `systemctl show … CPUUsageNSec` from a process *inside*
+   the scope, after the work and before exit: `3000085000` for a 3 s
+   burn.  From the caller after `systemd-run` returned: `[not set]`,
+   every time.  Also `MemoryPeak`, for the day `-m` is reported.  So the
+   scope runs `leash.sh --inner`, which runs the work and writes the
+   scope's own tally before it exits; the ledger says `cpu=2.0s` for a
+   2 s burn now, and `test_scope_mode_counts_the_work_not_the_wrapper`
+   runs green in scope mode instead of skipping.  The journal recipe in
+   the section above is superseded: no service, no journal, and the
+   work keeps the shell's env, cwd and stdio, which a `--wait` service
+   drops.
+4. **The leash mistook the command's 124 for its own.**  A payload
+   whose own `timeout 3` expired came back as *"the 900s budget is
+   spent"*.  Fixed: 124 is the budget only if the clock agrees.
+
+**The ordering, built as the section above asked**: `tools/fence-hook.sh`
+rewrites to `leash.sh -- sandbox.sh [--reach …] bash -c cmd`.  The hook
+runs on the host, so the leash's probe finds the host bus, the scope is
+made there, bwrap and the whole fenced tree live inside it, and stopping
+the scope reaps everything.  Overhead on `true`: 90 ms.  The leash's
+defaults — 900 s, half the cores — are the grant for now; a session
+cannot ask for more, which is a card when someone needs to.
+
+**And the protected set bit, on schedule.**  `fence-hook.sh` and
+`sandbox.sh` are read-only inside and denied to the edit tools since
+this morning, so the two changes go to Henri as a patch —
+`git apply` — and the demonstration is the first command that runs
+after he does: the ledger gains a `scope` line for a fenced command.
+`leash.sh` and the tests are the session's and are in.  The loop cost:
+one file written to the scratchpad, one line of his.
+
+**Demonstrated, the same hour.**  Henri: *"ok. patch is in."*  The
+first command after it — the suite, from inside the fence — left this
+line in the ledger:
+
+    1787656989  10  0  t=900 c=200% m=- scope  cpu=6.8s  …/tools/sandbox.sh bash -c …
+
+A fenced run, under a cgroup, with the number the morning's `?` stood
+for.  Inside, `TEND_FENCED=1` and no bus: the scope holds the fence and
+the fence does not hold the bus.  The count this card asked for —
+`plain` lines that mattered — starts now at the other end: every fenced
+line says `scope`, and a `plain` one from here on means the host bus
+was gone, which the ledger will say.

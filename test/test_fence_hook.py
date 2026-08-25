@@ -67,13 +67,25 @@ def test_merely_naming_the_fence_does_not_escape_it(command):
     choosing its own rows by calling the fence directly is the same hole
     from the other side.  All of these are wrapped; the ones that then
     nest fail out loud, which is the right failure."""
-    assert rewritten(command).startswith(f"{ROOT}/tools/sandbox.sh bash -c ")
+    assert rewritten(command).startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
 
 
 def test_everything_else_is_wrapped():
     cmd = rewritten("ls -la")
-    assert cmd.startswith(f"{ROOT}/tools/sandbox.sh bash -c ")
+    assert cmd.startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
     assert "--reach" not in cmd
+
+
+def test_the_leash_wraps_the_fence_and_not_the_other_way(tmp_path):
+    """`board/grant.md`, measured 2026-08-25: the budget is a cgroup made
+    by the user manager, and a `bus` socket handed *inside* the fence
+    lets a fenced session run anything unfenced through that manager —
+    an escape, not a dial.  So the scope is made outside, by the hook,
+    and the fence runs within it: `leash → sandbox → command`.  The
+    ledger's `plain` for every fenced run was the other order."""
+    cmd = rewritten("true")
+    assert cmd.index("tools/leash.sh") < cmd.index("tools/sandbox.sh")
+    assert "bus" not in cmd
 
 
 @needs_bwrap
@@ -102,7 +114,7 @@ def test_a_row_outside_the_bound_is_refused_with_a_reason():
 
 def test_a_row_inside_the_bound_is_granted_and_named():
     cmd = rewritten("REACH=net getent ahostsv4 example.com", allow="net,audio")
-    assert cmd.startswith(f"{ROOT}/tools/sandbox.sh --reach net bash -c ")
+    assert cmd.startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh --reach net bash -c ")
     assert "REACH=" not in cmd, "the prefix is consumed, not passed into the fence"
 
 
@@ -113,4 +125,4 @@ def test_every_requested_row_must_be_in_the_bound():
 
 def test_there_is_no_nofence():
     assert "NOFENCE" not in HOOK.read_text(encoding="utf-8").split("set -euo pipefail")[1]
-    assert rewritten("NOFENCE=1 ls").startswith(f"{ROOT}/tools/sandbox.sh")
+    assert rewritten("NOFENCE=1 ls").startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh")

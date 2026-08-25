@@ -46,9 +46,19 @@ def test_the_rows_are_the_dial():
     out = sandbox("--rows")
     assert out.returncode == 0
     names = [line.split()[1] for line in out.stdout.splitlines() if line.strip()]
-    assert names == ["tree", "state", "trees", "scratch", "git", "net", "audio", "display", "bus"]
+    assert names == ["tree", "state", "trees", "scratch", "git", "net", "audio", "display"]
     on = [line.split()[0] for line in out.stdout.splitlines() if line.strip()]
-    assert on == ["on"] * 5 + ["off"] * 4, "five on by default, four off until asked"
+    assert on == ["on"] * 5 + ["off"] * 3, "five on by default, three off until asked"
+
+
+def test_the_bus_is_not_a_row():
+    """Measured 2026-08-25 (`board/grant.md`): with the user bus inside,
+    `systemd-run --user --wait` ran a command on the host — home, PATH
+    and no fence — because the manager spawns it, not the caller.  The
+    row's one caller, the leash, now wraps the fence from outside.  A
+    row with no caller that is also an escape is not a row."""
+    out = sandbox("--reach", "bus", "true")
+    assert out.returncode == 2 and "no such row" in out.stderr
 
 
 @needs_bwrap
