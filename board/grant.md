@@ -51,3 +51,26 @@ found to be on 2026-08-25, and the mechanism should be a scope started
 from *outside* the fence — by the hook, before bwrap — rather than a
 socket handed inside.  Decide that by measuring what `systemd-run`
 actually needs, not by reading its manual.
+
+## 2026-08-25 — measured: the budget cannot be applied from inside the fence
+
+With `bus` granted (`TEND_REACH_ALLOW=bus`) and a run asked for as
+`REACH=bus tools/leash.sh -c 100 -- <a 3s CPU burn>`, the ledger line
+came back **`plain`**, not `scope`: inside the fence
+`systemd-run --user --scope` cannot make a scope, because the calling
+process is in bwrap's own user and pid namespaces and the user manager
+cannot see or move it there.  Binding the bus socket does not change
+that — and separately, the `bus` row does not yet deliver a working
+bus inside (the socket is absent and `DBUS_SESSION_BUS_ADDRESS` unset;
+a sub-defect of the row, its own line on `card:self.md`'s protected-set
+work or here).
+
+So the shape of this card is settled by measurement: **the leash must
+wrap the fence, not run inside it** — `leash → sandbox → command`,
+where the scope is created in the host's namespaces and the fenced work
+runs within the cgroup.  Today the hook does the opposite
+(`sandbox → leash → command`), which is why the budget degrades to
+`plain` for every fenced run.  The mechanism is an ordering, not a new
+tool: the `PreToolUse` rewrite becomes `leash … sandbox … bash -c cmd`.
+That is what to build; the bus row inside the fence was the wrong turn,
+found by trying it.

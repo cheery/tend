@@ -462,3 +462,11 @@ user manager, which is the gestate session's own case, or a session
 here once `TEND_REACH_ALLOW` carries `bus`.  *The leash's first outside
 invocation found a defect in the leash, which is the ledger existing
 doing its one job.*
+
+**And the scope path could not be demonstrated from inside the fence**
+(2026-08-25, with `bus` granted): the leash stayed `plain`, because
+`systemd-run --user --scope` cannot make a scope inside bwrap's
+namespaces.  So the cpu fix's scope branch is still owed a real run —
+which is an unfenced one, i.e. the gestate session's next leashed suite
+— and `card:grant.md` gains its true shape from the same measurement:
+the leash wraps the fence, it does not run inside it.
