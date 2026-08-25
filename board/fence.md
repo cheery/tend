@@ -158,3 +158,16 @@ nearest thing so far is the measurement itself, which caught two open
 routes before the check existed.  The card stays open until the hook
 has lit on a real weakened file once, or the blast-radius half arrives
 with `work-environment-ai`.
+
+## 2026-08-25, later — the blast-radius half has its first measurement
+
+Not built, still — but measured, from `card:work-environment-ai.md`'s
+side: `doc/experiments/2026-08-25-reach.md` ran tend's real invocations
+under a bubblewrap fence (the script is beside the record), and it
+works on this machine as it stands.  Its first row is not a threat kept
+out but a cord let through: a fence that hides `~/.local/state` and
+`/run/user` gives a fenced session a fresh sitting clock, so the state
+directory must pass through any fence here, or the sitting limit and
+the lamp are off inside it.  When this half is built, that bind comes
+first, and `--check` proves the clock is the host's before it proves
+`~/.ssh` is gone.

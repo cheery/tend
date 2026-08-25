@@ -349,3 +349,39 @@ needs to be programming a bit"* — programming stays the medium; the
 table is written and read by programs and a session programs the
 environment it works in.  What must not be programming-shaped is the
 set of things it can say, not the way it says them.
+
+## 2026-08-25 — the reach table's first draft, from what real runs complained about
+
+Per the section above, the table was not designed: thirteen real
+invocations ran under a bubblewrap fence with only this tree writable,
+and `doc/experiments/2026-08-25-reach.md` records each exit code and
+complaint, with the fence beside it as a script.  Tend's whole suite
+passes fenced (104 passed, 1 skipped — the systemd gap, which says so).
+The fence needed no setup: gestate's AppArmor profile for `bwrap` is
+already on this machine.
+
+**The finding that could not have been designed on paper**: inside
+the fence, `tools/limit.sh` reported *"sitting started 06:44, 0m in,
+15m left of 15"* — a fresh clock.  A fence that hides `~/.local/state`
+and `/run/user` defeats the sitting limit, loses the leash ledger and
+silences a kaizen want.  So the state directory is the first row of
+any reach table here, read-write and shared, or every cord and lamp
+tend has is decoration the moment a session runs fenced.  The fence
+and the person-facing pieces are one design.
+
+**Seven reaches**, each with a caller on this machine: this tree (rw);
+the state directory (rw, shared, must be on); the user bus (for the
+budget; without it the leash says `plain`); other trees (ro, named);
+audio out (the andon); a display (the 2026-08-18 incident); the
+network (off, and it should fail as a refusal, not DNS).  Henri's
+"user's leash bounds it" reads onto this directly: the person sets
+which rows may be on, a session turns on fewer, never more.  *The
+table is the session's reading and is suspected; the complaints are
+the evidence.*
+
+**Not built, on purpose.**  The table is for Henri to read first.  What
+would be built first is not a vocabulary but one bind — the state
+directory — and it belongs to whatever fence tend gets, which
+`card:fence.md` says arrives with the first program tend runs that it
+did not write.  Until then the mediation-order decision is still his,
+and the card stays open.
