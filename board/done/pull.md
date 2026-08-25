@@ -1,6 +1,6 @@
 # pull — tend runs nothing but its own suite, so the stranger has nothing to start
 
-    status   open
+    status   done — 2026-08-25
     because  `vision.md`'s stranger test — "start a program in it, see it
              stop when they stop pulling, and find out what it did" —
              has no program to run: everything in this tree governs, and
@@ -101,3 +101,12 @@ the crash the rule means.  That is the budget being the session's grant
 applied to a program, which is `grant`'s dial pointed the other way;
 the size of a program's budget is its own card when a program needs
 more than a session's default.  Recorded, not solved.
+
+## Done, 2026-08-25 — Henri: "you can move pull to done"
+
+The problem no longer stands: there is a program of tend's own, and it
+answered the stranger test — started, pulled, stopped itself, its work
+read from a plain file, all under `leash → sandbox`.  The fence, the
+leash and the pull lifecycle have a caller this tree wrote.  What is
+deliberately not here — a hash, a supervisor, a broker, a second node —
+is other cards, named in the section above.

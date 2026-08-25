@@ -41,29 +41,34 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[fence](fence.md)** — the deny-list is the only restraint here and
+2. **[keep](keep.md)** — a person's data sits in the open to whatever
+   runs here: the fence bounds reach by directory, but inside a granted
+   directory everything is ambient, so a program gets whatever the
+   session that launched it can reach.  *Placed here by a session on
+   2026-08-25, at Henri's "create the card … by anything really",
+   because `work-environment-ai` calls this its first architecture
+   decision; the tiebreak is his and this is his to move.*
+3. **[fence](fence.md)** — the deny-list is the only restraint here and
    nothing reads it back, so the line this tree was founded on holds
    against gestate's sessions and not against tend's own.  *Placed here
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-3. **[self](self.md)** — the fence built for `fence` guards the settings
+4. **[self](self.md)** — the fence built for `fence` guards the settings
    file but not the scripts that enforce it, which a session can edit
    from inside the fence; the same shape as the card above, one level
    down.  *Placed here by a session on 2026-08-25, at Henri's "make a
    card from it"; the tiebreak is his.*
-4. **[cords](cords.md)** — a session here cannot reach a person, and
+5. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-5. **[pull](pull.md)** — tend runs nothing but its own suite, so the
-   stranger test has no program to start; everything here governs and
-   nothing is governed.
 
-*Cards 4–5 and `grant` are the three waypoints Henri named on
+*`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
-predicted them; the placing is the session's and the tiebreak is his.
-`grant` finished the same day it was carded: the leash wraps the fence,
-the budget applies inside, and the ledger says so on every line
-(`done/grant.md`).*
+predicted them; the placing was the session's and the tiebreak his.
+Two are done the same days they were carded — `grant` (the leash wraps
+the fence, the budget applies inside, `done/grant.md`) and `pull` (the
+first program of tend's own, which passed the stranger test,
+`done/pull.md`) — and `cords` waits on 2026-08-31.*
 
 `gates` finished 2026-08-24, the day it was opened — the hook is
 installed, and it has refused a commit once (`done/gates.md` has the
