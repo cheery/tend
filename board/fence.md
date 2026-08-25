@@ -216,3 +216,16 @@ rows a session may ask for are none until Henri sets
 `TEND_REACH_ALLOW` on the hook's line.  The blast-radius half is built
 and the card stays open for one more thing: a sitting of ordinary work
 under it with the hole closed, counted.
+
+## 2026-08-25, afternoon — one more rule a reader would over-credit
+
+Found while measuring the gate for `done/gates.md`: inside the fence
+`.git/config` is writable and `git -c key=value` is a flag, so
+`Bash(git config:*)` on the deny-list stops the one spelling it names
+and nothing the spelling stands for — `core.hooksPath`, `user.email`,
+an alias — the same shape as the morning's table, where the deny-list
+covered exactly the edit tools and a reader would have credited it with
+the three the classifier stopped.  Left in place: it is not wrong, and
+it is not the boundary.  The boundary for `.git/` is the same as for
+the gate — none, by category (`done/gates.md`) — and a reader of this
+list should know that before crediting the rule.

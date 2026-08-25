@@ -169,3 +169,9 @@ refused: *"File is in a directory that is denied by your permission
 settings."*  Both ways, both halves, same as `.claude/`.  What is still
 open on this card is only what it must not become: the `.git/hooks`
 line above, and the two widening keys in `~`.
+
+**The `.git/hooks` line, closed the same afternoon** — Henri: *"look at
+the .git/hooks writability question together."*  Measured and written
+on `done/gates.md` §"2026-08-25": the gate is not in the set and cannot
+be, because the gate is the suite and the suite is the tree; it bounds
+what the tree accepts, not what a session may do.  Not built; counted.
