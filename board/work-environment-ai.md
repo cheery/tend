@@ -385,3 +385,43 @@ directory — and it belongs to whatever fence tend gets, which
 `card:fence.md` says arrives with the first program tend runs that it
 did not write.  Until then the mediation-order decision is still his,
 and the card stays open.
+
+## 2026-08-25 — Henri, on what the count cannot show, and a decision to try both
+
+Henri, on reading the evidence above:
+
+> I've seen you do very well and avoid the most expensive mistakes,
+> but those are rare by definition.
+
+Read by the session as the containment argument, put from his side: a
+session's good conduct — including the same morning's, when it proved
+`python3 -c` goes through the deny-list and did not use it — is one
+session on a good day, reported by the governed party, and the mistake
+containment exists for is the one nobody notices in the fifth hour.
+The count settles the order; it was never going to settle *whether*,
+and the shape of the risk already has.
+
+And then, rather than settling the order on paper: *"Could we in any
+way examine both options?  You're really fast and everything is maybe
+reversible."*  So both are to be tried, set-based, each as an
+experiment under `doc/experiments/` and not as a tool: **sessions
+first** — the session's real work under a fence with the reach
+table's rows, the state-directory bind in and a `--check` that the
+clock is the host's; **programs first** — a real gestate node under a
+fence with only its three nouns.  Each records what it complained
+about, and the comparison is his to read.
+
+**Both tried, the same hour** — `doc/experiments/2026-08-25-both.md`,
+with a fence script for each beside it.  Sessions-first: the morning's
+fence plus the state directory passed through and gestate read-only;
+the sitting clock is the host's inside it, the ledger and a kaizen
+want reach the outside, the suite passes, gestate's audit reaches
+tend, nothing escapes — zero complaints.  Programs-first: gestate's
+andon under exactly its three nouns; it rendered, it rang — and traced,
+the `/dev/snd` grant opened the hardware past PipeWire and the
+capture device with it.  "Audio out" is not a noun the kernel has.
+The two fences are one script with different rows on, and the node
+ran under a fence the session wrote: the order question is now *which
+principal gets a caller outside the session's write access first*,
+and for sessions that caller is a hook, which is Henri's to install.
+The record states what kills each; the reading is the session's.
