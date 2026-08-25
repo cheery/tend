@@ -74,3 +74,47 @@ runs within the cgroup.  Today the hook does the opposite
 tool: the `PreToolUse` rewrite becomes `leash … sandbox … bash -c cmd`.
 That is what to build; the bus row inside the fence was the wrong turn,
 found by trying it.
+
+## 2026-08-25, later — the cpu source, measured on the other tree: a service, not a scope
+
+The gestate session confirmed the scope-CPU fix (`367c531`) and, doing
+it, **superseded its mechanism** — measured, not inferred, on systemd
+255 (255.4-1ubuntu8.17):
+
+* `cpu=?s` in scope mode is **deterministic, not a race**.  Three scope
+  runs of a known load all read `?`.  `systemctl --user show <unit> -p
+  CPUUsageNSec --value` returns `[not set]` once the payload has exited
+  — for a scope *and* for a `--wait` service alike, while the unit still
+  exists.  So "read before the stop" is not the missing piece; the
+  counter is simply gone at that point.  The `?` fallback built into the
+  fix is therefore doing real work today: the ledger is honest, and
+  blank, in scope mode.
+
+* **Only a service carries a resources record**, and that is the source.
+  Measured both ways on the same load: a `--wait` service reported
+  `CPU_USAGE_NSEC = 24034252000` — 24.03 s for 12 s of wall on two cores,
+  the arithmetic exactly — and a peak-memory figure in the same record
+  (what `-m` will want); a stopped scope reported no resources record at
+  all.  It is structured, so no string to parse and no spelling to rot:
+
+      systemd-run --user --wait -q --unit U -p CPUAccounting=yes -p CPUQuota=200% -- CMD
+      journalctl --user -u U --no-pager -o json \
+        | jq -r 'select(.MESSAGE_ID=="ae8f7b866b0347b9af31fe1c80b127c0") | .CPU_USAGE_NSEC'
+
+* **The orphan-kill property survives the switch.**  A service is a
+  cgroup too, so stopping the unit still reaps the whole tree —
+  `test_the_kill_takes_the_orphans_too` was the reason for the scope,
+  and it is not a reason to keep it.  `-p RuntimeMaxSec` could let
+  systemd enforce the wall budget and retire the inner `timeout`; that
+  last is a design call, not settled here.
+
+* **One trap, paid for by the other session**: `--wait` with
+  `RemainAfterExit=yes` never returns — the unit stays active and
+  `--wait` waits for a deactivation that does not come.  Do not set it.
+
+So the leash's budget path, when `grant` builds it, is a `--wait`
+service with journal accounting, run *outside* the fence (per the
+section above).  This cannot be verified from a fenced session — the
+bus does not work there — so its demonstration is the gestate session's
+or Henri's, as this one has been.  `367c531`'s scope read stays as the
+honest `?` until the service path replaces it.
