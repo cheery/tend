@@ -41,7 +41,13 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[cords](cords.md)** — a session here cannot reach a person, and
+2. **[fence](fence.md)** — the deny-list is the only restraint here and
+   nothing reads it back, so the line this tree was founded on holds
+   against gestate's sessions and not against tend's own.  *Placed here
+   by a gestate session on 2026-08-25, at Henri's ask and above a
+   blocked card, because this one can be worked today and `cords` waits
+   on 2026-08-31; the tiebreak is his and this is his to move.*
+3. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
 
 `gates` finished 2026-08-24, the day it was opened — the hook is
@@ -85,10 +91,23 @@ it does not.
 ## What this tree does not have yet
 
 What the audit lists, and each absence is now a card or a shelf
-(`cords`, `later/rules-and-memory`; `gates` was one until 2026-08-24)
-— except the author's
+(`fence`, `cords`, `later/rules-and-memory`; `gates` was one until
+2026-08-24) — except the author's
 own document and the consent register, which exist as of 2026-08-24
-with nothing in them but their rule.  That is on purpose: a piece arrives when
+with nothing in them but their rule.
+
+*This paragraph was false by one until 2026-08-25*: it claimed every
+absence was carded on the day the fence was not, and the sentence is
+kept in its corrected form rather than rewritten, because a tree that
+only ever reads as right teaches nothing about how it got there.  What
+found it was re-running gestate's audit against this tree from outside
+— `python ~/gestate/tools/seedaudit.py ~/tend` — which is also the
+day's measurement: 2 of 10 pieces at the first commit, 4 by 07:39,
+6 at the end of the first day, with the audit's one remaining "unkept
+promise" being gestate's instruments document, one tend never promised.
+That last one is gestate's capped-document list encoding its own
+accidents as another tree's requirements, exactly as
+`later/rules-and-memory.md` predicted in advance.  That is on purpose: a piece arrives when
 something needs it, and the audit is what says the need is still
 unmet.  What is not copied from gestate is its prose — the method
 documents, the journal, the memories.  What travels is a mechanism and

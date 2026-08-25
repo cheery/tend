@@ -40,7 +40,8 @@ likely to be wrong.
 > realtime. So I think that work environment+AI, composed with later
 > goal to implement OS into it would be the proposal.
 
-The original list (2026-08-19, Finnish, sixteen items) is the property
+The original list (2026-08-19, Finnish, sixteen items; in the tree as
+`spec/os.md` since 2026-08-25) is the property
 sheet this card descends from: easy install and test, secure by design,
 verified by types and model checkers, config recorded in the program
 node, pull-based reconfiguration, decentralized versioning, Linux
