@@ -47,16 +47,21 @@ between two workable cards is Henri's.
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-3. **[cords](cords.md)** — a session here cannot reach a person, and
+3. **[self](self.md)** — the fence built for `fence` guards the settings
+   file but not the scripts that enforce it, which a session can edit
+   from inside the fence; the same shape as the card above, one level
+   down.  *Placed here by a session on 2026-08-25, at Henri's "make a
+   card from it"; the tiebreak is his.*
+4. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-4. **[grant](grant.md)** — inside the fence the leash's budget does not
+5. **[grant](grant.md)** — inside the fence the leash's budget does not
    apply; the fence bounds how far a session reaches and nothing bounds
    how much it takes while it is there.
-5. **[pull](pull.md)** — tend runs nothing but its own suite, so the
+6. **[pull](pull.md)** — tend runs nothing but its own suite, so the
    stranger test has no program to start; everything here governs and
    nothing is governed.
 
-*Cards 3–5 are the three waypoints Henri named on 2026-08-25 ("they are
+*Cards 4–6 are the three waypoints Henri named on 2026-08-25 ("they are
 excellent waypoints"), in the order a session predicted them; the
 placing is the session's and the tiebreak is his.*
 
