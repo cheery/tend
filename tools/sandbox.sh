@@ -49,10 +49,15 @@ uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 trees="/home/cheery/gestate"
 
-if [ "${TEND_FENCED:-}" = 1 ]; then
-    echo "sandbox: already inside the fence — it cannot nest" >&2
-    exit 3
-fi
+# Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
+# command.  The nesting refusal sits where bwrap would be started, so a
+# listing can be asked for from inside (the suite does, at the gate).
+refuse_nesting() {
+    if [ "${TEND_FENCED:-}" = 1 ]; then
+        echo "sandbox: already inside the fence — it cannot nest" >&2
+        exit 3
+    fi
+}
 command -v bwrap >/dev/null 2>&1 || {
     echo "sandbox: bubblewrap (bwrap) is not installed — there is no fence.  install: bubblewrap" >&2
     exit 127
@@ -127,10 +132,12 @@ fence() { bwrap $opts $net $display $extra -- "$@"; }
 
 if [ $mode = run ]; then
     [ $# -gt 0 ] || { echo "sandbox: nothing to run — tools/sandbox.sh command args..." >&2; exit 2; }
+    refuse_nesting
     exec bwrap $opts $net $display $extra -- "$@"
 fi
 
 # ── --check ─────────────────────────────────────────────────────────────
+refuse_nesting
 fail=0
 say() { printf '  %s %s\n' "$1" "$2"; }
 probe() { # probe DESCRIPTION ok|blocked command...
