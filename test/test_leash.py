@@ -103,6 +103,26 @@ def test_every_line_says_what_the_load_cost(tmp_path):
     assert idle < 0.2
 
 
+def test_scope_mode_counts_the_work_not_the_wrapper(tmp_path):
+    """**The leash's first outside run found this**, 2026-08-25: the
+    ledger read cpu=1.3s for a 25-minute suite.  In scope mode the work
+    is a child of the user manager, so `times` — the shell's account of
+    its own children — sees only the `systemd-run` client.  The fix reads
+    the scope's cgroup tally instead.  A ~1.5s single-core burn must show
+    ~1.5 CPU-seconds; the old code showed near zero here, which is the
+    regression this guards.  Plain mode has the command as a true child
+    and does not have the bug, so it skips."""
+    r = leash(tmp_path, "-t", "30", "-c", "100", "--", "sh", "-c",
+              "timeout 1.5 sh -c 'while :; do :; done'; true")
+    how = lines(tmp_path)[0][3].split()[-1]
+    if how != "scope":
+        pytest.skip("no systemd user manager here; times is correct in plain mode")
+    cpu = lines(tmp_path)[0][4]
+    assert cpu != "cpu=?s", "scope mode could not read the cgroup — the number is lost"
+    secs = float(cpu.removeprefix("cpu=").removesuffix("s"))
+    assert secs >= 0.7, f"a 1.5s single-core burn cost {secs}s — the wrapper, not the work"
+
+
 def test_the_ledger_says_whether_the_budget_really_applied(tmp_path):
     """`scope` or `plain`, on every line — a budget that silently did
     not apply is the one lie this instrument must not tell."""

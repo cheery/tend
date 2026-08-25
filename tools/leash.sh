@@ -93,13 +93,24 @@ if [ "$how" = "scope" ]; then
     unit="tend-leash-$$-$start"
     if [ -n "$m" ]; then
         systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
-            -p "CPUQuota=${c}%" -p "MemoryMax=$m" \
+            -p CPUAccounting=yes -p "CPUQuota=${c}%" -p "MemoryMax=$m" \
             timeout -k 10 "$t" "$@" || rc=$?
     else
         systemd-run --user --scope -q --unit "$unit" -p TimeoutStopSec=10 \
-            -p "CPUQuota=${c}%" \
+            -p CPUAccounting=yes -p "CPUQuota=${c}%" \
             timeout -k 10 "$t" "$@" || rc=$?
     fi
+    # **The CPU figure is the cgroup's own, read before the scope is
+    # stopped.**  `times` (below, for plain mode) accounts only for this
+    # shell's waited-for children — and in scope mode the work is a child
+    # of the user manager, not of this shell, so `times` sees the
+    # `systemd-run` client and not the suite: cpu=1.3s for a 25-minute
+    # run, found by the leash's first outside user on 2026-08-25, the day
+    # after this was written.  `CPUAccounting=yes` makes the scope count;
+    # this reads the count while the unit still exists.  Empty or the
+    # uint64 "not set" sentinel becomes `?` below — an honest gap, never
+    # `times`'s wrong number.
+    cpu_ns=$(systemctl --user show "$unit.scope" -p CPUUsageNSec --value 2>/dev/null || true)
     systemctl --user stop "$unit.scope" >/dev/null 2>&1 || true
 else
     # Plain mode kills only the direct child — an orphan a command
@@ -111,17 +122,29 @@ end=$(date +%s)
 
 # **A load is a number.**  2026-08-24: a run of gestate's suite beside
 # cargo was believed heavy because it was real, and it was a minute of
-# near-idle.  So every line says what the invocation cost in CPU
-# seconds — `times` is the shell's own account of waited-for children,
-# written to a file because a pipe or `$( )` would fork and a fork's
-# account starts at zero.
-acct=$(mktemp 2>/dev/null || echo "")
+# near-idle.  So every line says what the invocation cost in CPU seconds
+# — and where the number comes from depends on how the budget applied,
+# because the two modes put the work in different places.
 cpu="?"
-if [ -n "$acct" ]; then
-    times > "$acct"
-    cpu=$(tail -1 "$acct" | awk '{ split($1,u,"m"); split($2,s,"m");
-                                   printf "%.1f", u[1]*60+u[2]+s[1]*60+s[2] }')
-    rm -f "$acct"
+if [ "$how" = "scope" ]; then
+    # The cgroup's own tally, read above.  `?` when it could not be had —
+    # the scope torn down before the read, or accounting off — which is
+    # honest where `times` here would be the 1.3s lie.
+    case "${cpu_ns:-}" in
+        ''|*[!0-9]*|18446744073709551615) : ;;
+        *) cpu=$(awk -v n="$cpu_ns" 'BEGIN{ printf "%.1f", n/1000000000 }') ;;
+    esac
+else
+    # Plain mode: the command is a true child, so the shell's own account
+    # of waited-for children is right.  `times` to a file because a pipe
+    # or `$( )` would fork, and a fork's account starts at zero.
+    acct=$(mktemp 2>/dev/null || echo "")
+    if [ -n "$acct" ]; then
+        times > "$acct"
+        cpu=$(tail -1 "$acct" | awk '{ split($1,u,"m"); split($2,s,"m");
+                                       printf "%.1f", u[1]*60+u[2]+s[1]*60+s[2] }')
+        rm -f "$acct"
+    fi
 fi
 
 # Never fatal: a ledger that can take the work down with it is worse

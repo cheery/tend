@@ -441,3 +441,24 @@ of its own that day and adopted the leash as shell discipline for the
 ledger's sake (`doc/mediation-order.md` §"2026-08-25").  Its request
 for the non-decorative version — a hook that wraps long runs, Henri's
 to install — is `card:grant.md`, which now cites it as the caller.
+
+**2026-08-25 — the leash's cpu column was wrong in scope mode, and its
+first outside user found it.**  A gestate session ran tend's leash on
+its full suite and read the ledger: `cpu=1.3s` for a twenty-five-minute
+CPU-bound run.  The cause is in `tools/leash.sh`: the figure came from
+`times`, the shell's account of its *own* waited-for children, and in
+scope mode the work is a child of the user manager, not of the shell —
+so `times` measured the `systemd-run` client, not the suite.  Fixed to
+read the scope's own cgroup tally (`CPUUsageNSec`) before the unit is
+stopped, falling to an honest `?` rather than a wrong number when it
+cannot be had; `times` stays for plain mode, where the command is a
+true child and the account is right.  `test_leash.py::
+test_scope_mode_counts_the_work_not_the_wrapper` guards it.  **The
+demonstration is owed outside the fence**: from a fenced session the
+bus is off and every run is plain, so the scope path — that
+`CPUUsageNSec` reads the right number and does not race the scope's
+teardown to empty — has not been run here.  It needs one run with a
+user manager, which is the gestate session's own case, or a session
+here once `TEND_REACH_ALLOW` carries `bus`.  *The leash's first outside
+invocation found a defect in the leash, which is the ledger existing
+doing its one job.*
