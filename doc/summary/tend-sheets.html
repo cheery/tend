@@ -1,0 +1,437 @@
+<title>Tend, Two Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --desk: #dedcda;
+    --sheet: #fbfaf9;
+    --sheet-edge: #efece8;
+    --ink: #21242a;
+    --ink-soft: #565a62;
+    --ink-faint: #8b8f96;
+    --hair: #ddd9d4;
+    --hair-strong: #c9c4bd;
+    --accent: #a8412b;
+    --accent-wash: #f4e9e4;
+    --up: #3f6b54;
+    --up-wash: #e7eee9;
+    --shadow: rgba(40, 34, 30, 0.18);
+    --sheet-shadow: 0 1px 2px rgba(40,34,30,.10), 0 12px 34px rgba(40,34,30,.14);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --desk: #131417;
+      --sheet: #1e2126;
+      --sheet-edge: #272b31;
+      --ink: #e8e4de;
+      --ink-soft: #a2a7af;
+      --ink-faint: #6c727b;
+      --hair: #313640;
+      --hair-strong: #3d434e;
+      --accent: #db7053;
+      --accent-wash: #33231d;
+      --up: #7fb094;
+      --up-wash: #1e2a24;
+      --shadow: rgba(0, 0, 0, 0.5);
+      --sheet-shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --desk: #131417;
+    --sheet: #1e2126;
+    --sheet-edge: #272b31;
+    --ink: #e8e4de;
+    --ink-soft: #a2a7af;
+    --ink-faint: #6c727b;
+    --hair: #313640;
+    --hair-strong: #3d434e;
+    --accent: #db7053;
+    --accent-wash: #33231d;
+    --up: #7fb094;
+    --up-wash: #1e2a24;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --sheet-shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--desk);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(16px, 4vw, 56px) 16px;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(28px, 5vw, 52px);
+  }
+
+  .sheet {
+    background: var(--sheet);
+    width: 100%;
+    max-width: 820px;
+    border: 1px solid var(--sheet-edge);
+    border-radius: 3px;
+    box-shadow: var(--sheet-shadow);
+    padding: clamp(28px, 5vw, 60px) clamp(24px, 5vw, 62px);
+    position: relative;
+  }
+  /* the bound edge */
+  .sheet::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+    opacity: .85;
+  }
+
+  /* ---- masthead ---- */
+  .mast { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .sheet-no {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  h1 {
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(28px, 4.4vw, 39px);
+    line-height: 1.08;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+  .dek {
+    font-family: "Spectral", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(15px, 2vw, 17px);
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 12px 0 0;
+  }
+  .rule-line { height: 1px; background: var(--hair-strong); margin: 26px 0 28px; }
+
+  /* ---- section label ---- */
+  .band {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex; align-items: center; gap: 12px;
+    margin: 30px 0 16px;
+  }
+  .band::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+  .band:first-of-type { margin-top: 4px; }
+
+  /* ---- rules ---- */
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 40px; }
+  @media (max-width: 640px) { .rules { grid-template-columns: 1fr; } }
+  .rule {
+    display: grid;
+    grid-template-columns: 2.4em 1fr;
+    gap: 0 12px;
+    padding: 11px 0;
+    border-top: 1px solid var(--hair);
+    align-items: start;
+  }
+  .rule .n {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    padding-top: 1px;
+  }
+  .rule p { margin: 0; font-size: 14px; line-height: 1.42; }
+  .rule .where {
+    display: block;
+    margin-top: 4px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    letter-spacing: .01em;
+  }
+  .rule .where b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---- legend of mechanisms ---- */
+  .legend {
+    margin-top: 30px;
+    background: var(--accent-wash);
+    border-radius: 4px;
+    padding: 18px 22px 20px;
+  }
+  .legend .band { margin: 0 0 12px; color: var(--accent); }
+  .legend .band::after { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .legend dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 34px;
+  }
+  @media (max-width: 640px) { .legend dl { grid-template-columns: 1fr; } }
+  .legend dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .legend dd { margin: 1px 0 0; font-size: 12.5px; color: var(--ink-soft); line-height: 1.38; }
+
+  /* ---- interfaces: command rows ---- */
+  .group { margin-bottom: 6px; }
+  .cmds { display: flex; flex-direction: column; }
+  .cmd {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) 1fr;
+    gap: 4px 22px;
+    padding: 9px 0;
+    border-top: 1px solid var(--hair);
+    align-items: baseline;
+  }
+  @media (max-width: 600px) { .cmd { grid-template-columns: 1fr; gap: 2px; } }
+  .cmd code {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink);
+    word-break: break-word;
+  }
+  .cmd code .flag { color: var(--accent); }
+  .cmd .g { font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  .cmd .g b { color: var(--ink); font-weight: 600; }
+
+  .note {
+    display: flex; gap: 10px; align-items: baseline;
+    font-size: 13.5px; color: var(--ink-soft); line-height: 1.45;
+    padding: 3px 0;
+  }
+  .note::before {
+    content: "—"; color: var(--accent); font-family: "IBM Plex Mono", monospace;
+  }
+
+  .chip {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px;
+    vertical-align: middle;
+  }
+  .chip.up { background: var(--up-wash); color: var(--up); }
+  .chip.down { background: var(--accent-wash); color: var(--accent); }
+  .chip.yours { background: var(--accent-wash); color: var(--accent); }
+
+  .band .chip { margin-left: -4px; letter-spacing: .08em; }
+
+  .missing {
+    margin-top: 26px;
+    border: 1px dashed var(--hair-strong);
+    border-radius: 4px;
+    padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .missing .head {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-soft);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .missing p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.45; }
+  .missing code { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--ink); }
+
+  .foot {
+    margin-top: 30px; padding-top: 14px;
+    border-top: 1px solid var(--hair);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; letter-spacing: .04em; color: var(--ink-faint);
+  }
+
+  strong.k { color: var(--ink); font-weight: 600; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .stack { gap: 0; }
+    .sheet { box-shadow: none; border: none; max-width: none; width: 100%;
+             padding: 14mm 16mm; page-break-after: always; border-radius: 0; }
+    .sheet::before { display: none; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+
+<div class="stack">
+
+  <!-- ============ SHEET ONE — THE RULES ============ -->
+  <section class="sheet" aria-labelledby="s1">
+    <div class="mast">
+      <div>
+        <div class="eyebrow">tend · a self-governing tree</div>
+        <h1 id="s1">What holds, and why</h1>
+      </div>
+      <div class="sheet-no">Sheet 1 / 2 · the rules</div>
+    </div>
+    <p class="dek">Fifteen invariants a session works under. Each is enforced by a mechanism in the
+      tree, not by good intentions — the whole point is that the boundary sits where a session cannot reach it.</p>
+    <div class="rule-line"></div>
+
+    <div class="band">The boundary</div>
+    <div class="rules">
+      <div class="rule"><span class="n">R1</span><p>The enforcement boundary lives <em>outside</em> a session's write access, or it is decoration.
+        <span class="where"><b>vision.md</b> · the founding line</span></p></div>
+      <div class="rule"><span class="n">R2</span><p>A session may not widen its own reach; the bound is the person's, set in the hook's own line.
+        <span class="where"><b>fence-hook.sh</b> · TEND_REACH_ALLOW</span></p></div>
+      <div class="rule"><span class="n">R3</span><p>The scripts that enforce are read-only to the session and denied to its edit tools.
+        <span class="where"><b>sandbox.sh</b> · the protected set</span></p></div>
+      <div class="rule"><span class="n">R4</span><p>A restraint must be able to say when it is off — silence is the failure it exists to end.
+        <span class="where"><b>fence.sh</b> · at every prompt</span></p></div>
+    </div>
+
+    <div class="band">The record</div>
+    <div class="rules">
+      <div class="rule"><span class="n">R5</span><p>A card names a <em>problem</em>, in the words of whoever had it — never a fix.
+        <span class="where"><b>test_board.py</b> · refuses a card without one</span></p></div>
+      <div class="rule"><span class="n">R6</span><p>Every sitting ends with a kaizen — the measure is commits since the last one, not the date.
+        <span class="where"><b>kaizen.sh</b> · the lamp</span></p></div>
+      <div class="rule"><span class="n">R7</span><p>Git is the only canonical copy: restore means <em>checkout</em>, never a second embedded copy.
+        <span class="where"><b>fence.sh --restore</b></span></p></div>
+      <div class="rule"><span class="n">R8</span><p>Every commit runs the gates first; a red gate refuses the commit, working tree unmoved.
+        <span class="where"><b>pre-commit.sh</b> · suite.py</span></p></div>
+    </div>
+
+    <div class="band">Honesty</div>
+    <div class="rules">
+      <div class="rule"><span class="n">R9</span><p>Errors are never silent. A sensor that cannot read a value says <code>?</code>, never a wrong number.
+        <span class="where"><b>leash.sh</b> · cpu column</span></p></div>
+      <div class="rule"><span class="n">R10</span><p>Measure, don't assert or borrow. A practice owes <em>this is what it caught, that you'd have shipped.</em>
+        <span class="where"><b>manifesto.md</b></span></p></div>
+      <div class="rule"><span class="n">R11</span><p>A mechanism a session cannot test, it <em>proposes</em> — it does not declare it done.
+        <span class="where"><b>doc/kaizen/</b> · a standing rule</span></p></div>
+      <div class="rule"><span class="n">R12</span><p>Nothing unexpected, silently. Loud within one prompt beats quiet and correct-looking.
+        <span class="where"><b>vision.md</b></span></p></div>
+    </div>
+
+    <div class="band">The program</div>
+    <div class="rules">
+      <div class="rule"><span class="n">R13</span><p>A hang is a crash. A wall budget bounds every run; overrun is exit 124, said out loud.
+        <span class="where"><b>leash.sh</b> · leash → sandbox → cmd</span></p></div>
+      <div class="rule"><span class="n">R14</span><p>A program opens where it was left, from a plain file a person can read without it.
+        <span class="where"><b>node/node.py</b> · state</span></p></div>
+      <div class="rule"><span class="n">R15</span><p>A program runs while something pulls it and quits itself when nothing does. Default: off.
+        <span class="where"><b>node/node.py</b> · pull lifecycle</span></p></div>
+    </div>
+
+    <div class="legend">
+      <div class="band">The mechanisms these rest on</div>
+      <dl>
+        <div><dt>board/</dt><dd>one file per problem; open · done/ · later/</dd></div>
+        <div><dt>tools/fence.sh</dt><dd>is the deny-list still in force?</dd></div>
+        <div><dt>tools/sandbox.sh</dt><dd>the tree as a session's whole world (bwrap)</dd></div>
+        <div><dt>tools/fence-hook.sh</dt><dd>wraps every command: leash + fence</dd></div>
+        <div><dt>tools/leash.sh</dt><dd>one run, budgeted, with a ledger line</dd></div>
+        <div><dt>tools/limit.sh</dt><dd>a sitting has a length; ending it is one-way</dd></div>
+        <div><dt>tools/kaizen.sh</dt><dd>the lamp that ends a sitting</dd></div>
+        <div><dt>node/</dt><dd>the first program tend runs, not one that governs</dd></div>
+      </dl>
+    </div>
+
+    <div class="foot">
+      <span>tend — second vehicle of the method grown in ~/gestate</span>
+      <span>as of 2026-08-25</span>
+    </div>
+  </section>
+
+  <!-- ============ SHEET TWO — THE INTERFACES ============ -->
+  <section class="sheet" aria-labelledby="s2">
+    <div class="mast">
+      <div>
+        <div class="eyebrow">tend · what a person touches</div>
+        <h1 id="s2">The surface you work</h1>
+      </div>
+      <div class="sheet-no">Sheet 2 / 2 · interfaces</div>
+    </div>
+    <p class="dek">Everything human-facing, by kind: the keys only you may turn, the instruments a session and
+      you both run, what the tree says back unbidden, the plain files you read — and the one cord not built yet.</p>
+    <div class="rule-line"></div>
+
+    <div class="band">Keys you hold <span class="chip yours">yours · run unfenced</span></div>
+    <div class="group cmds">
+      <div class="cmd"><code>~/reach-allow.sh <span class="flag">net,audio,…</span></code>
+        <span class="g"><b>Set the fence's reach bound.</b> Writes TEND_REACH_ALLOW on the hook's line — the rows a session may ask for.</span></div>
+      <div class="cmd"><code>~/hook-installer.sh</code>
+        <span class="g"><b>Install the per-command fence.</b> Edits <code>.claude/settings.json</code>; hook config is enforcement, so the edit is yours.</span></div>
+      <div class="cmd"><code>tools/fence.sh <span class="flag">--protect</span></code>
+        <span class="g"><b>Lock the enforcement scripts.</b> Adds the missing deny rules and nothing else. Narrows, never widens.</span></div>
+    </div>
+    <div class="note">These three change what a session is allowed to do. They live outside the tree, or read-only inside it, on purpose.</div>
+
+    <div class="band">Instruments you run</div>
+    <div class="group cmds">
+      <div class="cmd"><code>tools/sandbox.sh <span class="flag">--check</span></code>
+        <span class="g">Prove the fence is up — the sitting clock first, then the secrets. Also <code class="flag">--rows</code>, <code class="flag">--protected</code>.</span></div>
+      <div class="cmd"><code>tools/fence.sh</code>
+        <span class="g">Is the deny-list in force? <code class="flag">--restore</code> puts a lost file back from git.</span></div>
+      <div class="cmd"><code>tools/leash.sh <span class="flag">-t -c -m</span> -- cmd</code>
+        <span class="g">Run one thing under a wall / CPU / memory budget; leaves a ledger line.</span></div>
+      <div class="cmd"><code>tools/limit.sh</code>
+        <span class="g">Where the sitting clock stands — how long in, how long left.</span></div>
+      <div class="cmd"><code>tools/kaizen.sh <span class="flag">want</span> "why"</code>
+        <span class="g">Read the lamp, or declare a kaizen owed and carry the reason forward.</span></div>
+      <div class="cmd"><code>tools/toolbox.sh</code>
+        <span class="g">Set a clone up and say what a machine is missing — the stranger's first command.</span></div>
+      <div class="cmd"><code>node/node.py <span class="flag">run · pull · status</span></code>
+        <span class="g">The first program: start it, pull it, read what it did.</span></div>
+    </div>
+
+    <div class="band">What the tree says back <span class="chip up">unbidden</span></div>
+    <div class="group">
+      <div class="note"><span><b class="k">Every prompt</b> — three lamps run before your words reach the session: the kaizen lamp (a sitting owes its close), the sitting clock, and the fence lamp (🔴 if the deny-list weakened).</span></div>
+      <div class="note"><span><b class="k">Every command</b> — the fence hook wraps it as <code>leash → sandbox</code>, or refuses a reach outside your bound with a reason.</span></div>
+      <div class="note"><span><b class="k">Every commit</b> — the gate runs the suite and refuses a red one, naming what failed and how to skip it on the record.</span></div>
+    </div>
+
+    <div class="band">Plain files you read</div>
+    <div class="group cmds">
+      <div class="cmd"><code>board/ · done/ · later/</code>
+        <span class="g">The work itself — one card per problem. You fill it; a session works it down.</span></div>
+      <div class="cmd"><code>~/.local/state/tend/leash.log</code>
+        <span class="g">Every budgeted run: when, how long, what it cost, whether the budget applied.</span></div>
+      <div class="cmd"><code>doc/kaizen/&lt;date&gt;-&lt;HHMM&gt;.md</code>
+        <span class="g">One per sitting — what went right, what went wrong named as whose, what to change.</span></div>
+      <div class="cmd"><code>node/*.state</code>
+        <span class="g">A program's whole memory, as JSON you can read without the program.</span></div>
+    </div>
+
+    <div class="missing">
+      <div class="head">Not built yet <span class="chip down">cords · blocked → 2026-08-31</span></div>
+      <p><b>The andon</b> — a way for a session to reach you mid-run, capped, questions batched — does not exist. Today a session that hits a question it cannot answer must guess or stop; the count of guesses is being kept first, to prove the cord is one somebody would pull. The surface is honest about its own hole.</p>
+    </div>
+
+    <div class="foot">
+      <span>keys turn the bound · instruments read it · the tree speaks in lamps, never alarms</span>
+      <span>Sheet 2 / 2</span>
+    </div>
+  </section>
+
+</div>
