@@ -110,3 +110,61 @@ decision* and *everything else is downstream of it* — so by its own
 words this ranks above the restraints already built and observed.  The
 placing is the session's; the tiebreak is Henri's, and this is his to
 move.
+
+## 2026-08-25, afternoon — the first enforcement, built: a program blind to the file beside it
+
+Henri, on the cost/benefit of the two shapes: *"go with A"* — the
+reusable launcher, the grant outside the program, not the program
+confining itself (Rule 1, kept: a party may not bound itself).
+
+**Measured first**, from inside the fence: Landlock is available at
+**ABI 4**, unprivileged, no build — a process can scope its own
+filesystem reads through the raw syscalls.  The header's earlier guess
+that a scope "cannot be made in bwrap's namespaces" was about `bus`; the
+filesystem is a different LSM and needs no namespace at all.  *One side
+finding, its own line, not this card's:* a raw `bwrap` and `unshare
+--user` did nest from inside the fence, which contradicts
+`tools/sandbox.sh`'s "cannot nest" comment — the sandbox still refuses
+by policy, so nothing is weaker, but that comment wants verifying.
+
+**Built**: `tools/keep.py` — `keep [--allow PATH]... -- program args`.
+It governs filesystem *reads*, grants read on the handed paths plus the
+system roots any program needs to run, `restrict_self` (one-way, so the
+program cannot widen what it was given), then execs.  The demonstration
+the card owed, run and tested:
+
+    keep --allow $D/mine -- sh -c 'cat $D/mine; cat $D/beside; cat board/README.md; cat leash.log'
+    mine        → granted
+    beside      → Permission denied   (same directory, not handed over)
+    the tree    → Permission denied
+    the ledger  → Permission denied
+
+`test/test_keep.py` holds it: the neighbour, the tree and the ledger are
+all blind; a granted directory reads beneath; a system program still
+runs.  That is problem 1 enforced for the first time — a program reads
+only what it was handed.
+
+**What the build taught, named:**
+
+* **The runtime is a grant like any other.**  The first "still runs"
+  test used the *venv* python, and it failed: the confined interpreter
+  could not read its own `pyvenv.cfg` in the tree.  Correct, not a bug —
+  to run a program you hand it its runtime too.  System programs need
+  only the roots; a venv is handed with `--allow .venv`.  The node
+  retrofit will hand the node its own directory and interpreter, no more.
+* **keep refuses rather than run unconfined.**  If Landlock is absent it
+  does not exec the program — a grant that silently became "everything"
+  is the one lie it must not tell (Rule 9).
+* **Reads only, for now.**  Write and network are Landlock bits this
+  does not set yet; a program under keep can still *write* where the
+  fence allows.  The card's problem is reading data it was not given,
+  and that is closed; write-scoping is a later turn, named so the gap is
+  not silent.
+
+**What stays open on the card**: keep exists and binds nothing until a
+caller runs a program through it — the leash's shape before the hook
+wrapped it.  The next step is the one the cost/benefit named: the pull
+node *run through* keep (`keep --allow <the node's dir> -- node.py`), so
+the real program gains the boundary, the grant still outside it.  That,
+and write-scoping, are what remain before this problem is more than
+demonstrated.
