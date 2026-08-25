@@ -162,7 +162,7 @@ said plainly: a fix to any of the five is no longer a fenced session's
 to make; it is the person's, or an unfenced session's, and `limit.sh`'s
 twin debt to gestate now has that step in it too.
 
-**Demonstrated, 2026-08-25, 14:xx.**  Henri: *"It's in."*  `tools/fence.sh`
+**Demonstrated, 2026-08-25, 14:04.**  Henri: *"It's in."*  `tools/fence.sh`
 green on this clone, 139 passed at the suite, and the Edit tool on
 `tools/sandbox.sh` — the route that went through an hour earlier —
 refused: *"File is in a directory that is denied by your permission
