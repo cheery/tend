@@ -88,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "TEND_REACH_ALLOW=bus,net,audio,display \"$CLAUDE_PROJECT_DIR\"/tools/fence-hook.sh"
+            "command": "TEND_REACH_ALLOW=net,audio,display \"$CLAUDE_PROJECT_DIR\"/tools/fence-hook.sh"
           }
         ]
       }

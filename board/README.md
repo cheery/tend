@@ -54,16 +54,16 @@ between two workable cards is Henri's.
    card from it"; the tiebreak is his.*
 4. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-5. **[grant](grant.md)** — inside the fence the leash's budget does not
-   apply; the fence bounds how far a session reaches and nothing bounds
-   how much it takes while it is there.
-6. **[pull](pull.md)** — tend runs nothing but its own suite, so the
+5. **[pull](pull.md)** — tend runs nothing but its own suite, so the
    stranger test has no program to start; everything here governs and
    nothing is governed.
 
-*Cards 4–6 are the three waypoints Henri named on 2026-08-25 ("they are
-excellent waypoints"), in the order a session predicted them; the
-placing is the session's and the tiebreak is his.*
+*Cards 4–5 and `grant` are the three waypoints Henri named on
+2026-08-25 ("they are excellent waypoints"), in the order a session
+predicted them; the placing is the session's and the tiebreak is his.
+`grant` finished the same day it was carded: the leash wraps the fence,
+the budget applies inside, and the ledger says so on every line
+(`done/grant.md`).*
 
 `gates` finished 2026-08-24, the day it was opened — the hook is
 installed, and it has refused a commit once (`done/gates.md` has the

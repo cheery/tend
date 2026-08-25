@@ -52,7 +52,7 @@ def test_the_rows_are_the_dial():
 
 
 def test_the_bus_is_not_a_row():
-    """Measured 2026-08-25 (`board/grant.md`): with the user bus inside,
+    """Measured 2026-08-25 (`board/done/grant.md`): with the user bus inside,
     `systemd-run --user --wait` ran a command on the host — home, PATH
     and no fence — because the manager spawns it, not the caller.  The
     row's one caller, the leash, now wraps the fence from outside.  A

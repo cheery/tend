@@ -77,7 +77,7 @@ def test_everything_else_is_wrapped():
 
 
 def test_the_leash_wraps_the_fence_and_not_the_other_way(tmp_path):
-    """`board/grant.md`, measured 2026-08-25: the budget is a cgroup made
+    """`board/done/grant.md`, measured 2026-08-25: the budget is a cgroup made
     by the user manager, and a `bus` socket handed *inside* the fence
     lets a fenced session run anything unfenced through that manager —
     an escape, not a dial.  So the scope is made outside, by the hook,

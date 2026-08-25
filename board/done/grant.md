@@ -1,6 +1,6 @@
 # grant — a session's reach and its budget are two dials, and one of them goes dark inside the fence
 
-    status   open
+    status   done — 2026-08-25
     because  inside the fence the leash's budget does not apply — the
              user bus is off, so `tools/leash.sh` runs `plain` and the
              ledger says so; the fence bounds how far a session reaches
@@ -185,3 +185,10 @@ the fence does not hold the bus.  The count this card asked for —
 `plain` lines that mattered — starts now at the other end: every fenced
 line says `scope`, and a `plain` one from here on means the host bus
 was gone, which the ledger will say.
+
+## Done, 2026-08-25 — Henri: "move grant to done"
+
+The `because` no longer stands: inside the fence the budget applies,
+on every command, and every ledger line says `scope` — a `plain` one
+from here on means the host bus was gone, and the ledger will say so.
+The count of `plain` lines that mattered runs from here.

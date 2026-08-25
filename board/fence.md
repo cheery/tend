@@ -229,3 +229,32 @@ the three the classifier stopped.  Left in place: it is not wrong, and
 it is not the boundary.  The boundary for `.git/` is the same as for
 the gate — none, by category (`done/gates.md`) — and a reader of this
 list should know that before crediting the rule.
+
+## 2026-08-25, afternoon — the `display` row, measured with the row granted
+
+Henri: *"do the display measurement."*  From inside the fence with
+`REACH=display`, after `bus` was found to be a door out
+(`done/grant.md`):
+
+* **The row is inert as it stands.**  `/tmp/.X11-unix` is bound and
+  `DISPLAY=:0` set, and every client is refused — *"Authorization
+  required, but no authorization protocol specified"* — because the
+  cookie lives in `~/.Xauthority` (or `$XAUTHORITY`), and `~` is a
+  tmpfs inside.  `xdpyinfo`, `xwininfo -root -tree`, `xdotool
+  getactivewindow`, `xclip -o`, `xwd -root`, `xinput list`: nothing,
+  nothing, nothing.  The same defect the `bus` row had on its first
+  day — a socket without its credential — and it is recorded rather
+  than fixed, because the row has no caller and the fix is a widening
+  (one more read-only bind) that belongs to whoever brings the caller.
+* **The session is Wayland**, `:0` is XWayland.  That bounds what the
+  row exposes once it works: an X client sees and can drive other X
+  clients — windows, clipboard, XTEST input — and not the compositor's
+  native windows or their input.  On this machine, then, `display` is
+  narrower than `bus` was and wider than its name, the way `audio` is:
+  it is "every X program", not "a window".  Not measured past the
+  refusal; measuring it means granting the cookie, which is the
+  widening above.
+
+What was *not* done: no cookie was smuggled in and no input was sent to
+any window.  The row stays off, the bound Henri set stays as it is, and
+a caller for it is not on the board.
