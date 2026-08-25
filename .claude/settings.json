@@ -55,7 +55,12 @@
       "Edit(./.claude/**)",
       "Edit(~/.bashrc)",
       "Edit(~/.profile)",
-      "Edit(~/.config/**)"
+      "Edit(~/.config/**)",
+      "Edit(./tools/sandbox.sh)",
+      "Edit(./tools/fence-hook.sh)",
+      "Edit(./tools/fence.sh)",
+      "Edit(./tools/limit.sh)",
+      "Edit(./tools/kaizen.sh)"
     ]
   },
   "hooks": {
@@ -83,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/tools/fence-hook.sh"
+            "command": "TEND_REACH_ALLOW=bus,net,audio,display \"$CLAUDE_PROJECT_DIR\"/tools/fence-hook.sh"
           }
         ]
       }

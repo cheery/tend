@@ -6,6 +6,7 @@
 #     tools/sandbox.sh [--reach ROW,ROW] command args...
 #     tools/sandbox.sh --check              prove the fence is up — the clock first
 #     tools/sandbox.sh --rows               the rows and their defaults
+#     tools/sandbox.sh --protected          the paths read-only inside, one per line
 #
 # **This is the sessions-first fence of doc/experiments/2026-08-25-both.md,
 # promoted.**  Bubblewrap: the system read-only, an empty home, no
@@ -49,6 +50,16 @@ uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 trees="/home/cheery/gestate"
 
+# The protected set (card:self.md): the paths a session editing changes
+# what the session is allowed to do, before anyone looks.  These are the
+# scripts the hooks run — the four on the person's side of the fence, at
+# every prompt or every command, unfenced — and this one, which the hook
+# reads fresh each call.  Not `leash.sh`: it shapes cost, it does not
+# enforce.  `tools/fence.sh` checks the deny-list carries the matching
+# `Edit(./tools/…)` rule for each, and `test_sandbox.py` holds the two
+# lists to one.
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh"
+
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a
 # listing can be asked for from inside (the suite does, at the gate).
@@ -72,7 +83,7 @@ while [ $# -gt 0 ]; do
         --check) mode=check; shift ;;
         --rows)
             cat <<ROWS
-  on   tree      $root  read-write — the world
+  on   tree      $root  read-write — the world, except .claude/ and the protected set (--protected)
   on   state     ~/.local/state, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want
   on   trees     $trees  read-only — the audit, anything cross-tree
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
@@ -83,7 +94,8 @@ while [ $# -gt 0 ]; do
   off  bus       the user bus — tools/leash.sh's cgroup budget; without it the ledger says plain
 ROWS
             exit 0 ;;
-        -h|--help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --protected) printf '%s\n' $protected; exit 0 ;;
+        -h|--help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         --) shift; break ;;
         -*) echo "sandbox: unknown argument \`$1\`" >&2; exit 2 ;;
         *) break ;;
@@ -105,6 +117,9 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --setenv HOME $HOME --setenv XDG_RUNTIME_DIR $rt --setenv TEND_FENCED 1
   --setenv PATH $root/.venv/bin:/usr/local/bin:/usr/bin:/bin
   --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS"
+# The protected set, bound read-only over the tree after it: a file bind
+# refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
+for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
 for t in $trees; do [ -d "$t" ] && opts="$opts --ro-bind $t $t"; done
 [ -d "/tmp/claude-$uid" ] && opts="$opts --bind /tmp/claude-$uid /tmp/claude-$uid"
 
@@ -174,6 +189,10 @@ probe "no network"                      blocked timeout 5 getent ahostsv4 exampl
 probe "/usr is read-only"               blocked sh -c 'touch /usr/.probe'
 probe "DISPLAY is unset"                blocked sh -c 'test -n "${DISPLAY:-}"'
 probe "the other tree is read-only"     blocked sh -c "touch $trees/.probe"
+probe ".claude/ is read-only"           blocked sh -c "touch $root/.claude/settings.json"
+for p in $protected; do
+    probe "$p is read-only"             blocked sh -c "touch $root/$p"
+done
 # 4. What must be.
 probe "this tree is writable"           ok      sh -c "test -w $root"
 probe "git knows who you are"           ok      sh -c 'git config user.email >/dev/null'

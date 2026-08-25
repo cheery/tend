@@ -24,13 +24,23 @@ SETTINGS = ROOT / ".claude" / "settings.json"
 HOOK_LINE = '"$CLAUDE_PROJECT_DIR"/tools/fence.sh --hook'
 
 
+def protected_set():
+    out = subprocess.run(["sh", str(ROOT / "tools" / "sandbox.sh"), "--protected"],
+                         capture_output=True, text=True, cwd=ROOT)
+    return out.stdout.split()
+
+
 def settings_with_fence_hook():
-    """This clone's real settings, with the fence's own hook line ensured —
-    so the fixture is what the tree looks like once the line is in."""
+    """This clone's real settings, with the fence's own hook line ensured
+    and the protected set's `Edit` rules ensured — so the fixture is what
+    the tree looks like once the person's edits are in."""
     d = json.loads(SETTINGS.read_text(encoding="utf-8"))
     hooks = d["hooks"]["UserPromptSubmit"][0]["hooks"]
     if not any("tools/fence.sh --hook" in h["command"] for h in hooks):
         hooks.append({"type": "command", "command": HOOK_LINE})
+    for p in protected_set():
+        if f"Edit(./{p})" not in d["permissions"]["deny"]:
+            d["permissions"]["deny"].append(f"Edit(./{p})")
     return d
 
 
@@ -100,6 +110,58 @@ def test_the_edit_rule_is_load_bearing(tmp_path):
     r = Repo(tmp_path)
     r.edit(drop_rule("Edit(./.claude/**)"))
     assert "Edit(./.claude/**) — MISSING" in r.fence().stdout
+
+
+def test_the_protected_sets_rules_are_load_bearing(tmp_path):
+    """`board/self.md`: the scripts the hooks run are kept two ways, like
+    `.claude/` — the fence binds them read-only against the shell, and
+    these rules deny them to the edit tools.  One rule gone is red, named,
+    and the line to put it back is printed for the person."""
+    r = Repo(tmp_path)
+    r.edit(drop_rule("Edit(./tools/sandbox.sh)"))
+    out = r.fence()
+    assert out.returncode == 1
+    assert "Edit(./tools/sandbox.sh) — MISSING" in out.stdout
+    assert "tools/fence.sh --protect" in out.stdout, "the person is told the key"
+
+
+def test_protect_adds_only_what_is_missing_and_never_widens(tmp_path):
+    """The person's key, kept in the tree because the tree binds this
+    script read-only (`board/self.md`): it adds the load-bearing rules
+    that are absent, touches nothing else, and is idempotent."""
+    r = Repo(tmp_path)
+    r.edit(drop_rule("Edit(./tools/fence-hook.sh)"))
+    r.edit(drop_rule("Bash(sudo:*)"))
+    n = len(json.loads(r.file.read_text())["permissions"]["deny"])
+    out = r.fence("--protect")
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "added  Edit(./tools/fence-hook.sh)" in out.stdout
+    assert "added  Bash(sudo:*)" in out.stdout
+    deny = json.loads(r.file.read_text())["permissions"]["deny"]
+    assert len(deny) == n + 2 and "Edit(./tools/fence-hook.sh)" in deny and "Bash(sudo:*)" in deny
+    assert "the fence is up" in out.stdout
+    again = r.fence("--protect")
+    assert again.returncode == 0 and "nothing to add" in again.stdout
+    assert json.loads(r.file.read_text())["permissions"]["deny"] == deny
+    assert "PreToolUse" in json.loads(r.file.read_text())["hooks"], "nothing else touched"
+
+
+def test_protect_refuses_a_file_that_does_not_parse(tmp_path):
+    r = Repo(tmp_path)
+    r.file.write_text("{ not json\n")
+    out = r.fence("--protect")
+    assert out.returncode == 1 and "--restore first" in out.stderr
+
+
+def test_the_fence_hook_removed_is_red(tmp_path):
+    """The `PreToolUse` line is the fence around every shell command;
+    without it nothing is fenced, and until 2026-08-25 this check did not
+    look at it."""
+    r = Repo(tmp_path)
+    r.edit(lambda d: d["hooks"].pop("PreToolUse"))
+    out = r.fence()
+    assert out.returncode == 1
+    assert "tools/fence-hook.sh is not on PreToolUse(Bash)" in out.stdout
 
 
 def test_the_file_missing_is_red_and_restore_puts_it_back(tmp_path):

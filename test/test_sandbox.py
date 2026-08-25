@@ -12,8 +12,10 @@ it — a skipped fence test is not a passing one, and the skip reason
 names the package.
 """
 
+import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 
@@ -87,6 +89,47 @@ def test_the_restraints_are_read_only_inside():
     assert not settings.with_suffix(".json.away").exists()
     assert not settings.with_suffix(".json.probe").exists()
     assert out.stdout.count("Read-only file system") + out.stdout.count("Kirjoitussuojattu") >= 3, out.stdout
+
+
+def test_the_protected_set_is_the_scripts_the_hooks_run():
+    """`board/self.md`'s line: a path is in the set if a session editing it
+    changes what the session is allowed to do before anyone looks.  That
+    is every script a hook runs — read fresh, unfenced, as the person —
+    and not `leash.sh`, which shapes cost.  The set is read from this
+    clone's settings, so a hook added without its script being protected
+    is caught here."""
+    out = sandbox("--protected")
+    assert out.returncode == 0
+    protected = set(out.stdout.split())
+    settings = json.loads((ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooked = set()
+    for event in settings["hooks"].values():
+        for group in event:
+            for h in group["hooks"]:
+                m = re.search(r"tools/([\w-]+\.sh)", h["command"])
+                assert m, h["command"]
+                hooked.add("tools/" + m.group(1))
+    assert hooked <= protected, f"a hook runs a script outside the protected set: {hooked - protected}"
+    assert "tools/leash.sh" not in protected, "leash.sh shapes cost; it is not in the set"
+    for p in protected:
+        assert (ROOT / p).is_file(), p
+
+
+@needs_bwrap
+def test_the_fences_own_code_is_read_only_inside():
+    """`board/self.md`'s measurement, 2026-08-25: an edit to this script
+    from inside the fence was in force on the very next command.  Now the
+    set is bound read-only: a write is EROFS and the mountpoint cannot be
+    renamed or removed."""
+    protected = sandbox("--protected").stdout.split()
+    before = {p: (ROOT / p).read_bytes() for p in protected}
+    for p in protected:
+        f = ROOT / p
+        out = sandbox("sh", "-c",
+                      f"echo x >> '{f}' 2>&1; mv '{f}' '{f}.away' 2>&1; rm -f '{f}' 2>&1; echo rc=$?")
+        assert (ROOT / p).read_bytes() == before[p], p
+        assert not f.with_name(f.name + ".away").exists(), p
+        assert "Read-only file system" in out.stdout or "Kirjoitussuojattu" in out.stdout, (p, out.stdout)
 
 
 @needs_bwrap

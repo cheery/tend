@@ -9,6 +9,8 @@
 #     tools/fence.sh --force      put it back from git even if it parses
 #     tools/fence.sh --hook       the UserPromptSubmit form: restore what is safe
 #                                 to restore, say what is wrong, exit 0
+#     tools/fence.sh --protect    add the load-bearing rules that are missing,
+#                                 then check — the person's key (card:self.md)
 #
 # **The failure this exists for was measured on 2026-08-25, in a tend
 # session, before this file existed.**  Six routes into
@@ -58,8 +60,8 @@ settings="$root/$rel"
 mode=check
 case "${1:-}" in
     "") ;;
-    --restore|--force|--hook) mode=${1#--} ;;
-    -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --restore|--force|--hook|--protect) mode=${1#--} ;;
+    -h|--help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "fence: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
@@ -97,9 +99,47 @@ esac
 
 # The rules whose absence means the fence is down.  Not the whole list —
 # the load-bearing few, `Edit(./.claude/**)` first because it is the one
-# that keeps the rest from being edited away with the edit tools.  And
-# the three hooks, because on this tree hook config is enforcement: the
-# lamp, the sitting limit, and this.
+# that keeps the rest from being edited away with the edit tools; then
+# the protected set (card:self.md) — the scripts the hooks run, which
+# `tools/sandbox.sh` binds read-only against the shell and these rules
+# deny to the edit tools, the same two ways `.claude/` is kept.  And the
+# four hooks, because on this tree hook config is enforcement: the lamp,
+# the sitting limit, this — and the fence around every shell command.
+protected=$(sh "$root/tools/sandbox.sh" --protected 2>/dev/null || true)
+[ -n "$protected" ] || protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh"
+nl='
+'
+rules="Edit(./.claude/**)$nl"
+for p in $protected; do rules="${rules}Edit(./$p)$nl"; done
+rules="${rules}Bash(sudo:*)${nl}Bash(git push:*)${nl}Read(~/.ssh/**)"
+# The rules carry spaces and `*`: one per line, and never globbed.
+each_rule() { set -f; IFS=$nl; for rule in $rules; do "$@" "$rule"; done; unset IFS; set +f; }
+
+# `--protect` only adds, and only what the list above names: a key that
+# can narrow and never widen is one that is safe to keep in the tree,
+# once the tree binds it read-only — which `tools/sandbox.sh` does, and
+# is why this lives here and not in `~` (card:self.md).  It refuses a
+# file that does not parse, because an edit to that is a guess.
+if [ $mode = protect ]; then
+    [ -f "$settings" ] && valid || { echo "fence: $rel is missing or not valid JSON — tools/fence.sh --restore first." >&2; exit 1; }
+    add=""
+    absent() {
+        want=$(printf '%s' "$1" | sed "s|(~/|(/$HOME/|")
+        jq -e --arg r "$1" --arg w "$want" '.permissions.deny // [] | index($r) != null or index($w) != null' "$settings" >/dev/null \
+            || add="$add$1$nl"
+    }
+    each_rule absent
+    if [ -z "$add" ]; then
+        echo "fence: nothing to add — every load-bearing rule is in $rel."
+    else
+        printf '%s' "$add" | jq -R . | jq -s '.' > "$settings.protect" \
+            && jq --slurpfile a "$settings.protect" '.permissions.deny += $a[0]' "$settings" > "$settings.new" \
+            && mv "$settings.new" "$settings"
+        rm -f "$settings.protect"
+        printf '%s' "$add" | sed 's/^/fence: added  /'
+    fi
+    mode=check
+fi
 fail=0
 out=""
 say() { out="$out  $1 $2
@@ -117,14 +157,19 @@ else
         .permissions.deny // []
         | map(sub("\\(~/"; "(/" + $home + "/"))
         | .[]' "$settings")
-    for rule in 'Edit(./.claude/**)' 'Bash(sudo:*)' 'Bash(git push:*)' 'Read(~/.ssh/**)'; do
-        want=$(printf '%s' "$rule" | sed "s|(~/|(/$HOME/|")
+    missing=0
+    in_force() {
+        want=$(printf '%s' "$1" | sed "s|(~/|(/$HOME/|")
         if printf '%s\n' "$deny" | grep -qxF -- "$want"; then
-            say "✓" "$rule"
+            say "✓" "$1"
         else
-            say "✗" "$rule — MISSING from the deny-list"; fail=1
+            say "✗" "$1 — MISSING from the deny-list"; fail=1; missing=1
         fi
-    done
+    }
+    each_rule in_force
+    if [ $missing -ne 0 ]; then
+        say "→" "tools/fence.sh --protect adds what is missing and nothing else — the person's key, not a session's"
+    fi
 
     hooks=$(jq -r '[.hooks.UserPromptSubmit[]?.hooks[]?.command // empty] | .[]' "$settings")
     for h in kaizen limit fence; do
@@ -134,6 +179,12 @@ else
             say "✗" "tools/$h.sh --hook is not on UserPromptSubmit — it will not run"; fail=1
         fi
     done
+    pre=$(jq -r '[.hooks.PreToolUse[]? | select(.matcher == "Bash") | .hooks[]?.command // empty] | .[]' "$settings")
+    if printf '%s\n' "$pre" | grep -q 'tools/fence-hook\.sh'; then
+        say "✓" "tools/fence-hook.sh on PreToolUse(Bash)"
+    else
+        say "✗" "tools/fence-hook.sh is not on PreToolUse(Bash) — every shell command runs unfenced"; fail=1
+    fi
 fi
 
 if [ $mode = hook ]; then
