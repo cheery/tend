@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 *.swp
 .venv
+
+# the node's own state and pull ledger — plain files, written at runtime
+node/*.state
+node/*.state.new
+node/*.state.pull
