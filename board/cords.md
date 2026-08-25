@@ -67,3 +67,20 @@ guesses where it should have asked appends one dated line below, and
 what the line says is the question, not the guess:
 
 * (none yet)
+
+## 2026-08-25 — the first of three waypoints, and where the andon will run
+
+Henri, having read the direction: *"Put those three on the board as
+cards.  They are excellent waypoints."*  The first waypoint is this
+card, so it is written here rather than on a duplicate.
+
+When the andon arrives on 2026-08-31 it arrives into a tree that now
+has a fence (`tools/sandbox.sh`, `tools/fence-hook.sh`, installed
+2026-08-25), and that changes what it is: **the first program tend did
+not write, running under the fence**, and the first row Henri will
+ever put in `TEND_REACH_ALLOW` — `audio`.  So the card's work now has
+three parts: the cord itself (a session rings, capped, batched); the
+row measured properly — a socket-only ring, so that `audio` stops
+meaning the whole card, microphone included
+(`doc/experiments/2026-08-25-both.md`); and the count above, closed
+on the day.  The fence is a cage with no bell until this lands.
