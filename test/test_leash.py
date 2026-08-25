@@ -112,15 +112,22 @@ def test_scope_mode_counts_the_work_not_the_wrapper(tmp_path):
     ~1.5 CPU-seconds; the old code showed near zero here, which is the
     regression this guards.  Plain mode has the command as a true child
     and does not have the bug, so it skips."""
+    burn = 1.5
     r = leash(tmp_path, "-t", "30", "-c", "100", "--", "sh", "-c",
-              "timeout 1.5 sh -c 'while :; do :; done'; true")
+              f"timeout {burn} sh -c 'while :; do :; done'; true")
     how = lines(tmp_path)[0][3].split()[-1]
     if how != "scope":
         pytest.skip("no systemd user manager here; times is correct in plain mode")
     cpu = lines(tmp_path)[0][4]
     assert cpu != "cpu=?s", "scope mode could not read the cgroup — the number is lost"
     secs = float(cpu.removeprefix("cpu=").removesuffix("s"))
-    assert secs >= 0.7, f"a 1.5s single-core burn cost {secs}s — the wrapper, not the work"
+    # A band, not a floor: `-c 100` is one core, so ~`burn` CPU-seconds is
+    # the known amount.  The low end catches the bug this exists for — the
+    # wrapper's near-zero.  The high end catches its mirror — counting a
+    # subtree twice, or the whole session's cgroup instead of the scope's.
+    # A sensor is suspected until a check pins both sides of it.
+    assert 0.7 <= secs <= burn * 1.6, \
+        f"a {burn}s single-core burn read {secs}s — outside tolerance for the work"
 
 
 def test_the_ledger_says_whether_the_budget_really_applied(tmp_path):
