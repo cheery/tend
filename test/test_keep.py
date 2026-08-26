@@ -391,3 +391,38 @@ def test_a_runner_is_not_turned_away_by_a_momentary_hold_on_the_lock(tmp_path):
         holder.wait(timeout=5)
     assert r.returncode == 0, (r.returncode, r.stderr)
     assert _state(tmp_path)["generations"] == 1
+
+
+_BIND_ONE = ("import socket, errno, sys\n"
+             "port = int(sys.argv[1])\n"
+             "def t(what, f):\n"
+             "    try: f(); print(what, 'ok')\n"
+             "    except OSError as e: print(what, errno.errorcode.get(e.errno, e.errno))\n"
+             "t('granted', lambda: socket.socket().bind(('127.0.0.1', port)))\n"
+             "t('other', lambda: socket.socket().bind(('127.0.0.1', 0)))\n"
+             "t('connect', lambda: socket.socket().connect(('127.0.0.1', int(sys.argv[2]))))\n")
+
+
+@pytest.mark.skipif(_landlock_abi() < 4,
+                    reason="Landlock below ABI 4 — no network bits to hold")
+def test_bind_grants_one_port_and_nothing_else(tmp_path):
+    """A port, granted — `board/work-environment-ai.md` 15:45: a server's
+    whole reach is one listening port.  `--bind PORT` lets the program
+    bind that port; any other bind and every connect stay refused."""
+    import socket
+    srv, lp = _loopback_listener()
+    free = socket.socket(); free.bind(("127.0.0.1", 0)); gp = free.getsockname()[1]; free.close()
+    try:
+        r = keep("--allow", str(tmp_path), "--bind", str(gp), "--", "/usr/bin/python3",
+                 "-c", _BIND_ONE, str(gp), str(lp))
+        lines = dict(l.split(" ", 1) for l in r.stdout.strip().splitlines())
+        assert lines == {"granted": "ok", "other": "EACCES", "connect": "EACCES"}, (r.stdout, r.stderr)
+    finally:
+        srv.close()
+
+
+def test_bind_wants_a_port_number():
+    r = keep("--bind", "http", "--", "true")
+    assert r.returncode == 2 and "port number" in r.stderr
+    r = keep("--bind", "70000", "--", "true")
+    assert r.returncode == 2 and "port number" in r.stderr

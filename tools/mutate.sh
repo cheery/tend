@@ -218,6 +218,10 @@ test/test_resolve.py	node: a runner reads the ledger at open and serves only wha
 test/test_keep.py	resolver: the runner refuses the lock at once instead of waiting	sed -i 's/^    flock -w 2 9 || {/    flock -n 9 || {/' node/run.sh
 # tools/leash.sh — the clock starts before the probe, 2026-08-26
 test/test_leash.py	leash: the clock is stamped after the probe again	sed -i '/^start=\$(date +%s)$/d; s/^rc=0$/start=$(date +%s)\nrc=0/' tools/leash.sh
+# tools/keep.py — a port, granted (--bind), 2026-08-26
+test/test_keep.py	keep: --bind adds no port rule (the port stays refused)	sed -i 's/^    for port in bind_ports:/    for port in ():/' tools/keep.py
+test/test_keep.py	keep: --bind grants connect instead of bind	sed -i 's/^        np = net_port_attr(NET_BIND_TCP, port)/        np = net_port_attr(NET_CONNECT_TCP, port)/' tools/keep.py
+test/test_keep.py	keep: --bind alone leaves the network unhandled	sed -i 's/^    net = no_net or bool(bind_ports)/    net = no_net/' tools/keep.py
 ROWS
 }
 

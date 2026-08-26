@@ -532,3 +532,16 @@ person's side.  The card's `because` — a program gets whatever the
 session that launched it could reach — has no launching session left
 to describe.  *Done for the one program, from every seat; whether the
 card is done is Henri's.*
+
+## 2026-08-26, 15:50 — a port, granted: `--bind PORT`, for the second node
+
+The per-port turn had waited for a caller; `card:work-environment-ai.md`
+15:45 named one — `llama-server` as tend's second node, whose whole
+reach is one listening port.  Built while Henri installs the binary:
+`keep --bind PORT` turns on the TCP boundary and adds one
+`LANDLOCK_RULE_NET_PORT` rule for bind on that port.  Measured raw:
+the granted port binds, any other port is EACCES, every connect is
+EACCES.  `test_bind_grants_one_port_and_nothing_else`; three rows —
+no rule added, connect granted instead of bind, the network left
+unhandled — each red by name.  Not built: `--connect PORT`, which has
+no caller; and per-host, which Landlock cannot say.
