@@ -519,3 +519,16 @@ could reach* — closed by there being no launching session.
 tree the session still reads and writes the work, whole, because the
 work is what a session is for; and `gestate/`'s parts are read whole.
 Neither is a debt.  Whether the card is done is Henri's.
+
+**15:37 — landed, and shown from a session's seat.**  Henri: "applied
+last-bind, the fence is up, suite green, committed."  From inside the
+fence, the same minute: `touch node/state/.x` → *read-only file
+system*; `touch .venv/.x` → the same; a raw `node.py run` → `OSError:
+Read-only file system: node.state.lock`; `run.sh run` → `cannot create
+run.lock`; `run.sh pull` → "pull recorded — the runner is the
+resolver's to start."  Next command: `gen 3 opened at 15:37:05 · served
+1, total 4`.  A session pulled, could not run, and was served from the
+person's side.  The card's `because` — a program gets whatever the
+session that launched it could reach — has no launching session left
+to describe.  *Done for the one program, from every seat; whether the
+card is done is Henri's.*

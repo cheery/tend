@@ -348,3 +348,11 @@ no longer describes the node from any seat.  What it still describes
 is the general case — a second program, and a grant that lives beside
 a program rather than in a launcher — and that waits for the second
 program.  Whether the card is done is Henri's.
+
+**15:37 — closed from a session's seat.**  With the last bind in: a
+raw start fails at the node's lock, the launcher's `run` fails at its
+own, a pull is one appended line, and a runner on Henri's side served
+it within the second (`gen 3 opened at 15:37:05`, `total 4`).  The
+pull is the only path, and it applies the grant.  *Done for the one
+program; a second program is what would reopen it; whether the card is
+done is Henri's.*
