@@ -524,3 +524,58 @@ Fixed the same hour: the clock starts before the probe
 a row), so whatever the probe costs from cold is in the ledger the
 next time it happens instead of being a runner that "started late."
 The cost of the leash is part of what the leash reports.
+
+## 2026-08-26, 15:45 — Henri, on the mediation order: the session is a program, with two differences
+
+Henri, thinking it through: *"the session is running on a program
+called 'claude', or it's running locally with llama.cpp.  And realising
+the difference between program that session is running on, and
+ordinary program, is simply that the session's program must have
+certain things in it, and it must be able to refine its scope while
+staying under the scope where it is."*
+
+**Read by the session, beneath his words.**  "Sessions first or
+programs first" assumed two kinds of principal needing two designs.
+His frame makes them one kind with a contract on top:
+
+1. **It must have certain things in it** — the cords: the sitting
+   limit, the lamp, the andon, the ledger; the pieces that exist
+   because a person is on the other end.  A requirement on *what the
+   program is*, not a different boundary.  Budget, grant and lifecycle
+   apply to it from outside exactly as to the node.
+2. **It must refine its scope while staying under the scope it is in**
+   — attenuation.  Built already, unnamed: keep only narrows
+   (`restrict_self` is one-way), keep works inside the fence (measured
+   08-25), and a session inside the fence can hand a narrower grant to
+   what it launches and never a wider one.  Not a Rule 1 violation:
+   the rule bars editing one's own *restraint*; narrowing oneself is
+   irreversible and is what keep does before `exec`.
+
+**What the tree already shows for it.**  The session half of `keep`
+and `resolver` closed today by moving the *launch* outside the session
+(`tools/resolve.sh`), not by a session vocabulary.  Every mechanism
+that governs the session governs the node; the differences are his
+two.
+
+**Where the two session-programs differ, and it matters.**
+`llama-server` is an ordinary program: its model one `--allow`, its
+state one `--write`, its port one grant — the per-port network turn
+`keep` left waiting for a caller, and this is the caller.  Under his
+frame a local session is a *node*: pulled by a prompt, confined by the
+launcher, stopped on idle, leashed.  `claude` differs in one way: its
+substance is a connection to one host, and Landlock's network
+vocabulary is ports, not hosts — budgeted, file-scoped, lifecycled like
+anything else; its network reach stays coarse.  So the first
+session-program tend runs *whole* is the local one, which his 5–9 t/s
+on the work laptop makes possible.
+
+**The decision, as it stands**: neither first.  One boundary; the
+session's program is a program that satisfies the cords contract and
+attenuates.  "Try both" (08-25) was right for the wrong reason.  What
+proves or breaks it is one measurement: `llama-server` as tend's
+second node, through the launcher, pulled — which is also the second
+program `keep` and `resolver` said would reopen them.  Henri, the same
+hour: *"we have to travel on the work machine.  I have a permit to use
+it for this project.  Though.. maybe we can do the initial tests here.
+Lets use a tiny model on the test."*  Day one is on this machine, with
+a tiny model; the real run is on his.
