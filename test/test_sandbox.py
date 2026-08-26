@@ -211,3 +211,17 @@ def test_an_unknown_row_is_refused_out_loud():
 def test_nothing_to_run_is_refused_out_loud():
     out = sandbox()
     assert out.returncode == 2 and "nothing to run" in out.stderr
+
+
+def test_the_launcher_is_in_the_protected_set():
+    """`board/resolver.md`, day one, 2026-08-26: the pull is the launch,
+    so `node/run.sh` is the one file that applies every program's grant
+    — a session editing it changes what a program may reach, which is
+    the set's own line one floor down.  Henri: "add node/run.sh to the
+    protected set".  No bwrap: this reads `--protected`, a listing.  Red
+    until `sandbox.sh` lists it and `fence.sh --protect` has added its
+    `Edit` rule."""
+    protected = set(sandbox("--protected").stdout.split())
+    assert "node/run.sh" in protected, (
+        "node/run.sh is the launch path and not in the protected set — apply "
+        "protect-run.patch and run tools/fence.sh --protect")

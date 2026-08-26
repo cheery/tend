@@ -62,7 +62,8 @@
       "Edit(./tools/limit.sh)",
       "Edit(./tools/kaizen.sh)",
       "Edit(./tools/reach-allow.sh)",
-      "Edit(./tools/hook-installer.sh)"
+      "Edit(./tools/hook-installer.sh)",
+      "Edit(./node/run.sh)"
     ]
   },
   "hooks": {

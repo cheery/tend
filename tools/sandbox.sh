@@ -82,11 +82,15 @@ trees="/home/cheery/gestate"
 # on 2026-08-26 (card:self.md): `reach-allow.sh` widens the reach bound
 # and `hook-installer.sh` installs the fence, both through the person's
 # own hand — a session editing either changes what the session is
-# allowed to do at his next run, which is the set's own line.  Not
+# allowed to do at his next run, which is the set's own line.  And
+# `node/run.sh`, from 2026-08-26 (card:resolver.md): the pull is the
+# launch, so this one file applies every program's grant — a session
+# editing it changes what a program may reach, which is the same line
+# one floor down; Henri: "add node/run.sh to the protected set".  Not
 # `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
-# checks the deny-list carries the matching `Edit(./tools/…)` rule for
-# each, and `test_sandbox.py` holds the two lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh"
+# checks the deny-list carries the matching `Edit(./…)` rule for each,
+# and `test_sandbox.py` holds the two lists to one.
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a
