@@ -73,6 +73,15 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 trees="/home/cheery/gestate"
+# What of the other tree is bound (card:keep.md, the session half,
+# 2026-08-26): its documents and its tools, read by purpose from the
+# ledger and the cards — board, tools, spec, doc, journal, the root
+# documents, and `.claude/settings.json` (a session compares the twin
+# fences; it is a mechanism's config, not data).  Not bound: the source,
+# the tests, `target/` and `shell/` (3 GB a tend session never opened),
+# `.git`, `.claude/worktrees`.  Inside, `~/gestate` holds these and
+# nothing else.
+tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.md CLAUDE.md journal.md roadmap.md keeper.md .claude/settings.json"
 
 # The protected set (card:self.md): the paths a session editing changes
 # what the session is allowed to do, before anyone looks.  These are the
@@ -117,7 +126,7 @@ while [ $# -gt 0 ]; do
             cat <<ROWS
   on   tree      $root  read-write — the world, except .claude/ and the protected set (--protected)
   on   state     ~/.local/state/tend, ~/.local/state/gestate, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want; and not the rest of ~/.local/state (card:keep.md, the session half)
-  on   trees     $trees  read-only — the audit, anything cross-tree
+  on   trees     $trees/{board,tools,spec,doc,journal, the root documents, .claude/settings.json}  read-only — the audit, anything cross-tree; not its source, tests, builds or .git (card:keep.md)
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
   on   git       ~/.gitconfig  read-only — identity for commits
   off  net       the network; off, it fails as a name-resolution error
@@ -157,7 +166,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
 # The protected set, bound read-only over the tree after it: a file bind
 # refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
 for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
-for t in $trees; do [ -d "$t" ] && opts="$opts --ro-bind $t $t"; done
+for t in $trees; do for p in $tree_parts; do [ -e "$t/$p" ] && opts="$opts --ro-bind $t/$p $t/$p"; done; done
 [ -d "/tmp/claude-$uid" ] && opts="$opts --bind /tmp/claude-$uid /tmp/claude-$uid"
 
 # The rows that are off unless asked.
@@ -234,7 +243,9 @@ probe "no network"                      blocked timeout 5 getent ahostsv4 exampl
 probe "/usr is read-only"               blocked sh -c 'touch /usr/.probe'
 probe "DISPLAY is unset"                blocked sh -c 'test -n "${DISPLAY:-}"'
 probe "no user bus inside"              blocked sh -c 'test -e "$XDG_RUNTIME_DIR/bus"'
-probe "the other tree is read-only"     blocked sh -c "touch $trees/.probe"
+probe "the other tree's tools are read-only"   blocked sh -c "touch $trees/tools/.probe"
+probe "the other tree's .git is not inside"    blocked sh -c "test -e $trees/.git"
+probe "the other tree's source is not inside"  blocked sh -c "test -e $trees/gestate"
 probe ".claude/ is read-only"           blocked sh -c "touch $root/.claude/settings.json"
 for p in $protected; do
     probe "$p is read-only"             blocked sh -c "touch $root/$p"

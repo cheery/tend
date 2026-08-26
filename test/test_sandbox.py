@@ -239,3 +239,14 @@ def test_the_state_row_is_two_directories_not_their_parent():
     state = [l for l in rows.splitlines() if l.split()[1:2] == ["state"]][0]
     assert "~/.local/state/tend" in state and "~/.local/state/gestate" in state, state
     assert "~/.local/state," not in state, "the parent is still the row"
+
+
+def test_the_trees_row_is_the_other_trees_documents_and_tools():
+    """`board/keep.md`, the session half, 2026-08-26: read by purpose,
+    a tend session opens the other tree's board, tools, documents — and
+    never its source, tests, 3 GB of builds, or .git.  The row names
+    the parts and not the tree.  No bwrap: `--rows` is a listing."""
+    rows = sandbox("--rows").stdout
+    trees = [l for l in rows.splitlines() if l.split()[1:2] == ["trees"]][0]
+    assert "board" in trees and "tools" in trees and ".git" in trees, trees
+    assert "/gestate  read-only" not in trees, "the whole tree is still the row"
