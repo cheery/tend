@@ -177,6 +177,10 @@ test/test_limit.py	limit: the log records the prompt text	sed -i 's/^  note prom
 test/test_limit.py	limit: a fresh sitting keeps the old length	sed -i '/^  fresh=1$/,/^fi$/ s/^  limit="\$LIMIT_MIN"$/  :/' tools/limit.sh
 test/test_limit.py	limit: reading the clock moves it	sed -i 's/^if \[ "\$limit" -eq 0 \]; then$/printf "%s %s %s %s\\n" "$now" "$now" "$limit" "$closed" > "$STATE"\nif [ "$limit" -eq 0 ]; then/' tools/limit.sh
 test/test_limit.py	limit: GAP default 30 -> 60	sed -i 's/^GAP_MIN="\${GESTATE_LIMIT_GAP:-30}"/GAP_MIN="${GESTATE_LIMIT_GAP:-60}"/' tools/limit.sh
+# test_limit.py against tools/limit.sh — card:arrival.md, 2026-08-26
+test/test_limit.py	limit: the message block removed	sed -i '/^  if \[ "\${prompt#\*<cross-session-message}" != "\$prompt" \]; then/,/^  fi/d' tools/limit.sh
+test/test_limit.py	limit: a message writes the state	sed -i 's/^    note message "gap=\$gap"/    printf "%s %s %s %s\\n" "$now" "$now" "$limit" "$closed" > "$STATE"; note message "gap=$gap"/' tools/limit.sh
+test/test_limit.py	limit: a message is logged as a prompt	sed -i 's/^    note message "gap=\$gap"/    note prompt "gap=$gap"/' tools/limit.sh
 ROWS
 }
 

@@ -1,6 +1,12 @@
 # arrival — the sitting limit cannot tell a person sitting down from a session's message
 
-    status   open
+    status   blocked
+    blocked  gestate's twin, ~/gestate/tools/limit.sh — the copy the
+             block happened in, and Henri's to say there (gestate-50
+             put it to him on 2026-08-26 with the F-number question).
+             Tend's copy is fixed as of 2026-08-26; until the twin has
+             it, a message *to* a gestate session past its limit is
+             still not delivered
     because  the limit's whole subject is a person's hours, and it counts
              as an arrival anything that comes through the prompt hook —
              on 2026-08-26 at 07:20 a message from a tend session to a
@@ -74,3 +80,38 @@ twenty minutes is the limit working — then this is a feature, the row
 in the ledger wants a name rather than an exemption, and the card
 closes on that decision.  That is his call: it is his ledger and his
 hours.
+
+## Day one, 2026-08-26 — built, through the person's hand
+
+Henri: *"arrival needs a fix.  it's not a feature in my eyes that
+limit.sh blocks the messages from others."*  So the last section's
+question is answered and the fix is the wake's shape.
+
+`tools/limit.sh` is in the protected set — read-only against the shell,
+denied to the edit tools — so the sixteen lines went to Henri as
+`arrival.patch` and his hand applied them (`git apply arrival.patch`,
+then the file was removed): after the wake block and before the state
+write, a prompt carrying the harness's `<cross-session-message` tag is
+logged as `message` and passes, exit 0.  The match is on the tag, not
+the words.
+
+**Red before trusted**, in both directions.  The three tests in
+`test/test_limit.py` were written first and run on the unfixed script:
+the two that should fail failed (`…is_not_an_arrival`,
+`…delivered_even_past_the_limit`), and the guard that a prompt merely
+*mentioning* a message is still an arrival passed, as it should on
+either script.  Then, with the fix in, three rows in `tools/mutate.sh`:
+
+    red  limit: the message block removed        …is_not_an_arrival, …delivered_even_past_the_limit
+    red  limit: a message writes the state       the same two
+    red  limit: a message is logged as a prompt  …is_not_an_arrival
+
+Suite: 20 of 20 in `test_limit.py`.
+
+**What is not done, and why the card is `blocked` rather than
+`done`**: the block happened in gestate's copy, which runs
+`~/gestate/tools/limit.sh` from its own settings, and that copy is
+Henri's to change — the twins' header says a fix in one is owed to the
+other by hand, and the debt is now written in tend's copy beside the
+fix.  Until it is paid, a message from tend to a gestate session past
+its limit is still not delivered; the reverse direction is.

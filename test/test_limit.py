@@ -279,3 +279,51 @@ def test_a_prompt_that_merely_mentions_the_word_is_still_an_arrival(tmp_path):
     desk.prompt("sitting 45")
     desk.prompt("why did the task-notification thing get blocked?")
     assert [l[1] for l in desk.lines()][-1] == "prompt"
+
+
+MESSAGE = ('<cross-session-message from="uds:/run/user/1000/cc-socks/3913.sock" '
+           'from-name="tend-e8" from-mode="prompting">\ntwo questions\n'
+           '</cross-session-message>')
+
+
+def test_a_message_from_another_session_is_not_an_arrival(tmp_path):
+    """**The defect of 2026-08-26, 07:20 (`board/arrival.md`).**
+
+    A session's message to another session is delivered as a prompt,
+    wrapped in the harness's tag, so it reached this hook as though
+    Henri had typed it — and was blocked past a ten-minute grant, with
+    a `block` row he did not cause.  Henri, the same morning: *"it's
+    not a feature in my eyes that limit.sh blocks the messages from
+    others."*  The wake's shape, then: logged under its own name, never
+    blocked, and the state untouched — a message landing in a silence
+    must not open a sitting nobody sat for.
+    """
+    desk = Desk(tmp_path)
+    desk.prompt("sitting 45")
+    before = desk.state.read_text()
+    out = desk.prompt(MESSAGE)
+    assert out.returncode == 0, f"a message must never block: {out.stderr}"
+    assert desk.state.read_text() == before, \
+        "a message moved the sitting's state; it must be transparent to it"
+    assert [l[1] for l in desk.lines()][-1] == "message"
+
+
+def test_a_message_is_delivered_even_past_the_limit(tmp_path):
+    """The moment it bit: the sitting closed, the questions held."""
+    desk = Desk(tmp_path)
+    desk.prompt("sitting 15")
+    desk.rewind(20)
+    out = desk.prompt(MESSAGE)
+    assert out.returncode == 0, "the limit held back another session's message"
+    assert "minutes are up" not in out.stderr
+    typed = desk.prompt("what did they ask?")
+    assert typed.returncode == 2, "a typed prompt past the limit must stop"
+
+
+def test_a_prompt_that_merely_mentions_a_message_is_still_an_arrival(tmp_path):
+    """Henri asking *why* a message was blocked is a person at the desk.
+    The match is on the harness's tag, not on the words."""
+    desk = Desk(tmp_path)
+    desk.prompt("sitting 45")
+    desk.prompt("why was the cross-session-message blocked?")
+    assert [l[1] for l in desk.lines()][-1] == "prompt"

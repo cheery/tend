@@ -183,6 +183,22 @@ if [ "${1:-}" = "--hook" ]; then
     note wake "gap=$gap"
     exit 0
   fi
+
+  # **A session's message is not an arrival either** (card:arrival.md).
+  # 2026-08-26, 07:20: a tend session's two questions to a gestate
+  # session came through this hook wrapped `<cross-session-message>`,
+  # were blocked past a ten-minute grant, and wrote a `block` row Henri
+  # did not cause — the wake defect again, one tag over.  Henri, the
+  # same morning: *"it's not a feature in my eyes that limit.sh blocks
+  # the messages from others."*  So, the wake's shape: logged under its
+  # own name, never blocked, and before the state write.  The match is
+  # on the harness's tag, not the words.  (Tend's copy; the gestate
+  # twin — the copy the block happened in — has not got this yet: the
+  # sync debt named in the header, and Henri's to say there.)
+  if [ "${prompt#*<cross-session-message}" != "$prompt" ]; then
+    note message "gap=$gap"
+    exit 0
+  fi
 fi
 
 elapsed=$(( (now - started) / 60 ))
