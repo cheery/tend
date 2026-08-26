@@ -1,0 +1,6 @@
+# the first node's grant — the three flags node/run.sh baked in, as a file beside the program
+allow node.py
+no-net
+pull node.state.pull
+program /usr/bin/python3 $NODE/node.py --state $STATE/node.state run --idle $IDLE
+status /usr/bin/python3 $NODE/node.py --state $STATE/node.state status

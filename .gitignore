@@ -18,3 +18,6 @@ node/state/
 
 # the second node's model — data, hundreds of MB, downloaded by the person; never tree content
 llm/model/
+
+# the second node's state — runtime, like node/state/
+llm/state/

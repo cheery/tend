@@ -1,0 +1,128 @@
+#!/bin/sh
+#: asked-by: Henri, 2026-08-26 — "do the grant beside the program" (board/keep.md, board/resolver.md: what the second program earns)
+#
+# tools/launch.sh — one launcher for any node; the grant is a file beside the program.
+#
+#     tools/launch.sh NODE run            run the program under its grant; 75 while a runner holds the lock
+#     tools/launch.sh NODE pull [text]    a pull: one line appended to the pull file — inside the fence that
+#                                         is all (the resolver starts the runner from the person's side);
+#                                         from a person's shell a runner is started if none is up
+#     tools/launch.sh NODE status         running or not, the last pull, the last stop, the log's tail —
+#                                         or the grant's own `status` line, under the grant
+#     tools/launch.sh NODE grant          what the grant becomes: keep's flags, and the program line
+#
+# NODE/grant — one word and its value per line, paths relative to NODE:
+#     allow PATH        readable
+#     write PATH        writable (the state directory always is)
+#     bind PORT         one TCP port to listen on, and no other bind, no connect anywhere
+#     no-net            no TCP at all
+#     idle SECONDS      stop when nothing has pulled for this long (default 30; TEND_IDLE overrides)
+#     pulse FILE        a file whose mtime is the program's activity — for a program that cannot stop
+#                       itself, the launcher watches this and stops it on idle
+#     pull FILE         the file a pull appends to (default $STATE/pull)
+#     program CMD...    what runs, under the grant.  Lines may use $NODE, $STATE, $IDLE and $MODEL
+#     status CMD...     what says what it did (optional; run read-only under the grant)
+#
+# **Why a file and not a launcher per program** (2026-08-26): the first
+# node's grant was three flags in `node/run.sh`, and the second node's
+# day one measured that a server's whole grant is three lines too — the
+# model, its state, its port.  A grant that lives beside the program is
+# read by one launcher and served by one resolver, and adding a node is
+# adding a directory.  The grant is still applied from outside the
+# program (Rule 1) and can only narrow (keep).  The state directory is
+# read-only to a session inside the fence, its pull file the one write
+# (`tools/sandbox.sh`), so a session can pull and read and cannot run.
+#
+#     $MODEL   the first *.gguf under NODE/model, if any — a model is data the
+#              person brings; its name is never in the tree
+#     $STATE   NODE/state, or TEND_STATE_DIR (tests point it at a scratch dir)
+set -u
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+[ $# -ge 2 ] || { sed -n '4,10p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
+NODE=$(CDPATH= cd -- "$1" 2>/dev/null && pwd) || { echo "launch: no such node directory: $1" >&2; exit 2; }
+verb=$2; shift 2
+name=$(basename "$NODE")
+[ -f "$NODE/grant" ] || { echo "launch: $name has no grant — $NODE/grant is the file beside the program that says what it may reach" >&2; exit 2; }
+STATE="${TEND_STATE_DIR:-${TEND_NODE_STATE_DIR:-$NODE/state}}"
+py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch: no python3 for keep" >&2; exit 127; }
+MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
+export NODE STATE MODEL
+
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""
+while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in ''|'#'*) continue ;; esac
+    key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
+    case "$key" in
+        allow|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val" ;;
+        bind)        flags="$flags --bind $val" ;;
+        no-net)      flags="$flags --no-net" ;;
+        idle)        idle_grant=$val ;;
+        pulse)       eval "pulse=\"$val\"" ;;
+        pull)        eval "pullfile=\"$val\"" ;;
+        program)     program=$val ;;
+        status)      status_cmd=$val ;;
+        *) echo "launch: $name/grant: unknown word \`$key\`" >&2; exit 2 ;;
+    esac
+done < "$NODE/grant"
+IDLE="${TEND_IDLE:-${TEND_NODE_IDLE:-${idle_grant:-30}}}"; export IDLE
+[ -n "$program" ] || { echo "launch: $name/grant has no program line" >&2; exit 2; }
+case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
+case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
+lock="$STATE/run.lock"
+
+case "$verb" in
+grant)
+    echo "keep $flags"; echo "program $program"; [ -n "$pulse" ] && echo "pulse $pulse"; echo "pull $pullfile"; echo "idle $IDLE"
+    exit 0 ;;
+run)
+    mkdir -p "$STATE"
+    # the lock is taken here and inherited through keep's exec; a short wait,
+    # not a refusal at once — the resolver tests the lock by taking it for a
+    # moment (card:resolver.md 15:12)
+    exec 9>>"$lock"
+    flock -w 2 9 || { echo "launch: a runner already holds $lock — pull $name instead." >&2; exit 75; }
+    rm -f "$STATE/stopped"
+    eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
+    began=$(date +%s)
+    if [ -n "$pulse" ]; then
+        # a program that cannot stop itself: run it, watch its pulse, stop it on idle
+        "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1 &
+        pid=$!
+        while kill -0 "$pid" 2>/dev/null; do
+            sleep 1
+            last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
+            [ "$last" -lt "$began" ] && last=$began
+            if [ $(( $(date +%s) - last )) -ge "${IDLE%.*}" ]; then
+                echo "launch: nothing has pulled $name for ${IDLE}s — stopping it" >> "$STATE/log"
+                kill "$pid" 2>/dev/null; break
+            fi
+        done
+        wait "$pid"; rc=$?; [ "$rc" -eq 143 ] && rc=0
+    else
+        "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
+    fi
+    touch "$STATE/stopped"
+    exit "$rc" ;;
+pull)
+    [ -d "$STATE" ] || mkdir -p "$STATE" 2>/dev/null || true
+    printf '%s %s\n' "$(date +%s)" "$*" >> "$pullfile" || { echo "launch: cannot append to $pullfile" >&2; exit 1; }
+    if [ -n "${TEND_FENCED:-}" ]; then
+        echo "launch: pull recorded — inside the fence the runner is the resolver's to start (tools/resolve.sh --hook)" >&2
+    elif flock -n "$lock" true 2>/dev/null; then
+        setsid -f sh "$0" "$NODE" run >/dev/null 2>&1 </dev/null
+        n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+        echo "launch: started $name (idle ${IDLE}s); it stops by itself when pulls stop" >&2
+    fi
+    exit 0 ;;
+status)
+    if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"; else echo "$name: running"; fi
+    [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
+    [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')"
+    if [ -n "$status_cmd" ]; then
+        eval "set -- $status_cmd"; "$py" "$root/tools/keep.py" $flags -- "$@"
+    elif [ -f "$STATE/log" ]; then
+        tail -5 "$STATE/log" | sed 's/^/  /'
+    fi
+    exit 0 ;;
+*) echo "launch: unknown verb \`$verb\` — run, pull, status, grant" >&2; exit 2 ;;
+esac

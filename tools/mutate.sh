@@ -222,6 +222,10 @@ test/test_leash.py	leash: the clock is stamped after the probe again	sed -i '/^s
 test/test_keep.py	keep: --bind adds no port rule (the port stays refused)	sed -i 's/^    for port in bind_ports:/    for port in ():/' tools/keep.py
 test/test_keep.py	keep: --bind grants connect instead of bind	sed -i 's/^        np = net_port_attr(NET_BIND_TCP, port)/        np = net_port_attr(NET_CONNECT_TCP, port)/' tools/keep.py
 test/test_keep.py	keep: --bind alone leaves the network unhandled	sed -i 's/^    net = no_net or bool(bind_ports)/    net = no_net/' tools/keep.py
+# tools/launch.sh — one launcher, the grant a file beside the program, card:keep.md/resolver.md 2026-08-26
+test/test_launch.py	launch: an unknown grant word is accepted	sed -i 's/^        \*) echo "launch: \$name\/grant: unknown word/        *) : # echo "launch: $name\/grant: unknown word/' tools/launch.sh
+test/test_launch.py	launch: run does not take the lock	sed -i 's/^    flock -w 2 9 || {/    : || {/' tools/launch.sh
+test/test_launch.py	launch: a missing grant is not refused	sed -i 's/^\[ -f "\$NODE\/grant" \] || {/[ -f "$NODE\/grant" ] || true \&\& true || {/' tools/launch.sh
 ROWS
 }
 
