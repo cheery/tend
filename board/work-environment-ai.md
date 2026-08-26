@@ -512,3 +512,15 @@ budget defaults did not know: an invocation's wall clock can carry ten
 seconds that are the manager's, not the command's.  Measured once;
 `time tools/leash.sh -- true` twice on his seat after a quiet minute
 would say whether it is the first call or every cold one.
+
+**15:24 — corrected by Henri's measurement.**  `time tools/leash.sh --
+true` twice on his seat: **75 ms and 85 ms.**  So the ten seconds is not
+the scope path's price; it sat *before* the leash stamped its clock —
+the probe (`systemd-run --user --scope -q true`) ran first, `start`
+came after — which is why the ledger showed a late start and not a
+long wall.  Not reproduced by hand; located by the stamp's position.
+Fixed the same hour: the clock starts before the probe
+(`tools/leash.sh`, `test_the_wall_clock_includes_the_leashs_own_probe`,
+a row), so whatever the probe costs from cold is in the ledger the
+next time it happens instead of being a runner that "started late."
+The cost of the leash is part of what the leash reports.

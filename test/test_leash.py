@@ -163,3 +163,21 @@ def test_no_command_is_refused_out_loud(tmp_path):
 def test_an_unknown_option_is_refused_out_loud(tmp_path):
     r = leash(tmp_path, "--bogus", "true")
     assert r.returncode == 2
+
+
+def test_the_wall_clock_includes_the_leashs_own_probe(tmp_path):
+    """2026-08-26: a runner's ledger line started ten seconds after its
+    launch, because the scope probe ran before the clock was stamped —
+    the probe's cost was invisible.  A fake `systemd-run` on PATH sleeps
+    one second and refuses (so the mode is plain); the line's wall must
+    carry that second."""
+    fake = tmp_path / "bin"; fake.mkdir()
+    (fake / "systemd-run").write_text("#!/bin/sh\nsleep 1.1\nexit 1\n")
+    (fake / "systemd-run").chmod(0o755)
+    log = tmp_path / "leash.log"
+    env = dict(os.environ, TEND_LEASH_LOG=str(log), PATH=f"{fake}:{os.environ['PATH']}")
+    r = subprocess.run(["sh", str(LEASH), "--", "true"], env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    line = log.read_text().strip().splitlines()[-1].split("\t")
+    assert "plain" in line[3], line
+    assert int(line[1]) >= 1, f"the probe's second is not in the wall: {line}"

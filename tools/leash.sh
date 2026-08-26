@@ -94,12 +94,17 @@ fi
 # The budget applies or the ledger says it did not — probed per
 # invocation, because the user manager can be there in the morning and
 # gone after a logout.
+# The clock starts before the probe: on 2026-08-26 a runner's ledger line
+# *started* ten seconds after the command that launched it, because the
+# probe below took that long from cold and the stamp came after it — so
+# the ledger's wall was the command's and not the invocation's.  What the
+# leash costs is part of what the leash reports (card:resolver.md 15:12).
+start=$(date +%s)
 how="plain"
 if systemd-run --user --scope -q true >/dev/null 2>&1; then
     how="scope"
 fi
 
-start=$(date +%s)
 rc=0
 if [ "$how" = "scope" ]; then
     # **The kill takes the whole scope, not the direct child.**  Found

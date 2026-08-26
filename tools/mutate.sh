@@ -216,6 +216,8 @@ test/test_resolve.py	resolve: does not wait for the runner's lock	sed -i 's/^n=0
 test/test_resolve.py	node: a runner reads the ledger at open and serves only what follows	sed -i 's/^    seen = st\["pulls"\]/    seen = pulls_in(ledger(a.state))/' node/node.py
 # node/run.sh — the runner waits for the lock rather than refusing at once, card:resolver.md 15:12 (NOOP until resolver-lock.patch is in)
 test/test_keep.py	resolver: the runner refuses the lock at once instead of waiting	sed -i 's/^    flock -w 2 9 || {/    flock -n 9 || {/' node/run.sh
+# tools/leash.sh — the clock starts before the probe, 2026-08-26
+test/test_leash.py	leash: the clock is stamped after the probe again	sed -i '/^start=\$(date +%s)$/d; s/^rc=0$/start=$(date +%s)\nrc=0/' tools/leash.sh
 ROWS
 }
 
