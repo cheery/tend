@@ -183,6 +183,14 @@ test/test_limit.py	limit: GAP default 30 -> 60	sed -i 's/^GAP_MIN="\${GESTATE_LI
 test/test_limit.py	limit: the message block removed	sed -i '/^  if \[ "\${prompt#\*<cross-session-message}" != "\$prompt" \]; then/,/^  fi/d' tools/limit.sh
 test/test_limit.py	limit: a message writes the state	sed -i 's/^    note peer "gap=\$gap"/    printf "%s %s %s %s\\n" "$now" "$now" "$limit" "$closed" > "$STATE"; note peer "gap=$gap"/' tools/limit.sh
 test/test_limit.py	limit: a message is logged as a prompt	sed -i 's/^    note peer "gap=\$gap"/    note prompt "gap=$gap"/' tools/limit.sh
+# the eight files board/green.md left unmeasured, swept 2026-08-26 — one break each
+test/test_selfmatch.py	selfmatch: an unbracketed pattern kill in a tool	printf "\npkill -f \"while :; do :; done\"\n" >> tools/summary.sh
+test/test_summary.py	summary: a cited tool removed	rm tools/leash.sh
+test/test_rules.py	rules: the boot surface grows a line	printf "second line\n" >> CLAUDE.md
+test/test_toolbox.py	toolbox: --check claims a change	sed -i "s/nothing was changed/changed lots/" tools/toolbox.sh
+test/test_node.py	node: the pull ledger renamed	sed -i "s/\.pull/\.pxll/g" node/node.py
+test/test_leash.py	leash: the hang message changed	sed -i "s/budget is spent/all gone/" tools/leash.sh
+test/test_fence_hook.py	fence-hook: the leash prefix dropped	sed -i "s#tools/leash.sh -- ##g" tools/fence-hook.sh
 ROWS
 }
 

@@ -421,3 +421,44 @@ grant is `a test, named`; the confinement-applied and the write-scope
 are `none — nothing can, through this program`, gated one layer down.
 The finding for the tally: not every wiring can be gated at its own
 layer, and saying which layer holds it is the honest form.
+
+## Day one, the rest of the suite swept — eight files, seven detect, one unmeasurable from this seat
+
+Henri: "look at green, maybe work on it."  The card's standing debt was
+eight test files never broken.  Broken now, one break each aimed at the
+core property the file guards, through `tools/mutate.sh`:
+
+    red   test_selfmatch.py   an unbracketed `pkill -f` in a tool        test_every_pattern_kill_is_bracket_guarded[summary.sh]
+    red   test_summary.py     a cited tool removed / cords un-blocked     test_every_path_the_summary_cites_exists, test_the_not_built_claim_still_holds
+    red   test_rules.py       the boot surface grows a second line        test_the_boot_surface_is_one_line[CLAUDE.md], test_the_two_spellings_agree
+    red   test_toolbox.py     `--check` claims a change / a syntax error   test_check_changes_nothing_and_says_so, test_it_parses
+    red   test_node.py        the pull ledger renamed                      test_a_pull_with_no_runner_is_not_served
+    red   test_leash.py       the "budget is spent" message changed        test_a_hang_is_a_crash
+    red   test_fence_hook.py  the `leash --` prefix dropped from the wrap  test_everything_else_is_wrapped, test_the_leash_wraps_the_fence… (+7)
+    —     test_sandbox.py     the fence's "up" string changed              6 passed, 7 skipped — the detectors skipped
+
+**Seven of eight are `a test, named`** — each break went red on the
+test whose docstring is about exactly that property, and each is now a
+recorded row in `tools/mutate.sh`, re-run by `mutate.sh` with no
+arguments.  No survivors among the measurable.
+
+**`test_sandbox.py` is `none — nothing can, from this seat`, and the
+seat is the finding.**  Its checks all need bubblewrap and this session
+runs *inside* the fence (`TEND_FENCED=1`), where bwrap cannot nest, so
+they skip — a break of `sandbox.sh`'s own output goes green because the
+only tests that would see it did not run.  This is the exact shape
+`card:work-environment-ai.md` already records for the leash's scope path
+and `test_fence_hook.py`'s round-trip: a detector real, named, and
+gated behind an unfenced run — a person's, or a gestate session's.
+Measuring it is not a build here; it is one run of the suite from
+outside the fence, and it is the sandbox sweep's whole owed step.
+
+**Where the whole card stands now.**  Detectors measured: the four of
+day one, the lamp, the keep launcher, and these eight — the suite's
+files are covered but for the three whose oracle needs an unfenced seat
+(sandbox whole, the leash scope path, the fence-hook round-trip).  The
+tally holds: every survivor this card has found was the wiring between a
+detector and what runs it, or a fixture without a seam, or a boundary a
+well-behaved program cannot exercise — never a rule going unnoticed.
+The unfenced-seat sweep is the one measurement the card still owes, and
+it belongs to whoever next runs tend's suite from outside.
