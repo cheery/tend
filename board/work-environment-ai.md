@@ -498,7 +498,7 @@ built for, each a line a person can read.
 §"Henri, on what the count cannot show" left as "try both," is still
 his; and the ledger counts a session's *commands*, not what a program
 started by a pull costs — the runner `node/run.sh pull` starts lives
-inside the pull's command (`board/resolver.md`), so today it is inside
+inside the pull's command (`done/resolver.md`), so today it is inside
 the same line, and a program that outlived a command would not be.  The
 card stays open.
 
@@ -641,3 +641,21 @@ in writing waits for the ledger, like the leash's 900 s.  What is
 **not** owed: the cords — the model has no limit, lamp or andon, so it
 is a program, not a session.  That is the frame's other half and its
 own card.
+
+
+## 2026-08-26, 16:50 — the residual, owned here as `keep` and `resolver` close
+
+`keep` and `resolver` are done for **the programs tend runs**: every
+node gets only its grant, started only by a pull, confined by one
+launcher.  What they do not close, and said so all along ("what a
+session may execute — a fence row or keep on the session"), is that a
+**session can still exec an arbitrary program by hand** — measured
+2026-08-26: `llama-server --version` ran straight from inside the
+fence, bounded by the fence (loopback, the work tree) and by no keep
+grant.  That is not how tend runs a program; it is a session acting as
+a principal, which is this card's open question — the mediation order,
+the session as a grantee of its own scope.  Recorded here so closing
+`keep` and `resolver` does not drop it: the ambient-exec hole is the
+session's, not the program's, and it lives on this card and on
+`session-program` until a session runs under a grant the way a node
+does.

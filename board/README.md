@@ -41,21 +41,7 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[keep](keep.md)** — a person's data sits in the open to whatever
-   runs here: the fence bounds reach by directory, but inside a granted
-   directory everything is ambient, so a program gets whatever the
-   session that launched it can reach.  *Placed here by a session on
-   2026-08-25, at Henri's "create the card … by anything really",
-   because `work-environment-ai` calls this its first architecture
-   decision; the tiebreak is his and this is his to move.*
-3. **[resolver](resolver.md)** — a program starts only when a person
-   types its launcher, and the grant that confines it lives in that
-   launcher; the person is meant to pull, never start.  *Placed here by
-   a session on 2026-08-26, at Henri's "Do a card for the resolver",
-   below `keep` because it is the route to that card's session half and
-   above the count-only cards because it is a build; the tiebreak is
-   his and this is his to move.*
-4. **[session-program](session-program.md)** — a node tend runs is a
+2. **[session-program](session-program.md)** — a node tend runs is a
    program, not a session, until it carries the cords: a limit, a lamp,
    a way to reach the person.  The grant half of "a session is a
    program" is built; this is the half `keep` and `resolver` named and
@@ -63,21 +49,21 @@ between two workable cards is Henri's.
    "open the cords card for the session's program", below the build
    cards and above the count-only ones; the tiebreak is his and this is
    his to move.*
-5. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
+3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-6. **[fence](fence.md)** — the deny-list is the only restraint here and
+4. **[fence](fence.md)** — the deny-list is the only restraint here and
    nothing reads it back, so the line this tree was founded on holds
    against gestate's sessions and not against tend's own.  *Placed here
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-7. **[cords](cords.md)** — a session here cannot reach a person, and
+5. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-8. **[green](green.md)** — a gate that has only ever passed is a
+6. **[green](green.md)** — a gate that has only ever passed is a
    claim: gestate's F88 named a defect, stayed green from the day it was
    written, and passed with the defect put back; nothing in either tree
    checks that a detector detects.  *Placed here by a gestate session on
@@ -94,6 +80,8 @@ first program of tend's own, which passed the stranger test,
 `done/pull.md`) — and `cords` waits on 2026-08-31.  `arrival` was opened and
 finished on 2026-08-26, in both trees, through Henri's hand twice
 (`done/arrival.md`).*
+
+`keep` and `resolver` finished 2026-08-26 — the grant beside the program, closed for every program tend runs (`done/keep.md`, `done/resolver.md`); the residual, a session exec'ing an arbitrary program, is `work-environment-ai`'s and `session-program`'s.
 
 `gates` finished 2026-08-24, the day it was opened — the hook is
 installed, and it has refused a commit once (`done/gates.md` has the

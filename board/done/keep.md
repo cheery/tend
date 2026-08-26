@@ -1,6 +1,6 @@
 # keep — a person's data sits in the open to whatever runs here
 
-    status   open
+    status   done — 2026-08-26
     because  nothing on this machine scopes what a program or a session
              may read; the fence bounds reach by directory, but the
              directory is the person's whole tree, their state and the
@@ -585,3 +585,24 @@ one program; it is now closed for *any* node beside a grant, by one
 mechanism, and adding a node is adding a directory.  `keep`'s `because`
 is answered at the grain it asked for — what was this program given —
 for every program tend runs.  Whether the card is done is Henri's.
+
+## done — 2026-08-26
+
+Henri: *"examine the keep & resolver, and consider whether the
+conditions are satisfied for these cards.  If they are, move them to
+done."*  The `because` — *nothing scopes what a program may read; a
+program gets whatever the session that launched it could reach, having
+been handed nothing* — no longer stands.  A program tend runs is
+handed a grant (read `--allow`, write `--write`, network `--no-net`/
+`--bind`), applied from outside it by one launcher from a file beside
+it; it reads, writes and reaches only what the grant names, shown for
+two programs (the node, `llama-server`).  The session's own ambient
+reach, the `because`'s "by anything really", was narrowed to purpose
+row by row — the home and secrets gone, other tools' state, gestate's
+source/builds/`.git`, and every node's state closed — leaving readable
+only the work tree and gestate's documents, named as the deliberate
+exception (*the work is what a session is for*).  The one residual —
+a session exec'ing an arbitrary program by hand, fence-bounded but not
+keep-confined — is the session-as-principal question, owned by
+`work-environment-ai` (§16:50) and `session-program`, not this card.
+Moved to `done/` at Henri's judgement, delegated to the session.

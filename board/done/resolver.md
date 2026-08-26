@@ -1,6 +1,6 @@
 # resolver — a program starts only when a person types its launcher, and the grant that confines it lives in that launcher
 
-    status   open
+    status   done — 2026-08-26
     because  nothing here starts a program but a hand in a shell: the
              node runs when someone types `node/run.sh run`, and a pull
              that finds no runner is recorded and served by no one.  So
@@ -369,3 +369,21 @@ resolver code — only a grant file and a `model/` directory.  In
 `grant-beside.patch` with `keep`'s.  The card's shape from day one —
 "the resolver outside the session's write access" — now serves every
 program, not the node alone.  Whether the card is done is Henri's.
+
+## done — 2026-08-26
+
+Henri: *"examine the keep & resolver … if they are [satisfied], move
+them to done."*  The `because` — *nothing starts a program but a hand
+in a shell, and the confinement is whatever the launcher baked in* —
+no longer stands.  The pull is the launch: a session's pull is one
+appended line, and the runner is started from the person's side by
+`tools/resolve.sh`, which serves any node beside a grant.  One launcher
+applies the grant from a file beside the program; a session cannot
+start a tend node raw (its state is read-only, its lock unopenable).
+Shown end to end for two programs.  The residual named in the
+`because`'s last clause — *a session that starts a program some other
+way starts it with the session's whole reach* — is the ambient-exec of
+an arbitrary program, which this card relocated from day one to "what
+a session may execute": the session-as-principal question, on
+`work-environment-ai` (§16:50) and `session-program`.  Moved to `done/`
+at Henri's judgement, delegated to the session.
