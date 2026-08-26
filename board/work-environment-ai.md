@@ -659,3 +659,37 @@ the session as a grantee of its own scope.  Recorded here so closing
 session's, not the program's, and it lives on this card and on
 `session-program` until a session runs under a grant the way a node
 does.
+
+## 2026-08-26 — Henri's toolbox idea, for the session-as-principal examination tomorrow
+
+Henri, closing the day: the ambient-exec residual (a session runs any
+program, keep-unconfined) might be closed by "an accurate standardized
+toolbox — the tools available are written somewhere, and enforced that
+they are only available", with a bonus: installation tests get easier.
+Asked for flaws.  The instinct is the tree's own — declare, don't leave
+ambient, as the reach table and the grant beside the program do — and
+three tensions are named, to be weighed tomorrow, not resolved here:
+
+* **A list is not enforcement; PATH is not a boundary.**  "Only
+  available" by `$PATH` is no restraint — a session execs by absolute
+  path, and the fence binds `/usr` read-only *whole*.  Real enforcement
+  is binding only the declared binaries (or an exec-allowlist), a
+  bind-level mechanism, and leaky: a binary needs its shared-library
+  closure and often shells out to others (git→ssh).
+* **The "why" is carried by the cheap half.**  Easier install tests
+  come from the *manifest* (which `tools/toolbox.sh` half-does), not
+  from exclusivity.  So the install-test benefit cannot justify the
+  enforcement; the enforcement stands or falls on the principal
+  argument alone.
+* **Node vs session, and travel.**  For a node the enforced toolbox is
+  its keep grant, already built; for a session the set is broad,
+  changing, and machine-varying (SYCL on the work laptop, not home),
+  which fights both the session's nature and portability
+  (memory: keep machine-specifics out of committed files).
+
+**The decoupled first step, if wanted**: a declared toolbox *manifest*
+(extend `toolbox.sh`) for install tests — the real benefit, taken now,
+without prejudging enforcement.  Enforcement is the session-as-principal
+question and waits for that examination.  Not a card yet — a solution
+looking for its problem, and the board refuses a `because` that names a
+fix.

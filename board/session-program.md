@@ -79,3 +79,12 @@ cards and above the count-only ones — the grant half it completes is
 `keep`/`resolver`, both closed for the one program; this is the half
 those cards named and did not build.  The placing is the session's; the
 tiebreak is Henri's, and this is his to move.
+
+## Next in line — Henri, 2026-08-26, for 2026-08-27
+
+Henri named this the next card: the cords on a node come first tomorrow.
+Alongside it, "examine that session as a principal thing a bit" —
+`card:work-environment-ai.md` §"the toolbox idea" holds the seed and its
+flaws.  Day one stays as §"What it must not become" set it: one of the
+three cords on the llm node, most likely the limit, shown to hold — not
+all three, not the hosted mechanisms copied on their say-so.
