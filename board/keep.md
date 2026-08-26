@@ -277,7 +277,7 @@ program launches; wiring keep into the launch path (so a program is
 confined by default, not by remembering the incantation) is the step
 after write-scoping.  Both are named; neither is silent.
 
-## 2026-08-26, 13:xx — network, the last unset bit: `--no-net`, and the node its first caller
+## 2026-08-26, 13:09 — network, the last unset bit: `--no-net`, and the node its first caller
 
 Henri: *"do keep's slices."*  Read back, the card had one slice left
 that was not held back by rule 1 — write-scoping and the node's launch
