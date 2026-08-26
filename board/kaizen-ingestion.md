@@ -95,3 +95,76 @@ active build, and above the count-only and blocked cards — because it is
 a real build with buildable work and the tree's first reflective organ.
 Henri named it as his to set up ("maybe tomorrow"), so the build is his
 lead; the placing is the session's and the tiebreak is his.
+
+## The plan, fixed — 30 kaizens, 10 a day, 2026-08-26 → 2026-08-28, then the arrivals
+
+Henri, 2026-08-26: *"heijunka the kaizens, schedule 10 for each day."*
+The shape is gestate's sweep (`~/gestate/board/ungated-fixes.md`
+§"The plan, fixed"): a fixed table, equal batches, weekdays, slack
+that is not spare capacity, and a missed day that moves down rather
+than doubles.  Levelled reading is the reading aid this card's §"The
+hard part" asked for, in its first and cheapest form — a person or a
+session reads ten, and what each reading produces is one line.
+
+| # | day | kaizens |
+|---|---|---|
+| 1 | Wed 2026-08-26 | 24-1549 24-1758 25-0626 25-0639 25-0646 25-0703 25-0714 25-0721 25-0732 25-0744 |
+| 2 | Thu 2026-08-27 | 25-0753 25-0803 25-0824 25-0828 25-1404 25-1412 25-1424 25-1428 25-1436 25-1445 |
+| 3 | Fri 2026-08-28 | 25-1506 25-1522 25-1530 25-1540 26-0721 26-0728 26-0739 26-0743 26-0751 26-0801 |
+| 4… | Mon 2026-08-31 → | the ten oldest unread, whatever has arrived since |
+
+**A batch is the ten oldest unread**, so the table is what is known
+today and a session extends it the day it reads.  Kaizens arrive at
+five to seven a day; ten a day absorbs the arrivals and drains the
+backlog in three days, after which a batch is most days shorter than
+ten and the level holds — a day with fewer than ten unread reads what
+there is and does not borrow from tomorrow.
+
+**A missed day is not made up by doubling.**  The batch moves down; the
+tail moves out.  Doubling is the burst this arrangement exists to
+prevent, arriving with a good excuse — and twenty kaizens in a sitting
+is exactly how the journal became write-only.
+
+**The batches get more recent as they go**, and the newest are the
+ones this session wrote, which is the reader least able to see them.
+Batch 3 is read by a session that did not write it, or by Henri.
+
+### What one reading produces
+
+One line in `doc/kaizen/ingested.md`: the kaizen's name, the lesson in
+a phrase, and a verdict.  Five verdicts, and the vocabulary grows only
+for a reason written down after more than one batch has pushed on it
+(the sweep's rule):
+
+* **`rule — <where>`** — the lesson is already a standing rule, and
+  where it lives is named: a README section, a test, a hook, a script's
+  header.  The most common honest answer, if the tree has been doing
+  its job.
+* **`promoted — <where>`** — this reading made it one, in the same
+  commit.  Small: a sentence in `board/README.md` §"What the days
+  taught", a line in a script header, a memory.  Not a mechanism — a
+  mechanism is a card.
+* **`recurs — <kaizens>`** — seen before and not yet a rule; the earlier
+  kaizens named.  Two recurrences is the trigger the card's `because`
+  is about, and the third reading of one lesson is a `promoted` or a
+  reason written down why not.
+* **`once`** — one sitting's, no rule wanted.
+* **`open — <card>`** — the lesson is a card's work, not a rule's; the
+  card named, and the line goes on the card too if it is not there.
+
+**Two uncertain verdicts in a row ends the session** — the sweep's
+trip-wire, carried: uncertainty arriving twice is the andon for a
+reader writing verdicts faster than reading.
+
+**Henri's half, bounded**: once a week, three lines picked at random,
+disagreed with.  Three, not thirty.  It is the only measurement either
+party gets of whether the other lines are worth anything.
+
+### What this is not
+
+Not an oracle.  The line is written by whoever read the kaizen, and
+the judgement of what becomes a rule stays with a person or a session,
+per §"The hard part".  And not a lamp, yet: nothing lights when a
+day's batch is unread.  That is the next slice if the schedule slips,
+and it is one `ls | comm` against the ledger — cheap, and not built
+before the slipping is measured.
