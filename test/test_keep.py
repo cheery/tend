@@ -355,3 +355,19 @@ def test_the_launchers_grant_appears_once():
     run = (ROOT / "node" / "run.sh").read_text()
     lines = [l for l in run.splitlines() if "tools/keep.py" in l and not l.lstrip().startswith("#")]
     assert len(lines) == 1, lines
+
+
+def test_inside_the_fence_a_pull_starts_nothing(tmp_path):
+    """`board/resolver.md`, the resolver outside: with `TEND_FENCED` set,
+    `run.sh pull` appends its line, says the resolver will serve it, and
+    starts no runner — the runner is `tools/resolve.sh`'s to start from
+    the person's side.  Red until the launcher patch is applied."""
+    if not os.path.exists("/usr/bin/python3"):
+        pytest.skip("no system python3 for keep to grant the node")
+    env = dict(os.environ, TEND_NODE_STATE_DIR=str(tmp_path / "st"), TEND_NODE_IDLE="0.5", TEND_FENCED="1")
+    r = subprocess.run(["sh", str(ROOT / "node" / "run.sh"), "pull"], env=env,
+                       capture_output=True, text=True, timeout=20)
+    assert r.returncode == 0, r.stderr
+    assert "resolver" in r.stderr and "started a runner" not in r.stderr, r.stderr
+    assert (tmp_path / "st" / "node.state.pull").exists()
+    assert not (tmp_path / "st" / "node.state").exists(), "a runner opened"

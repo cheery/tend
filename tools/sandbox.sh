@@ -95,11 +95,13 @@ tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.
 # `node/run.sh`, from 2026-08-26 (card:resolver.md): the pull is the
 # launch, so this one file applies every program's grant — a session
 # editing it changes what a program may reach, which is the same line
-# one floor down; Henri: "add node/run.sh to the protected set".  Not
+# one floor down; Henri: "add node/run.sh to the protected set".  And
+# `tools/resolve.sh`, the hook that starts a runner from the person's
+# side (card:resolver.md, 2026-08-26): the scripts the hooks run.  Not
 # `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
 # checks the deny-list carries the matching `Edit(./…)` rule for each,
 # and `test_sandbox.py` holds the two lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh"
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a

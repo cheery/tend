@@ -54,6 +54,12 @@ case "${1:-}" in
 esac
 
 [ -s "$ledger" ] || exit 0                       # nothing has ever pulled
+# looks are serialized: a hook fires at every command, and a second look
+# must see what the first started — measured 2026-08-26 on Henri's seat,
+# where the leash's scope path took longer than a 3 s wait and two looks
+# both started a runner.  The second waits here for the first to finish.
+exec 8>>"$state/resolve.lock"
+flock -w 10 8 || exit 0
 flock -n "$lock" true 2>/dev/null || exit 0      # a runner is up
 served=$(grep -o '"pulls": *[0-9]*' "$state/node.state" 2>/dev/null | grep -o '[0-9]*$' || echo 0)
 pulled=$(wc -l < "$ledger")
@@ -63,6 +69,10 @@ setsid -f sh -c "exec '$root/tools/leash.sh' -- sh '$root/node/run.sh' run --idl
 # wait for the runner to take the lock, so the next look — a hook fires at
 # every command — sees it and does not start a second (measured: two
 # back-to-back looks both started one before this loop existed)
-n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 60 ]; do sleep 0.05; n=$((n + 1)); done
-echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one (node/run.sh run, under the leash); $state/run.log" >&2
+n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 200 ]; do sleep 0.05; n=$((n + 1)); done
+if flock -n "$lock" true 2>/dev/null; then
+    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one, and it has not taken the lock after 10s; see $state/run.log" >&2
+else
+    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one (node/run.sh run, under the leash); $state/run.log" >&2
+fi
 exit 0

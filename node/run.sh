@@ -25,12 +25,12 @@
 #
 # **Measured, 2026-08-26, from inside the fence**: a process started
 # detached inside a fenced command dies with that command (`sandbox.sh`
-# runs `--unshare-pid --die-with-parent`).  So from a session's seat the
-# runner this starts lives only as long as the pull's own command, and
-# `pull` says so when `TEND_FENCED` is set; from a person's shell it
-# survives the shell and stops on its own when pulls stop
-# (`TEND_NODE_IDLE`, default 30 s).  Neither seat needs a daemon, and
-# nothing here outlives a sitting.
+# runs `--unshare-pid --die-with-parent`).  So inside the fence `pull`
+# starts nothing — it appends its line and says who will serve it —
+# and `tools/resolve.sh`, a hook on the person's side, starts the runner
+# after the command, outliving it.  From a person's shell `pull` starts
+# the runner itself, which survives the shell and stops on its own when
+# pulls stop (`TEND_NODE_IDLE`, default 30 s).  Nothing here is a daemon.
 #
 # `board/keep.md`'s last open half: keep exists, but nothing *made* the
 # node run under it, so confinement was a line a session had to remember
@@ -90,7 +90,14 @@ run)
     confined run "$@"
     ;;
 pull)
-    if flock -n "$lock" true 2>/dev/null; then
+    # Inside the fence a pull is one appended line and nothing more: the
+    # runner is started from the person's side by tools/resolve.sh
+    # (board/resolver.md, 2026-08-26), because one started here dies with
+    # the command and was startable unconfined.  From a person's shell,
+    # as before: start one if none is up, then pull.
+    if [ -n "${TEND_FENCED:-}" ]; then
+        echo "node: pull recorded — inside the fence the runner is the resolver's to start (tools/resolve.sh --hook)" >&2
+    elif flock -n "$lock" true 2>/dev/null; then
         before=$(generation)
         setsid -f sh "$0" run --idle "$idle" >> "$state/run.log" 2>&1 </dev/null
         # wait for the runner to open (its generation to move), capped
