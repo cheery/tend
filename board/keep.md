@@ -169,6 +169,49 @@ the real program gains the boundary, the grant still outside it.  That,
 and write-scoping, are what remain before this problem is more than
 demonstrated.
 
+## 2026-08-26 — write-scoping, built: the boundary keep did not set
+
+The card's named-open half, and the one Henri pointed at ("keep would
+be cool").  `tools/keep.py` gains `--write PATH`: it grants read+write
+beneath a path and turns on the write boundary, while `--allow` stays
+read-only.  With at least one `--write`, a program may change only what
+it was handed writable and is refused everywhere else — **including a
+path it can read**.
+
+    keep --write $D/wr --allow $D/ro -- sh -c 'echo hi > $D/wr/new; echo no > $D/ro/blocked'
+    wr/new      → written
+    ro/blocked  → Permission denied   (readable, not writable)
+
+`test/test_keep.py::test_write_is_scoped_when_asked` holds it, and
+`test_without_write_the_boundary_is_not_set` holds the default.
+
+**Opt-in, and the default is stated not silent.**  With no `--write`,
+keep governs reads only and a program writes where the fence allows —
+which is what six days of the card said it did, and what the existing
+node grant relies on, so nothing already built changed.  The write
+boundary exists the moment a caller asks for it and not before; Rule 9
+is about reads never silently becoming "everything", and reads are
+always confined.
+
+**What the build had to get right:**
+
+* **The handled set follows the ABI.**  Landlock refuses a whole
+  ruleset that names a bit the kernel does not know, so `TRUNCATE` (ABI
+  3) is added only when `landlock_abi()` reports ≥ 3; the rest are ABI 1.
+  A `restrict_self` that failed here would be the silent-everything lie
+  by another door.
+* **A rule may never grant past what is handled** — `allowed &= handled`
+  — so a read-only grant cannot leak a write bit through a copy-paste.
+* **Broken before trusted** (`board/green.md`): with `write_bits = 0`
+  the writable dir collapses to read-only and the write into the
+  read-only grant goes through — `test_write_is_scoped_when_asked` red.
+
+**Still open on the card**, unchanged: nothing yet *makes* a program run
+under keep — the fence-hook wraps shell commands, not program launches
+— so wiring keep into the launch path (confined by default, not by
+remembering the incantation) is the step this does not take.  Network
+is the other unset Landlock bit.  Both named; neither silent.
+
 ## 2026-08-25, later — the next slice: the pull node runs through keep
 
 Henri: *"do the next slice."*  The first real program now gains the

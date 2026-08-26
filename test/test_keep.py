@@ -141,3 +141,35 @@ def test_an_unknown_argument_is_refused_out_loud():
 def test_a_missing_grant_is_refused_out_loud(tmp_path):
     r = keep("--allow", str(tmp_path / "nope"), "--", "true")
     assert r.returncode != 0 and "does not exist" in r.stderr
+
+
+def test_write_is_scoped_when_asked(tmp_path):
+    """Write-scoping — `board/keep.md`, the slice after reads, built
+    2026-08-26.  `--write PATH` grants read+write beneath a path;
+    `--allow` stays read-only.  A program handed one writable dir and
+    one readable dir writes the first, reads the second, and is refused
+    writing the second.  Until this, keep governed reads only and a
+    program wrote where the fence allowed."""
+    (tmp_path / "wr").mkdir()
+    (tmp_path / "ro").mkdir()
+    (tmp_path / "ro" / "seed").write_text("readable\n")
+    ok = keep("--write", str(tmp_path / "wr"), "--allow", str(tmp_path / "ro"),
+              "--", "sh", "-c",
+              f"echo hi > {tmp_path/'wr'/'new'} && cat {tmp_path/'ro'/'seed'}")
+    assert ok.returncode == 0, ok.stderr
+    assert (tmp_path / "wr" / "new").read_text() == "hi\n"
+    denied = keep("--write", str(tmp_path / "wr"), "--allow", str(tmp_path / "ro"),
+                  "--", "sh", "-c", f"echo no > {tmp_path/'ro'/'blocked'}")
+    assert denied.returncode != 0, "wrote into a read-only grant"
+    assert not (tmp_path / "ro" / "blocked").exists()
+
+
+def test_without_write_the_boundary_is_not_set(tmp_path):
+    """The opt-in, stated as a test: with no `--write`, keep governs
+    reads only and a program writes where the fence allows — the
+    documented default the write slice did not change."""
+    (tmp_path / "d").mkdir()
+    r = keep("--allow", str(tmp_path / "d"), "--", "sh", "-c",
+             f"echo x > {tmp_path/'d'/'f'}")
+    assert r.returncode == 0, r.stderr
+    assert (tmp_path / "d" / "f").exists()

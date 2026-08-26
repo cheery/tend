@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-25 — "go with A" (board/keep.md; the reusable launcher, not the node confining itself)
 """tools/keep.py — run a program able to read only what it was handed.
 
-    tools/keep.py [--allow PATH]... -- program args...
+    tools/keep.py [--allow PATH]... [--write PATH]... -- program args...
 
 A launcher, and the grant is the launcher's, not the program's — the
 boundary is set from outside the thing bounded (board/keep.md, and the
@@ -12,11 +12,17 @@ with --allow (plus the system roots any program needs to run at all),
 restricts itself irreversibly, then execs the program.  Inside, the
 program reads what it was given and gets EACCES on the file beside it.
 
-  first slice, said plainly: this scopes filesystem *reads* only — a
-  program is blind to data it was not handed, which is exactly problem 1
-  ("how are users' data protected from programs?").  Write-scoping and
-  network are handled bits Landlock also has and this does not set yet;
-  they are later turns, named here so the gap is not silent.
+  reads, always: --allow grants read beneath a path; a program is blind
+  to data it was not handed, which is exactly problem 1 ("how are users'
+  data protected from programs?").
+
+  writes, opt-in: --write grants read+write beneath a path, and turns on
+  the write boundary — with at least one --write the program may change
+  only what it was handed writable, and is refused everywhere else,
+  including paths it can read.  With no --write, keep governs reads only
+  and a program writes where the fence allows; that default is stated,
+  not silent.  Network is a handled bit Landlock also has and this does
+  not set yet — a later turn, named so the gap is not silent.
 
   never silent (Rule 9): if Landlock is not available, keep does NOT run
   the program unconfined — it refuses, loudly, because a grant that
@@ -49,6 +55,27 @@ FS_READ_FILE = 1 << 2
 FS_READ_DIR = 1 << 3
 HANDLED = FS_READ_FILE | FS_READ_DIR
 
+# The write accesses `--write` governs: everything that changes a name
+# or a file's contents beneath a granted directory.  All ABI 1 except
+# TRUNCATE (ABI 3), which confine() adds only when the kernel offers it
+# — a handled bit the kernel does not know makes create_ruleset refuse
+# the whole ruleset.
+FS_WRITE_FILE = 1 << 1
+FS_REMOVE_DIR = 1 << 4
+FS_REMOVE_FILE = 1 << 5
+FS_MAKE_CHAR = 1 << 6
+FS_MAKE_DIR = 1 << 7
+FS_MAKE_REG = 1 << 8
+FS_MAKE_SOCK = 1 << 9
+FS_MAKE_FIFO = 1 << 10
+FS_MAKE_BLOCK = 1 << 11
+FS_MAKE_SYM = 1 << 12
+FS_TRUNCATE = 1 << 14
+WRITE_HANDLED = (FS_WRITE_FILE | FS_REMOVE_DIR | FS_REMOVE_FILE
+                 | FS_MAKE_CHAR | FS_MAKE_DIR | FS_MAKE_REG | FS_MAKE_SOCK
+                 | FS_MAKE_FIFO | FS_MAKE_BLOCK | FS_MAKE_SYM)
+LANDLOCK_CREATE_RULESET_VERSION = 1 << 0
+
 # The roots any program needs just to run — the interpreter, the shared
 # libraries, the loader cache, /proc and /dev.  These are the machine,
 # not the person's data, so granting read on them is the honest baseline
@@ -78,8 +105,21 @@ def _fail(msg, code=1):
     sys.exit(code)
 
 
-def confine(allow):
-    attr = ruleset_attr(HANDLED)
+def landlock_abi():
+    """The kernel's Landlock ABI version, or 0 if unavailable — used to
+    mask write bits the running kernel does not know."""
+    v = libc.syscall(NR_create_ruleset, 0, 0, LANDLOCK_CREATE_RULESET_VERSION)
+    return v if v > 0 else 0
+
+
+def confine(read_allow, write_allow):
+    abiv = landlock_abi()
+    write_bits = 0
+    handled = HANDLED
+    if write_allow:
+        write_bits = WRITE_HANDLED | (FS_TRUNCATE if abiv >= 3 else 0)
+        handled |= write_bits
+    attr = ruleset_attr(handled)
     fd = libc.syscall(NR_create_ruleset, ctypes.byref(attr),
                       ctypes.sizeof(attr), 0)
     if fd < 0:
@@ -88,8 +128,13 @@ def confine(allow):
               f"run the program unconfined.  A grant that became 'everything' "
               f"silently is the one lie keep must not tell.")
 
-    granted = 0
-    for path in SYSTEM_READ + list(allow):
+    # read-only grants first, then the writable ones; a writable file may
+    # be opened for writing and truncated, a writable dir may also have
+    # names made and removed beneath it.
+    file_write = FS_READ_FILE | FS_WRITE_FILE | (FS_TRUNCATE if abiv >= 3 else 0)
+    plan = ([(p, False) for p in SYSTEM_READ + list(read_allow)]
+            + [(p, True) for p in write_allow])
+    for path, writable in plan:
         try:
             pfd = os.open(path, os.O_PATH | os.O_CLOEXEC)
         except FileNotFoundError:
@@ -98,13 +143,16 @@ def confine(allow):
             _fail(f"nothing to grant at {path!r} — it does not exist.")
         try:
             isdir = os.path.isdir(path)
-            allowed = HANDLED if isdir else FS_READ_FILE
+            if writable:
+                allowed = (FS_READ_FILE | FS_READ_DIR | write_bits) if isdir else file_write
+            else:
+                allowed = (FS_READ_FILE | FS_READ_DIR) if isdir else FS_READ_FILE
+            allowed &= handled  # a rule may never grant past what is handled
             pb = path_beneath_attr(allowed, pfd)
             r = libc.syscall(NR_add_rule, fd, LANDLOCK_RULE_PATH_BENEATH,
                              ctypes.byref(pb), 0)
             if r != 0:
                 _fail(f"could not grant {path!r}: {os.strerror(ctypes.get_errno())}")
-            granted += 1
         finally:
             os.close(pfd)
 
@@ -116,13 +164,17 @@ def confine(allow):
 
 
 def main(argv):
-    allow, i = [], 0
+    allow, write, i = [], [], 0
     while i < len(argv):
         a = argv[i]
         if a == "--allow":
             if i + 1 >= len(argv):
                 _fail("--allow needs a path", 2)
             allow.append(argv[i + 1]); i += 2
+        elif a == "--write":
+            if i + 1 >= len(argv):
+                _fail("--write needs a path", 2)
+            write.append(argv[i + 1]); i += 2
         elif a == "--":
             i += 1; break
         elif a in ("-h", "--help"):
@@ -133,8 +185,8 @@ def main(argv):
             break
     prog = argv[i:]
     if not prog:
-        _fail("nothing to run — tools/keep.py [--allow PATH]... -- program args", 2)
-    confine(allow)
+        _fail("nothing to run — tools/keep.py [--allow PATH]... [--write PATH]... -- program args", 2)
+    confine(allow, write)
     try:
         os.execvp(prog[0], prog)
     except OSError as e:
