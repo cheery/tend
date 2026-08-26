@@ -378,3 +378,35 @@ not execution" meant in the 13:56 kaizen.  `state-row-2.patch` moves
 the check's probe under `tend/` and adds the probe the row now needs:
 one written at the parent inside must *not* be there outside.  Two
 probes, the row's two halves.
+
+## 2026-08-26, 14:10 — the session half, second slice: the `trees` row is the other tree's documents and tools
+
+Henri: *"do the trees row."*  The row bound `~/gestate` whole,
+read-only.  **Measured by purpose**, the way the state row was: the
+ledger has 11 records reaching gestate since 08-25, and what they
+opened is `board/`, `tools/`, `fixme.md`, `vision.md`, and twice
+`.claude/settings.json` — a session comparing the twin fences.  What
+the cards cite adds `spec/`, `doc/memory/`, `journal/`, `manifesto.md`.
+The audit script, the row's named purpose, reads only the tree it is
+pointed at.  **What nothing ever opened**: `target/` and `shell/` — 3.2
+GB of builds — the source (`gestate/`, `crust/`), `test/`, `examples/`,
+`.git` with the other tree's whole history, `.claude/worktrees`.
+
+**Handed to Henri as `trees-row.patch`**: the row binds the parts —
+board, tools, spec, doc, journal, the root documents, and
+`.claude/settings.json` as a mechanism's config — and inside,
+`~/gestate` holds those and nothing else.  This time the 14:05 rule was
+run first: every line naming the path was listed before the patch, and
+the check's probe was *moved* (`tools/.probe`, still blocked) *and* the
+row's other half added — `.git` and the source are not inside, expected
+blocked.  The patch carries its test (`--rows` names the parts, not the
+tree).  `sh -n` clean, non-bwrap tests green on a scratch copy; the
+bwrap run is his.
+
+**What this is**: the second row narrowed from what the purpose reads.
+**What it is not**: a judgement about gestate — its source is not
+secret; it is 3 GB and a history a tend session has never needed, and a
+reach nobody needs is a reach nobody should carry.  The tree row — this
+tree, read-write, whole — is what remains, and it is the one where
+"what the purpose reads" is "everything," because the purpose is the
+work.  That is the hard one, still unbegun.
