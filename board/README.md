@@ -67,6 +67,13 @@ between two workable cards is Henri's.
    card from it"; the tiebreak is his.*
 6. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
+7. **[green](green.md)** — a gate that has only ever passed is a
+   claim: gestate's F88 named a defect, stayed green from the day it was
+   written, and passed with the defect put back; nothing in either tree
+   checks that a detector detects.  *Placed here by a gestate session on
+   2026-08-26, at Henri's "F88's finding earns a card in tend" — last,
+   because its day one is a measurement and not a build; the tiebreak
+   is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
