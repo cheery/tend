@@ -137,7 +137,12 @@ def test_the_fences_own_code_is_read_only_inside():
     """`board/self.md`'s measurement, 2026-08-25: an edit to this script
     from inside the fence was in force on the very next command.  Now the
     set is bound read-only: a write is EROFS and the mountpoint cannot be
-    renamed or removed."""
+    renamed or removed.
+
+    Verifying this by mutation — dropping a `--ro-bind` from the
+    protected loop — is *destructive* when the fence is then down: the
+    probe's `mv` succeeds and renames the real script.  Run that on a
+    clone, never the tree (measured from outside, 2026-08-26)."""
     protected = sandbox("--protected").stdout.split()
     before = {p: (ROOT / p).read_bytes() for p in protected}
     for p in protected:

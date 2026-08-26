@@ -497,3 +497,32 @@ honest verdict names both.  The finding for the tally is new: not every
 survivor is a false green; a detector that has only run in one seat can
 be a **false red** in another, and the cure is the same — run it
 somewhere else.
+
+## Day one, measured by execution — the mutation was run from outside
+
+gestate-50 ran the owed proof on `9b49e91`, outside the fence.  The fix:
+`test_sandbox.py` **13 passed**, bwrap tests included.  A control clone:
+`--check` "the fence is up", 13 passed.  The mutation — the protected
+loop skipping `sandbox.sh`'s own `--ro-bind` — turned `--check` to **THE
+FENCE IS DOWN** with exactly one ✗, and
+`test_the_fences_own_code_is_read_only_inside` went **red**, with
+`test_check_says_the_fence_is_up_here` beside it.  So the sandbox row is
+`a test, named`, **by execution now, not only by logic** — the false red
+is repaired and the detector bites when the fence is actually down.
+
+Two findings the run added, both worth keeping:
+
+* **The mutation is destructive when it fires.**  With the bind gone the
+  probe's `mv` *succeeds* — `tools/sandbox.sh.away` appeared in the clone
+  — and the four tests after it failed for want of the script, not for
+  themselves (6 red in all).  Red for the right reason, but the drop-a-
+  `--ro-bind` mutation must be run on a **clone, never the tree**; the
+  test docstring now says so.
+* **A fence protects nothing it also grants writable.**  gestate's first
+  clone sat under `/tmp/claude-$uid`, which `sandbox.sh` binds
+  read-write *after* the read-only binds, so the scratch bind covered
+  the whole clone and every protection vanished — `--check` showed the
+  protected set writable with the loop untouched.  Not tend's shape
+  (nobody clones tend into scratch), but a real limit of the fence, and
+  a fence whose limits are unwritten is a mood.  A one-line note for
+  `sandbox.sh`'s header is prepared for Henri's hand.
