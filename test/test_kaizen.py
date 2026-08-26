@@ -41,8 +41,30 @@ class Repo:
             subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
                            cwd=self.at, env=env, check=True)
 
-    def kaizen(self):
-        self.commit("doc/kaizen")
+    def kaizen(self, when=None):
+        """A real kaizen: a file named in the `<date>-<HHMM>.md` shape the
+        lamp matches (board/green.md's fix), not just any file in the dir."""
+        self.n += 1
+        f = self.at / "doc" / "kaizen" / f"2026-08-26-{self.n:04d}.md"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("k\n")
+        env = dict(os.environ)
+        if when is not None:
+            env["GIT_AUTHOR_DATE"] = env["GIT_COMMITTER_DATE"] = f"@{when} {time.strftime('%z')}"
+        for a in (["add", "."], ["commit", "-q", "-m", f"k{self.n}"]):
+            subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                           cwd=self.at, env=env, check=True)
+
+    def stray(self, name):
+        """A non-kaizen file committed into doc/kaizen/ — the thing that
+        must not be read as a kaizen landing."""
+        self.n += 1
+        f = self.at / "doc" / "kaizen" / name
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("not a kaizen\n")
+        for a in (["add", "."], ["commit", "-q", "-m", f"s{self.n}"]):
+            subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                           cwd=self.at, check=True)
 
     def lamp(self, *args):
         env = dict(os.environ, TEND_KAIZEN_WANT=str(self.at / "wanted"))
@@ -98,6 +120,28 @@ def test_a_kaizen_puts_it_out(tmp_path):
     r.commit(); r.commit()
     r.kaizen()
     assert r.lamp().stdout == ""
+
+
+def test_a_non_kaizen_file_in_the_dir_is_not_a_kaizen(tmp_path):
+    """**The defect of 2026-08-26 (board/green.md, and this session).**
+
+    The lamp finds the last kaizen by the *directory* — the newest
+    commit touching doc/kaizen/ — so a non-kaizen file committed there
+    (a ledger, a README, an archive index) is read as a kaizen landing
+    and the lamp goes dark with a real kaizen still owed.  It happened:
+    committing doc/kaizen/ingested.md put the lamp out an hour after the
+    session had broken this very lamp twelve ways in a copy.  The lamp
+    must match a kaizen's *name*, not its directory.
+    """
+    r = Repo(tmp_path)
+    r.commit(); r.kaizen()        # a real kaizen covers the first work
+    r.commit()                    # new uncovered work: the lamp is lit
+    r.stray("ingested.md")        # a non-kaizen file lands in doc/kaizen/
+    out = r.lamp().stdout
+    assert "since the last kaizen" in out, \
+        "a non-kaizen file in doc/kaizen/ was read as the last kaizen"
+    assert "2 commit(s)" in out, \
+        "the stray is not a kaizen, so the work after the real one still owes one"
 
 
 def test_the_next_session_lights_it_again(tmp_path):

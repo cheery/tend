@@ -65,11 +65,17 @@ want)
 *) echo "kaizen: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
-last=$(git -C "$root" log -1 --format=%H -- doc/kaizen/ 2>/dev/null || true)
+# The last kaizen is the newest commit that added a kaizen *file* — one
+# named <date>-<HHMM>.md — not merely a commit that touched doc/kaizen/.
+# 2026-08-26: a ledger committed into that directory (doc/kaizen/ingested.md)
+# was read as a kaizen landing and put the lamp out with one owed
+# (board/green.md).  The name is the kaizen; the directory is not.
+kzn="doc/kaizen/????-??-??-????.md"
+last=$(git -C "$root" log -1 --format=%H -- "$kzn" 2>/dev/null || true)
 if [ -n "$last" ]; then
     range="$last..HEAD"
-    since="since the last kaizen ($(git -C "$root" log -1 --format=%h -- doc/kaizen/))"
-    last_at=$(git -C "$root" log -1 --format=%ct -- doc/kaizen/)
+    since="since the last kaizen ($(git -C "$root" log -1 --format=%h -- "$kzn"))"
+    last_at=$(git -C "$root" log -1 --format=%ct -- "$kzn")
 else
     range="HEAD"
     since="and no kaizen yet"

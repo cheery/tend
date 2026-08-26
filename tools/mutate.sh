@@ -140,6 +140,7 @@ test/test_board.py	board: blocked on a card not there	sed -i "/^    blocked  /d;
 test/test_board.py	board: status word misspelt	sed -i "s/^    status   open/    status   opne/" board/green.md
 test/test_board.py	board: header indented 3, not 4	sed -i "s/^    \(status\|because\|asked\|see\)  /   \1  /" board/green.md
 test/test_board.py	board: done with no date, in done/	sed -i "s/^    status   done.*/    status   done/" board/done/grant.md
+test/test_kaizen.py	kaizen: lamp matches the dir, not the name	sed -i 's|kzn="doc/kaizen/[^"]*"|kzn="doc/kaizen/"|' tools/kaizen.sh
 # the gates hook against a commit — 2026-08-26
 gate	gate: pre-commit.sh ignores the suite's verdict	sed -i "s/^if python3 tools\/suite.py; then/if python3 tools\/suite.py || true; then/" tools/pre-commit.sh
 gate	gate: suite.py always returns 0	sed -i "s/^    return r.returncode/    return 0/" tools/suite.py

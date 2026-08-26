@@ -370,3 +370,31 @@ asserted and not only the exit), red with `|| true` before trusted.
 gestate's five gates in batch 6 were incidental too — `nocturne.ges`
 for F81, the prelude for F77.  *Never a rule; always the wiring or the
 fixture* holds on gestate's tail as it held on tend's five files.
+
+## Day one, a fourth detector — the lamp, found blind in the live tree
+
+Not a swept file: a defect this session made and then measured, which
+is the card's own subject arriving unbidden.  Scheduling the kaizen
+readings (`card:kaizen-ingestion.md`), the ledger was first committed
+into `doc/kaizen/` — and that put the lamp *out*, because
+`tools/kaizen.sh` reads the newest commit touching `doc/kaizen/` as the
+last kaizen, and a ledger is not one.  The thirteenth break of the lamp
+that morning; the first twelve were in a copy, on purpose, and this one
+was in the live tree, by accident, an hour later.
+
+Measured and closed the card's way.  `test_a_non_kaizen_file_in_the_dir_is_not_a_kaizen`
+commits a real kaizen, then work, then a stray `ingested.md` into
+`doc/kaizen/`, and asks the lamp for `2 commit(s) since the last
+kaizen`: **red on the current script** (the stray is read as the last
+kaizen and the lamp goes silent), green once the lamp matches a
+kaizen's *name* — `doc/kaizen/????-??-??-????.md` — rather than its
+directory.  The fix is three pathspecs in `tools/kaizen.sh`; the script
+is in the protected set, so it went to Henri as `kaizen-lamp.patch`,
+proved green in a scratch copy of the tree first (11 of 11).  The
+mutate row `kaizen: lamp matches the dir, not the name` reverts it and
+is red once the patch is in.
+
+**Where it sits in the tally**: another *wiring* defect, not a rule —
+the detector was joined to its directory where it meant to be joined to
+a name.  Every survivor this card has found is one of the two shapes,
+and this is the wiring shape in the tree's own reflective organ.
