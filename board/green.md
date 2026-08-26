@@ -605,3 +605,12 @@ it is counted.  The count is one loop on Henri's seat (below); the
 reasoning waits for the number.  What is known: the runner it starts
 runs and exits 0 in 1 s on that seat (the leash ledger says so), and
 the look did not see its lock inside 10 s.
+
+**15:12 — counted: 1 in 10, and the detector was right.**  The
+flickering test was not blind and not wrong: it saw a real race (the
+resolver's check taking the lock it tests) and a real cost (the leash's
+scope path ~10 s from cold on one seat), neither of which exists on the
+seat where the test always passed.  The fourth shape, then, is not a
+flaw in the detector but **a detector whose subject differs by seat**
+— and the count is what separated "flaky" from "found something."
+Filed on `resolver`; the fix carries a deterministic test for the race.

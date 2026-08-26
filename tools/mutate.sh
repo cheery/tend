@@ -214,6 +214,8 @@ test/test_resolve.py	resolve: starts even when every pull is served	sed -i 's/^\
 test/test_resolve.py	resolve: the lock is never looked at	sed -i 's/^flock -n "\$lock" true 2>\/dev\/null || exit 0.*/:/' tools/resolve.sh
 test/test_resolve.py	resolve: does not wait for the runner's lock	sed -i 's/^n=0; while flock -n "\$lock" true.*/:/' tools/resolve.sh
 test/test_resolve.py	node: a runner reads the ledger at open and serves only what follows	sed -i 's/^    seen = st\["pulls"\]/    seen = pulls_in(ledger(a.state))/' node/node.py
+# node/run.sh — the runner waits for the lock rather than refusing at once, card:resolver.md 15:12 (NOOP until resolver-lock.patch is in)
+test/test_keep.py	resolver: the runner refuses the lock at once instead of waiting	sed -i 's/^    flock -w 2 9 || {/    flock -n 9 || {/' node/run.sh
 ROWS
 }
 

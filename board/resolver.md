@@ -300,3 +300,38 @@ answer.
 **Open**: the flake's rate on Henri's seat; then `node/state`
 read-only to the session with the pull file writable — the last bind,
 now safe to land because the hook serves what a session pulls.
+
+## 2026-08-26, 15:12 — the flicker counted, and two causes read off the ledger
+
+Henri's loop, ten runs of the one test: **1 failed, 9 passed** — the
+first, in 10.92 s; the nine after in ~1 s each.  The leash ledger for
+that window has eleven runner records for ten tests: nine clean 1 s
+runs a second apart, and at the front **one `exit 75` with 0 s wall**
+that *started* at 15:10:06 — ten seconds after the test started it —
+followed by one extra clean run.  (The ledger's epoch is the leash's
+start: `start=$(date +%s)`, written at the end.)
+
+Two causes, both measured, neither guessed:
+
+* **The resolver tested the lock by taking it.**  `flock -n "$lock"
+  true` holds the lock for the length of `true`; a runner whose
+  `flock -n 9` lands in that moment is turned away with 75, and the
+  resolver then waits for a lock nobody will take.  The same `exit 75`
+  signature is in the 14:45 mutate runs.  Fix: the runner waits up to
+  5 s for the lock (`flock -w 5`) — a momentary hold clears in
+  microseconds, a real runner still holds it past 5 s and the second
+  still leaves with 75.  Deterministic test: hold the lock 0.3 s, start
+  the runner, it must run.  Red against the old `run.sh`, green with
+  the patch.
+* **The leash's scope path starts a runner ~10 s from cold on Henri's
+  seat** — twice in a row at 15:10, then instant for nine.  From this
+  seat the leash is `plain` and starts in milliseconds, which is why
+  the test never failed here.  The resolver's wait is 30 s now, and
+  says so if it runs out.  The latency itself is the leash's finding,
+  not this card's — `card:work-environment-ai.md` has the line.
+
+**Handed to Henri as `resolver-lock.patch`** (`run.sh` and `resolve.sh`
+are protected), the test inside it.  The detector was right both
+times: a 1-in-10 red was a race in the mechanism and a cost in the
+leash, and neither would have been found from a seat where the test
+is always green.

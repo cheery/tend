@@ -501,3 +501,14 @@ started by a pull costs — the runner `node/run.sh pull` starts lives
 inside the pull's command (`board/resolver.md`), so today it is inside
 the same line, and a program that outlived a command would not be.  The
 card stays open.
+
+**2026-08-26, 15:12 — a cost of the leash's scope path, measured on
+Henri's seat**: starting a command through `systemd-run --user --scope`
+took ~10 s from cold, twice in a row, then milliseconds for the next
+nine (leash ledger, 15:10:06 → 15:10:27; the resolver's runners).  From
+a fenced seat the leash is `plain` and never shows it.  Not a defect of
+the leash — the ledger is what made it visible — but a number the
+budget defaults did not know: an invocation's wall clock can carry ten
+seconds that are the manager's, not the command's.  Measured once;
+`time tools/leash.sh -- true` twice on his seat after a quiet minute
+would say whether it is the first call or every cold one.
