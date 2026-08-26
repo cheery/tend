@@ -462,3 +462,38 @@ detector and what runs it, or a fixture without a seam, or a boundary a
 well-behaved program cannot exercise — never a rule going unnoticed.
 The unfenced-seat sweep is the one measurement the card still owes, and
 it belongs to whoever next runs tend's suite from outside.
+
+## Day one, the outside run came — and it caught a detector, not the fence
+
+The unfenced sweep the section above called owed happened the same day:
+Henri ran `python tools/suite.py` in `~/tend` from his own terminal
+(`LANG=fi_FI.UTF-8`) and `test_the_fences_own_code_is_read_only_inside`
+failed — **while the fence held**.  The bytes were unchanged and no
+`.away` appeared; the write's refusal was real but landed in *stderr*,
+because dash prints a failed `>>` redirection to its own stderr before
+the command's `2>&1` applies, and the assert read only stdout; `mv`/`rm`
+returned EBUSY (the file-bind refusing rename over a writable `tools/`),
+not the EROFS the assert wanted.  gestate-50 diagnosed it from the
+paste.  A **false red**: the detector cried wolf on a fence that was up,
+and it did so only on a machine whose binding and locale differed from
+the one it was written on.
+
+This is the twin of F88 from the other side.  F88 was a test green with
+the defect back; this is a test red with no defect at all — and both are
+the same failing: an oracle that has only ever run in one place is a
+claim about that place.  The fix (`9b49e91`) reads both streams, forces
+`LC_ALL=C` so the words are not the locale's, and requires EROFS for the
+*write* only — the invariant — leaving `mv`/`rm`'s refusal to the
+behavioural asserts.  The latent twin (`test_the_restraints_are_read_only_inside`)
+carried the identical bug and got the same fix.
+
+**Still owed, and it is the mutation, not the fix**: verified here by
+logic against the three real string-shapes, but this seat is inside the
+fence and cannot run bwrap, so the fence-down proof — drop one
+`--ro-bind` and watch the fixed test go red — belongs to the next
+unfenced run.  Until then `test_sandbox.py` is `a test, named` by
+reasoning and `none — nothing can, from this seat` by execution, and the
+honest verdict names both.  The finding for the tally is new: not every
+survivor is a false green; a detector that has only run in one seat can
+be a **false red** in another, and the cure is the same — run it
+somewhere else.
