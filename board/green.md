@@ -593,3 +593,15 @@ line-based parser, both guards loosened together (4 red).  A third
 shape for the tally, then, beside wiring and seam: a row that does not
 break what it names, and the harness cannot tell that from a survivor
 — only the reader can, by asking what the copy actually did.
+
+## 2026-08-26, 15:03 — a detector that flickers on one seat
+
+`test_resolve.py::test_a_second_look_while_the_runner_is_up_starts_no_other`:
+red twice from Henri's hand, green under the gate a minute later, never
+red from a session's seat.  The card's tally has wiring, seam, and a row
+that breaks nothing; this is a fourth shape — **a detector whose verdict
+depends on the seat** — and it is not read as blind or as sound until
+it is counted.  The count is one loop on Henri's seat (below); the
+reasoning waits for the number.  What is known: the runner it starts
+runs and exits 0 in 1 s on that seat (the leash ledger says so), and
+the look did not see its lock inside 10 s.

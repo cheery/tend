@@ -261,3 +261,42 @@ tree-row measurement named: `node/state` read-only to the session with
 the pull file the one thing it may append.  That is a fence row, and it
 must land *after* the hook is installed, or a session's pull is never
 served.  Not this slice; the next, and it is one bind.
+
+## 2026-08-26, 15:03 — served by a runner no session started
+
+Henri applied `resolver-outside.patch`, `resolve-serialize.patch`, ran
+`--protect` (the step this session left off his list — the fence said
+so at his next prompt, which is the check doing its job) and
+`tools/resolve.sh --install`.  Then, from this session's seat: one
+`run.sh pull` inside the fence — "pull recorded — inside the fence the
+runner is the resolver's to start" — and in the next command:
+
+    gen 1 opened at 15:02:52 · served 1, total 1 · pull, total 2
+    stopped — nobody pulled for 30.0s · lock free
+    leash: 15:02:52  48s  exit 0  cpu=0.1  scope  t=900
+
+The hook on Henri's side started the runner between two of a session's
+commands; it served a pull that had sat in the ledger since 13:29 *and*
+the new one; it outlived the command that pulled, stopped by itself,
+and left a leash line.  **The first program tend runs that a session
+did not start.**  What the leash says about it: an invocation with a
+900 s wall — a node pulled for longer is exit 124, the interaction
+`node.py`'s header named on day one, still left for the grant that
+sizes the budget.
+
+**A detector that flickers, on Henri's seat only.**
+`test_a_second_look_while_the_runner_is_up_starts_no_other` failed
+twice from his hand — first with the 3 s wait, then with the
+serialized 10 s wait saying "started one, and it has not taken the lock
+after 10s" — and passed under the gate on the very next run.  The
+ledger shows the runner those tests started *ran and exited 0 in 1 s*;
+what the look did not see was its lock.  From this seat the test has
+never failed (leash `plain`); his seat runs the leash's scope path.
+Not explained; measured as far as it can be from here, and handed to
+`green` as a flake to count before it is reasoned about.  Named on
+both cards so the next reader does not take one green run as the
+answer.
+
+**Open**: the flake's rate on Henri's seat; then `node/state`
+read-only to the session with the pull file writable — the last bind,
+now safe to land because the hook serves what a session pulls.
