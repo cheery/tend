@@ -258,3 +258,45 @@ Henri: *"do the display measurement."*  From inside the fence with
 What was *not* done: no cookie was smuggled in and no input was sent to
 any window.  The row stays off, the bound Henri set stays as it is, and
 a caller for it is not on the board.
+
+## 2026-08-26, 13:45 — the sitting of ordinary work under the hook, counted
+
+Henri: *"and fence."*  The card stayed open for "the first sitting of
+ordinary work under the hook, counting what broke."  This is that
+sitting: 13:04 to 13:45, a session that read the board, verified a
+README, built keep's network bit, recorded green's rows, carded and
+built the resolver's day one, and handed one patch.  Counted from the
+leash ledger and the session's own transcript:
+
+    53 commands, every one fenced and in a scope; 53 × exit 0; 0 kills
+    430s wall, 235.7s cpu; the longest 97s (a gate run, cpu=23.3s)
+
+**What the fence refused, three times, and each was the fence right:**
+
+* `touch tools/sandbox.sh` — *read-only file system*.  The protected
+  set, doing what `self` put it there for; the change went to Henri as
+  a patch and came back as `6f310db`.
+* a write into `~/.claude/…/memory/` — *no such file*: the empty home.
+  The session had reached for the fenced shell where the edit tools
+  are the seat; one retry, no widening.
+* a process started detached inside a command **died with the
+  command** (`--unshare-pid --die-with-parent`).  Not a refusal the
+  session asked for, and the most useful one of the day: it is what
+  made `resolver`'s daemon question answer itself.
+
+**What went through that a reader would not guess**: with the `net`
+row off, the fence has **loopback** — bwrap brings `lo` up in the new
+namespace — and nothing else: no `/sys`, no `resolv.conf`, the outside
+*unreachable*.  So a fenced program can talk to itself and to anything
+else in the same fence, and `keep --no-net` is what closes that for a
+program.  Measured today, both halves, because keep's network test
+connected to a loopback listener from inside and that had to mean
+something.
+
+**What broke: nothing that was work.**  No command was refused that
+should have run; no row was asked for; the hole closed on 2026-08-25
+stayed closed through 53 commands of the kind that found it.  The
+sitting the card waited on is written, and the blast-radius half has
+its demonstration in the manifesto's sense.  What the card still holds
+is the `display` row, measured up to its refusal, waiting on a caller
+— which is a widening, not a debt.  Whether the card is done is Henri's.

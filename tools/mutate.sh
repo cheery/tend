@@ -202,6 +202,8 @@ test/test_keep.py	resolver: pull never starts a runner	sed -i '/^        setsid 
 test/test_keep.py	resolver: pull starts a runner even when one holds the lock	sed -i 's/^    if flock -n "\$lock" true 2>\/dev\/null; then/    if true; then/' node/run.sh
 test/test_keep.py	resolver: run never takes the lock	sed -i 's/^    flock -n 9 || {.*/    :/' node/run.sh
 test/test_keep.py	resolver: pull does not wait for the runner to open	sed -i 's/^        while \[ "\$(generation)" -le "\$before" \] && \[ "\$n" -lt 60 \]; do/        while false; do/' node/run.sh
+# node/run.sh — the grant appears once — card:green.md, 2026-08-26
+test/test_keep.py	green: a second keep invocation pasted into the launcher	printf '%s\n' 'exec "$py" "$root/tools/keep.py" --allow "$here/node.py" -- true' >> node/run.sh
 ROWS
 }
 

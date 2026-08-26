@@ -343,3 +343,14 @@ def test_run_is_refused_while_a_runner_holds_the_lock(tmp_path):
     assert second.returncode == 75, (second.returncode, second.stderr)
     assert "already holds" in second.stderr
     assert _wait(lambda: _state(tmp_path)["generations"] == 1)
+
+
+def test_the_launchers_grant_appears_once():
+    """The grant *is* the boundary, and three copies are three places
+    for it to drift — the 13:34 kaizen's own miss, where the first draft
+    of `run.sh` pasted the keep invocation into every verb.  So: exactly
+    one line in the launcher invokes `tools/keep.py`, and every verb
+    goes through it.  A second invocation anywhere is red."""
+    run = (ROOT / "node" / "run.sh").read_text()
+    lines = [l for l in run.splitlines() if "tools/keep.py" in l and not l.lstrip().startswith("#")]
+    assert len(lines) == 1, lines

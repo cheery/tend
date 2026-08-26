@@ -470,3 +470,34 @@ namespaces.  So the cpu fix's scope branch is still owed a real run —
 which is an unfenced one, i.e. the gestate session's next leashed suite
 — and `card:grant.md` gains its true shape from the same measurement:
 the leash wraps the fence, it does not run inside it.
+
+## 2026-08-26, 13:45 — the scope path's real run has been happening for a day, and the ledger is the demonstration
+
+Henri: *"work-environment-ai."*  The card's last section owed "the cpu
+fix's scope branch a real run — an unfenced one."  `done/grant.md` gave
+the leash its true shape the same afternoon: **the leash wraps the
+fence**, so every shell command a tend session runs is the unfenced
+scope case, and the ledger has been recording it since
+`2026-08-25 07:17:53`.  Read back today, by record (a record starts
+with an epoch and a tab; a command's text spans lines):
+
+    240 records · 236 scope · 4 plain
+    149 of 236 scope records carry cpu > 0; 4 carry no cpu field
+    exits: 226 × 0 · 4 × 124 (the wall budget fired) · 3 × 2 · 3 × 1
+    the largest: cpu=106.1s over 139s wall (a python heredoc)
+    a gate run this sitting: 97s wall, cpu=23.3s
+    scope records with wall ≥ 3s and cpu=0: one, and it was a sleep loop
+
+So `CPUUsageNSec` reads a real number and does not race the scope's
+teardown to empty — 149 times, on work as heavy as the suite.  The
+owed run is not owed; it is a day of ledger.  And the wall budget has
+killed four times, which is the "bounded and visible" the leash was
+built for, each a line a person can read.
+
+**What this does not settle**: the mediation-order decision, which
+§"Henri, on what the count cannot show" left as "try both," is still
+his; and the ledger counts a session's *commands*, not what a program
+started by a pull costs — the runner `node/run.sh pull` starts lives
+inside the pull's command (`board/resolver.md`), so today it is inside
+the same line, and a program that outlived a command would not be.  The
+card stays open.

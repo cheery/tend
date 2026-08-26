@@ -564,3 +564,18 @@ were run once from outside.  The standing practice is what this section
 is — a slice lands with its rows, the same commit.  That is not a rule
 yet; it is the third time today, and the tree's rule for a rule is that
 it is written when it is broken and noticed, not when it is kept.
+
+## 2026-08-26, 13:45 — the 13:34 kaizen's owed test, with its seam
+
+Henri: *"green."*  The kaizen named a countermeasure — the launcher's
+grant appears exactly once, since the grant is the boundary and three
+copies are three places for it to drift — and said the test was owed
+tomorrow because a test written at the end of a sitting is the
+fixture-with-no-seam shape.  Written now, with the seam first:
+`test_keep.py::test_the_launchers_grant_appears_once` counts the
+non-comment lines of `node/run.sh` that invoke `tools/keep.py` and
+wants one.  The row `green: a second keep invocation pasted into the
+launcher` appends a second, and is **red by name** through the harness
+before the test was trusted.  The launcher is in the protected set
+since `6f310db`, so a session cannot paste into it from the fence
+anyway — the test is for the hand that can.
