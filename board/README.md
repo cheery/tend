@@ -48,21 +48,28 @@ between two workable cards is Henri's.
    2026-08-25, at Henri's "create the card … by anything really",
    because `work-environment-ai` calls this its first architecture
    decision; the tiebreak is his and this is his to move.*
-3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
+3. **[resolver](resolver.md)** — a program starts only when a person
+   types its launcher, and the grant that confines it lives in that
+   launcher; the person is meant to pull, never start.  *Placed here by
+   a session on 2026-08-26, at Henri's "Do a card for the resolver",
+   below `keep` because it is the route to that card's session half and
+   above the count-only cards because it is a build; the tiebreak is
+   his and this is his to move.*
+4. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-4. **[fence](fence.md)** — the deny-list is the only restraint here and
+5. **[fence](fence.md)** — the deny-list is the only restraint here and
    nothing reads it back, so the line this tree was founded on holds
    against gestate's sessions and not against tend's own.  *Placed here
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-5. **[cords](cords.md)** — a session here cannot reach a person, and
+6. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-6. **[green](green.md)** — a gate that has only ever passed is a
+7. **[green](green.md)** — a gate that has only ever passed is a
    claim: gestate's F88 named a defect, stayed green from the day it was
    written, and passed with the defect put back; nothing in either tree
    checks that a detector detects.  *Placed here by a gestate session on
