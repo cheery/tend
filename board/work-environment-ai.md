@@ -610,3 +610,34 @@ program rather than in a launcher — is a decision for Henri: one more
 launcher of `node/run.sh`'s shape, or one launcher that reads a grant
 file beside any node and a resolver that serves any node.  The
 measurement says the grant file would be three lines.
+
+## 2026-08-26, 16:38 — the second node's full loop, from a session's seat
+
+Henri committed the grant-beside patch (`c0b2b2c`) and installed
+llama.cpp (build 10636).  The loop, end to end, all from inside the
+fence:
+
+* `launch.sh llm run` → **refused**: `llm/state` is read-only to a
+  session now, the same rule as the node's, generalised by the patch.
+  A session cannot run the model.
+* `launch.sh llm pull` → the pull line lands in `llm/state/pull` (the
+  one writable file), "the runner is the resolver's to start."
+* the resolver, on the person's side, started `llama-server` under the
+  leash — measured three times in the log (`model loaded` ×3,
+  `listening on 127.0.0.1:18080`), each from a fenced pull, each stopped
+  by the launcher when its pulse (the server log) went quiet 60 s later.
+
+So the second node — a program that is not the node, cannot stop
+itself, and talks over a socket — is pulled, confined, served and
+lifecycled by the same launcher, resolver and fence as the first, with
+no code of its own: a grant file and a model directory.  The grant
+half of "a session is a program" is shown for a real second program.
+
+**A number the ledger will settle**: `idle 60` against a ~30 s cold
+load leaves a short window in which a session that pulls must also
+query; the pulse counts from the last log line, so a loaded-but-unasked
+server stops 60 s after "listening."  Not tuned here — a number picked
+in writing waits for the ledger, like the leash's 900 s.  What is
+**not** owed: the cords — the model has no limit, lamp or andon, so it
+is a program, not a session.  That is the frame's other half and its
+own card.
