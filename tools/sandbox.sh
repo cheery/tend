@@ -101,7 +101,7 @@ tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.
 # `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
 # checks the deny-list carries the matching `Edit(./…)` rule for each,
 # and `test_sandbox.py` holds the two lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh"
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a
@@ -126,7 +126,7 @@ while [ $# -gt 0 ]; do
         --check) mode=check; shift ;;
         --rows)
             cat <<ROWS
-  on   tree      $root  read-write — the world, except .claude/, the protected set (--protected), node/state (the node's; the pull file is the session's one write there) and .venv (a runtime, read)
+  on   tree      $root  read-write — the world, except .claude/, the protected set (--protected), every node's state (its own; the pull file is the session's one write there) and .venv (a runtime, read)
   on   state     ~/.local/state/tend, ~/.local/state/gestate, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want; and not the rest of ~/.local/state (card:keep.md, the session half)
   on   trees     $trees/{board,tools,spec,doc,journal, the root documents, .claude/settings.json}  read-only — the audit, anything cross-tree; not its source, tests, builds or .git (card:keep.md)
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
@@ -176,8 +176,19 @@ for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
 # a session can pull and read, and cannot run the node raw (its lock and
 # its state are not writable to it).  And .venv, a runtime the session
 # reads and never writes (measured the same day), is read-only too.
-mkdir -p "$root/node/state"; [ -e "$root/node/state/node.state.pull" ] || : > "$root/node/state/node.state.pull"
-opts="$opts --ro-bind $root/node/state $root/node/state --bind $root/node/state/node.state.pull $root/node/state/node.state.pull"
+# Every node's state is read-only to a session, its pull file the one
+# write (card:keep.md, 2026-08-26, generalised to any node beside its
+# grant): the launcher says which file is the pull, and the state dir
+# and that file are created on the person's side before the fence so a
+# first pull can land.
+for grant in "$root"/*/grant; do
+    [ -f "$grant" ] || continue
+    nd=$(dirname "$grant"); st="$nd/state"
+    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    [ -n "$pf" ] || continue
+    mkdir -p "$st"; [ -e "$pf" ] || : > "$pf"
+    opts="$opts --ro-bind $st $st --bind $pf $pf"
+done
 [ -d "$root/.venv" ] && opts="$opts --ro-bind $root/.venv $root/.venv"
 for t in $trees; do for p in $tree_parts; do [ -e "$t/$p" ] && opts="$opts --ro-bind $t/$p $t/$p"; done; done
 [ -d "/tmp/claude-$uid" ] && opts="$opts --bind /tmp/claude-$uid /tmp/claude-$uid"
@@ -265,8 +276,13 @@ for p in $protected; do
 done
 # 4. What must be.
 probe "this tree is writable"           ok      sh -c "test -w $root"
-probe "node/state is read-only"         blocked sh -c "touch $root/node/state/.probe"
-probe "the pull file passes through"    ok      sh -c ": >> $root/node/state/node.state.pull"
+for grant in "$root"/*/grant; do
+    nd=$(dirname "$grant"); st="$nd/state"; n=$(basename "$nd")
+    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    [ -n "$pf" ] || continue
+    probe "$n/state is read-only"           blocked sh -c "touch $st/.probe"
+    probe "$n's pull file passes through"   ok      sh -c ": >> $pf"
+done
 [ -d "$root/.venv" ] && probe ".venv is read-only"   blocked sh -c "touch $root/.venv/.probe"
 probe "git knows who you are"           ok      sh -c 'git config user.email >/dev/null'
 # 5. The escape, graded from outside.

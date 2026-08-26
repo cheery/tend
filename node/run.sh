@@ -57,70 +57,7 @@
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 root=$(CDPATH= cd -- "$here/.." && pwd)
-state="${TEND_NODE_STATE_DIR:-$here/state}"
-
-py=/usr/bin/python3
-[ -x "$py" ] || py=$(command -v python3) || {
-    echo "node/run.sh: no python3 to run the node." >&2; exit 127; }
-
-mkdir -p "$state"
-lock="$state/run.lock"
-idle="${TEND_NODE_IDLE:-30}"
-
-# the grant, and nothing wider; every verb runs through it
-confined() {
-    exec "$py" "$root/tools/keep.py" \
-    --allow "$here/node.py" \
-    --write "$state" \
-    --no-net \
-    -- "$py" "$here/node.py" --state "$state/node.state" "$@"
-}
-
-generation() {
-    grep -o '"generations": *[0-9]*' "$state/node.state" 2>/dev/null | grep -o '[0-9]*$' || echo 0
-}
-
-case "${1:-}" in
-run)
-    shift
-    # the lock is taken on an fd here, before the confinement, and the
-    # runner inherits it through keep's exec — held for its whole life.
-    # a short wait, not a refusal at once: the resolver tests the lock by
-    # taking it for a moment (`flock -n lock true`), and a runner that
-    # tried in that moment was turned away with 75 while the resolver
-    # waited for a lock nobody would take (measured on Henri's seat,
-    # 2026-08-26, 1 in 10).  A real runner still holds it past 2 s.
-    exec 9>>"$lock"
-    flock -w 2 9 || { echo "node: a runner already holds $lock — pull it instead." >&2; exit 75; }
-    confined run "$@"
-    ;;
-pull)
-    # Inside the fence a pull is one appended line and nothing more: the
-    # runner is started from the person's side by tools/resolve.sh
-    # (board/resolver.md, 2026-08-26), because one started here dies with
-    # the command and was startable unconfined.  From a person's shell,
-    # as before: start one if none is up, then pull.
-    if [ -n "${TEND_FENCED:-}" ]; then
-        echo "node: pull recorded — inside the fence the runner is the resolver's to start (tools/resolve.sh --hook)" >&2
-    elif flock -n "$lock" true 2>/dev/null; then
-        before=$(generation)
-        setsid -f sh "$0" run --idle "$idle" >> "$state/run.log" 2>&1 </dev/null
-        # wait for the runner to open (its generation to move), capped
-        n=0
-        while [ "$(generation)" -le "$before" ] && [ "$n" -lt 60 ]; do
-            sleep 0.05; n=$((n + 1))
-        done
-        if [ "$(generation)" -le "$before" ]; then
-            echo "node: started a runner but it has not opened after 3s — see $state/run.log" >&2
-        elif [ -n "${TEND_FENCED:-}" ]; then
-            echo "node: started a runner (idle ${idle}s) — inside the fence it lives only as long as this command" >&2
-        else
-            echo "node: started a runner (idle ${idle}s); it stops by itself when pulls stop" >&2
-        fi
-    fi
-    confined pull
-    ;;
-*)
-    confined "$@"
-    ;;
-esac
+# node/run.sh is now a thin wrapper: the node runs through the one
+# launcher, under the grant beside it (node/grant).  Kept as a name
+# because board/done/pull.md, the README and muscle memory use it.
+exec sh "$root/tools/launch.sh" "$here" "$@"

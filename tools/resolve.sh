@@ -16,8 +16,8 @@
 # the lamp, the limit and the fence-hook live — on the person's side,
 # read fresh at every command, in the protected set — and a session's
 # pull is one appended line, nothing more.  The runner it starts is
-# `node/run.sh run`: confined by keep, holding the lock, stopping on
-# idle; under the leash, so it has a wall budget and leaves a ledger
+# the launcher (`tools/launch.sh NODE serve`), which starts the node
+# confined by keep, holding the lock, stopping on idle; under the leash, so it has a wall budget and leaves a ledger
 # line (`tools/leash.sh`).  This script grants nothing and starts nothing
 # by itself: it reads a count and takes a lock, and only when the ledger
 # holds a pull no runner has served does it start the one runner.
@@ -27,11 +27,6 @@
 # is no state directory yet, nothing.
 set -u
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-state="${TEND_NODE_STATE_DIR:-$root/node/state}"
-ledger="$state/node.state.pull"
-lock="$state/run.lock"
-idle="${TEND_NODE_IDLE:-30}"
-
 case "${1:-}" in
 --hook) cat >/dev/null ;;
 --install)
@@ -53,28 +48,15 @@ case "${1:-}" in
 *) echo "resolve: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
-[ -s "$ledger" ] || exit 0                       # nothing has ever pulled
-# looks are serialized: a hook fires at every command, and a second look
-# must see what the first started — measured 2026-08-26 on Henri's seat,
-# where the leash's scope path took longer than a 3 s wait and two looks
-# both started a runner.  The second waits here for the first to finish.
-exec 8>>"$state/resolve.lock"
-flock -w 10 8 || exit 0
-flock -n "$lock" true 2>/dev/null || exit 0      # a runner is up
-served=$(grep -o '"pulls": *[0-9]*' "$state/node.state" 2>/dev/null | grep -o '[0-9]*$' || echo 0)
-pulled=$(wc -l < "$ledger")
-[ "$pulled" -gt "${served:-0}" ] || exit 0       # every pull has been served
-
-setsid -f sh -c "exec '$root/tools/leash.sh' -- sh '$root/node/run.sh' run --idle '$idle'" >> "$state/run.log" 2>&1 </dev/null
-# wait for the runner to take the lock, so the next look — a hook fires at
-# every command — sees it and does not start a second (measured: two
-# back-to-back looks both started one before this loop existed)
-# the leash's scope path took ~10 s to start a runner from cold on Henri's
-# seat (2026-08-26, twice in a row, then instant), so the wait is 30 s
-n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
-if flock -n "$lock" true 2>/dev/null; then
-    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one, and it has not taken the lock after 30s; see $state/run.log" >&2
-else
-    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one (node/run.sh run, under the leash); $state/run.log" >&2
-fi
+# Every node is a directory with a grant beside its program; the launcher
+# knows each one's pull file and lock and makes the per-node decision
+# (`launch.sh NODE serve`).  This loop is program-agnostic: it adds the
+# node by finding its grant, and nothing here names the node or the
+# program (board/keep.md, board/resolver.md — the grant beside the
+# program, 2026-08-26).
+for grant in "$root"/*/grant; do
+    [ -f "$grant" ] || continue
+    node=$(dirname "$grant")
+    sh "$root/tools/launch.sh" "$node" serve || true
+done
 exit 0

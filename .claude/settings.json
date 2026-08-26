@@ -64,7 +64,8 @@
       "Edit(./tools/reach-allow.sh)",
       "Edit(./tools/hook-installer.sh)",
       "Edit(./node/run.sh)",
-      "Edit(./tools/resolve.sh)"
+      "Edit(./tools/resolve.sh)",
+      "Edit(./tools/launch.sh)"
     ]
   },
   "hooks": {

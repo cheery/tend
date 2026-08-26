@@ -252,13 +252,22 @@ def test_the_trees_row_is_the_other_trees_documents_and_tools():
     assert "/gestate  read-only" not in trees, "the whole tree is still the row"
 
 
-def test_the_tree_row_names_the_two_it_holds_back():
-    """`board/keep.md`, the last bind, 2026-08-26: node/state (the node's)
-    and .venv (a runtime) are read-only inside; the pull file alone passes
-    through.  The row says so.  No bwrap: `--rows` is a listing."""
+def test_the_tree_row_names_what_it_holds_back():
+    """`board/keep.md`, the last bind generalised to any node beside its
+    grant (2026-08-26): every node's state and .venv are read-only inside;
+    each node's pull file alone passes through.  The row says so.  No
+    bwrap: `--rows` is a listing."""
     rows = sandbox("--rows").stdout
     tree = [l for l in rows.splitlines() if l.split()[1:2] == ["tree"]][0]
-    assert "node/state" in tree and ".venv" in tree, tree
+    assert "every node's state" in tree and ".venv" in tree, tree
+
+
+def test_the_launcher_is_in_the_protected_set_too():
+    """`board/keep.md`/`resolver.md`, the grant beside the program: one
+    launcher (`tools/launch.sh`) applies every node's grant, so a session
+    editing it changes what any program may reach — the same line as
+    node/run.sh.  Red until grant-beside.patch adds it and its Edit rule."""
+    assert "tools/launch.sh" in set(sandbox("--protected").stdout.split())
 
 
 @needs_bwrap

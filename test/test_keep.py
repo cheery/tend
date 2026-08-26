@@ -269,9 +269,13 @@ def test_the_node_launcher_asks_for_no_net():
     it — the well-behaved node itself cannot show the boundary
     (board/green.md: a launcher's confinement is invisible through a
     program that never overreaches)."""
-    run = (ROOT / "node" / "run.sh").read_text()
-    exec_block = run[run.index("exec "):]
-    assert "--no-net" in exec_block
+    grant = (ROOT / "node" / "grant").read_text()
+    assert any(l.strip() == "no-net" for l in grant.splitlines()), grant
+    # and the launcher turns that line into keep's flag
+    out = subprocess.run(["sh", str(ROOT / "node" / "run.sh"), "grant"],
+                         env=dict(os.environ, TEND_NODE_STATE_DIR=str(ROOT / "node" / "state")),
+                         capture_output=True, text=True).stdout
+    assert "--no-net" in out, out
 
 
 def _state(tmp_path):
@@ -309,8 +313,8 @@ def test_a_pull_with_no_runner_starts_one_confined(tmp_path):
         pytest.skip("no system python3 for keep to grant the node")
     r = _launcher(tmp_path, "pull")
     assert r.returncode == 0, r.stderr
-    assert "started a runner" in r.stderr, r.stderr
-    assert _wait(lambda: _state(tmp_path)["pulls"] == 1), _state(tmp_path)
+    assert "started node" in r.stderr, r.stderr
+    assert _wait(lambda: (tmp_path / "st" / "node.state").exists() and _state(tmp_path)["pulls"] == 1)
     assert _state(tmp_path)["generations"] == 1
     lock = tmp_path / "st" / "run.lock"
     assert _wait(lambda: subprocess.run(["flock", "-n", str(lock), "true"]).returncode == 0, cap=6), \
@@ -327,8 +331,8 @@ def test_a_second_pull_finds_the_runner_and_starts_no_other(tmp_path):
     a = _launcher(tmp_path, "pull", idle="1.5")
     b = _launcher(tmp_path, "pull", idle="1.5")
     assert a.returncode == 0 and b.returncode == 0, (a.stderr, b.stderr)
-    assert "started a runner" in a.stderr and "started a runner" not in b.stderr
-    assert _wait(lambda: _state(tmp_path)["pulls"] == 2), _state(tmp_path)
+    assert "started node" in a.stderr and "started node" not in b.stderr
+    assert _wait(lambda: (tmp_path / "st" / "node.state").exists() and _state(tmp_path)["pulls"] == 2)
     assert _state(tmp_path)["generations"] == 1
 
 
@@ -347,14 +351,18 @@ def test_run_is_refused_while_a_runner_holds_the_lock(tmp_path):
 
 
 def test_the_launchers_grant_appears_once():
-    """The grant *is* the boundary, and three copies are three places
-    for it to drift — the 13:34 kaizen's own miss, where the first draft
-    of `run.sh` pasted the keep invocation into every verb.  So: exactly
-    one line in the launcher invokes `tools/keep.py`, and every verb
-    goes through it.  A second invocation anywhere is red."""
-    run = (ROOT / "node" / "run.sh").read_text()
-    lines = [l for l in run.splitlines() if "tools/keep.py" in l and not l.lstrip().startswith("#")]
-    assert len(lines) == 1, lines
+    """The grant *is* the boundary, and a copy of it is a place to drift
+    — the 13:34 kaizen's own miss.  The launcher applies the grant in a
+    few modes (a program that stops itself, one that must be stopped, and
+    status), but the grant itself — `$flags` — is built once and every
+    `keep.py` invocation passes that one variable; none spells a grant of
+    its own.  A hardcoded grant beside `keep.py` is red."""
+    launch = (ROOT / "tools" / "launch.sh").read_text()
+    keep_lines = [l for l in launch.splitlines()
+                  if "tools/keep.py" in l and not l.lstrip().startswith("#")]
+    assert keep_lines, "the launcher does not invoke keep"
+    for l in keep_lines:
+        assert "$flags" in l, f"a keep invocation does not use the one built grant: {l.strip()}"
 
 
 def test_inside_the_fence_a_pull_starts_nothing(tmp_path):
