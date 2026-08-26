@@ -55,21 +55,29 @@ between two workable cards is Henri's.
    below `keep` because it is the route to that card's session half and
    above the count-only cards because it is a build; the tiebreak is
    his and this is his to move.*
-4. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
+4. **[session-program](session-program.md)** — a node tend runs is a
+   program, not a session, until it carries the cords: a limit, a lamp,
+   a way to reach the person.  The grant half of "a session is a
+   program" is built; this is the half `keep` and `resolver` named and
+   did not build.  *Placed here by a session on 2026-08-26, at Henri's
+   "open the cords card for the session's program", below the build
+   cards and above the count-only ones; the tiebreak is his and this is
+   his to move.*
+5. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-5. **[fence](fence.md)** — the deny-list is the only restraint here and
+6. **[fence](fence.md)** — the deny-list is the only restraint here and
    nothing reads it back, so the line this tree was founded on holds
    against gestate's sessions and not against tend's own.  *Placed here
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-6. **[cords](cords.md)** — a session here cannot reach a person, and
+7. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-7. **[green](green.md)** — a gate that has only ever passed is a
+8. **[green](green.md)** — a gate that has only ever passed is a
    claim: gestate's F88 named a defect, stayed green from the day it was
    written, and passed with the defect put back; nothing in either tree
    checks that a detector detects.  *Placed here by a gestate session on
