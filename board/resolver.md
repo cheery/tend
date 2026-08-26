@@ -335,3 +335,16 @@ are protected), the test inside it.  The detector was right both
 times: a 1-in-10 red was a race in the mechanism and a cost in the
 leash, and neither would have been found from a seat where the test
 is always green.
+
+## 2026-08-26, 15:30 — the session half closed by the last bind
+
+`card:keep.md`'s last bind, handed to Henri: `node/state` read-only to
+the session, the pull file its one write.  With it, the sentence both
+cards carried — *a session can still start the node raw when no runner
+is up* — is false: the raw start fails at the node's own lock and its
+state, `run.sh run` fails at the launcher's, and the pull is the only
+path, from the person's side, under the grant.  The card's `because`
+no longer describes the node from any seat.  What it still describes
+is the general case — a second program, and a grant that lives beside
+a program rather than in a launcher — and that waits for the second
+program.  Whether the card is done is Henri's.

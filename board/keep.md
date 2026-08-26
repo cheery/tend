@@ -478,3 +478,44 @@ closes the session's one non-work write.  Once Henri installs the hook,
 the remaining bind — `node/state` read-only to the session, the pull
 file writable — is this card's last slice, and it lands with `.venv`
 read-only as one row.*
+
+## 2026-08-26, 15:30 — the last bind: `node/state` read-only to the session, the pull file its one write; `.venv` read-only
+
+Henri: *"do the last bind."*  The tree-row measurement (14:35) found
+the session's one write that is not the work: the node's state, which
+the session never wrote by name in 310 commands and the node writes
+for it.  Since 15:03 the node is written from the person's side — the
+resolver's runner — so the session no longer needs the directory
+writable at all.  Its one legitimate write there is the pull line.
+
+**Measured first**: a run of three test files wrote nothing under
+`.venv`; `node/state` holds six runtime files, all the runner's or the
+resolver's but the pull file.  The 14:05 rule: four lines name the two
+paths — `PATH` (a read), the resolver's default, two `.gitignore`
+entries — none changed by the bind.
+
+**Handed to Henri as `last-bind.patch`** (`sandbox.sh` is protected):
+after the protected set, `node/state` is bound read-only and
+`node.state.pull` alone bound writable over it; `.venv` read-only when
+present; the state directory and the pull file are created on the
+person's side before the fence if absent, so the first pull ever can
+land.  Three probes join `--check`: `node/state is read-only`, `the
+pull file passes through` (`: >>`, an open for append that writes
+nothing), `.venv is read-only`.  The `tree` row's text names what it
+holds back.  Tests in the patch: the row's words (no bwrap), and inside
+(bwrap, his run): a touch under `node/state` refused, the pull file
+appendable, the runner's lock **not** openable, `.venv` refused.  No
+key — the protected set is unchanged.
+
+**What this closes.**  A session inside the fence can pull and read
+the node, and cannot run it: `run.sh run` fails at the lock, and a raw
+`node.py run` fails at its own lock and its state.  With the resolver
+outside, the pull path is the only path, and it applies the grant.
+That is the session half of this card's `because` for the one program
+tend runs — *a program gets whatever the session that launched it
+could reach* — closed by there being no launching session.
+
+**What stays open**, and it is the card's last sentence: inside the
+tree the session still reads and writes the work, whole, because the
+work is what a session is for; and `gestate/`'s parts are read whole.
+Neither is a debt.  Whether the card is done is Henri's.
