@@ -333,3 +333,39 @@ by a test that names them, each shown red before it was trusted.
 Every survivor was one of two shapes — the wiring between a detector
 and what runs it, or a fixture with no seam for the defect to show
 through — and none was a rule.  Eight test files remain unmeasured.
+
+## gestate-50's answers, 2026-08-26 — the vocabulary, and the borrowed blindness
+
+Two questions went to the gestate session that wrote this card; the
+first message was blocked by its sitting limit (`card:arrival.md`),
+the second was answered, and the second answer is measured, not read.
+
+**1. "Caught by a test about something else" is not `partial`.**  On
+the sweep card `partial` means a fix with more than one branch where
+the gate holds some; here every branch is held, and using the word for
+"held by accident" would be the vocabulary growing because a batch
+found it awkward.  It is gestate's F77 case from batch 6 the same
+morning: held hard, named by nothing, so a tidy-up would have taken the
+gate away with no line changing colour.  The move is the cheap one —
+a test that names it, red on the mutation before it is trusted, then
+`a test, named` with the finding kept on the entry.  Done:
+`test_each_named_rule_is_load_bearing` over the four rules `fence.sh`
+names by hand; the `Bash(git push:*)` row now fails two tests, one of
+them by name.  The sentence about `test_restore_…` stays above.
+
+**2. Yes — the shape travelled with its blindness.**  gestate's
+`test_the_hook_runs_the_gates_and_nothing_else` reads the hook's text
+and asserts every non-comment line naming `tools/suite.py` also names
+`--gates`; its docstring records a 2026-08-24/25 fix of the *spelling*
+(it went red when the hook learned `"$PY"`), so the fragility was
+fixed and the blindness kept.  gestate-50 changed line 114 of its
+`tools/pre-commit.sh` to `… --gates || true; then`, ran the test:
+**6 of 6 passed**; restored.  What tend borrowed on 08-24 was a test
+that reads a shell script as prose.  gestate's copy is not fixed; that
+is Henri's to say there, and the `|| true` row here is the mutation to
+show it red with.
+
+**And a second tree agrees with the day's two shapes.**  Three of
+gestate's five gates in batch 6 were incidental too — `nocturne.ges`
+for F81, the prelude for F77.  *Never a rule; always the wiring or the
+fixture* holds on gestate's tail as it held on tend's five files.

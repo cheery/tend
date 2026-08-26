@@ -108,6 +108,23 @@ def test_one_rule_removed_is_red_and_named(tmp_path):
     assert "THE FENCE IS DOWN" in out.stdout
 
 
+@pytest.mark.parametrize("rule", ["Edit(./.claude/**)", "Bash(sudo:*)",
+                                  "Bash(git push:*)", "Read(~/.ssh/**)"])
+def test_each_named_rule_is_load_bearing(tmp_path, rule):
+    """The four rules `fence.sh` names by hand, each dropped and each
+    red by name.  Until 2026-08-26 `Bash(git push:*)` was held only by
+    `test_restore_leaves_a_weakened_file_that_parses` — a test about
+    `--restore` that drops that rule to make a file "weakened" — so a
+    tidy-up of that test would have taken the gate away with no line
+    changing colour (`board/green.md`; gestate-50's reading of the
+    sweep's vocabulary: not `partial`, write the test that names it)."""
+    r = Repo(tmp_path)
+    r.edit(drop_rule(rule))
+    out = r.fence()
+    assert out.returncode == 1
+    assert f"{rule} — MISSING" in out.stdout
+
+
 def test_the_edit_rule_is_load_bearing(tmp_path):
     r = Repo(tmp_path)
     r.edit(drop_rule("Edit(./.claude/**)"))
