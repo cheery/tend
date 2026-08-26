@@ -92,13 +92,20 @@ def test_the_restraints_are_read_only_inside():
     demonstration the card owed: what it caught, that had gone through."""
     settings = ROOT / ".claude" / "settings.json"
     before = settings.read_bytes()
-    out = sandbox("sh", "-c",
-                  f"python3 -c \"open('{settings}', 'a').write('x')\" 2>&1; "
-                  f"mv '{settings}' '{settings}.away' 2>&1; touch '{settings}.probe' 2>&1")
-    assert settings.read_bytes() == before
+    out = sandbox("env", "LC_ALL=C", "sh", "-c",
+                  f"python3 -c \"open('{settings}', 'a').write('x')\"; "
+                  f"mv '{settings}' '{settings}.away'; touch '{settings}.probe'")
+    combined = out.stdout + out.stderr
+    assert settings.read_bytes() == before, combined
     assert not settings.with_suffix(".json.away").exists()
     assert not settings.with_suffix(".json.probe").exists()
-    assert out.stdout.count("Read-only file system") + out.stdout.count("Kirjoitussuojattu") >= 3, out.stdout
+    # As above: the write is refused read-only (EROFS), read across both
+    # streams and with LC_ALL=C; mv/touch not happening is carried by the
+    # asserts above, whose errno is binding-dependent (the >=3 count this
+    # replaced assumed all three were EROFS, which holds only when the
+    # whole directory is bound read-only, not the file-bind shape).
+    assert ("Read-only file system" in combined
+            or "Kirjoitussuojattu" in combined), combined
 
 
 def test_the_protected_set_is_the_scripts_the_hooks_run():
@@ -135,11 +142,22 @@ def test_the_fences_own_code_is_read_only_inside():
     before = {p: (ROOT / p).read_bytes() for p in protected}
     for p in protected:
         f = ROOT / p
-        out = sandbox("sh", "-c",
-                      f"echo x >> '{f}' 2>&1; mv '{f}' '{f}.away' 2>&1; rm -f '{f}' 2>&1; echo rc=$?")
-        assert (ROOT / p).read_bytes() == before[p], p
-        assert not f.with_name(f.name + ".away").exists(), p
-        assert "Read-only file system" in out.stdout or "Kirjoitussuojattu" in out.stdout, (p, out.stdout)
+        out = sandbox("env", "LC_ALL=C", "sh", "-c",
+                      f"echo x >> '{f}'; mv '{f}' '{f}.away'; rm -f '{f}'; echo rc=$?")
+        combined = out.stdout + out.stderr
+        assert (ROOT / p).read_bytes() == before[p], (p, combined)
+        assert not f.with_name(f.name + ".away").exists(), (p, combined)
+        # The write is refused read-only, and that EROFS is the invariant.
+        # Read stdout AND stderr together: dash prints a failed `>>`
+        # redirection to its own stderr *before* a `2>&1` would apply, so
+        # the write's "Read-only file system" lands on stderr, never
+        # stdout (gestate-50, 2026-08-26, from Henri's unfenced run).  The
+        # mv/rm refusal is carried by the two asserts above — its errno is
+        # EROFS or the mountpoint's own EBUSY depending on whether tools/
+        # around the file is writable, so it is not asserted on here.
+        # LC_ALL=C keeps the words off whoever's locale ran the suite.
+        assert ("Read-only file system" in combined
+                or "Kirjoitussuojattu" in combined), (p, combined)
 
 
 @needs_bwrap
