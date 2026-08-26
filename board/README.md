@@ -140,8 +140,17 @@ only ever reads as right teaches nothing about how it got there.  What
 found it was re-running gestate's audit against this tree from outside
 — `python ~/gestate/tools/seedaudit.py ~/tend` — which is also the
 day's measurement: 2 of 10 pieces at the first commit, 4 by 07:39,
-6 at the end of the first day, with the audit's one remaining "unkept
-promise" being gestate's instruments document, one tend never promised.
+6 at the end of the first day — and 7 on 2026-08-26, run by Henri from
+inside the fence after the `trees` row was narrowed to the other
+tree's documents and tools, which is the row's named purpose shown by
+execution.  The audit's one remaining "unkept promise" is gestate's
+instruments document, one tend never promised; and its "the fence —
+no test names it" is the audit looking for gestate's own gate file
+(`test/test_safety.py`) where tend's fence is held by four test files
+that name `tools/sandbox.sh` — a fact about the instrument, not the
+fence.  The two honest "unbacked" are the consent register and the
+author's own document, which exist with nothing in them but their
+rule.
 That last one is gestate's capped-document list encoding its own
 accidents as another tree's requirements, exactly as
 `later/rules-and-memory.md` predicted in advance.  That is on purpose: a piece arrives when
