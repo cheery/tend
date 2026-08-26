@@ -356,3 +356,16 @@ it within the second (`gen 3 opened at 15:37:05`, `total 4`).  The
 pull is the only path, and it applies the grant.  *Done for the one
 program; a second program is what would reopen it; whether the card is
 done is Henri's.*
+
+## 2026-08-26, 16:20 — generalised: the resolver serves any node beside a grant
+
+`tools/resolve.sh` no longer names the node.  It loops over `*/grant`
+and calls `tools/launch.sh NODE serve` for each — the launcher makes
+the per-node decision from the grant (an mtime rule: a pull newer than
+the last stop, no runner up).  So a pull to any node, from a session's
+seat, is served by a runner started on the person's side, under that
+node's grant.  `llm` is the second such node and it needed no line of
+resolver code — only a grant file and a `model/` directory.  In
+`grant-beside.patch` with `keep`'s.  The card's shape from day one —
+"the resolver outside the session's write access" — now serves every
+program, not the node alone.  Whether the card is done is Henri's.

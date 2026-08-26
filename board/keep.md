@@ -545,3 +545,43 @@ EACCES.  `test_bind_grants_one_port_and_nothing_else`; three rows —
 no rule added, connect granted instead of bind, the network left
 unhandled — each red by name.  Not built: `--connect PORT`, which has
 no caller; and per-host, which Landlock cannot say.
+
+## 2026-08-26, 16:20 — the grant beside the program: one launcher, one resolver, one fence rule for any node
+
+Henri: *"do the grant beside the program."*  The second node's day one
+(15:50–16:05) measured that a server's whole grant is three lines, the
+same shape as the node's three flags — so the grant became a file
+beside each program and the launcher, the resolver and the fence became
+node-agnostic.
+
+**`NODE/grant`** — `allow`/`write`/`bind`/`no-net`/`idle`/`pulse`/
+`pull`/`program`/`status`, one word and value per line, paths relative
+to the node.  `node/grant` is `run.sh`'s three flags; `llm/grant` is
+the day-one measurement (model read, state write, one port, the server
+log as pulse).
+
+**Built in the tree** (unprotected): `tools/launch.sh NODE run|pull|
+status|serve|grant` reads the grant, builds keep's flags, holds the
+lock, runs the program — and for a program that cannot stop itself
+(`pulse FILE`) watches that file's mtime and stops it on idle.  `serve`
+is the resolver's per-node decision as an **mtime rule** — a pull
+newer than the last stop, no runner up — which holds for any program,
+a server having no tally.  Both nodes run through it live: the node
+stops on idle, `llama-server` answers over loopback and is stopped when
+its log goes quiet.  Fourteen tests, four rows red by name.
+
+**Handed to Henri as `grant-beside.patch`** (`sandbox.sh`, `resolve.sh`,
+`node/run.sh` are protected; the test rides in the patch): `resolve.sh`
+loops over `*/grant` calling `launch.sh NODE serve`, naming no node;
+`sandbox.sh` binds every node's state read-only and its pull file
+writable, and adds `tools/launch.sh` to the protected set (it applies
+every grant); `node/run.sh` becomes a wrapper over the launcher, one
+code path.  After `git apply`, **`tools/fence.sh --protect`** adds the
+launcher's `Edit` rule (the key — a `sandbox.sh` patch that touches
+`protected=` always carries it), then `--check`, suite, commit.
+
+**What this closes on the card**: the session half was closed for the
+one program; it is now closed for *any* node beside a grant, by one
+mechanism, and adding a node is adding a directory.  `keep`'s `because`
+is answered at the grain it asked for — what was this program given —
+for every program tend runs.  Whether the card is done is Henri's.
