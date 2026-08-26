@@ -192,11 +192,12 @@ if [ "${1:-}" = "--hook" ]; then
   # same morning: *"it's not a feature in my eyes that limit.sh blocks
   # the messages from others."*  So, the wake's shape: logged under its
   # own name, never blocked, and before the state write.  The match is
-  # on the harness's tag, not the words.  (Tend's copy; the gestate
-  # twin — the copy the block happened in — has not got this yet: the
-  # sync debt named in the header, and Henri's to say there.)
+  # on the harness's tag, not the words.  The event is `peer`, gestate's
+  # word (its ffa9c40, the same morning, at Henri's "lets make the fixes
+  # here as well"): both copies write one ledger, and its reader,
+  # gestate's `tools/sittings.py`, skips `wake` and `peer` by name.
   if [ "${prompt#*<cross-session-message}" != "$prompt" ]; then
-    note message "gap=$gap"
+    note peer "gap=$gap"
     exit 0
   fi
 fi

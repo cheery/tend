@@ -361,9 +361,10 @@ and asserts every non-comment line naming `tools/suite.py` also names
 fixed and the blindness kept.  gestate-50 changed line 114 of its
 `tools/pre-commit.sh` to `… --gates || true; then`, ran the test:
 **6 of 6 passed**; restored.  What tend borrowed on 08-24 was a test
-that reads a shell script as prose.  gestate's copy is not fixed; that
-is Henri's to say there, and the `|| true` row here is the mutation to
-show it red with.
+that reads a shell script as prose.  gestate's copy was fixed the same
+morning — `ffa9c40`, F182, a test in the shape of tend's (hook installed
+in a scratch repository, a stub suite answering by a file, the message
+asserted and not only the exit), red with `|| true` before trusted.
 
 **And a second tree agrees with the day's two shapes.**  Three of
 gestate's five gates in batch 6 were incidental too — `nocturne.ges`

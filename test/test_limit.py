@@ -305,7 +305,8 @@ def test_a_message_from_another_session_is_not_an_arrival(tmp_path):
     assert out.returncode == 0, f"a message must never block: {out.stderr}"
     assert desk.state.read_text() == before, \
         "a message moved the sitting's state; it must be transparent to it"
-    assert [l[1] for l in desk.lines()][-1] == "message"
+    assert [l[1] for l in desk.lines()][-1] == "peer", \
+        "gestate's word: one ledger, and its reader skips `wake` and `peer` by name"
 
 
 def test_a_message_is_delivered_even_past_the_limit(tmp_path):

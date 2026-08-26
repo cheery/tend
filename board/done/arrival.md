@@ -1,12 +1,6 @@
 # arrival — the sitting limit cannot tell a person sitting down from a session's message
 
-    status   blocked
-    blocked  gestate's twin, ~/gestate/tools/limit.sh — the copy the
-             block happened in, and Henri's to say there (gestate-50
-             put it to him on 2026-08-26 with the F-number question).
-             Tend's copy is fixed as of 2026-08-26; until the twin has
-             it, a message *to* a gestate session past its limit is
-             still not delivered
+    status   done — 2026-08-26
     because  the limit's whole subject is a person's hours, and it counts
              as an arrival anything that comes through the prompt hook —
              on 2026-08-26 at 07:20 a message from a tend session to a
@@ -115,3 +109,14 @@ Henri's to change — the twins' header says a fix in one is owed to the
 other by hand, and the debt is now written in tend's copy beside the
 fix.  Until it is paid, a message from tend to a gestate session past
 its limit is still not delivered; the reverse direction is.
+
+## Done, 2026-08-26 — both copies, one word
+
+gestate's twin got the same fix the same morning (`ffa9c40`, at
+Henri's *"lets make the fixes here as well"*), logging the event as
+`peer`, and its `tools/sittings.py` skips `wake` and `peer` by name.
+Both copies write one ledger, so tend's `message` would have been read
+there as a person at the desk: one more word through Henri's hand
+(`note peer`), the test and the harness row aligned first and red
+until he applied it.  The problem stands in neither copy; the two
+`block` rows of 07:20 and 07:24 keep their place in the ledger.
