@@ -27,14 +27,19 @@ class Repo:
         (tmp_path / "tools" / "kaizen.sh").write_text(LAMP.read_text(encoding="utf-8"))
         self.n = 0
 
-    def commit(self, path="work"):
+    def commit(self, path="work", when=None):
+        """`when` is an epoch: the commit's date, so two commits can be a
+        minute apart without waiting a minute."""
         self.n += 1
         f = self.at / path / f"f{self.n}.md" if path != "work" else self.at / f"f{self.n}"
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text("x\n")
+        env = dict(os.environ)
+        if when is not None:
+            env["GIT_AUTHOR_DATE"] = env["GIT_COMMITTER_DATE"] = f"@{when} {time.strftime('%z')}"
         for a in (["add", "."], ["commit", "-q", "-m", f"c{self.n}"]):
             subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
-                           cwd=self.at, check=True)
+                           cwd=self.at, env=env, check=True)
 
     def kaizen(self):
         self.commit("doc/kaizen")
@@ -100,13 +105,16 @@ def test_the_next_session_lights_it_again(tmp_path):
     is work the last kaizen does not cover, whatever the date says."""
     r = Repo(tmp_path)
     r.commit(); r.kaizen()
-    r.commit()
+    first = int(time.time()) - 120
+    r.commit(when=first); r.commit()
     out = r.lamp().stdout
-    assert "1 commit(s) since the last kaizen" in out
-    began = subprocess.run(["git", "log", "-1", "--format=%cd", "--date=format:%F-%H%M"],
-                           cwd=r.at, capture_output=True, text=True).stdout.strip()
+    assert "2 commit(s) since the last kaizen" in out
+    began = time.strftime("%Y-%m-%d-%H%M", time.localtime(first))
     assert f"doc/kaizen/{began}.md" in out, \
         "the file is named by when the session began — its first uncovered commit"
+    # Two commits, a minute apart, on purpose: with one, first and last
+    # are the same commit and the lamp could name the wrong one and pass
+    # — which it did, in `board/green.md`'s measurement of 2026-08-26.
 
 
 def test_an_empty_repository_says_nothing(tmp_path):

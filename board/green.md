@@ -270,3 +270,66 @@ copy: 195 passed, 13 skipped.
 The harness stays in the session's scratch.  Whether it joins `tools/`
 — and whether the other ten test files get their day — is still the
 card's open question.
+
+## Day one, later still — the harness in `tools/`, and two more detectors measured
+
+Henri: *"put the harness in tools/, then measure test_kaizen and
+test_limit."*  `tools/mutate.sh` is the scratch harness rewritten in
+`seedmutate.sh`'s shape: one break on the command line, or the recorded
+rows at its foot; a fresh copy of the working tree per break, its own
+`.git` and the hook installed; and **the harness is checked before any
+row is read** — the intact copy green on the detector, and the break
+every run knows (`fence.sh` `exit 0`) red — because the morning's
+version lied twice.  `test/test_mutate.py` holds the two claims the
+harness makes and nothing more; the sweep is minutes and is a hand's.
+
+**The full sweep, 64 rows**: every morning row still red or refused;
+the `--gate` column now reads the *whole suite* the gate runs, not
+`test_precommit.py` alone, since a gate can never refuse a cut in its
+own wiring and the detector there is the suite.  Four rows came back
+`NOOP` on the first run — one the harness (`git status` cannot see a
+hook removed from `.git/hooks`; it looks now), three my `sed`s
+matching nothing — which is the guard doing its job: none of the four
+was read as a verdict.
+
+**`test_kaizen.py` against `tools/kaizen.sh` — 12 breaks, 11 red.**
+The lamp never lighting, the last kaizen never found, every commit
+counted, a want never forgotten, its time comparison inverted, its
+stamp at epoch 0, a reasonless want, `--hook` exiting early, exit 1
+when lit, the file name gone from the line, an unknown argument
+accepted: each red by the test that names it.  Survived:
+
+    GREEN  kaizen: began = last commit, not first    (--reverse dropped)   10 passed
+
+`test_the_next_session_lights_it_again` made one uncovered commit, so
+first and last were the same commit and the name could not be wrong.
+F88's shape exactly: the fixture had no seam.  Repaired the same hour
+— two commits a minute apart (`GIT_COMMITTER_DATE`, in the local
+offset, because `--date=format:` renders in the commit's own zone and
+the first draft was three hours off), the name must be the first's —
+and the row is red by name.
+
+**`test_limit.py` against `tools/limit.sh` — 18 breaks, 17 red.**
+Reset from inside a session, the grant regex unanchored, the bare word
+granting 45, the grant reaching the session, the block never firing,
+elapsed from `last`, the way back in gone, the closed branch dead, the
+reason dropped from the state, `stop` keeping the limit, an empty stdin
+recording, the wake block removed, a wake writing the state, a wake
+logged as a prompt, the prompt text logged, a fresh sitting keeping the
+old length, the gap default moved: each red by name.  Survived:
+
+    GREEN  limit: reading the clock moves it          (no-arg read writes started=now)   17 passed
+
+`test_reading_the_clock_grants_nothing` granted and read in the same
+second, so `started` rewritten as `now` was the same number.  The same
+shape again: a statistic that cannot see the seam because the fixture
+put nothing on either side of it.  Repaired — `rewind(5)` before the
+read, and the whole state compared, not its first three fields — and
+red by name.
+
+**The count for the day**: five test files and the gates hook measured,
+64 breaks recorded; nine survived at first reading, all nine now red
+by a test that names them, each shown red before it was trusted.
+Every survivor was one of two shapes — the wiring between a detector
+and what runs it, or a fixture with no seam for the defect to show
+through — and none was a rule.  Eight test files remain unmeasured.

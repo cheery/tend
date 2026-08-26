@@ -208,11 +208,14 @@ def test_reading_the_clock_grants_nothing(tmp_path):
     instrument besides ending a sitting."""
     desk = Desk(tmp_path)
     desk.prompt("sitting 20")
+    desk.rewind(5)   # so `started` is not this second: a read that
+                     # rewrote it as `now` passed here on 2026-08-26
+                     # (`board/green.md`), because both were the same
     before = desk.state.read_text()
     r = desk.run()
     assert r.returncode == 0
     assert "20" in r.stdout
-    assert desk.state.read_text().split()[:3] == before.split()[:3]
+    assert desk.state.read_text() == before
 
 
 def test_a_finished_background_task_is_not_an_arrival(tmp_path):
