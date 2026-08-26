@@ -9,3 +9,6 @@ node/*.state
 node/*.state.new
 node/*.state.pull
 node/state/
+
+# handoff patch artifacts, never tree content — a stray one rode a git add -A into a9a9958
+*.patch
