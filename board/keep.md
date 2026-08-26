@@ -410,3 +410,64 @@ reach nobody needs is a reach nobody should carry.  The tree row — this
 tree, read-write, whole — is what remains, and it is the one where
 "what the purpose reads" is "everything," because the purpose is the
 work.  That is the hard one, still unbegun.
+
+## 2026-08-26, 14:35 — the tree row, measured by what the purpose writes
+
+Henri: *"do the tree row measurement."*  The 14:12 kaizen said the tree
+row cannot be read the way the other two were — "what does the purpose
+read" answers *everything*, because the purpose is the work — and
+proposed the other question.  Measured, two halves.
+
+**The committed half** — `git log --name-only`, 120 commits since
+08-24, 117 carrying a session trailer, 3 a person's alone:
+
+    board/ 102   doc/ 80   test/ 55   tools/ 51   .claude/ 8   node/ 5   spec/ 4
+    root: .gitignore 5, vision.md 5, README.md, CLAUDE.md
+
+Every file in the tree has been committed by a session-marked commit —
+*which is not the same as written by a session.*  `.claude/settings.json`
+is in eight such commits and the ledger has **zero** fenced writes to
+it: every one was Henri's hand (the installer, his `jq` edit,
+`--protect`) and a session's commit message.  The protected set the
+same: sessions' commits touch every file in it; since 08-25 14:04 the
+fence refuses the write (`touch tools/sandbox.sh` → EROFS, measured
+today) and the path is a patch.  `spec/` was last written 08-25 06:39,
+`vision.md` 08-24 17:54 — the documents were written at the tree's
+start and read since.
+
+**The runtime half** — the ledger's 310 commands, their `>`/`sed -i`/
+`rm`/`mv`/`cp`/`mkdir` targets, heredoc bodies dropped: `board/` 60,
+`doc/` 27, `tools/` 25, `test/` 12, `node/` 4, the root (`.gitignore`,
+`CLAUDE.md`, the patches for Henri's hand).  **Never a write target**:
+`.venv` (0 — pip has not run fenced), `node/state` (0 — the node writes
+it, the session only through the node), `.claude` (0).  And `.git`:
+zero targets by name, and written by every one of 117 commits — the
+fence leaves it whole, and must, since a session's commit is a write to
+it; `card:fence.md` already says the boundary for `.git/` is none by
+category.  *A limit of this measurement, named*: the ledger cannot
+tell `sed -i tools/fence.sh` in the tree from the same line run inside
+a scratch copy after `cd`; the 50 apparent protected-set targets since
+08-25 are the mutation harness and patch-building on copies, and the
+fence's refusal is what says none landed.
+
+**What the tree row is, by purpose.**  Written by the work: `board/`,
+`doc/`, `test/`, the unprotected half of `tools/` and `node/`, the root
+documents, `.git`.  Written by a hand and read by the session:
+`.claude/`, the protected set — already read-only.  **Writable and
+never written by the session**: `.venv`, and `node/state`.  Those two
+are what the row can give up on the write side without touching the
+work — `.venv` read-only is a bind with no caller against it, and
+`node/state` read-only to the session is the sharper one, because it is
+a *program's* directory: the session's one legitimate write there is
+the pull line.  But a session's pull today starts the runner *inside
+its own fence*, and a runner needs the state writable — so `node/state`
+read-only to the session is not a bind; it is the resolver moved
+outside the session's write access, which `card:resolver.md` named on
+day one and did not build.  That is the tree row's finding: **the only
+write the session makes that is not the work is the node's, and closing
+it is the resolver's shape, not the fence's.**
+
+**What stays**: `.venv` read-only, a patch when Henri wants it — small,
+and it should wait for the resolver decision so the two rows land as
+one.  The rest of the tree row is the work, and the work is what the
+session is for.

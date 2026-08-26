@@ -191,3 +191,22 @@ runner is up* — unconfined, since only the launcher applies the grant.
 That is the true session half, and it is `keep`'s: the fix is not in
 the node or the launcher but in what a session may execute, which is a
 row of the fence or keep on the session.  Named; not this slice.
+
+## 2026-08-26, 14:35 — what the tree-row measurement says about this card
+
+`card:keep.md`'s tree-row measurement, read from here: in 310 fenced
+commands the session never wrote `node/state` by name — the node
+writes it, and the session's only write there is the pull line.  So
+the directory is a program's, and the session half of both cards
+collapses to one shape: the state read-only to the session, the pull
+line the one file it may append, and the runner started by something
+**outside the fence** that reads the pull ledger — the resolver outside
+the session's write access, §"What the shape would be", second bullet.
+Today the runner starts inside the pull's own command and dies with it
+(day one), which was right for one program and one seat; it is also
+exactly why the session can still run the node raw.  The next slice,
+if Henri wants it, is the resolver as a hook on the person's side of
+the fence — the same place the lamp, the limit and the fence-hook
+already run — started by a pull line, confined by `run.sh`, outliving
+the command that pulled.  A measurement of what such a hook costs
+(when it runs, what the leash says) comes before the build.
