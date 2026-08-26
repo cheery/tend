@@ -131,7 +131,7 @@ Batch 3 is read by a session that did not write it, or by Henri.
 
 ### What one reading produces
 
-One line in `doc/kaizen/ingested.md`: the kaizen's name, the lesson in
+One line in `doc/ingested.md`: the kaizen's name, the lesson in
 a phrase, and a verdict.  Five verdicts, and the vocabulary grows only
 for a reason written down after more than one batch has pushed on it
 (the sweep's rule):
@@ -168,3 +168,11 @@ per §"The hard part".  And not a lamp, yet: nothing lights when a
 day's batch is unread.  That is the next slice if the schedule slips,
 and it is one `ls | comm` against the ledger — cheap, and not built
 before the slipping is measured.
+
+**Measured the same hour: the ledger cannot live in `doc/kaizen/`.**
+The first draft put it there, and the commit that added it put the
+lamp out — `tools/kaizen.sh` reads the newest commit touching
+`doc/kaizen/` as the last kaizen, and a ledger is not one.  So the
+ledger is `doc/ingested.md`, one directory up, and the lamp's rule is
+a `green` row waiting to be written: a file in its directory that is
+not a kaizen, and the lamp goes dark.
