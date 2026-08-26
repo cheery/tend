@@ -191,6 +191,12 @@ test/test_toolbox.py	toolbox: --check claims a change	sed -i "s/nothing was chan
 test/test_node.py	node: the pull ledger renamed	sed -i "s/\.pull/\.pxll/g" node/node.py
 test/test_leash.py	leash: the hang message changed	sed -i "s/budget is spent/all gone/" tools/leash.sh
 test/test_fence_hook.py	fence-hook: the leash prefix dropped	sed -i "s#tools/leash.sh -- ##g" tools/fence-hook.sh
+# test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
+test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
+test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py
+test/test_keep.py	keep: --no-net parsed but never handed to confine()	sed -i 's/confine(allow, write, no_net)/confine(allow, write)/' tools/keep.py
+test/test_keep.py	keep: --no-net on an old ABI runs the program anyway	sed -i 's/^        if abiv < 4:/        if False:/; s/^        attr = ruleset_attr_v4(handled, NET_HANDLED)/        attr = ruleset_attr(handled)/' tools/keep.py
+test/test_keep.py	keep: node launcher drops --no-net	sed -i '/^    --no-net \\$/d' node/run.sh
 ROWS
 }
 

@@ -526,3 +526,41 @@ Two findings the run added, both worth keeping:
   (nobody clones tend into scratch), but a real limit of the fence, and
   a fence whose limits are unwritten is a mood.  A one-line note for
   `sandbox.sh`'s header is prepared for Henri's hand.
+
+## 2026-08-26, 13:20 — the day's keep slices, recorded as rows
+
+Henri: *"work on the green now."*  Read back, the card's owed
+measurements are all in — the lamp patch is in `tools/kaizen.sh` (the
+name, not the directory), the fence-limit note is in `sandbox.sh`'s
+header, the unfenced sweep came from gestate-50.  What the tree owed
+this card was smaller and its own: the keep slices built today were
+each *broken before trusted* by hand — `write_bits = 0` in the morning,
+three net mutations at 13:09 — and none was a recorded row, so none
+could be re-read when the tree moves.  A verdict that lives in a card's
+prose is the same shape as a kaizen nobody reads back.
+
+Five rows added to `tools/mutate.sh`, each run through the harness
+(fresh copy, hook installed, NOOP-guarded), each **red by the test that
+names it**:
+
+    red   keep: write bits never handled                 test_write_is_scoped_when_asked
+    red   keep: net bits zeroed                          test_no_net_refuses_tcp_when_asked
+    red   keep: --no-net parsed, never handed to confine test_no_net_refuses_tcp_when_asked
+    red   keep: --no-net on an old ABI runs anyway       test_no_net_refuses_tcp_when_asked
+    red   keep: node launcher drops --no-net             test_the_node_launcher_asks_for_no_net
+
+The fourth is the one worth a sentence: it removes the ABI check *and*
+the v4 struct together, which is what a careless port to an older
+kernel would look like — the program runs, the network is on, keep said
+nothing.  Red, by the connect that should have been refused.  Not
+recorded: `--write` dropped from the launcher, which `green` already
+named invisible through a well-behaved program (§"a fifth detector");
+a row that is known GREEN for a stated reason is a limit, not a
+survivor, and it is written where limits go.
+
+**Where the card stands**: no owed measurement; every detector in the
+suite measured but for the three that need an unfenced seat, and those
+were run once from outside.  The standing practice is what this section
+is — a slice lands with its rows, the same commit.  That is not a rule
+yet; it is the third time today, and the tree's rule for a rule is that
+it is written when it is broken and noticed, not when it is kept.
