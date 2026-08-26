@@ -15,3 +15,6 @@ node/state/
 
 # the hook installers keep the previous settings beside the file; the person's, never tree content
 .claude/settings.json.before-*
+
+# the second node's model — data, hundreds of MB, downloaded by the person; never tree content
+llm/model/

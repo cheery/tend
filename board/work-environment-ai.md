@@ -579,3 +579,34 @@ hour: *"we have to travel on the work machine.  I have a permit to use
 it for this project.  Though.. maybe we can do the initial tests here.
 Lets use a tiny model on the test."*  Day one is on this machine, with
 a tiny model; the real run is on his.
+
+## 2026-08-26, 16:05 — the second node's day one: `llama-server` under three grants answered from inside the fence
+
+Henri brought `SmolLM2-135M-Instruct-F16.gguf` (270 MB, from unsloth —
+the session's URL from memory was wrong; a URL from memory is a
+guess) into `llm/model/`, now gitignored.  This machine's
+`llama-server` 6317, four cores, no GPU.  **Measured**, before any
+launcher exists:
+
+    keep --allow llm/model/<model> --write <state> --bind 18080 -- llama-server -m <model> --host 127.0.0.1 --port 18080
+    up in <1 s · POST /v1/chat/completions from the session, over loopback · 24 tokens in 0.6 s · 200
+    denials: none · log: one note about CPU buffer types
+
+So a server's whole grant *is* three lines — the model (read), its
+state (write), its port (bind) — and the system roots cover the rest.
+The session reached it because the fence has loopback and the
+session's own connect is not under keep; the server itself can
+connect nowhere and bind nothing else (`--bind`, 15:50).  The
+mediation-order frame's first half is shown for the local program: a
+program that could be a session runs under the same boundary as the
+node, with nothing added.
+
+**What is not shown yet**: the cords (nothing here is a session's
+program until it carries the limit, the lamp, the andon) and the
+lifecycle — `llama-server` has no idle exit, so "runs while pulled,
+quits when nothing pulls" is the launcher's to add, with a request as
+the pull.  And what the second program earns — the grant beside the
+program rather than in a launcher — is a decision for Henri: one more
+launcher of `node/run.sh`'s shape, or one launcher that reads a grant
+file beside any node and a resolver that serves any node.  The
+measurement says the grant file would be three lines.
