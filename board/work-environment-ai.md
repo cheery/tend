@@ -693,3 +693,12 @@ without prejudging enforcement.  Enforcement is the session-as-principal
 question and waits for that examination.  Not a card yet — a solution
 looking for its problem, and the board refuses a `because` that names a
 fix.
+
+**Verdict, Henri 2026-08-26: the enforcement idea does not fly.**  He
+withdrew it: a declared-and-enforced-exclusive toolbox does not hold,
+for the three reasons above — the enforcement is bind-level not a list,
+the install-test "why" is carried by the manifest alone, and the set is
+not fixed for a session.  What survives is only the cheap half: a
+declared toolbox *manifest* serves `spec/os.md` property 2 (install
+testing) and is not enforcement.  The ambient-exec residual stays open
+here, without this candidate.
