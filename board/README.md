@@ -67,7 +67,14 @@ between two workable cards is Henri's.
    card from it"; the tiebreak is his.*
 6. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-7. **[green](green.md)** — a gate that has only ever passed is a
+7. **[arrival](arrival.md)** — the sitting limit counts a session's
+   message as a person sitting down: on 2026-08-26 it blocked two
+   questions between tend and gestate and wrote a `block` row Henri did
+   not cause.  *Placed here by a session on 2026-08-26, at Henri's "make
+   a card from it" — above `green` because its day one is a small build
+   in the shape of a fix already made once, and `green`'s own placing
+   note says a measurement goes last; the tiebreak is his.*
+8. **[green](green.md)** — a gate that has only ever passed is a
    claim: gestate's F88 named a defect, stayed green from the day it was
    written, and passed with the defect put back; nothing in either tree
    checks that a detector detects.  *Placed here by a gestate session on
