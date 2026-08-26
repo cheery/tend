@@ -226,6 +226,7 @@ test/test_keep.py	keep: --bind alone leaves the network unhandled	sed -i 's/^   
 test/test_launch.py	launch: an unknown grant word is accepted	sed -i 's/^        \*) echo "launch: \$name\/grant: unknown word/        *) : # echo "launch: $name\/grant: unknown word/' tools/launch.sh
 test/test_launch.py	launch: run does not take the lock	sed -i 's/^    flock -w 2 9 || {/    : || {/' tools/launch.sh
 test/test_launch.py	launch: a missing grant is not refused	sed -i 's/^\[ -f "\$NODE\/grant" \] || {/[ -f "$NODE\/grant" ] || true \&\& true || {/' tools/launch.sh
+test/test_launch.py	launch: serve starts even when the pull is older than the last stop	sed -i 's/^    if \[ -f "\$STATE\/stopped" \] \&\& \[ ! "\$pullfile" -nt "\$STATE\/stopped" \]; then exit 0; fi/:/' tools/launch.sh
 ROWS
 }
 

@@ -157,3 +157,25 @@ def test_the_llm_node_serves_a_request_and_is_stopped_on_idle_by_its_pulse(tmp_p
             p.kill()
     assert "stopping it" in (st / "log").read_text()
     assert not up(), "the port is still bound"
+
+
+@needs_syspy
+def test_serve_starts_a_runner_for_an_unserved_pull_and_is_silent_when_served(tmp_path):
+    """`serve` is the resolver's per-node decision, program-agnostic: a
+    pull newer than the last stop with no runner up starts one; once it
+    has run and stopped, a second serve with no new pull is silent."""
+    st = tmp_path / "st"; st.mkdir()
+    (st / "node.state.pull").write_text(f"{int(time.time())}\n")
+    a = launch(ROOT / "node", "serve", state=st, idle="0.5")
+    assert a.returncode == 0 and "started one" in a.stderr, a.stderr
+    assert wait(lambda: (st / "node.state").exists() and state_of(st)["pulls"] == 1)
+    assert wait(lambda: (st / "stopped").exists(), cap=8)
+    b = launch(ROOT / "node", "serve", state=st)
+    assert b.returncode == 0 and b.stderr == "", b.stderr
+
+
+def test_serve_is_silent_with_no_pull_at_all(tmp_path):
+    st = tmp_path / "st"; st.mkdir()
+    r = launch(ROOT / "node", "serve", state=st)
+    assert r.returncode == 0 and r.stderr == "", r.stderr
+    assert not (st / "node.state").exists()

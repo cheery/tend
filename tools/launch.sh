@@ -10,6 +10,8 @@
 #     tools/launch.sh NODE status         running or not, the last pull, the last stop, the log's tail —
 #                                         or the grant's own `status` line, under the grant
 #     tools/launch.sh NODE grant          what the grant becomes: keep's flags, and the program line
+#     tools/launch.sh NODE serve           start a runner IF a pull is unserved and none is up, else nothing —
+#                                          what the resolver calls for each node, from the person's side
 #
 # NODE/grant — one word and its value per line, paths relative to NODE:
 #     allow PATH        readable
@@ -124,5 +126,18 @@ status)
         tail -5 "$STATE/log" | sed 's/^/  /'
     fi
     exit 0 ;;
-*) echo "launch: unknown verb \`$verb\` — run, pull, status, grant" >&2; exit 2 ;;
+serve)
+    # the resolver's per-node decision, on the person's side: a pull is
+    # unserved when the pull file is newer than the last stop (or there is
+    # no stop yet); start one runner only then, and only if none is up.
+    # An mtime rule, not a served-count, so it holds for any program — a
+    # server has no tally (board/resolver.md, the grant beside the program).
+    [ -f "$pullfile" ] || exit 0
+    if [ -f "$STATE/stopped" ] && [ ! "$pullfile" -nt "$STATE/stopped" ]; then exit 0; fi
+    flock -n "$lock" true 2>/dev/null || exit 0
+    setsid -f sh -c "exec '$root/tools/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
+    n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+    echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
+    exit 0 ;;
+*) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, serve" >&2; exit 2 ;;
 esac
