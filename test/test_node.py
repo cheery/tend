@@ -120,3 +120,28 @@ def test_a_corrupt_state_is_not_silent(tmp_path):
     r = node(state, "status")
     assert r.returncode != 0
     assert "JSON" in r.stderr or "json" in r.stderr
+
+
+def test_one_state_has_one_runner(tmp_path):
+    """`board/resolver.md`, the session half: two runners on one state
+    both opened and served the same pulls (measured 2026-08-26).  Now
+    `run` holds `<state>.lock`; a second `run` — however it was started
+    — is refused with 75 and a word, and the first goes on alone."""
+    state = tmp_path / "n.state"
+    first = subprocess.Popen([sys.executable, str(NODE), "--state", str(state),
+                              "run", "--idle", "1.0", "--poll", "0.05"],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        import time
+        t = time.monotonic()
+        while not state.exists() and time.monotonic() - t < 3:
+            time.sleep(0.05)
+        second = subprocess.run([sys.executable, str(NODE), "--state", str(state),
+                                 "run", "--idle", "0.2", "--poll", "0.05"],
+                                capture_output=True, text=True, timeout=10)
+        assert second.returncode == 75, (second.returncode, second.stderr)
+        assert "another runner holds" in second.stderr
+    finally:
+        first.wait(timeout=10)
+    import json
+    assert json.loads(state.read_text())["generations"] == 1, "the second runner opened a generation"

@@ -579,3 +579,17 @@ launcher` appends a second, and is **red by name** through the harness
 before the test was trusted.  The launcher is in the protected set
 since `6f310db`, so a session cannot paste into it from the fence
 anyway — the test is for the hand that can.
+
+## 2026-08-26, 13:55 — a row that survived, and it was the row's fault
+
+`tools/ledger.py` landed with `test_ledger.py` and rows.  The first
+row — `HEAD.match(line)` → `True`, meant as "read by line" — came back
+**GREEN**, and reading why: the `len(p) == 6` guard behind it catches
+the same lines, so the copy behaved as the tree.  Not a blind detector;
+a mutation aimed at a *line* rather than the property.  Replaced by two
+that break the property — the continuation branch dropped (red on the
+grep that only the continuation line satisfies), and a truly
+line-based parser, both guards loosened together (4 red).  A third
+shape for the tally, then, beside wiring and seam: a row that does not
+break what it names, and the harness cannot tell that from a survivor
+— only the reader can, by asking what the copy actually did.

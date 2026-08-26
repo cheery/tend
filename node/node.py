@@ -22,10 +22,19 @@ served, which is the lifecycle, not an error.
   pulled past that budget is exit 124, a real interaction left for the
   grant that sizes the budget, not solved here).
   not silent (item 14): a corrupt state file raises rather than resets.
+  one runner per state (board/resolver.md, the session half, measured
+  2026-08-26): two `run`s on one state both opened, and each served the
+  same pulls — the state was whichever wrote last.  So `run` takes
+  `<state>.lock` and a second runner is refused, exit 75, out loud.
+  The lock is the node's own and not the launcher's: however the node
+  was started — pulled, or by a hand that bypassed the launcher — one
+  state has one runner.
 """
 import argparse
+import fcntl
 import json
 import os
+import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +95,12 @@ def cmd_status(a):
 
 
 def cmd_run(a):
+    lock = open(a.state + ".lock", "a")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        print(f"node: another runner holds {a.state}.lock — pull it instead.", file=sys.stderr)
+        sys.exit(75)
     st = load(a.state)
     st["generations"] += 1
     gen = st["generations"]

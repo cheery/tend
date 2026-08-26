@@ -160,3 +160,34 @@ thing that would earn it: a second pulled program, and a decision on
 whether the launcher joins the protected set, which is Henri's.  The
 session half of `keep` is unmoved by this: a session can still start a
 program some other way.  That is the card's remaining `because`.
+
+## 2026-08-26, 13:50 — the session half: a hand that bypasses the launcher, measured and closed at the node
+
+Henri: *"keep and resolver."*  The card's remaining `because`: a session
+can still start a program some other way.  **Measured, by the ledger**
+(`tools/ledger.py`, born this hour — the ledger's second read, and the
+13:42 kaizen said the parser is a tool on the second ask): in 244
+records since 08-25, `node.py` was started raw twice, both times by
+this session, both times as a measurement.  Through the launcher, 9.
+So the bypass is real and has not been used for work.
+
+**What the bypass does**, run on a scratch state: two raw runners on
+one state **both opened** — gen 1 and gen 2 — and each served the same
+two pulls; one log had four `pull` lines, the other three, and the
+state was whichever wrote last.  Silent, which item 14 forbids.
+
+**Closed where it belongs — the node's own lock.**  `node.py run` takes
+`<state>.lock` (flock, non-blocking) and a second runner is refused,
+exit 75, "another runner holds … — pull it instead."  The lock is the
+node's and not the launcher's: however the node was started, one state
+has one runner.  `run.sh`'s lock stays — it is the launcher's runner
+*detection* on a different file and does not conflict.  Rule 1 is
+kept: the node does not bound its own *reach*; it refuses to be two.
+`test_node.py::test_one_state_has_one_runner`; the row `node: the
+runner lock never taken` is red by name.
+
+**What stays open**: a session can still start the node raw *when no
+runner is up* — unconfined, since only the launcher applies the grant.
+That is the true session half, and it is `keep`'s: the fix is not in
+the node or the launcher but in what a session may execute, which is a
+row of the fence or keep on the session.  Named; not this slice.

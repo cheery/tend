@@ -337,3 +337,34 @@ whether this card is done is Henri's.
 *Henri, 2026-08-26 13:17: "it stays open for the session half."  So the
 card's `because` is closed for the node and open for the session, and
 that is the half it now names.*
+
+## 2026-08-26, 13:50 — the session half, first slice: the state row is two directories, not their parent
+
+Henri: *"you could work on the keep and resolver."*  The card's
+`because` for the session: a session reads everything in every
+directory the fence leaves open, having been handed nothing.
+`work-environment-ai` said on 08-25 what the first build would be —
+"not a vocabulary but one bind — the state directory."  Measured today
+from inside the fence, that bind is `~/.local/state` whole, and under
+it a session can read, unhanded: **another assistant's prompt history**
+(`opencode/prompt-history.jsonl`, 7.9 KB, opened from the fence), `gh`,
+the sound server's routes, `Dart`, `claude/locks`.  What tend's own
+mechanisms read there is two directories: `tend/` (the leash ledger,
+the kaizen want) and `gestate/` (the sitting limit's `sittings.log`).
+
+**Handed to Henri as `state-row.patch`** — `sandbox.sh` is protected:
+the `state` row binds `~/.local/state/tend` and `~/.local/state/gestate`
+and not the parent, the row's text says so and why, and the patch
+carries its own test (`test_the_state_row_is_two_directories_not_their_parent`,
+red until applied).  The probe test that wrote at the parent now writes
+under `tend/`, which holds before and after.  Verified on a scratch
+copy: `--rows` reads as intended, 9 pass; `sh -n` clean.  Not run under
+bwrap from here — that is his unfenced run, as every fence change is.
+
+**What this is**: the session's grant narrowed by one row, in the
+fence's own grain, from what the row's purpose actually reads.  **What
+it is not**: keep applied to the session.  Inside the tree a session
+still reads every file; inside `gestate/` it reads the other tree's
+whole state.  Those are the rows the next measurement should read the
+same way — by what the purpose reads, not by directory — and the tree
+row is the hard one, because the tree *is* what the session works on.

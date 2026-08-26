@@ -204,6 +204,11 @@ test/test_keep.py	resolver: run never takes the lock	sed -i 's/^    flock -n 9 |
 test/test_keep.py	resolver: pull does not wait for the runner to open	sed -i 's/^        while \[ "\$(generation)" -le "\$before" \] && \[ "\$n" -lt 60 \]; do/        while false; do/' node/run.sh
 # node/run.sh — the grant appears once — card:green.md, 2026-08-26
 test/test_keep.py	green: a second keep invocation pasted into the launcher	printf '%s\n' 'exec "$py" "$root/tools/keep.py" --allow "$here/node.py" -- true' >> node/run.sh
+# tools/ledger.py and node/node.py — the session half of keep and resolver, 2026-08-26
+test/test_ledger.py	ledger: a continuation line is dropped, not joined	sed -i 's/^                out\[-1\]\[5\] += "\\n" + line/                pass/' tools/ledger.py
+test/test_ledger.py	ledger: read by line — every line is a record	sed -i 's/^            if HEAD.match(line):/            if True:/; s/^                if len(p) == 6:/                if len(p) >= 1:/' tools/ledger.py
+test/test_ledger.py	ledger: since never cuts	sed -i 's/^        recs = \[r for r in recs if r\[0\] >= t\]; i += 2/        i += 2/' tools/ledger.py
+test/test_node.py	node: the runner lock never taken	sed -i 's/^        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)/        pass/' node/node.py
 ROWS
 }
 

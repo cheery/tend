@@ -184,7 +184,7 @@ def test_the_fences_own_code_is_read_only_inside():
 def test_the_state_directory_passes_through(tmp_path):
     """The finding of `2026-08-25-reach.md`: without this, a fenced
     session gets a fresh sitting clock."""
-    probe = pathlib.Path.home() / ".local" / "state" / ".test-sandbox-probe"
+    probe = pathlib.Path.home() / ".local" / "state" / "tend" / ".test-sandbox-probe"
     try:
         sandbox("sh", "-c", f'touch "{probe}"')
         assert probe.exists(), "written inside, must be there outside"
