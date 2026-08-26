@@ -60,7 +60,9 @@
       "Edit(./tools/fence-hook.sh)",
       "Edit(./tools/fence.sh)",
       "Edit(./tools/limit.sh)",
-      "Edit(./tools/kaizen.sh)"
+      "Edit(./tools/kaizen.sh)",
+      "Edit(./tools/reach-allow.sh)",
+      "Edit(./tools/hook-installer.sh)"
     ]
   },
   "hooks": {

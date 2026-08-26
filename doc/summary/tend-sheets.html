@@ -377,9 +377,9 @@
 
     <div class="band">Keys you hold <span class="chip yours">yours · run unfenced</span></div>
     <div class="group cmds">
-      <div class="cmd"><code>~/reach-allow.sh <span class="flag">net,audio,…</span></code>
+      <div class="cmd"><code>tools/reach-allow.sh <span class="flag">net,audio,…</span></code>
         <span class="g"><b>Set the fence's reach bound.</b> Writes TEND_REACH_ALLOW on the hook's line — the rows a session may ask for.</span></div>
-      <div class="cmd"><code>~/hook-installer.sh</code>
+      <div class="cmd"><code>tools/hook-installer.sh</code>
         <span class="g"><b>Install the per-command fence.</b> Edits <code>.claude/settings.json</code>; hook config is enforcement, so the edit is yours.</span></div>
       <div class="cmd"><code>tools/fence.sh <span class="flag">--protect</span></code>
         <span class="g"><b>Lock the enforcement scripts.</b> Adds the missing deny rules and nothing else. Narrows, never widens.</span></div>

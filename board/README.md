@@ -60,14 +60,9 @@ between two workable cards is Henri's.
    by a gestate session on 2026-08-25, at Henri's ask and above a
    blocked card, because this one can be worked today and `cords` waits
    on 2026-08-31; the tiebreak is his and this is his to move.*
-5. **[self](self.md)** — the fence built for `fence` guards the settings
-   file but not the scripts that enforce it, which a session can edit
-   from inside the fence; the same shape as the card above, one level
-   down.  *Placed here by a session on 2026-08-25, at Henri's "make a
-   card from it"; the tiebreak is his.*
-6. **[cords](cords.md)** — a session here cannot reach a person, and
+5. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-7. **[green](green.md)** — a gate that has only ever passed is a
+6. **[green](green.md)** — a gate that has only ever passed is a
    claim: gestate's F88 named a defect, stayed green from the day it was
    written, and passed with the defect put back; nothing in either tree
    checks that a detector detects.  *Placed here by a gestate session on

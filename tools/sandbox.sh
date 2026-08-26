@@ -55,6 +55,16 @@
 # nothing, and `--check` must run *outside* to grade the escape — so
 # `TEND_FENCED=1` is set inside, this script refuses to run there, and
 # the hook skips a command already carrying this name.
+# **The fence protects nothing it also grants writable.**  The binds are
+# applied in order and a later read-write bind covers an earlier
+# read-only one beneath it, so a tree placed *under* a writable row's
+# path — the session's scratch, `/tmp/claude-$uid`, bound rw — is inside
+# a fence that cannot protect it: every `--ro-bind` under it is shadowed
+# and `--check` shows the protected set writable.  tend does not live
+# there; a clone made there for a test does, and this limit is written
+# down rather than left a surprise (found from outside 2026-08-26,
+# running green's sandbox mutation in a scratch clone).
+#
 # Paths with spaces are not handled; none of the paths this binds have
 # any, and that is checked rather than assumed.
 set -eu
@@ -68,11 +78,15 @@ trees="/home/cheery/gestate"
 # what the session is allowed to do, before anyone looks.  These are the
 # scripts the hooks run — the four on the person's side of the fence, at
 # every prompt or every command, unfenced — and this one, which the hook
-# reads fresh each call.  Not `leash.sh`: it shapes cost, it does not
-# enforce.  `tools/fence.sh` checks the deny-list carries the matching
-# `Edit(./tools/…)` rule for each, and `test_sandbox.py` holds the two
-# lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh"
+# reads fresh each call.  And the person's two keys, moved in from `~`
+# on 2026-08-26 (card:self.md): `reach-allow.sh` widens the reach bound
+# and `hook-installer.sh` installs the fence, both through the person's
+# own hand — a session editing either changes what the session is
+# allowed to do at his next run, which is the set's own line.  Not
+# `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
+# checks the deny-list carries the matching `Edit(./tools/…)` rule for
+# each, and `test_sandbox.py` holds the two lists to one.
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a

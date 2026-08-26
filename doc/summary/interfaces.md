@@ -11,10 +11,10 @@ not built yet.  Canonical text; the styled, printable version is
 These change what a session is allowed to do.  They live outside the
 tree, or read-only inside it, on purpose.
 
-- `~/reach-allow.sh net,audio,…` — **set the fence's reach bound.**
+- `tools/reach-allow.sh net,audio,…` — **set the fence's reach bound.**
   Writes `TEND_REACH_ALLOW` on the hook's line: the rows a session may
   ask for.
-- `~/hook-installer.sh` — **install the per-command fence.**  Edits
+- `tools/hook-installer.sh` — **install the per-command fence.**  Edits
   `.claude/settings.json`; hook config is enforcement, so the edit is
   the person's.
 - `tools/fence.sh --protect` — **lock the enforcement scripts.**  Adds

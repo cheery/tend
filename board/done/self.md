@@ -1,6 +1,6 @@
 # self — the fence guards the settings but not the code that enforces them, nor the keys the person turns
 
-    status   open
+    status   done — 2026-08-26
     because  `.claude/` is read-only inside the fence, but the scripts
              that ARE the fence — `tools/sandbox.sh`, `tools/fence-hook.sh`
              — sit in the tree writable, and the hook reads them fresh on
@@ -175,3 +175,41 @@ the .git/hooks writability question together."*  Measured and written
 on `done/gates.md` §"2026-08-25": the gate is not in the set and cannot
 be, because the gate is the suite and the suite is the tree; it bounds
 what the tree accepts, not what a session may do.  Not built; counted.
+
+## 2026-08-26 — the two widening keys moved in, and the card's last line closes
+
+Henri: *"Would it be time to move the ~/hook-installer.sh
+~/reach-allow.sh inside the project, so that they're clearly tend's
+files?"* — then *"go ahead, I'll copy them into tools/."*  This is the
+line the card left open: *"The other two keys widen, and stay in `~`
+until someone argues otherwise."*  He argued otherwise, and the answer
+is the card's own — **a set, not a folder**.
+
+Verified first, from a seat that could read them: neither key takes a
+session-writable input that could steer it — `reach-allow.sh`'s only
+inputs are Henri's argument and `.claude/settings.json`, and
+`hook-installer.sh` reads no argument at all.  So a session cannot make
+either do something else by editing a file it *can* reach; the only
+lever is editing the key itself, which the set closes.
+
+**Moved, and made tend's:** both were pinned to `/home/cheery/tend`;
+now they derive their root from their own location, so a fresh clone
+carries a working fence-installer — *one clone away*, which is half of
+why they came in.  `hook-installer.sh` in the tree means a new tend
+installs its own fence rather than waiting for a script copied by hand.
+
+**Protected in the same act, because the tree is writable and `~` was
+not.**  Inside the fence `~` shows only the trees — the keys were
+*invisible* there, which was their whole protection.  In `tools/` they
+are visible and the tree is read-write to a session, so the move only
+holds if they join the set: `sandbox.sh` binds them read-only and the
+deny-list denies `Edit(./tools/…)`.  That is one patch to `sandbox.sh`
+(the person's, `keys-into-set.patch`) and one `tools/fence.sh
+--protect` run, unfenced — the same two-step the first five took.
+`test_sandbox.py::test_the_persons_keys_are_in_the_protected_set` holds
+that they are in the set, red until both steps are done — the fence
+card's precedent, kept.
+
+**What this leaves open on the card: nothing.**  The `.git/hooks` line
+was counted on `done/gates.md`; the two keys are in.  When both steps
+land and the test is green, `self` is done.

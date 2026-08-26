@@ -16,7 +16,7 @@ sheets, styled and printable as A4.  What keeps it honest is in
   `TEND_REACH_ALLOW`.
 - **R3** — The scripts that enforce are read-only to the session and
   denied to its edit tools.  `tools/sandbox.sh`, the protected set
-  (`board/self.md`).
+  (`board/done/self.md`).
 - **R4** — A restraint must be able to say when it is off; silence is
   the failure it exists to end.  `tools/fence.sh`, at every prompt.
 

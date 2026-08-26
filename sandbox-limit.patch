@@ -1,0 +1,19 @@
+--- a/tools/sandbox.sh
++++ b/tools/sandbox.sh
+@@ -55,6 +55,16 @@
+ # nothing, and `--check` must run *outside* to grade the escape — so
+ # `TEND_FENCED=1` is set inside, this script refuses to run there, and
+ # the hook skips a command already carrying this name.
++# **The fence protects nothing it also grants writable.**  The binds are
++# applied in order and a later read-write bind covers an earlier
++# read-only one beneath it, so a tree placed *under* a writable row's
++# path — the session's scratch, `/tmp/claude-$uid`, bound rw — is inside
++# a fence that cannot protect it: every `--ro-bind` under it is shadowed
++# and `--check` shows the protected set writable.  tend does not live
++# there; a clone made there for a test does, and this limit is written
++# down rather than left a surprise (found from outside 2026-08-26,
++# running green's sandbox mutation in a scratch clone).
++#
+ # Paths with spaces are not handled; none of the paths this binds have
+ # any, and that is checked rather than assumed.
+ set -eu

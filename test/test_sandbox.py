@@ -132,6 +132,21 @@ def test_the_protected_set_is_the_scripts_the_hooks_run():
         assert (ROOT / p).is_file(), p
 
 
+def test_the_persons_keys_are_in_the_protected_set():
+    """`board/self.md`, 2026-08-26: `reach-allow.sh` and
+    `hook-installer.sh` moved from `~` into `tools/` and must join the
+    set — a session editing either changes what the session is allowed
+    to do, through the person's next run of it (the reach bound, the
+    fence install).  No bwrap: this reads `--protected`, which is a
+    listing.  Red until `sandbox.sh` lists them and `fence.sh --protect`
+    has added their `Edit` rules."""
+    protected = set(sandbox("--protected").stdout.split())
+    for key in ("tools/reach-allow.sh", "tools/hook-installer.sh"):
+        assert key in protected, (
+            f"{key} is in tools/ but not the protected set — apply "
+            "keys-into-set.patch and run tools/fence.sh --protect")
+
+
 @needs_bwrap
 def test_the_fences_own_code_is_read_only_inside():
     """`board/self.md`'s measurement, 2026-08-25: an edit to this script
