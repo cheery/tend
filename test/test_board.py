@@ -123,6 +123,23 @@ def test_every_card_says_why_it_exists(card: Path):
 
 
 @pytest.mark.parametrize("card", cards(), ids=lambda p: p.stem)
+def test_a_finished_or_shelved_card_says_when(card: Path):
+    """`done — <date>` and `shelved — <date>`, as `board/README.md`
+    §"What a card is" spells them.  The date is what lets a reader of
+    `done/` say which day a problem stopped standing without opening
+    git — and until 2026-08-26 nothing held it: `board/green.md`'s
+    day-one measurement put `status   done` with no date in `done/`
+    and this file stayed green."""
+    said = header(card).get("status", "")
+    word = said.split()[0] if said else ""
+    if word not in ("done", "shelved"):
+        return
+    assert re.fullmatch(rf"{word} — \d{{4}}-\d{{2}}-\d{{2}}", said), (
+        f"{card.relative_to(ROOT)} says `status {said}`; a {word} card "
+        f"carries its date: `{word} — YYYY-MM-DD`.")
+
+
+@pytest.mark.parametrize("card", cards(), ids=lambda p: p.stem)
 def test_a_finished_card_is_in_done_and_an_open_one_is_not(card: Path):
     """`ls board/*.md` **is** the live board, which is only true if the
     two halves agree about which is which.

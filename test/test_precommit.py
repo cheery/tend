@@ -23,14 +23,40 @@ def test_the_hook_parses():
     assert subprocess.run(["sh", "-n", str(HOOK)]).returncode == 0
 
 
-def test_the_hook_runs_the_suite_and_nothing_else():
+def test_the_hook_refuses_the_commit_the_suite_refuses(tmp_path):
     """What the hook does at a commit is `tools/suite.py` — the whole
     suite, because tend's whole suite is seconds.  When a slow test
     arrives, the split gestate made (`--gates` for the commit, the rest
-    for the shift) arrives with it, and this assertion is what says so
-    out loud."""
-    text = HOOK.read_text(encoding="utf-8")
-    assert "python3 tools/suite.py" in text
+    for the shift) arrives with it, and this test is what says so out
+    loud.
+
+    **Measured, not read.**  Until 2026-08-26 this asserted that the
+    string `python3 tools/suite.py` was in the file — and
+    `board/green.md`'s day-one measurement put `|| true` after it: the
+    hook ran the suite, discarded the verdict, committed a because-less
+    card, and this test was green.  So now the hook is installed in a
+    scratch repository whose `tools/suite.py` is a stub that says no,
+    and the commit has to be refused; then the stub says yes, and the
+    commit has to land.  A gate is what stands between the two."""
+    git, run = _scratch(tmp_path)
+    stub = tmp_path / "tools" / "suite.py"
+    verdict = tmp_path / "tools" / "verdict"
+    stub.write_text("import pathlib, sys\n"
+                    "sys.exit(int(pathlib.Path(__file__).with_name('verdict').read_text()))\n")
+    verdict.write_text("1\n")
+    assert subprocess.run(["sh", "tools/pre-commit.sh", "--install"], cwd=tmp_path,
+                          capture_output=True).returncode == 0
+    (tmp_path / "card.md").write_text("no because\n")
+    git("add", "-A")
+    r = git("commit", "-qm", "dud")
+    assert r.returncode != 0, "the suite said no and the commit went through"
+    assert "a gate failed" in r.stderr
+    assert git("rev-parse", "--verify", "-q", "HEAD").returncode != 0, "nothing was committed"
+    verdict.write_text("0\n")
+    git("add", "-A")
+    r = git("commit", "-qm", "fine")
+    assert r.returncode == 0, r.stderr
+    assert git("rev-parse", "--verify", "-q", "HEAD").returncode == 0
 
 
 def test_the_hook_is_installed_in_this_clone():
@@ -70,6 +96,7 @@ def _scratch(tmp_path):
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     (tmp_path / "tools").mkdir()
     (tmp_path / "tools" / "pre-commit.sh").write_text(HOOK.read_text(encoding="utf-8"))
+    (tmp_path / "tools" / "pre-commit.sh").chmod(0o755)  # the shim execs it
     git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t",
                                      *a], cwd=tmp_path, capture_output=True, text=True)
     run = lambda: subprocess.run(["sh", "tools/pre-commit.sh"], cwd=tmp_path,

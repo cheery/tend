@@ -18,6 +18,8 @@ import os
 import pathlib
 import subprocess
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 FENCE = ROOT / "tools" / "fence.sh"
 SETTINGS = ROOT / ".claude" / "settings.json"
@@ -195,14 +197,21 @@ def test_restore_leaves_a_weakened_file_that_parses(tmp_path):
     assert r.fence("--force").returncode == 0 and r.at_head()
 
 
-def test_a_hook_removed_is_red(tmp_path):
+@pytest.mark.parametrize("hook", ["kaizen.sh", "limit.sh", "fence.sh"])
+def test_a_hook_removed_is_red(tmp_path, hook):
     """Hook config is enforcement here (`board/cords.md`): the lamp, the
-    sitting limit and this check are each one line a session could drop."""
+    sitting limit and this check are each one line a session could drop.
+
+    All three, by name.  Until 2026-08-26 this dropped `limit.sh` only,
+    and `board/green.md`'s day-one measurement found the gap: `fence.sh`
+    could stop watching the lamp's line, and could stop watching its
+    **own** `--hook` line — the removal its header names as the way it
+    dies — and this file stayed green both times."""
     r = Repo(tmp_path)
-    r.edit(drop_hook("limit.sh"))
+    r.edit(drop_hook(hook))
     out = r.fence()
     assert out.returncode == 1
-    assert "tools/limit.sh --hook is not on UserPromptSubmit" in out.stdout
+    assert f"tools/{hook} --hook is not on UserPromptSubmit" in out.stdout
 
 
 def test_the_two_spellings_of_home_are_one_rule(tmp_path):

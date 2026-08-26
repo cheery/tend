@@ -237,3 +237,36 @@ that `suite.py` returns pytest's verdict); the `done —` date is a
 fourth.  Whether they are closed, and whether the thirty lines of
 harness join `tools/`, is the card's next question and Henri's
 tiebreak.  The other ten test files were not measured.
+
+## Day one, later — the four repairs, broken before trusted
+
+Henri: *"ok, measure, then build them."*  The before was the table
+above: four survivors GREEN.  Each repair was then run against its own
+break in a fresh copy, and each break is now red by a test that names
+it:
+
+    red  fence.sh not watching kaizen.sh's hook line   test_a_hook_removed_is_red[kaizen.sh]
+    red  fence.sh not watching its own hook line       test_a_hook_removed_is_red[fence.sh]
+    red  status done, no date, in done/                test_a_finished_or_shelved_card_says_when[grant]
+    red  suite.py `return 0`                            test_a_failing_test_is_a_failed_gate  (test/test_suite.py, new)
+    red  pre-commit.sh `|| true` around the suite      test_the_hook_refuses_the_commit_the_suite_refuses
+
+The last replaces the string check at `test/test_precommit.py:26`: the
+hook is installed in a scratch repository whose `tools/suite.py` is a
+stub, the stub says no and the commit must be refused with *"a gate
+failed"*, then the stub says yes and the commit must land.  Its first
+run refused for the wrong reason — the scratch copy of the hook was not
+executable, and the shim's `exec` was what said no — which is why it
+asserts the message and not the exit code alone.
+
+**What the two `|| true` and `return 0` rows still say**: the dud card
+still *commits* under those breaks, because a gate whose own wiring is
+cut cannot refuse the cut.  What changed is that the suite the gate
+runs is red on it (`1 failed, 194 passed`), where before it was green —
+the detector detects; that the enforcer can be edited by the party it
+restrains is `card:work-environment-ai.md`, not this card.  Intact
+copy: 195 passed, 13 skipped.
+
+The harness stays in the session's scratch.  Whether it joins `tools/`
+— and whether the other ten test files get their day — is still the
+card's open question.
