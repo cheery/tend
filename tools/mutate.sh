@@ -209,6 +209,11 @@ test/test_ledger.py	ledger: a continuation line is dropped, not joined	sed -i 's
 test/test_ledger.py	ledger: read by line — every line is a record	sed -i 's/^            if HEAD.match(line):/            if True:/; s/^                if len(p) == 6:/                if len(p) >= 1:/' tools/ledger.py
 test/test_ledger.py	ledger: since never cuts	sed -i 's/^        recs = \[r for r in recs if r\[0\] >= t\]; i += 2/        i += 2/' tools/ledger.py
 test/test_node.py	node: the runner lock never taken	sed -i 's/^        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)/        pass/' node/node.py
+# tools/resolve.sh and node/node.py — the resolver outside the fence, card:resolver.md, 2026-08-26
+test/test_resolve.py	resolve: starts even when every pull is served	sed -i 's/^\[ "\$pulled" -gt "\${served:-0}" \] || exit 0/[ "$pulled" -ge "${served:-0}" ] || exit 0/' tools/resolve.sh
+test/test_resolve.py	resolve: the lock is never looked at	sed -i 's/^flock -n "\$lock" true 2>\/dev\/null || exit 0.*/:/' tools/resolve.sh
+test/test_resolve.py	resolve: does not wait for the runner's lock	sed -i 's/^n=0; while flock -n "\$lock" true.*/:/' tools/resolve.sh
+test/test_resolve.py	node: a runner reads the ledger at open and serves only what follows	sed -i 's/^    seen = st\["pulls"\]/    seen = pulls_in(ledger(a.state))/' node/node.py
 ROWS
 }
 

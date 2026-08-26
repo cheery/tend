@@ -210,3 +210,54 @@ the fence — the same place the lamp, the limit and the fence-hook
 already run — started by a pull line, confined by `run.sh`, outliving
 the command that pulled.  A measurement of what such a hook costs
 (when it runs, what the leash says) comes before the build.
+
+## 2026-08-26, 14:40 — the resolver outside the fence: built, and the fence half handed over
+
+Henri: *"do the next slice."*  Cost measured first: the person-side
+hooks are `UserPromptSubmit` (lamp, limit, fence check) and
+`PreToolUse[Bash]` (the fence-hook); a `PostToolUse[Bash]` hook runs
+unfenced, as the person, right after the command that pulled — one
+`flock -n`, one `wc -l`, one `grep` per command, and a leash line per
+runner started.  The leash's word for the runner is what it says for
+any invocation: a wall budget and a ledger line.
+
+**The node changed by one line, and it is the line that made the
+outside resolver possible.**  A runner used to read the ledger *at
+open* and serve only what followed — so a runner started after a pull
+would never serve it, and day one had to start the runner *before*
+pulling.  Now `seen = state.pulls`: the ledger is append-only, the
+state counts what was served, and a runner opening serves the
+difference first.  Item 13 — "starts by pull" — made literal.
+`test_it_opens_where_it_was_left` moved with it (a pull before the
+runner counts now); `node: a runner reads the ledger at open` is a red
+row.
+
+**`tools/resolve.sh`** — a look: if the ledger holds a pull no runner
+has served and no runner holds the lock, start the one runner
+(`node/run.sh run`, confined, under the leash, detached), wait for it
+to take the lock, say one line.  Otherwise silence.  `--hook` is the
+same with stdin drained; `--install` is Henri's, `jq` into
+`PostToolUse[Bash]`, refused from inside the fence.  Measured on the
+way: two back-to-back looks both started a runner before the
+wait-for-lock existed — the second hit the lock and left with 75, so
+the tally was right and the resolver's word was not.  Eight tests,
+three rows red by name.
+
+**Handed to Henri as `resolver-outside.patch`** (77 lines; `run.sh` and
+`sandbox.sh` are protected): inside the fence, `run.sh pull` appends
+its line and starts nothing — "the runner is the resolver's to start"
+— since one started there dies with the command and was startable
+unconfined; from a person's shell, as before.  `tools/resolve.sh` joins
+the protected set, because it is a script a hook runs.  The test rides
+in the patch.  Then his line: `tools/resolve.sh --install`.
+
+**What this closes, and what it does not.**  With the patch and the
+hook: a session's pull is one appended line; the runner is started by
+the person's side, outlives the command, is confined by the launcher
+and budgeted by the leash; a session cannot start the node through the
+pull path at all.  It can still run `node.py` raw — the state directory
+is still writable to the session — and that is the last step the
+tree-row measurement named: `node/state` read-only to the session with
+the pull file the one thing it may append.  That is a fence row, and it
+must land *after* the hook is installed, or a session's pull is never
+served.  Not this slice; the next, and it is one bind.

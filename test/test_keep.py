@@ -281,6 +281,7 @@ def _state(tmp_path):
 
 def _launcher(tmp_path, *verb, idle="0.5"):
     env = dict(os.environ, TEND_NODE_STATE_DIR=str(tmp_path / "st"), TEND_NODE_IDLE=idle)
+    env.pop("TEND_FENCED", None)  # a person's shell: the launcher may start a runner there
     return subprocess.run(["sh", str(ROOT / "node" / "run.sh"), *verb],
                           env=env, capture_output=True, text=True, timeout=20)
 

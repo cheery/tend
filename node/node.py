@@ -22,6 +22,10 @@ served, which is the lifecycle, not an error.
   pulled past that budget is exit 124, a real interaction left for the
   grant that sizes the budget, not solved here).
   not silent (item 14): a corrupt state file raises rather than resets.
+  a pull is served by the next runner, whenever it comes: the ledger is
+  append-only and the state counts what was served, so a runner opening
+  serves the difference first (board/resolver.md, 2026-08-26 — the
+  resolver outside the fence starts the runner after the pull is written).
   one runner per state (board/resolver.md, the session half, measured
   2026-08-26): two `run`s on one state both opened, and each served the
   same pulls — the state was whichever wrote last.  So `run` takes
@@ -109,7 +113,11 @@ def cmd_run(a):
     print(f"node: gen {gen}, state {a.state} — pull it, or it stops after "
           f"{a.idle}s idle")
     began = time.monotonic()
-    seen = pulls_in(ledger(a.state))
+    # every pull the ledger holds that no runner has served — so a runner
+    # started *after* a pull (by a resolver outside the fence, board/resolver.md)
+    # serves it, rather than reading the ledger at open and serving only
+    # what comes later.  Item 13, "starts by pull", made literal.
+    seen = st["pulls"]
     last = began
     try:
         while True:

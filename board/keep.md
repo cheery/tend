@@ -471,3 +471,10 @@ it is the resolver's shape, not the fence's.**
 and it should wait for the resolver decision so the two rows land as
 one.  The rest of the tree row is the work, and the work is what the
 session is for.
+
+*2026-08-26, 14:40 — the resolver outside the fence is built
+(`card:resolver.md`), which is the shape the tree-row measurement said
+closes the session's one non-work write.  Once Henri installs the hook,
+the remaining bind — `node/state` read-only to the session, the pull
+file writable — is this card's last slice, and it lands with `.venv`
+read-only as one row.*

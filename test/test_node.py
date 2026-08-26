@@ -70,7 +70,10 @@ def test_run_serves_pulls_then_stops_itself(tmp_path):
 
 def test_it_opens_where_it_was_left(tmp_path):
     """Item 8.  A second generation restores the first's tally rather than
-    starting over — the state file is the whole of 'where it was left'."""
+    starting over — the state file is the whole of 'where it was left'.
+    Since 2026-08-26 (board/resolver.md) a pull made before a runner is
+    served by the next runner, so the pull before the first run counts:
+    two served in the first generation, still two in the second."""
     state = tmp_path / "n.state"
     node(state, "pull")
     p = subprocess.Popen([sys.executable, str(NODE), "--state", str(state),
@@ -79,13 +82,13 @@ def test_it_opens_where_it_was_left(tmp_path):
     node(state, "pull")
     p.wait(timeout=15)
     first = read(state)
-    assert first["generations"] == 1 and first["pulls"] == 1
+    assert first["generations"] == 1 and first["pulls"] == 2, "the pull before the runner was not served"
     p = subprocess.Popen([sys.executable, str(NODE), "--state", str(state),
                           "run", "--idle", "0.8", "--poll", "0.05"])
     p.wait(timeout=15)
     second = read(state)
     assert second["generations"] == 2, "it counted this as a new opening"
-    assert second["pulls"] == 1, "and kept what the last generation did"
+    assert second["pulls"] == 2, "and kept what the last generation did"
     assert second["runtime_s"] >= first["runtime_s"]
 
 
