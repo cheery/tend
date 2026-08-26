@@ -85,8 +85,13 @@ run)
     shift
     # the lock is taken on an fd here, before the confinement, and the
     # runner inherits it through keep's exec — held for its whole life.
+    # a short wait, not a refusal at once: the resolver tests the lock by
+    # taking it for a moment (`flock -n lock true`), and a runner that
+    # tried in that moment was turned away with 75 while the resolver
+    # waited for a lock nobody would take (measured on Henri's seat,
+    # 2026-08-26, 1 in 10).  A real runner still holds it past 2 s.
     exec 9>>"$lock"
-    flock -n 9 || { echo "node: a runner already holds $lock — pull it instead." >&2; exit 75; }
+    flock -w 2 9 || { echo "node: a runner already holds $lock — pull it instead." >&2; exit 75; }
     confined run "$@"
     ;;
 pull)

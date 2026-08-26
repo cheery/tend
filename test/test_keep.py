@@ -338,7 +338,7 @@ def test_run_is_refused_while_a_runner_holds_the_lock(tmp_path):
     lock says one is up, and `run` leaves with 75 and a word."""
     if not os.path.exists("/usr/bin/python3"):
         pytest.skip("no system python3 for keep to grant the node")
-    first = _launcher(tmp_path, "pull", idle="1.5")
+    first = _launcher(tmp_path, "pull", idle="4.0")  # outlives run's 2 s wait for the lock
     assert first.returncode == 0, first.stderr
     second = _launcher(tmp_path, "run")
     assert second.returncode == 75, (second.returncode, second.stderr)
@@ -371,3 +371,23 @@ def test_inside_the_fence_a_pull_starts_nothing(tmp_path):
     assert "resolver" in r.stderr and "started a runner" not in r.stderr, r.stderr
     assert (tmp_path / "st" / "node.state.pull").exists()
     assert not (tmp_path / "st" / "node.state").exists(), "a runner opened"
+
+
+def test_a_runner_is_not_turned_away_by_a_momentary_hold_on_the_lock(tmp_path):
+    """The resolver tests the lock by taking it for a moment; a runner
+    that tried the lock in that moment was refused with 75 and the
+    resolver then waited for a lock nobody would take (Henri's seat,
+    2026-08-26, 1 in 10).  Held for 0.3 s here, deterministically: the
+    runner must wait it out and run, not leave."""
+    if not os.path.exists("/usr/bin/python3"):
+        pytest.skip("no system python3 for keep to grant the node")
+    (tmp_path / "st").mkdir()
+    lock = tmp_path / "st" / "run.lock"
+    holder = subprocess.Popen(["flock", str(lock), "sleep", "0.3"])
+    try:
+        import time; time.sleep(0.05)
+        r = _launcher(tmp_path, "run", "--idle", "0.3", "--poll", "0.05")
+    finally:
+        holder.wait(timeout=5)
+    assert r.returncode == 0, (r.returncode, r.stderr)
+    assert _state(tmp_path)["generations"] == 1

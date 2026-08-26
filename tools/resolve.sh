@@ -69,9 +69,11 @@ setsid -f sh -c "exec '$root/tools/leash.sh' -- sh '$root/node/run.sh' run --idl
 # wait for the runner to take the lock, so the next look — a hook fires at
 # every command — sees it and does not start a second (measured: two
 # back-to-back looks both started one before this loop existed)
-n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 200 ]; do sleep 0.05; n=$((n + 1)); done
+# the leash's scope path took ~10 s to start a runner from cold on Henri's
+# seat (2026-08-26, twice in a row, then instant), so the wait is 30 s
+n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
 if flock -n "$lock" true 2>/dev/null; then
-    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one, and it has not taken the lock after 10s; see $state/run.log" >&2
+    echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one, and it has not taken the lock after 30s; see $state/run.log" >&2
 else
     echo "resolve: $((pulled - served)) unserved pull(s), no runner — started one (node/run.sh run, under the leash); $state/run.log" >&2
 fi
