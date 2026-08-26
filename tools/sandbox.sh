@@ -11,7 +11,7 @@
 # **This is the sessions-first fence of doc/experiments/2026-08-25-both.md,
 # promoted.**  Bubblewrap: the system read-only, an empty home, no
 # network, this tree the one writable thing — and, learned the same day,
-# the person's cords passed through: `~/.local/state` and the sitting's
+# the person's cords passed through: `~/.local/state/{tend,gestate}` and the sitting's
 # state file read-write, so that inside the fence the sitting clock is
 # the host's, the leash ledger lands, and a kaizen want is heard.  The
 # fence that hid those gave a fenced session a fresh 15-minute sitting
@@ -116,7 +116,7 @@ while [ $# -gt 0 ]; do
         --rows)
             cat <<ROWS
   on   tree      $root  read-write — the world, except .claude/ and the protected set (--protected)
-  on   state     ~/.local/state, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want
+  on   state     ~/.local/state/tend, ~/.local/state/gestate, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want; and not the rest of ~/.local/state (card:keep.md, the session half)
   on   trees     $trees  read-only — the audit, anything cross-tree
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
   on   git       ~/.gitconfig  read-only — identity for commits
@@ -133,7 +133,13 @@ ROWS
     esac
 done
 
-mkdir -p "$HOME/.local/state"
+# The state row is two directories and not their parent (card:keep.md, the
+# session half, 2026-08-26): a session handed the whole of ~/.local/state
+# could read every other tool's state there — another assistant's prompt
+# history, gh, the sound server — none of which the sitting clock, the
+# ledger or the want ever needed.  What is bound is what tend's own
+# mechanisms read: tend/ (leash, kaizen), gestate/ (limit's sittings).
+mkdir -p "$HOME/.local/state/tend" "$HOME/.local/state/gestate"
 
 # The fence, in bwrap's left-to-right order: the tmpfs over $HOME lands
 # before anything bound inside it.
@@ -142,7 +148,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --ro-bind /etc /etc --proc /proc --dev /dev --tmpfs /tmp --tmpfs $HOME
   --bind $root $root --chdir $root
   --ro-bind $root/.claude $root/.claude
-  --bind $HOME/.local/state $HOME/.local/state
+  --bind $HOME/.local/state/tend $HOME/.local/state/tend --bind $HOME/.local/state/gestate $HOME/.local/state/gestate
   --dir $rt --bind-try $rt/gestate-sitting-$uid $rt/gestate-sitting-$uid
   --ro-bind-try $HOME/.gitconfig $HOME/.gitconfig
   --setenv HOME $HOME --setenv XDG_RUNTIME_DIR $rt --setenv TEND_FENCED 1
@@ -205,11 +211,20 @@ else
     say "✗" "the sitting clock is NOT the host's — outside: '$outside', inside: '$inside'"; fail=1
 fi
 # 2. The cords land outside.
+# The state row is tend/ and gestate/, not their parent (card:keep.md):
+# a probe written under tend/ inside must be there outside, and one
+# written at the parent must not — inside, the parent is the tmpfs home.
+fence sh -c 'touch "$HOME/.local/state/tend/.sandbox-probe"' >/dev/null 2>&1 || true
+if [ -e "$HOME/.local/state/tend/.sandbox-probe" ]; then
+    rm -f "$HOME/.local/state/tend/.sandbox-probe"; say "✓" "~/.local/state/tend passes through"
+else
+    say "✗" "~/.local/state/tend does NOT pass through — the ledger and the want are lost inside"; fail=1
+fi
 fence sh -c 'touch "$HOME/.local/state/.sandbox-probe"' >/dev/null 2>&1 || true
 if [ -e "$HOME/.local/state/.sandbox-probe" ]; then
-    rm -f "$HOME/.local/state/.sandbox-probe"; say "✓" "~/.local/state passes through"
+    rm -f "$HOME/.local/state/.sandbox-probe"; say "✗" "the rest of ~/.local/state passes through — the row is the parent again"; fail=1
 else
-    say "✗" "~/.local/state does NOT pass through — the ledger and the want are lost inside"; fail=1
+    say "✓" "the rest of ~/.local/state stays outside"
 fi
 # 3. What must not be there.
 probe "~/.ssh does not exist"           blocked sh -c 'test -e "$HOME/.ssh"'

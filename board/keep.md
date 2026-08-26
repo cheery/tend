@@ -368,3 +368,13 @@ still reads every file; inside `gestate/` it reads the other tree's
 whole state.  Those are the rows the next measurement should read the
 same way — by what the purpose reads, not by directory — and the tree
 row is the hard one, because the tree *is* what the session works on.
+
+**Henri's unfenced run, 14:0x — the fence was down, and the patch was
+the reason.**  `--check` said `✗ ~/.local/state does NOT pass through`:
+its probe writes at the *parent*, which the patch had just unbound,
+while the test I moved under `tend/` passed.  The same miss twice in
+one patch — one moved, one not — and exactly what "verified by logic,
+not execution" meant in the 13:56 kaizen.  `state-row-2.patch` moves
+the check's probe under `tend/` and adds the probe the row now needs:
+one written at the parent inside must *not* be there outside.  Two
+probes, the row's two halves.

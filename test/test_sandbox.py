@@ -225,3 +225,17 @@ def test_the_launcher_is_in_the_protected_set():
     assert "node/run.sh" in protected, (
         "node/run.sh is the launch path and not in the protected set — apply "
         "protect-run.patch and run tools/fence.sh --protect")
+
+
+def test_the_state_row_is_two_directories_not_their_parent():
+    """`board/keep.md`, the session half, 2026-08-26: measured from the
+    fence, a session could read every other tool's state under
+    `~/.local/state` — another assistant's prompt history among them —
+    though the sitting clock, the ledger and the want live in two
+    directories.  The row names those two and not the parent.  No
+    bwrap: `--rows` is a listing.  Red until `sandbox.sh` binds
+    tend/ and gestate/ instead of the parent — apply state-row.patch."""
+    rows = sandbox("--rows").stdout
+    state = [l for l in rows.splitlines() if l.split()[1:2] == ["state"]][0]
+    assert "~/.local/state/tend" in state and "~/.local/state/gestate" in state, state
+    assert "~/.local/state," not in state, "the parent is still the row"
