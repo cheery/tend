@@ -169,6 +169,42 @@ the real program gains the boundary, the grant still outside it.  That,
 and write-scoping, are what remain before this problem is more than
 demonstrated.
 
+## 2026-08-26 — the launch path: the node runs confined by default
+
+The card's last open half, and the one Henri pointed at.  `node/run.sh`:
+the node's grant baked in — `--allow node.py` (code, read) and `--write
+<state dir>` (write-scoping's first caller) — run through keep, the
+boundary outside the program.  Running the node is now running it
+confined; the incantation is gone.
+
+    node/run.sh run          # opens, serves pulls, stops — blind to the tree
+    node/run.sh status
+
+**The state directory is separate from the code, on purpose**: were it
+the code's own directory, "writable state" would mean "rewritable code".
+So the node may change its state and nothing else — not `node.py`, not
+the tree, not the ledger beside it.  A system python, not the venv (the
+runtime is a grant; a venv interpreter is blind to its own `pyvenv.cfg`
+inside).
+
+**What the launcher can be gated for, and what it cannot** (measured,
+`board/green.md`): dropping `--allow node.py` is red — the node cannot
+read its own code and the run fails.  But **dropping `--write`, or keep
+itself, is invisible through the node** — a well-behaved program that
+writes only its own state behaves the same confined or not; confinement
+shows only on *overreach*, which the node never makes.  So the write
+boundary the launcher sets is real (an out-of-bounds write is denied)
+and is gated where it *can* be — at keep, `test_write_is_scoped_when_asked`
+— not through the node.  A confinement launcher for a well-behaved
+program is the honest limit named, not hidden.
+
+**What stays open**: this wires *the node's* launch, one program by its
+own script.  A general "any program tend launches runs under keep by
+default" would be the fence-hook's territory (it wraps shell commands)
+and is not built — the tree runs one program, and one launcher is what
+one program needs (manifesto rule 1).  Network is still the other unset
+Landlock bit.
+
 ## 2026-08-26 — write-scoping, built: the boundary keep did not set
 
 The card's named-open half, and the one Henri pointed at ("keep would

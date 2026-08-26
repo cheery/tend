@@ -8,3 +8,4 @@ __pycache__/
 node/*.state
 node/*.state.new
 node/*.state.pull
+node/state/

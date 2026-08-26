@@ -398,3 +398,26 @@ is red once the patch is in.
 the detector was joined to its directory where it meant to be joined to
 a name.  Every survivor this card has found is one of the two shapes,
 and this is the wiring shape in the tree's own reflective organ.
+
+## Day one, a fifth detector — and a launcher a program cannot gate
+
+`node/run.sh` (card:keep.md) wires keep into the node's launch, and
+measuring it named a limit worth the card.  Its grant has three parts —
+run through keep, code read, state writable — and only one is gateable
+through the node: dropping `--allow node.py` fails the run and
+`test_the_node_launcher_confines_by_default` goes red (a recorded mutate
+row).  **The other two are invisible.**  Drop keep entirely, or weaken
+`--write` to `--allow`, and the node runs identically and every test
+stays green — because a program that writes only its own state behaves
+the same confined or not.  **Confinement is observable only on
+overreach**, and a well-behaved program never makes one.
+
+That is not a hole to plug with a contorted test — a probe that makes
+the node misbehave would be a fixture inventing the overreach it then
+catches, the quota warning wearing a lab coat.  The write boundary is
+gated where an overreach is real: `test_write_is_scoped_when_asked` at
+the keep level, which `run.sh` composes.  Verdict: `partial` — the code
+grant is `a test, named`; the confinement-applied and the write-scope
+are `none — nothing can, through this program`, gated one layer down.
+The finding for the tally: not every wiring can be gated at its own
+layer, and saying which layer holds it is the honest form.

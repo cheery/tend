@@ -146,6 +146,7 @@ gate	gate: pre-commit.sh ignores the suite's verdict	sed -i "s/^if python3 tools
 gate	gate: suite.py always returns 0	sed -i "s/^    return r.returncode/    return 0/" tools/suite.py
 gate	gate: the drift block removed	sed -i "/^drift=\"\"/,/^fi$/d" tools/pre-commit.sh
 gate	gate: hook uninstalled	sh tools/pre-commit.sh --uninstall
+test/test_keep.py	keep: node launcher drops the code grant	sed -i '/--allow "$here\/node.py"/d' node/run.sh
 test/test_suite.py	suite: always returns 0	sed -i "s/^    return r.returncode/    return 0/" tools/suite.py
 # test_kaizen.py against tools/kaizen.sh, test_limit.py against tools/limit.sh — 2026-08-26
 test/test_kaizen.py	kaizen: never lights	sed -i 's/^if \[ "\$n" -eq 0 \] && \[ -z "\$wanted" \]; then/if true; then/' tools/kaizen.sh

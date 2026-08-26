@@ -128,6 +128,30 @@ def test_the_pull_node_runs_confined_under_keep(tmp_path):
     assert "founding" not in blind.stdout
 
 
+def test_the_node_launcher_confines_by_default(tmp_path):
+    """`node/run.sh` — `board/keep.md`'s last open half: the node runs
+    confined *without the incantation*, and it is write-scoping's first
+    caller.  The grant is baked into the launcher — the node's code
+    readable, its state directory writable (`--write`), nothing else —
+    so `run.sh run` opens, runs, stops and writes its state under the
+    state dir.  The launcher's confinement is keep's, tested above; what
+    this holds is that running the node is now running it confined, and
+    that the state dir must be *writable* — a read-only grant there and
+    the node cannot open its own state."""
+    run = ROOT / "node" / "run.sh"
+    syspy = "/usr/bin/python3"
+    if not os.path.exists(syspy):
+        pytest.skip("no system python3 for keep to grant the node")
+    state = tmp_path / "st"
+    env = dict(os.environ, TEND_NODE_STATE_DIR=str(state))
+    r = subprocess.run(["sh", str(run), "run", "--idle", "0.4", "--poll", "0.05"],
+                       env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    import json
+    assert (state / "node.state").exists(), "the node's state did not land in its state dir"
+    assert json.loads((state / "node.state").read_text())["generations"] == 1
+
+
 def test_nothing_to_run_is_refused_out_loud():
     r = keep("--allow", "/tmp")
     assert r.returncode == 2 and "nothing to run" in r.stderr
