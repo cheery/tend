@@ -276,3 +276,60 @@ the node run under keep — the fence-hook wraps shell commands, not
 program launches; wiring keep into the launch path (so a program is
 confined by default, not by remembering the incantation) is the step
 after write-scoping.  Both are named; neither is silent.
+
+## 2026-08-26, 13:xx — network, the last unset bit: `--no-net`, and the node its first caller
+
+Henri: *"do keep's slices."*  Read back, the card had one slice left
+that was not held back by rule 1 — write-scoping and the node's launch
+path were both built earlier this day (the two sections above), and
+"any program confined by default" is explicitly the fence-hook's
+territory and not owed here.  What stayed named twice as open was
+**network, the other unset Landlock bit**.
+
+**Measured first**, raw from this seat, before any design: a ruleset
+handling `NET_BIND_TCP | NET_CONNECT_TCP` (ABI 4) with no port rule
+refuses `connect` to a loopback listener with EACCES, refuses `bind` on
+a named port *and on port 0*, and leaves a UNIX-socket bind untouched.
+So "handle both bits, grant nothing" is exactly "no TCP at all", which
+is the bound a program that needs no network should carry.
+
+**Built**: `tools/keep.py --no-net`.  Opt-in, on the write slice's
+shape: with it, the program can neither connect nor bind a TCP socket;
+without it, a program has whatever network the fence left it, and the
+default is stated in the docstring, not silent.  Asked for on a kernel
+below ABI 4, keep refuses rather than run the program with the network
+it was told to lose — Rule 9 by the same door as the missing-Landlock
+refusal.  The v4 ruleset struct (16 bytes) is used only when the flag
+asks, so an older kernel never sees a size it would reject.
+
+    keep --allow /tmp          -- python3 -c '<connect 127.0.0.1:port>'   → connected
+    keep --allow /tmp --no-net -- python3 -c '<connect 127.0.0.1:port>'   → Permission denied
+
+**The node is the first caller.**  `node/run.sh` now passes `--no-net`:
+the node is a tally of pulls through a file, uses no socket, and has no
+business reaching out.  Its grant reads, in full: its own code readable,
+its state directory writable, no network.  It opens, serves, stops as
+before — a well-behaved program shows nothing of its confinement, which
+`board/green.md` already named as the launcher's honest limit; so the
+boundary is gated at keep, and the launcher is gated for *asking*.
+
+**Held**: `test_keep.py::test_no_net_refuses_tcp_when_asked` (connect
+refused, bind refused, UNIX still binds; skips out loud if loopback is
+unreachable from the seat, and below ABI 4), `…without_no_net_the_network_is_not_touched`
+(the default), `…the_node_launcher_asks_for_no_net`.  **Broken before
+trusted**, on a scratch clone and never the tree: net bits zeroed →
+`connected`, red; the flag parsed but not handed to `confine()` →
+`connected`, red; the launcher's line dropped → red.  Three mutations,
+three catches.
+
+**What stays open on the card**, narrowed again: per-port grants
+(`LANDLOCK_RULE_NET_PORT`) are the turn after this, for the first
+program that needs a port — none does.  UDP and UNIX sockets are outside
+what Landlock can say, so outside what keep can promise; named so the
+word "no-net" is not read wider than it is.  The general launch path is
+still the fence-hook's, still not this card's.  With reads, writes and
+TCP all scoped and a real program carrying all three, the card's
+`because` — a program gets whatever the launching session could reach,
+having been handed nothing — no longer describes the node.  Whether it
+still describes *the session* is `work-environment-ai`'s question, and
+whether this card is done is Henri's.

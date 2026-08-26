@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-25 — "go with A" (board/keep.md; the reusable launcher, not the node confining itself)
 """tools/keep.py — run a program able to read only what it was handed.
 
-    tools/keep.py [--allow PATH]... [--write PATH]... -- program args...
+    tools/keep.py [--allow PATH]... [--write PATH]... [--no-net] -- program args...
 
 A launcher, and the grant is the launcher's, not the program's — the
 boundary is set from outside the thing bounded (board/keep.md, and the
@@ -21,8 +21,17 @@ program reads what it was given and gets EACCES on the file beside it.
   only what it was handed writable, and is refused everywhere else,
   including paths it can read.  With no --write, keep governs reads only
   and a program writes where the fence allows; that default is stated,
-  not silent.  Network is a handled bit Landlock also has and this does
-  not set yet — a later turn, named so the gap is not silent.
+  not silent.
+
+  network, opt-in: --no-net turns on the TCP boundary with nothing
+  granted through it — the program can neither connect nor bind a TCP
+  socket, on any port (measured 2026-08-26: EACCES on connect, on bind,
+  and on bind to port 0; UNIX sockets are not TCP and stay as they were).
+  Needs Landlock ABI 4; asked for on an older kernel, keep refuses rather
+  than run the program with a network it was told to take away.  With no
+  --no-net, a program has whatever network the fence left it; that
+  default is stated, not silent.  Per-port grants are the turn after
+  this one, for when a program needs a port — none does yet.
 
   never silent (Rule 9): if Landlock is not available, keep does NOT run
   the program unconfined — it refuses, loudly, because a grant that
@@ -76,6 +85,13 @@ WRITE_HANDLED = (FS_WRITE_FILE | FS_REMOVE_DIR | FS_REMOVE_FILE
                  | FS_MAKE_FIFO | FS_MAKE_BLOCK | FS_MAKE_SYM)
 LANDLOCK_CREATE_RULESET_VERSION = 1 << 0
 
+# The network accesses `--no-net` governs (ABI 4): both TCP bits, handled
+# with no port rule beneath them, which is "no TCP at all".  Landlock has
+# no UDP or UNIX-socket bits, so those are outside what keep can say.
+NET_BIND_TCP = 1 << 0
+NET_CONNECT_TCP = 1 << 1
+NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP
+
 # The roots any program needs just to run — the interpreter, the shared
 # libraries, the loader cache, /proc and /dev.  These are the machine,
 # not the person's data, so granting read on them is the honest baseline
@@ -92,6 +108,13 @@ libc.syscall.restype = ctypes.c_long
 class ruleset_attr(ctypes.Structure):
     # v1 attr: filesystem only, size 8 — accepted on every Landlock ABI.
     _fields_ = [("handled_access_fs", ctypes.c_uint64)]
+
+
+class ruleset_attr_v4(ctypes.Structure):
+    # v4 attr adds the network field, size 16 — used only when --no-net
+    # asks for it, so a kernel below ABI 4 never sees a size it rejects.
+    _fields_ = [("handled_access_fs", ctypes.c_uint64),
+                ("handled_access_net", ctypes.c_uint64)]
 
 
 class path_beneath_attr(ctypes.Structure):
@@ -112,14 +135,21 @@ def landlock_abi():
     return v if v > 0 else 0
 
 
-def confine(read_allow, write_allow):
+def confine(read_allow, write_allow, no_net=False):
     abiv = landlock_abi()
     write_bits = 0
     handled = HANDLED
     if write_allow:
         write_bits = WRITE_HANDLED | (FS_TRUNCATE if abiv >= 3 else 0)
         handled |= write_bits
-    attr = ruleset_attr(handled)
+    if no_net:
+        if abiv < 4:
+            _fail(f"--no-net needs Landlock ABI 4 and this kernel offers "
+                  f"{abiv} — refusing to run the program with the network it "
+                  f"was told to lose.")
+        attr = ruleset_attr_v4(handled, NET_HANDLED)
+    else:
+        attr = ruleset_attr(handled)
     fd = libc.syscall(NR_create_ruleset, ctypes.byref(attr),
                       ctypes.sizeof(attr), 0)
     if fd < 0:
@@ -164,7 +194,7 @@ def confine(read_allow, write_allow):
 
 
 def main(argv):
-    allow, write, i = [], [], 0
+    allow, write, no_net, i = [], [], False, 0
     while i < len(argv):
         a = argv[i]
         if a == "--allow":
@@ -175,6 +205,8 @@ def main(argv):
             if i + 1 >= len(argv):
                 _fail("--write needs a path", 2)
             write.append(argv[i + 1]); i += 2
+        elif a == "--no-net":
+            no_net = True; i += 1
         elif a == "--":
             i += 1; break
         elif a in ("-h", "--help"):
@@ -185,8 +217,8 @@ def main(argv):
             break
     prog = argv[i:]
     if not prog:
-        _fail("nothing to run — tools/keep.py [--allow PATH]... [--write PATH]... -- program args", 2)
-    confine(allow, write)
+        _fail("nothing to run — tools/keep.py [--allow PATH]... [--write PATH]... [--no-net] -- program args", 2)
+    confine(allow, write, no_net)
     try:
         os.execvp(prog[0], prog)
     except OSError as e:

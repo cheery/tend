@@ -15,8 +15,11 @@
 # The grant, and nothing wider: the node's **code** is readable
 # (`--allow node.py`) and its **state directory** is writable
 # (`--write`, the scoping built 2026-08-26 — this is its first caller),
-# and that is all.  So the node may change its own state and nothing
-# else: not its code, not the tree, not the ledger beside it.  The state
+# and no network (`--no-net`, built the same day at Henri's "do keep's
+# slices" — this is its first caller too: the node is a tally of pulls
+# through a file and has no business on a socket).  That is all.  So the
+# node may change its own state and nothing else: not its code, not the
+# tree, not the ledger beside it, and it cannot reach out.  The state
 # directory is kept separate from the code for exactly that reason —
 # were it the code's own directory, "writable state" would mean
 # "rewritable code".  Default: `node/state`; override TEND_NODE_STATE_DIR.
@@ -37,4 +40,5 @@ mkdir -p "$state"
 exec "$py" "$root/tools/keep.py" \
     --allow "$here/node.py" \
     --write "$state" \
+    --no-net \
     -- "$py" "$here/node.py" --state "$state/node.state" "$@"

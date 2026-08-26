@@ -197,3 +197,78 @@ def test_without_write_the_boundary_is_not_set(tmp_path):
              f"echo x > {tmp_path/'d'/'f'}")
     assert r.returncode == 0, r.stderr
     assert (tmp_path / "d" / "f").exists()
+
+
+def _loopback_listener():
+    """A TCP listener in the test process, bound before any confinement,
+    for a confined child to try to reach.  Returns (socket, port)."""
+    import socket
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    s.listen(1)
+    return s, s.getsockname()[1]
+
+
+_CONNECT = ("import socket, errno, sys\n"
+            "s = socket.socket()\n"
+            "try:\n"
+            "    s.connect(('127.0.0.1', int(sys.argv[1]))); print('connected')\n"
+            "except OSError as e:\n"
+            "    print('refused', errno.errorcode.get(e.errno, e.errno))\n")
+
+_BIND = ("import socket, errno\n"
+         "s = socket.socket()\n"
+         "try:\n"
+         "    s.bind(('127.0.0.1', 0)); print('bound')\n"
+         "except OSError as e:\n"
+         "    print('refused', errno.errorcode.get(e.errno, e.errno))\n")
+
+
+@pytest.mark.skipif(_landlock_abi() < 4,
+                    reason="Landlock below ABI 4 — no network bits to hold")
+def test_no_net_refuses_tcp_when_asked(tmp_path):
+    """Network-scoping — `board/keep.md`, the last unset Landlock bit,
+    built 2026-08-26.  `--no-net` handles both TCP bits with nothing
+    granted beneath them: a program can neither connect to a listener
+    that is right there on loopback nor bind a port of its own, and the
+    refusal is EACCES — keep's, not the network's.  A UNIX socket is not
+    TCP and still binds, so the boundary is exactly the one named."""
+    srv, port = _loopback_listener()
+    try:
+        plain = keep("--allow", str(tmp_path), "--", "/usr/bin/python3", "-c",
+                     _CONNECT, str(port))
+        if "connected" not in plain.stdout:
+            pytest.skip(f"loopback is unreachable from this seat: {plain.stdout!r} {plain.stderr!r}")
+        r = keep("--allow", str(tmp_path), "--no-net", "--", "/usr/bin/python3",
+                 "-c", _CONNECT, str(port))
+        assert r.stdout.strip() == "refused EACCES", (r.stdout, r.stderr)
+        b = keep("--allow", str(tmp_path), "--no-net", "--", "/usr/bin/python3",
+                 "-c", _BIND)
+        assert b.stdout.strip() == "refused EACCES", (b.stdout, b.stderr)
+        u = keep("--write", str(tmp_path), "--no-net", "--", "/usr/bin/python3",
+                 "-c", "import socket; s=socket.socket(socket.AF_UNIX); "
+                       f"s.bind({str(tmp_path/'u.sock')!r}); print('unix ok')")
+        assert "unix ok" in u.stdout, (u.stdout, u.stderr)
+    finally:
+        srv.close()
+
+
+@needs_landlock
+def test_without_no_net_the_network_is_not_touched(tmp_path):
+    """The opt-in, stated as a test: with no `--no-net`, a program has
+    whatever network the fence left it — here, at least loopback; a
+    bind to port 0 succeeds under a read grant alone."""
+    r = keep("--allow", str(tmp_path), "--", "/usr/bin/python3", "-c", _BIND)
+    assert r.stdout.strip() == "bound", (r.stdout, r.stderr)
+
+
+def test_the_node_launcher_asks_for_no_net():
+    """`node/run.sh` is `--no-net`'s first caller: the node is a tally
+    through a file and has no business on a socket.  The confinement is
+    keep's, tested above; what this holds is that the launcher asks for
+    it — the well-behaved node itself cannot show the boundary
+    (board/green.md: a launcher's confinement is invisible through a
+    program that never overreaches)."""
+    run = (ROOT / "node" / "run.sh").read_text()
+    exec_block = run[run.index("exec "):]
+    assert "--no-net" in exec_block
