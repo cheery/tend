@@ -42,14 +42,15 @@ and this is it:
 git clone https://github.com/cheery/tend.git && cd tend
 tools/toolbox.sh                # says what this machine is missing, installs what it can
 
-node/run.sh run --idle 3        # in one shell: the node runs while it is pulled
-node/run.sh pull                # in another, a few times
-                                # stop pulling; watch `run` exit on its own
+node/run.sh pull                # nothing is running, so this starts the node —
+                                # confined — and pulls it; pull a few more times
+                                # stop pulling; it exits on its own (30 s idle)
 node/run.sh status              # what it did — also readable as node/state/node.state
 ```
 
 The node is the first program of tend's own (`board/done/pull.md`): a
-tally, whose whole memory is one JSON file.  `node/run.sh` runs it
+tally, whose whole memory is one JSON file.  Nobody starts it by hand —
+the pull is the launch (`board/resolver.md`).  `node/run.sh` runs it
 confined by `tools/keep.py` — it may read its own code and write its
 own state directory, and nothing else — which needs Landlock (Linux
 5.13+, no root, no build).  Where that is absent, keep refuses out loud

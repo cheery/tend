@@ -197,6 +197,11 @@ test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NE
 test/test_keep.py	keep: --no-net parsed but never handed to confine()	sed -i 's/confine(allow, write, no_net)/confine(allow, write)/' tools/keep.py
 test/test_keep.py	keep: --no-net on an old ABI runs the program anyway	sed -i 's/^        if abiv < 4:/        if False:/; s/^        attr = ruleset_attr_v4(handled, NET_HANDLED)/        attr = ruleset_attr(handled)/' tools/keep.py
 test/test_keep.py	keep: node launcher drops --no-net	sed -i '/^    --no-net \\$/d' node/run.sh
+# node/run.sh against test_keep.py — card:resolver.md day one, the pull is the launch, 2026-08-26
+test/test_keep.py	resolver: pull never starts a runner	sed -i '/^        setsid -f sh "\$0" run/d' node/run.sh
+test/test_keep.py	resolver: pull starts a runner even when one holds the lock	sed -i 's/^    if flock -n "\$lock" true 2>\/dev\/null; then/    if true; then/' node/run.sh
+test/test_keep.py	resolver: run never takes the lock	sed -i 's/^    flock -n 9 || {.*/    :/' node/run.sh
+test/test_keep.py	resolver: pull does not wait for the runner to open	sed -i 's/^        while \[ "\$(generation)" -le "\$before" \] && \[ "\$n" -lt 60 \]; do/        while false; do/' node/run.sh
 ROWS
 }
 

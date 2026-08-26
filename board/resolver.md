@@ -103,3 +103,60 @@ local system."  Not this card's problem, and named here because it
 changes who the *puller* might be: a session that is a local model is a
 program tend runs, under a grant, pulled — the same shape this card
 describes, one level up.  If it turns into work it is its own card.
+
+## Day one, 2026-08-26, 13:29 — measured, then the smallest thing
+
+Henri: *"do resolver's day one."*
+
+**Read first.**  `vision.md`'s stranger test says "start a program in
+it" — and the sentence is satisfied by a pull if the pull starts it;
+nothing in it says a hand.  `work-environment-ai` decided the broker is
+*suspected* and the leash grants nothing; it did not decide the launch,
+so there was nothing here to re-decide.  The leash bounds *one
+invocation* (900 s wall, a scope); the sitting limit counts prompts —
+neither has a word for a process that is not a session and not the
+command a session ran, which is what a resolver would be.
+
+**Measured, from inside the fence**: a process started detached inside
+a fenced command **dies with the command** — `sandbox.sh` runs
+`--unshare-pid --die-with-parent`, and a `setsid -f` sleeper's marker
+never appeared.  So the day-one question has a plain answer from this
+seat: no daemon can outlive a fenced command at all.  A resolver started
+by a session's pull lives inside that pull's command, bounded by the
+leash's wall and killed by the fence's namespace; from a person's shell
+the same thing survives and stops on idle.  Neither seat needs a daemon
+that outlives a sitting, and the leash's "one invocation" already
+bounds the session's case.  What `pull` itself could do first turned out
+to be the whole of it.
+
+**Built, the smallest thing** — in `node/run.sh`, where the grant is;
+`node.py` untouched:
+
+* `run.sh pull` — takes the lock non-blocking to learn whether a runner
+  is up; if not, starts one detached under the same three-flag grant,
+  waits for its generation to move (the node reads the ledger *at open*,
+  so a pull written before that would be seen and not served), says
+  what it did — and says, when `TEND_FENCED` is set, that the runner
+  lives only as long as this command — then pulls.
+* `run.sh run` — takes `<state>/run.lock` on an fd before the
+  confinement; the runner inherits it through keep's exec and holds it
+  for life.  A second `run` is refused, exit 75, "pull it instead."
+
+From inside the fence, live: one pull started a runner and was served
+by it; a second was served by the same generation (2 pulls, 1
+generation); `run` while held exited 75; the runner stopped at idle and
+the lock was free.  Three tests in `test_keep.py` hold it, four rows in
+`tools/mutate.sh` break it (pull never starts, pull starts regardless of
+the lock, run never takes the lock, pull does not wait for the open),
+each red by name.  The root README's "Try it" now leads with `pull`.
+
+**What this is and is not.**  The card's owed demonstration — the node,
+pulled, starts confined — is done.  What it is not: a grant beside the
+program that a resolver reads (the grant is still three flags in the
+launcher), a resolver outside the session's write access (`node/run.sh`
+is in the tree, not the protected set), or a general path.  Those are
+the shape §"What the shape would be" named, and each waits for the
+thing that would earn it: a second pulled program, and a decision on
+whether the launcher joins the protected set, which is Henri's.  The
+session half of `keep` is unmoved by this: a session can still start a
+program some other way.  That is the card's remaining `because`.

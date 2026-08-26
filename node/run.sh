@@ -5,6 +5,33 @@
 #
 #     node/run.sh [run|pull|status] [args...]
 #
+#     node/run.sh pull          a pull; if nothing is running, this starts the
+#                               node — confined, under the grant below — and
+#                               then pulls it.  Nobody starts a program by hand.
+#     node/run.sh run [--idle S] the runner itself; refused (exit 75) while
+#                               another holds `<state>/run.lock`
+#
+# **The pull is the launch** (board/resolver.md, day one, 2026-08-26 —
+# Henri: the person "always pulls, never need to start the program
+# themselves").  So the one place a program is ever started is the one
+# place its grant is applied: here.  `pull` takes the lock without
+# blocking to learn whether a runner is up; if not, it starts one
+# detached (`setsid -f`, output to `<state>/run.log`), waits for that
+# runner to open — the node reads the ledger at open, so a pull written
+# before that would be seen and not served — then pulls.  Two pulls at
+# once may both try to start; the second `run` finds the lock held and
+# leaves, exit 75, which is not an error.  `node.py` is untouched — it
+# still knows nothing but its ledger and its state.
+#
+# **Measured, 2026-08-26, from inside the fence**: a process started
+# detached inside a fenced command dies with that command (`sandbox.sh`
+# runs `--unshare-pid --die-with-parent`).  So from a session's seat the
+# runner this starts lives only as long as the pull's own command, and
+# `pull` says so when `TEND_FENCED` is set; from a person's shell it
+# survives the shell and stops on its own when pulls stop
+# (`TEND_NODE_IDLE`, default 30 s).  Neither seat needs a daemon, and
+# nothing here outlives a sitting.
+#
 # `board/keep.md`'s last open half: keep exists, but nothing *made* the
 # node run under it, so confinement was a line a session had to remember
 # to type — and a boundary you have to remember is one you forget.  This
@@ -37,8 +64,51 @@ py=/usr/bin/python3
     echo "node/run.sh: no python3 to run the node." >&2; exit 127; }
 
 mkdir -p "$state"
-exec "$py" "$root/tools/keep.py" \
+lock="$state/run.lock"
+idle="${TEND_NODE_IDLE:-30}"
+
+# the grant, and nothing wider; every verb runs through it
+confined() {
+    exec "$py" "$root/tools/keep.py" \
     --allow "$here/node.py" \
     --write "$state" \
     --no-net \
     -- "$py" "$here/node.py" --state "$state/node.state" "$@"
+}
+
+generation() {
+    grep -o '"generations": *[0-9]*' "$state/node.state" 2>/dev/null | grep -o '[0-9]*$' || echo 0
+}
+
+case "${1:-}" in
+run)
+    shift
+    # the lock is taken on an fd here, before the confinement, and the
+    # runner inherits it through keep's exec — held for its whole life.
+    exec 9>>"$lock"
+    flock -n 9 || { echo "node: a runner already holds $lock — pull it instead." >&2; exit 75; }
+    confined run "$@"
+    ;;
+pull)
+    if flock -n "$lock" true 2>/dev/null; then
+        before=$(generation)
+        setsid -f sh "$0" run --idle "$idle" >> "$state/run.log" 2>&1 </dev/null
+        # wait for the runner to open (its generation to move), capped
+        n=0
+        while [ "$(generation)" -le "$before" ] && [ "$n" -lt 60 ]; do
+            sleep 0.05; n=$((n + 1))
+        done
+        if [ "$(generation)" -le "$before" ]; then
+            echo "node: started a runner but it has not opened after 3s — see $state/run.log" >&2
+        elif [ -n "${TEND_FENCED:-}" ]; then
+            echo "node: started a runner (idle ${idle}s) — inside the fence it lives only as long as this command" >&2
+        else
+            echo "node: started a runner (idle ${idle}s); it stops by itself when pulls stop" >&2
+        fi
+    fi
+    confined pull
+    ;;
+*)
+    confined "$@"
+    ;;
+esac

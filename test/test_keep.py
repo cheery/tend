@@ -272,3 +272,74 @@ def test_the_node_launcher_asks_for_no_net():
     run = (ROOT / "node" / "run.sh").read_text()
     exec_block = run[run.index("exec "):]
     assert "--no-net" in exec_block
+
+
+def _state(tmp_path):
+    import json
+    return json.loads((tmp_path / "st" / "node.state").read_text())
+
+
+def _launcher(tmp_path, *verb, idle="0.5"):
+    env = dict(os.environ, TEND_NODE_STATE_DIR=str(tmp_path / "st"), TEND_NODE_IDLE=idle)
+    return subprocess.run(["sh", str(ROOT / "node" / "run.sh"), *verb],
+                          env=env, capture_output=True, text=True, timeout=20)
+
+
+def _wait(pred, cap=4.0):
+    import time
+    t = time.monotonic()
+    while time.monotonic() - t < cap:
+        if pred():
+            return True
+        time.sleep(0.05)
+    return pred()
+
+
+@needs_landlock
+def test_a_pull_with_no_runner_starts_one_confined(tmp_path):
+    """`board/resolver.md`, day one: the pull is the launch.  Nothing is
+    running; `run.sh pull` starts the node under its grant, waits for it
+    to open, and the pull is served by it — the person never typed
+    `run`.  The runner then stops by itself when pulls stop and lets go
+    of the lock.  (`node.py pull` alone still serves nothing —
+    `test_node.py`; the starting lives in the launcher, where the grant
+    is.)"""
+    if not os.path.exists("/usr/bin/python3"):
+        pytest.skip("no system python3 for keep to grant the node")
+    r = _launcher(tmp_path, "pull")
+    assert r.returncode == 0, r.stderr
+    assert "started a runner" in r.stderr, r.stderr
+    assert _wait(lambda: _state(tmp_path)["pulls"] == 1), _state(tmp_path)
+    assert _state(tmp_path)["generations"] == 1
+    lock = tmp_path / "st" / "run.lock"
+    assert _wait(lambda: subprocess.run(["flock", "-n", str(lock), "true"]).returncode == 0, cap=6), \
+        "the runner did not stop and free the lock after idle"
+    assert _state(tmp_path)["last_stop"] is not None
+
+
+@needs_landlock
+def test_a_second_pull_finds_the_runner_and_starts_no_other(tmp_path):
+    """Two pulls, one runner: the second finds the lock held and only
+    pulls.  One generation serves both."""
+    if not os.path.exists("/usr/bin/python3"):
+        pytest.skip("no system python3 for keep to grant the node")
+    a = _launcher(tmp_path, "pull", idle="1.5")
+    b = _launcher(tmp_path, "pull", idle="1.5")
+    assert a.returncode == 0 and b.returncode == 0, (a.stderr, b.stderr)
+    assert "started a runner" in a.stderr and "started a runner" not in b.stderr
+    assert _wait(lambda: _state(tmp_path)["pulls"] == 2), _state(tmp_path)
+    assert _state(tmp_path)["generations"] == 1
+
+
+@needs_landlock
+def test_run_is_refused_while_a_runner_holds_the_lock(tmp_path):
+    """A hand-started `run` is not an error and not a second runner: the
+    lock says one is up, and `run` leaves with 75 and a word."""
+    if not os.path.exists("/usr/bin/python3"):
+        pytest.skip("no system python3 for keep to grant the node")
+    first = _launcher(tmp_path, "pull", idle="1.5")
+    assert first.returncode == 0, first.stderr
+    second = _launcher(tmp_path, "run")
+    assert second.returncode == 75, (second.returncode, second.stderr)
+    assert "already holds" in second.stderr
+    assert _wait(lambda: _state(tmp_path)["generations"] == 1)
