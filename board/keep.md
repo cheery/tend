@@ -333,3 +333,7 @@ TCP all scoped and a real program carrying all three, the card's
 having been handed nothing — no longer describes the node.  Whether it
 still describes *the session* is `work-environment-ai`'s question, and
 whether this card is done is Henri's.
+
+*Henri, 2026-08-26 13:17: "it stays open for the session half."  So the
+card's `because` is closed for the node and open for the session, and
+that is the half it now names.*
