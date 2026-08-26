@@ -250,3 +250,27 @@ def test_the_trees_row_is_the_other_trees_documents_and_tools():
     trees = [l for l in rows.splitlines() if l.split()[1:2] == ["trees"]][0]
     assert "board" in trees and "tools" in trees and ".git" in trees, trees
     assert "/gestate  read-only" not in trees, "the whole tree is still the row"
+
+
+def test_the_tree_row_names_the_two_it_holds_back():
+    """`board/keep.md`, the last bind, 2026-08-26: node/state (the node's)
+    and .venv (a runtime) are read-only inside; the pull file alone passes
+    through.  The row says so.  No bwrap: `--rows` is a listing."""
+    rows = sandbox("--rows").stdout
+    tree = [l for l in rows.splitlines() if l.split()[1:2] == ["tree"]][0]
+    assert "node/state" in tree and ".venv" in tree, tree
+
+
+@needs_bwrap
+def test_the_node_state_is_read_only_inside_and_the_pull_file_is_not():
+    """A session may append a pull and nothing else under node/state; it
+    cannot take the runner's lock, so it cannot run the node raw."""
+    r = sandbox("sh", "-c", f"touch {ROOT}/node/state/.probe")
+    assert r.returncode != 0, "node/state is writable inside"
+    r = sandbox("sh", "-c", f": >> {ROOT}/node/state/node.state.pull")
+    assert r.returncode == 0, r.stderr
+    r = sandbox("sh", "-c", f"exec 9>>{ROOT}/node/state/run.lock")
+    assert r.returncode != 0, "the runner's lock is writable inside"
+    if (ROOT / ".venv").is_dir():
+        r = sandbox("sh", "-c", f"touch {ROOT}/.venv/.probe")
+        assert r.returncode != 0, ".venv is writable inside"

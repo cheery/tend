@@ -126,7 +126,7 @@ while [ $# -gt 0 ]; do
         --check) mode=check; shift ;;
         --rows)
             cat <<ROWS
-  on   tree      $root  read-write — the world, except .claude/ and the protected set (--protected)
+  on   tree      $root  read-write — the world, except .claude/, the protected set (--protected), node/state (the node's; the pull file is the session's one write there) and .venv (a runtime, read)
   on   state     ~/.local/state/tend, ~/.local/state/gestate, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want; and not the rest of ~/.local/state (card:keep.md, the session half)
   on   trees     $trees/{board,tools,spec,doc,journal, the root documents, .claude/settings.json}  read-only — the audit, anything cross-tree; not its source, tests, builds or .git (card:keep.md)
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
@@ -168,6 +168,17 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
 # The protected set, bound read-only over the tree after it: a file bind
 # refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
 for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
+# The last bind of card:keep.md's session half (2026-08-26, the tree-row
+# measurement): in 310 fenced commands the session never wrote node/state
+# by name — the node writes it, from the person's side since the resolver
+# — and the session's one write there is the pull line.  So the state
+# directory is read-only inside and the pull file alone passes through;
+# a session can pull and read, and cannot run the node raw (its lock and
+# its state are not writable to it).  And .venv, a runtime the session
+# reads and never writes (measured the same day), is read-only too.
+mkdir -p "$root/node/state"; [ -e "$root/node/state/node.state.pull" ] || : > "$root/node/state/node.state.pull"
+opts="$opts --ro-bind $root/node/state $root/node/state --bind $root/node/state/node.state.pull $root/node/state/node.state.pull"
+[ -d "$root/.venv" ] && opts="$opts --ro-bind $root/.venv $root/.venv"
 for t in $trees; do for p in $tree_parts; do [ -e "$t/$p" ] && opts="$opts --ro-bind $t/$p $t/$p"; done; done
 [ -d "/tmp/claude-$uid" ] && opts="$opts --bind /tmp/claude-$uid /tmp/claude-$uid"
 
@@ -254,6 +265,9 @@ for p in $protected; do
 done
 # 4. What must be.
 probe "this tree is writable"           ok      sh -c "test -w $root"
+probe "node/state is read-only"         blocked sh -c "touch $root/node/state/.probe"
+probe "the pull file passes through"    ok      sh -c ": >> $root/node/state/node.state.pull"
+[ -d "$root/.venv" ] && probe ".venv is read-only"   blocked sh -c "touch $root/.venv/.probe"
 probe "git knows who you are"           ok      sh -c 'git config user.email >/dev/null'
 # 5. The escape, graded from outside.
 fence sh -c 'touch "$HOME/.sandbox-escape"' >/dev/null 2>&1 || true
