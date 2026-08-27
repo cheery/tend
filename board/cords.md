@@ -84,3 +84,53 @@ row measured properly — a socket-only ring, so that `audio` stops
 meaning the whole card, microphone included
 (`doc/experiments/2026-08-25-both.md`); and the count above, closed
 on the day.  The fence is a cage with no bell until this lands.
+
+## 2026-08-27 — taken into a batch: the cord built, rung, measured socket-only; the count closed at zero
+
+Henri: *"cords could be taken now into this batch"* — four days into
+the week, the count above still "(none yet)".  The card's own "what
+would make this wrong" says a cord nobody pulls; the reason not to wait
+is `session-program`'s: a node has no person watching its transcript
+and needs the cord more than a hosted session does.  So the count
+closes at **zero guessed questions in four days of hosted sessions**,
+written here so the week's evidence is not lost under the build, and
+the andon is built for the node's sake as much as the session's.
+
+**Built: `tools/andon.sh`**, 8 tests — the three parts the 08-25
+section named.
+
+1. **The cord.**  `ask` writes the question first; `ring` prints the
+   batch and rings — at most three, eight seconds apart, gestate's
+   numbers kept with their reason; a second ring within ten minutes is
+   refused and says when; a ring with nothing asked is refused as noise.
+   `pulled` is the record a program reads: a question asked and rung
+   and not yet answered.  `answered` is the person's word, refused
+   inside the fence.  Gestate's synth did not travel (tend has none): a
+   two-note wave from python's `wave`, through the PipeWire socket.
+2. **The row, measured.**  Rung from inside the fence with `REACH=audio`,
+   the player under `strace -f -e openat,connect`: one connect, to
+   `$XDG_RUNTIME_DIR/pipewire-0`; **nothing opened under `/dev/snd`**.
+   So `audio` can be the socket alone, and the narrowing is the third
+   commit on the branch `install-day1` (`tools/sandbox.sh` is
+   protected) — proposed, not declared: the sandbox tests skip inside
+   the fence, and the next ring after the merge is the measurement.
+3. **The count** — closed above.
+
+**The first question went through it.**  *"install prefix:
+/usr/local/lib/tend (root-owned) — the session recommends it; say if
+you want the user-owned one instead"* — asked, rung once at 15:52, and
+pending in `~/.local/state/tend/andon.pending` until Henri's
+`tools/andon.sh answered`.  The session went on with its recommendation
+rather than stop: the cord is for reaching him, not for waiting on him.
+
+**`sitting N because andon`** now verifies against `andon.sh pulled`
+(the branch's first commit, `test_limit.py` +2, green with the record
+real and red with it faked), which closes the blocker
+`sitting-everywhere`'s day one left on the word.  The honest hole is in
+the script's header: a session can ask and ring to earn the reason —
+but the ring is loud, and that is the check, and it is not a program's.
+
+**Recommendation: done, on Henri's review after the merge** — the
+shape `fence` and `green` closed in.  What the card leaves to others:
+the andon on a *node* is `session-program`'s, and waits with the rest
+of that card on the first node that leads work.

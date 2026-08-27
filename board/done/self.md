@@ -213,3 +213,20 @@ card's precedent, kept.
 **What this leaves open on the card: nothing.**  The `.git/hooks` line
 was counted on `done/gates.md`; the two keys are in.  When both steps
 land and the test is green, `self` is done.
+
+## 2026-08-27 — a gap in the set, found from the install card
+
+While listing what `tools/install.sh` must carry, the line above —
+*a path is in the set if a session editing it changes what the session
+is allowed to do, before anyone looks* — was applied to what the
+protected scripts *exec*, and it caught two files this card had
+reasoned out: `tools/leash.sh` ("shapes cost, does not enforce" — true,
+and it is also the program the fence-hook runs the fence *through*, on
+the host, with the sandbox as its argument) and `tools/keep.py` (the
+launcher confines every node through it, from the person's side).
+Both `test -w` WRITABLE inside the fence, the card's own measurement.
+`tools/andon.sh` joins them the same day, as the record `limit.sh`
+grants on.  The widening is the second commit of the branch
+`install-day1` (card:install.md); the install itself closes the gap by
+construction once the hooks run the prefix.  The card stays done: the
+set was the right answer, and this is the set applied one exec deeper.

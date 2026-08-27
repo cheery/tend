@@ -1,6 +1,9 @@
 # session-program — a node tend runs is a program, not a session, until it carries the cords
 
-    status   open
+    status   blocked
+    blocked  the first node that leads work — the limit is built; the
+             lamp, the andon on a node, and the second sitting word all
+             wait on that one event (§2026-08-27, "not yet")
     because  the grant half of "a session is a program" is built: any
              node runs under one boundary — budget, grant, lifecycle —
              and adding one is adding a directory (card:keep.md,
@@ -182,3 +185,20 @@ transcript"), but it leans on `card:cords.md`, which waits until
 2026-08-31.  So the card's actionable next cord is the andon on its own
 date, and the lamp is deferred with this measurement rather than
 carded — it reopens when a node first leads work.  The card stays open.
+
+## 2026-08-27 — Henri: "not yet" on the second word; the card waits on one event
+
+Question (4) of the limit section — whether a node that leads work also
+stops when Henri's desk sitting closes — answered *"not yet."*  Closed
+on the card the way the lamp was: it reopens with the first node that
+leads work, and it would be a second grant word beside `sitting`, not
+a change to it.
+
+The andon exists on the hosted side as of today (`tools/andon.sh`,
+card:cords.md) and its shape is a node's already — a record in a
+state directory, a program reading it — but today's llm node answers
+a curl and has no question, so the port is to the same subject the
+lamp waits for.  Every open item on this card now waits on that one
+event, so the status says so: **blocked — the first node that leads
+work.**  The move back to open is a session's the day such a node is
+started, and the placing stays Henri's.

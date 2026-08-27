@@ -100,3 +100,94 @@ protected file, paid twice already on 2026-08-27.  That reasoning is the
 session's; ranking a fresh, unbuilt card above the build cards is a
 stretch a session should not make quietly, so the placing is marked and
 the tiebreak is Henri's, and this is his to move.
+
+## 2026-08-27 — researched and built: `/usr/local/lib/tend`, root-owned, installed from HEAD
+
+Henri: *"research which approach to install location would make most
+sense, then do that."*
+
+**Three locations weighed, one measurement each.**
+
+* **A prefix under `$HOME`** (`~/.local/lib/tend`) — the XDG answer, no
+  sudo.  Measured against the other tree: gestate's deny-list has no
+  rule for `~/tend/**` or `~/.local/**`, and its fence wraps only
+  `pytest` and `cargo` — so every user-owned file on this machine is
+  inside a gestate session's Bash reach, and "outside the session's
+  write access" would rest on the harness classifier alone, the layer
+  `tools/fence.sh`'s header already declines to lean on.  (The same
+  measurement says `tools/limit.sh`'s header — *"this one, a gestate
+  session cannot reach"* — has been aspirational since it was written.)
+  Inside tend's fence a `$HOME` prefix would be *invisible* (`$HOME` is
+  a tmpfs) rather than read-only, so `--check` could not compare it from
+  a session's seat.  Kept as the fallback for a machine without sudo
+  (`TEND_PREFIX=`), and `--check` says it is the weaker one.
+* **`chattr +i` on the tree's own files** — root-only to set, and it
+  protects the files *in the tree*.  Rejected on the ask itself
+  ("rather than the files in this tree"): it keeps the workbench and the
+  enforcement in one directory, which is this card's `because`.
+* **`/usr/local/lib/tend`, root-owned — chosen.**  Refused by the kernel
+  to every uid-1000 process, fenced or not, from either tree; `/usr` is
+  already ro-bound inside the fence, so the copy in force is visible
+  there and unwritable by construction rather than by a bind this tree
+  configures; and installing needs `sudo`, which the deny-list already
+  refuses a session — the person's hand by a rule that exists, not a
+  new one.  FHS puts locally-installed software there.
+
+**Built: `tools/install.sh`**, 9 tests.  Unprotected on purpose — a
+session can write it because a session cannot run it to effect: refused
+inside the fence, sudo denied, `$HOME` a tmpfs.  It installs **HEAD,
+never the working tree**: a change reaches the machine through a commit
+and a commit through the gate, and an uncommitted edit to a restraint is
+named and left behind.  `installed` beside the copies records the
+commit, date, source tree and a sha256 per file (spec/os.md, properties
+5 and 6).  `--check` reads it back against HEAD — absence, drift, a
+copy writable by the user, and which copy each hook line runs — and is
+red on any.  `--hooks` prints the settings lines as they would read;
+`--hooks apply` is the person's edit, backed up, idempotent, keeping
+the reach bound.  The clone-and-outside-hand tax the card names becomes
+`git commit` and one sudo prompt.
+
+**Found on the way: the installed set is larger than the protected
+set.**  `tools/leash.sh` and `tools/keep.py` are `WRITABLE` inside the
+fence (measured, `test -w`), and both run on the person's side: the
+fence-hook rewrites every command to `leash.sh -- sandbox.sh …` and the
+harness runs *that* on the host, so leash.sh is the program that execs
+the fence, unfenced; the launcher confines every node through keep.py.
+`test_sandbox.py` asserted leash.sh *out* of the set "because it shapes
+cost" — true, and beside the point.  `done/self.md`'s own line puts
+both in, and `tools/andon.sh` with them (its record is what `limit.sh`
+grants a sitting on).  The install closes the gap by construction once
+the hooks run the prefix; until then the branch's second commit widens
+the tree's set, belt while the braces are fitted.
+
+**What a session could not do, and where it is.**  Every protected
+script derived its root from its own location and reached its siblings
+through it — so an installed `kaizen.sh` would have read the prefix's
+git log, and an installed fence-hook run the tree's sandbox.  The
+change — `here` for a sibling, `TEND_TREE` for the tree, the fence-hook
+passing it on and the sandbox unsetting it inside — touches nine
+protected files, so it is the branch **`install-day1`** (three commits:
+the split and the andon word; the set widened; the `audio` row
+narrowed), fetched into this tree's refs from the clone, suite green
+there.  Henri's lines, in order, from outside the fence:
+
+    git merge install-day1
+    sudo tools/install.sh
+    tools/install.sh --hooks apply
+    tools/install.sh --check
+    tools/sandbox.sh --check
+
+and a new prompt after — hooks are read at the next prompt.  If a hook
+misbehaves, `cp .claude/settings.json.before-install .claude/settings.json`
+is the way back.  The root-owned `--check` going green is the one
+measurement this card's "what would make it wrong" asks for and a
+session cannot take.
+
+**Day two, not built.**  The "local testing" flip: once `--check` says
+the installed set is in force, the tree's ro-binds and `Edit(./tools/…)`
+rules can come off and the tree is the free workbench Henri asked for —
+his call, after the measurement, not before it.  `hook-installer.sh`
+and `resolve.sh --install` still insert tree lines and must learn the
+prefix.  And the lander: `install.sh` *is* a lander for restraints, so
+the unfenced lander the 0710 kaizen called card-shaped is half this
+card; the other half, fast-forwarding `main` after the gates, is not.

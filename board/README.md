@@ -49,7 +49,11 @@ between two workable cards is Henri's.
    `work-environment-ai` whose principle it advances and above the build
    cards because the effort it names taxes every card that touches a
    protected file — a stretch for a fresh card, so marked and his to
-   move.*
+   move.*  Researched and built 2026-08-27: `/usr/local/lib/tend`,
+   root-owned, `tools/install.sh` installs HEAD and reads it back; the
+   protected scripts' change rides the branch `install-day1`, and the
+   sudo install, the hook repoint and the `--check` are his lines
+   (the card has them).
 3. **[session-program](session-program.md)** — a node tend runs is a
    program, not a session, until it carries the cords: a limit, a lamp,
    a way to reach the person.  The grant half of "a session is a
@@ -57,7 +61,9 @@ between two workable cards is Henri's.
    did not build.  *Placed here by a session on 2026-08-26, at Henri's
    "open the cords card for the session's program", below the build
    cards and above the count-only ones; the tiebreak is his and this is
-   his to move.*
+   his to move.*  Blocked 2026-08-27 on one event, the first node that
+   leads work — the limit is built, the lamp and the andon wait on it,
+   and Henri's "not yet" closed the second-word question the same way.
 4. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
@@ -65,7 +71,10 @@ between two workable cards is Henri's.
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
 5. **[cords](cords.md)** — a session here cannot reach a person, and
-   nothing ends a sitting.
+   nothing ends a sitting.  Taken into a batch 2026-08-27 before its
+   week was out, at Henri's word: `tools/andon.sh` built and rung, the
+   ring measured socket-only, the count closed at zero; recommendation
+   is done on his review after the branch merges.
 6. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
    holds only for sessions started in two directories, and the grant it
    offers has no shape: on 2026-08-26 the desk was retaken within
