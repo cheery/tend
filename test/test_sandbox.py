@@ -112,7 +112,8 @@ def test_the_protected_set_is_the_scripts_the_hooks_run():
     """`board/self.md`'s line: a path is in the set if a session editing it
     changes what the session is allowed to do before anyone looks.  That
     is every script a hook runs — read fresh, unfenced, as the person —
-    and not `leash.sh`, which shapes cost.  The set is read from this
+    and what those exec on the person's side, `leash.sh` first: it shapes
+    cost *and* it is the program the hook runs the fence through.  The set is read from this
     clone's settings, so a hook added without its script being protected
     is caught here."""
     out = sandbox("--protected")
@@ -127,7 +128,10 @@ def test_the_protected_set_is_the_scripts_the_hooks_run():
                 assert m, h["command"]
                 hooked.add("tools/" + m.group(1))
     assert hooked <= protected, f"a hook runs a script outside the protected set: {hooked - protected}"
-    assert "tools/leash.sh" not in protected, "leash.sh shapes cost; it is not in the set"
+    for p in ("tools/leash.sh", "tools/keep.py", "tools/andon.sh"):
+        assert p in protected, (f"{p} runs on the person's side (the hook execs leash.sh unfenced with the "
+                                "sandbox as its argument; the launcher confines a node with keep.py; limit.sh "
+                                "grants on andon.sh's record) — card:install.md, 2026-08-27")
     for p in protected:
         assert (ROOT / p).is_file(), p
 

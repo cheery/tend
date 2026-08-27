@@ -103,8 +103,17 @@ tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.
 # side (card:resolver.md, 2026-08-26): the scripts the hooks run.  Not
 # `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
 # checks the deny-list carries the matching `Edit(./…)` rule for each,
-# and `test_sandbox.py` holds the two lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh"
+# and `test_sandbox.py` holds the two lists to one.  And, from 2026-08-27
+# (card:install.md, found while listing what an install must carry):
+# `tools/leash.sh` — it "shapes cost, it does not enforce" was true and
+# beside the point, because the fence-hook rewrites every command to
+# `leash.sh -- sandbox.sh …` and the harness runs that on the host, so
+# leash.sh is the program that execs the fence, unfenced, and a session
+# editing it could drop the fence from the exec; `tools/keep.py` — the
+# launcher confines every node through it, from the person's side; and
+# `tools/andon.sh` — its `pulled` is the record `limit.sh` grants a
+# sitting on.  Each was writable inside the fence when found.
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh tools/leash.sh tools/keep.py tools/andon.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a

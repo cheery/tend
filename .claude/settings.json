@@ -65,7 +65,10 @@
       "Edit(./tools/hook-installer.sh)",
       "Edit(./node/run.sh)",
       "Edit(./tools/resolve.sh)",
-      "Edit(./tools/launch.sh)"
+      "Edit(./tools/launch.sh)",
+      "Edit(./tools/leash.sh)",
+      "Edit(./tools/keep.py)",
+      "Edit(./tools/andon.sh)"
     ]
   },
   "hooks": {
