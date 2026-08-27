@@ -1,6 +1,6 @@
 # green — a gate that has only ever passed is a claim, and nothing checks that a detector detects
 
-    status   open
+    status   done — 2026-08-27
     because  a test can name a defect, stay green from the day it was
              written, and pass with that defect put back — gestate's F88
              did exactly that, found on 2026-08-25 by mutation in a

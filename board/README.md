@@ -55,22 +55,9 @@ between two workable cards is Henri's.
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-4. **[fence](fence.md)** — the deny-list is the only restraint here and
-   nothing reads it back, so the line this tree was founded on holds
-   against gestate's sessions and not against tend's own.  *Placed here
-   by a gestate session on 2026-08-25, at Henri's ask and above a
-   blocked card, because this one can be worked today and `cords` waits
-   on 2026-08-31; the tiebreak is his and this is his to move.*
-5. **[cords](cords.md)** — a session here cannot reach a person, and
+4. **[cords](cords.md)** — a session here cannot reach a person, and
    nothing ends a sitting.
-6. **[green](green.md)** — a gate that has only ever passed is a
-   claim: gestate's F88 named a defect, stayed green from the day it was
-   written, and passed with the defect put back; nothing in either tree
-   checks that a detector detects.  *Placed here by a gestate session on
-   2026-08-26, at Henri's "F88's finding earns a card in tend" — last,
-   because its day one is a measurement and not a build; the tiebreak
-   is his.*
-7. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
+5. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
    holds only for sessions started in two directories, and the grant it
    offers has no shape: on 2026-08-26 the desk was retaken within
    minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
@@ -91,6 +78,17 @@ finished on 2026-08-26, in both trees, through Henri's hand twice
 `gates` finished 2026-08-24, the day it was opened — the hook is
 installed, and it has refused a commit once (`done/gates.md` has the
 demonstration).
+
+`fence` and `green` finished 2026-08-27, closed in a batch on a
+session's verdict and Henri's review — both were built and demonstrated
+and had no build left, only a decision (`done/fence.md`, `done/green.md`).
+`fence` is up (integrity + blast-radius, both counted); its one open
+item, the `display` row, is a widening awaiting a caller, not a debt.
+`green` answered its `because` — tend's detectors are sound at the rule
+level, and the blindness the sweep found lived only in the wiring
+between a detector and what runs it, never in a rule; the standing sweep
+is `tools/mutate.sh`, and the two proofs that need an unfenced seat ride
+to `done/` as measurement owed to the next outside run.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.

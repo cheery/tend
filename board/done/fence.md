@@ -1,6 +1,6 @@
 # fence — the deny-list is the only restraint here, and nothing notices when it is gone
 
-    status   open
+    status   done — 2026-08-27
     because  a session started in tend is restrained by one file it can
              rewrite: `.claude/settings.json` is the whole of it, no
              check reads it back, no test names it, and nothing bounds
