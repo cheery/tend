@@ -108,6 +108,26 @@ def test_the_restraints_are_read_only_inside():
             or "Kirjoitussuojattu" in combined), combined
 
 
+@needs_bwrap
+def test_an_installed_copy_leaves_the_trees_copies_writable(tmp_path):
+    """Day two (card:install.md): what runs protects itself, a workbench
+    is free.  A copy of sandbox.sh running from elsewhere than
+    `$root/tools` binds the tree read-write, the set included, and its
+    --check says so; the tree's own copy still binds the set read-only
+    (test_the_restraints_are_read_only_inside)."""
+    prefix = tmp_path / "prefix" / "tools"
+    prefix.mkdir(parents=True)
+    for f in ("sandbox.sh", "launch.sh", "limit.sh"):
+        shutil.copy(ROOT / "tools" / f, prefix / f)
+    env = dict(os.environ, TEND_TREE=str(ROOT))
+    r = subprocess.run(["sh", str(prefix / "sandbox.sh"), "sh", "-c", f"test -w {ROOT}/tools/sandbox.sh && test -w {ROOT}/tools/leash.sh"],
+                       env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    r = subprocess.run(["sh", str(prefix / "sandbox.sh"), "sh", "-c", f"touch {ROOT}/.claude/settings.json"],
+                       env=env, capture_output=True, text=True)
+    assert r.returncode != 0, ".claude/ stays read-only on either side"
+
+
 def test_the_protected_set_is_the_scripts_the_hooks_run():
     """`board/self.md`'s line: a path is in the set if a session editing it
     changes what the session is allowed to do before anyone looks.  That

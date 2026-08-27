@@ -35,6 +35,8 @@ case "${1:-}" in
 --install)
     S=$root/.claude/settings.json
     H='"$CLAUDE_PROJECT_DIR"/tools/resolve.sh --hook'
+    # running installed: the line names this copy, and the tree by TEND_TREE
+    [ "$here" = "$root/tools" ] || H="TEND_TREE=\"\$CLAUDE_PROJECT_DIR\" $here/resolve.sh --hook"
     [ -n "${TEND_FENCED:-}" ] && { echo "resolve: --install is the person's, from outside the fence" >&2; exit 2; }
     cp "$S" "$S.before-resolve-hook"
     if jq -e --arg h "$H" '[.hooks.PostToolUse[]?.hooks[]?.command] | index($h)' "$S" >/dev/null; then

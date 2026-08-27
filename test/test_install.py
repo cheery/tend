@@ -193,5 +193,39 @@ def test_hooks_apply_rewrites_every_tree_line_and_keeps_the_bound(tree, tmp_path
     assert json.loads(s.read_text())["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"].count("TEND_TREE") == 1, "idempotent"
 
 
+def test_free_lifts_the_trees_edit_rules_only_once_the_hooks_run_the_prefix(tree, tmp_path):
+    """Day two.  --free is refused inside the fence and refused while any
+    hook still runs the tree's copy; with every hook on the prefix it lifts
+    exactly the set's Edit rules, keeps .claude/'s, backs the file up, and
+    --check then says the tree's copies are the workbench."""
+    p = tmp_path / "p"
+    s = tmp_path / "settings.json"
+    shutil.copy(tree / ".claude/settings.json", s)
+    assert run(tree=tree, prefix=p, fenced="").returncode == 0
+    r = run("--free", tree=tree, prefix=p, settings=s, fenced="1")
+    assert r.returncode == 2 and "person's hand" in r.stderr
+    # settings on the tree side (the clone's may carry a prefix): every line tree-form
+    d = json.loads(s.read_text())
+    for ev in d["hooks"].values():
+        for g in ev:
+            for h in g["hooks"]:
+                h["command"] = re.sub(r'TEND_TREE="\$CLAUDE_PROJECT_DIR" \S+/tools/', '"$CLAUDE_PROJECT_DIR"/tools/', h["command"])
+    s.write_text(json.dumps(d, indent=2))
+    r = run("--free", tree=tree, prefix=p, settings=s, fenced="")
+    assert r.returncode == 1 and "still what runs" in r.stderr, r.stderr
+    assert run("--hooks", "apply", tree=tree, prefix=p, settings=s, fenced="").returncode == 0
+    before = json.loads(s.read_text())["permissions"]["deny"]
+    assert "Edit(./tools/sandbox.sh)" in before and "Edit(./.claude/**)" in before
+    r = run("--free", tree=tree, prefix=p, settings=s, fenced="")
+    assert r.returncode == 0, r.stderr
+    after = json.loads(s.read_text())["permissions"]["deny"]
+    assert not any(x.startswith("Edit(./tools/") or x == "Edit(./node/run.sh)" for x in after), after
+    assert "Edit(./.claude/**)" in after and "Bash(sudo:*)" in after
+    assert set(before) - set(after) == {x for x in before if x.startswith("Edit(./tools/") or x == "Edit(./node/run.sh)"}
+    assert s.with_name("settings.json.before-free").exists()
+    r = run("--check", tree=tree, prefix=p, settings=s)
+    assert "the tree's copies are the workbench" in r.stdout, r.stdout
+
+
 def test_an_unknown_argument_is_refused_out_loud():
     assert run("--frobnicate").returncode == 2

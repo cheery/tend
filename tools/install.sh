@@ -11,6 +11,9 @@
 #     tools/install.sh --hooks      the hook lines as they would read with the installed copies in
 #                                   force — printed; `--hooks apply` edits the file, the person's hand
 #     tools/install.sh --stage DIR  HEAD's set copied to DIR, no privilege — what an install copies
+#     tools/install.sh --free       day two, the person's: lift the Edit(./tools/…) rules from
+#                                   settings.json once the hooks run the installed copies — the
+#                                   tree's copies become the workbench
 #
 # **Where, and why there** (card:install.md, researched 2026-08-27).
 # `/usr/local/lib/tend`, owned by root.  Three reasons, each a
@@ -83,7 +86,7 @@ hooked="kaizen.sh limit.sh fence.sh fence-hook.sh resolve.sh"
 mode=install
 case "${1:-}" in
     "") ;;
-    --check|--list|--hooks) mode=${1#--} ;;
+    --check|--list|--hooks|--free) mode=${1#--} ;;
     --stage) mode=stage; stage_dir=${2:-}; [ -n "$stage_dir" ] || { echo "install: --stage DIR" >&2; exit 2; } ;;
     -h|--help) sed -n '4,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "install: unknown argument \`$1\`" >&2; exit 2 ;;
@@ -122,6 +125,23 @@ if [ $mode = hooks ]; then
     echo "# Printed only.  The edit is the person's: tools/install.sh --hooks apply, from outside the fence."
     command -v jq >/dev/null 2>&1 && [ -f "$settings" ] \
         && jq -r --arg p "$prefix" "$prog"' | [.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | sed 's/^/  /'
+    exit 0
+fi
+
+if [ $mode = free ]; then
+    [ "${TEND_FENCED:-}" = 1 ] && { echo "install: --free is the person's hand, from outside the fence (the deny-list is enforcement)" >&2; exit 2; }
+    command -v jq >/dev/null 2>&1 || { echo "install: jq is needed to edit $settings" >&2; exit 2; }
+    jq -e . "$settings" >/dev/null 2>&1 || { echo "install: $settings is missing or not valid JSON — tools/fence.sh --restore first" >&2; exit 1; }
+    cmds=$(jq -r '[.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings")
+    for h in $hooked; do
+        printf '%s\n' "$cmds" | grep -F "tools/$h" | grep -qF "$prefix/tools/$h" \
+            || { echo "install: the hook for tools/$h does not run $prefix — the tree's copy is still what runs, and freeing it would leave a restraint writable to the session.  tools/install.sh --hooks apply first" >&2; exit 1; }
+    done
+    rules=$(for f in $(sh "$root/tools/sandbox.sh" --protected 2>/dev/null); do printf 'Edit(./%s)\n' "$f"; done | jq -R . | jq -s .)
+    cp "$settings" "$settings.before-free"
+    jq --argjson r "$rules" '.permissions.deny |= map(select(. as $x | $r | index($x) | not))' "$settings" > "$settings.new" && mv "$settings.new" "$settings"
+    echo "install: the tree's copies are the workbench — $(printf '%s' "$rules" | jq length) Edit rules lifted; the previous file is at $settings.before-free"
+    sh "$root/tools/fence.sh" | tail -1
     exit 0
 fi
 
@@ -190,8 +210,19 @@ if [ $mode = check ]; then
             else say "✗" "hook runs the TREE's tools/$h — the installed copy is not in force (tools/install.sh --hooks)"; fail=1; fi
         done
     fi
+    if [ -f "$settings" ] && command -v jq >/dev/null 2>&1 && [ $fail -eq 0 ]; then
+        deny_now=$(jq -r '.permissions.deny[]' "$settings")
+        left=0; for f in $(set_list) node/run.sh; do printf '%s\n' "$deny_now" | grep -qxF "Edit(./$f)" && left=$((left + 1)); done
+        if [ "$left" -gt 0 ]; then say "·" "the tree's copies are still Edit-denied ($left rules) — tools/install.sh --free lifts them: day two, the workbench"
+        else say "✓" "the tree's copies are the workbench — no Edit rule denies them"; fi
+    fi
     echo
     if [ $fail -eq 0 ]; then echo "  in force: the installed set, at HEAD."; else echo "  NOT IN FORCE as installed — the lines marked ✗ say what."; fi
+    # The fence in force is the installed one; the tree's --check measures
+    # the tree's copy.  From outside, run the one the hooks run.
+    if [ $fail -eq 0 ] && [ "${TEND_FENCED:-}" != 1 ] && [ -x "$prefix/tools/sandbox.sh" ]; then
+        echo; TEND_TREE=$root sh "$prefix/tools/sandbox.sh" --check; exit $?
+    fi
     exit $fail
 fi
 

@@ -14,6 +14,7 @@ test (`test_precommit.py` takes the same stance).
 """
 
 import json
+import re
 import os
 import pathlib
 import subprocess
@@ -37,6 +38,7 @@ def settings_with_fence_hook():
     and the protected set's `Edit` rules ensured — so the fixture is what
     the tree looks like once the person's edits are in."""
     d = json.loads(SETTINGS.read_text(encoding="utf-8"))
+    to_tree_lines(d)
     hooks = d["hooks"]["UserPromptSubmit"][0]["hooks"]
     if not any("tools/fence.sh --hook" in h["command"] for h in hooks):
         hooks.append({"type": "command", "command": HOOK_LINE})
@@ -44,6 +46,24 @@ def settings_with_fence_hook():
         if f"Edit(./{p})" not in d["permissions"]["deny"]:
             d["permissions"]["deny"].append(f"Edit(./{p})")
     return d
+
+
+def to_tree_lines(d):
+    """Hook lines in the tree's form — the side the fixture models.  This
+    clone's real settings may carry the installed prefix (card:install.md)."""
+    for ev in d["hooks"].values():
+        for g in ev:
+            for h in g["hooks"]:
+                h["command"] = re.sub(r'TEND_TREE="\$CLAUDE_PROJECT_DIR" \S+/tools/', '"$CLAUDE_PROJECT_DIR"/tools/', h["command"])
+
+
+def to_installed_lines(prefix):
+    def f(d):
+        for ev in d["hooks"].values():
+            for g in ev:
+                for h in g["hooks"]:
+                    h["command"] = h["command"].replace('"$CLAUDE_PROJECT_DIR"/tools/', f'TEND_TREE="$CLAUDE_PROJECT_DIR" {prefix}/tools/')
+    return f
 
 
 class Repo:
@@ -142,6 +162,37 @@ def test_the_protected_sets_rules_are_load_bearing(tmp_path):
     assert out.returncode == 1
     assert "Edit(./tools/sandbox.sh) — MISSING" in out.stdout
     assert "tools/fence.sh --protect" in out.stdout, "the person is told the key"
+
+
+def test_installed_lines_free_the_trees_copies(tmp_path):
+    """Day two (card:install.md): when every hook line runs an installed
+    copy, the tree's copies are the workbench — the Edit(./tools/…) rules
+    are not load-bearing, the check says which side is in force, and
+    --protect adds none of them back."""
+    r = Repo(tmp_path)
+    r.edit(to_installed_lines("/usr/local/lib/tend"))
+    r.edit(drop_rule("Edit(./tools/sandbox.sh)"))
+    out = r.fence()
+    assert out.returncode == 0, out.stdout
+    assert "in force: the installed copies at /usr/local/lib/tend" in out.stdout
+    assert "Edit(./tools/sandbox.sh)" not in out.stdout
+    r.edit(lambda d: d["permissions"]["deny"].__setitem__(slice(None), [x for x in d["permissions"]["deny"] if not x.startswith("Edit(./tools/")]))
+    out = r.fence("--protect")
+    assert "nothing to add" in out.stdout, out.stdout
+    assert not any(x.startswith("Edit(./tools/") for x in json.loads(r.file.read_text())["permissions"]["deny"])
+    # and .claude/ stays load-bearing on either side
+    r.edit(drop_rule("Edit(./.claude/**)"))
+    assert "Edit(./.claude/**) — MISSING" in r.fence().stdout
+
+
+def test_a_mixed_side_is_red(tmp_path):
+    r = Repo(tmp_path)
+    def one_installed(d):
+        d["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"] = 'TEND_TREE="$CLAUDE_PROJECT_DIR" /usr/local/lib/tend/tools/kaizen.sh --hook'
+    r.edit(one_installed)
+    out = r.fence()
+    assert out.returncode == 1 and "both the tree's and installed copies" in out.stdout
+    assert "Edit(./tools/sandbox.sh)" in out.stdout, "mixed reads as the tree side: everything required"
 
 
 def test_protect_adds_only_what_is_missing_and_never_widens(tmp_path):
