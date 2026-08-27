@@ -128,7 +128,8 @@ def test_install_then_check_reads_back_head_and_names_the_hooks(tree, tmp_path):
     r = run("--check", tree=tree, prefix=p)
     assert r.returncode == 1, "the hooks still run the tree's copies, and that is red"
     assert "✓ tools/sandbox.sh — HEAD" in r.stdout
-    assert "hook runs the TREE's tools/limit.sh" in r.stdout
+    assert ("hook runs the TREE's tools/limit.sh" in r.stdout
+            or "hook runs ANOTHER prefix's tools/limit.sh" in r.stdout), r.stdout
     assert "weaker" in r.stdout, "a prefix under $HOME says it is the weaker one"
 
 
@@ -179,6 +180,12 @@ def test_hooks_apply_rewrites_every_tree_line_and_keeps_the_bound(tree, tmp_path
     bound = [c for c in cmds if "fence-hook" in c][0]
     assert bound.startswith("TEND_REACH_ALLOW="), "the reach bound is the person's and survives the rewrite"
     assert (s.with_name("settings.json.before-install")).exists()
+    # and the prefix can move: a second apply to another prefix re-points every line
+    q = tmp_path / "q"
+    assert run("--hooks", "apply", tree=tree, prefix=q, settings=s, fenced="").returncode == 0
+    for c in [h["command"] for ev in json.loads(s.read_text())["hooks"].values() for g in ev for h in g["hooks"]]:
+        assert f'TEND_TREE="$CLAUDE_PROJECT_DIR" {q}/tools/' in c and str(p) not in c, c
+    assert run("--hooks", "apply", tree=tree, prefix=p, settings=s, fenced="").returncode == 0
     r = run("--check", tree=tree, prefix=p, settings=s)
     assert "hook runs the installed tools/fence-hook.sh" in r.stdout
     # and the fence's own check still finds every hook, by the names it greps for

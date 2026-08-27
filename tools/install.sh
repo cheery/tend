@@ -99,9 +99,13 @@ if [ $mode = hooks ]; then
     # — `"$CLAUDE_PROJECT_DIR"/tools/X` or an absolute `/home/.../tend/tools/X`
     # — runs the installed X instead, told the tree by TEND_TREE.  A leading
     # `TEND_REACH_ALLOW=… ` survives: the substitution is inside the string.
+    # A line already on a prefix is re-pointed too, so the prefix can move
+    # (found 16:40: HEAD's settings carried the prefix and a second apply
+    # to another prefix changed nothing, and the gate said so).
     prog='walk(if type == "string" then
             gsub("\"\\$CLAUDE_PROJECT_DIR\"/tools/"; "TEND_TREE=\"$CLAUDE_PROJECT_DIR\" " + $p + "/tools/")
           | gsub("(^| )/home/[^/ ]+/tend/tools/"; " TEND_TREE=\"$CLAUDE_PROJECT_DIR\" " + $p + "/tools/")
+          | gsub("TEND_TREE=\"\\$CLAUDE_PROJECT_DIR\" [^ ]+/tools/"; "TEND_TREE=\"$CLAUDE_PROJECT_DIR\" " + $p + "/tools/")
           | ltrimstr(" ")
           else . end)'
     if [ "${2:-}" = apply ]; then
@@ -182,6 +186,7 @@ if [ $mode = check ]; then
             line=$(printf '%s\n' "$cmds" | grep -F "tools/$h" | head -1 || true)
             if [ -z "$line" ]; then say "✗" "tools/$h is on no hook"; fail=1
             elif printf '%s' "$line" | grep -qF "$prefix/tools/$h"; then say "✓" "hook runs the installed tools/$h"
+            elif printf '%s' "$line" | grep -q 'TEND_TREE='; then say "✗" "hook runs ANOTHER prefix's tools/$h — ${line#*TEND_TREE=\"\$CLAUDE_PROJECT_DIR\" }"; fail=1
             else say "✗" "hook runs the TREE's tools/$h — the installed copy is not in force (tools/install.sh --hooks)"; fail=1; fi
         done
     fi
