@@ -327,3 +327,20 @@ tools/suite.py` in the venv: **346 passed, 0 skipped** — the bwrap
 workbench test and `test_fence_hook.py`'s `TEND_TREE=` line, proposed
 from inside, executed.  Moved to `done/` by the session, on his word.
 
+
+## 2026-08-27, 17:3x — after done: each installed script is a command
+
+Henri: *"Could we make neat symlinks into bin, eg. tend-keep
+tend-reach-allow for each tend command during install?  Or something
+else similar so that it's easy to call the installed versions?"*
+Something similar: **wrappers, not symlinks** — the scripts find their
+siblings by `dirname "$0"`, and through a symlink `$0` is the bin
+directory.  `tools/install.sh` now writes `tend-<name>` for every file
+in the set (`tend-fence`, `tend-keep`, `tend-reach-allow`, …) into the
+bin beside the prefix's lib — `/usr/local/bin` here, `~/.local/bin` for
+a user prefix — each a two-line `exec` of the installed copy that
+supplies `TEND_TREE` from the tree you stand in when it is not set, so
+`tend-fence` run in `~/tend` governs `~/tend`.  `--bin` lists them,
+`--check` verifies each, `installed` records them.  One more
+`sudo tools/install.sh` puts them on the machine.
+

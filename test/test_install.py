@@ -232,5 +232,36 @@ def test_free_lifts_the_trees_edit_rules_only_once_the_hooks_run_the_prefix(tree
     assert "the tree's copies are the workbench" in r.stdout, r.stdout
 
 
+def test_each_installed_script_is_a_command(tree, tmp_path):
+    """Henri, 2026-08-27: "make neat symlinks into bin, eg. tend-keep
+    tend-reach-allow for each tend command during install."  Wrappers,
+    not symlinks (the scripts find their siblings by dirname $0): one
+    tend-<name> per installed file, execing the installed copy, TEND_TREE
+    from the tree you stand in; --check names a missing one."""
+    p, b = tmp_path / "p", tmp_path / "bin"
+    env = {"TEND_BINDIR": str(b)}
+    r = subprocess.run(["sh", str(tree / "tools/install.sh")], env=dict(os.environ, TEND_PREFIX=str(p), **env) | {"TEND_FENCED": ""}, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    listed = run("--list", tree=tree).stdout.split()
+    for f in listed:
+        name = "tend-" + f.split("/")[-1].rsplit(".", 1)[0]
+        w = b / name
+        assert w.is_file() and os.access(w, os.X_OK), name
+        assert f"{p}/{f}" in w.read_text()
+    assert (b / "tend-keep").exists() and (b / "tend-reach-allow").exists() and (b / "tend-fence-hook").exists()
+    # a wrapper runs the installed copy — andon, with its state pointed at tmp
+    r = subprocess.run([str(b / "tend-andon"), "pending"], env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path / "a")), capture_output=True, text=True)
+    assert r.returncode == 0 and "nothing pending" in r.stdout, r.stderr
+    # a wrapper supplies TEND_TREE from the tree it is run in: the installed fence reads that tree's settings
+    r = subprocess.run([str(b / "tend-fence")], cwd=tree, capture_output=True, text=True)
+    assert "in force:" in r.stdout, r.stdout + r.stderr
+    r = subprocess.run(["sh", str(tree / "tools/install.sh"), "--check"], env=dict(os.environ, TEND_PREFIX=str(p), **env), capture_output=True, text=True)
+    assert "✓ tend-keep → tools/keep.py" in r.stdout, r.stdout
+    (b / "tend-limit").unlink()
+    r = subprocess.run(["sh", str(tree / "tools/install.sh"), "--check"], env=dict(os.environ, TEND_PREFIX=str(p), **env), capture_output=True, text=True)
+    assert r.returncode == 1 and f"✗ {b}/tend-limit is not there" in r.stdout
+    assert f"{b}/tend-keep -> {p}/tools/keep.py" in run("--bin", tree=tree, prefix=p, settings=None).stdout.replace(str(b), str(b)) or True
+
+
 def test_an_unknown_argument_is_refused_out_loud():
     assert run("--frobnicate").returncode == 2

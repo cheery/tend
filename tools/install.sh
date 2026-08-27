@@ -11,6 +11,7 @@
 #     tools/install.sh --hooks      the hook lines as they would read with the installed copies in
 #                                   force — printed; `--hooks apply` edits the file, the person's hand
 #     tools/install.sh --stage DIR  HEAD's set copied to DIR, no privilege — what an install copies
+#     tools/install.sh --bin        the commands: tend-<name> for each installed script, in $TEND_BINDIR
 #     tools/install.sh --free       day two, the person's: lift the Edit(./tools/…) rules from
 #                                   settings.json once the hooks run the installed copies — the
 #                                   tree's copies become the workbench
@@ -58,6 +59,16 @@
 # `CLAUDE_PROJECT_DIR` is deliberately not read by the scripts: a clone
 # running its suite with that set would act on the wrong tree.
 #
+# **Each installed script is a command, `tend-<name>`** — `tend-fence`,
+# `tend-keep`, `tend-reach-allow` — a two-line wrapper in
+# `/usr/local/bin` (root) or `~/.local/bin` (a user prefix), not a
+# symlink: the scripts find their siblings by `dirname "$0"`, and through
+# a symlink `$0` is the bin directory.  The wrapper execs the installed
+# file and supplies TEND_TREE from the tree you stand in (`git rev-parse
+# --show-toplevel`) when it is not set, so `tend-fence` run in ~/tend
+# governs ~/tend.  Henri, 2026-08-27: "make neat symlinks into bin, eg.
+# tend-keep tend-reach-allow for each tend command during install."
+#
 # **`installed` is the record** (spec/os.md, property 5 and 6): the
 # commit, the date, the source tree and a sha256 per file, written
 # beside the copies.  `--check` reads it back and compares to HEAD —
@@ -68,6 +79,12 @@ set -eu
 
 root=${TEND_TREE:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}
 prefix=${TEND_PREFIX:-/usr/local/lib/tend}
+# The commands go in the bin beside the prefix's lib: /usr/local/lib/tend
+# → /usr/local/bin, ~/.local/lib/tend → ~/.local/bin (both on a shell's
+# PATH already); a prefix of another shape gets its own bin/, and --bin
+# says where.  TEND_BINDIR overrides.
+case $prefix in */lib/tend) bindir=${TEND_BINDIR:-${prefix%/lib/tend}/bin} ;; *) bindir=${TEND_BINDIR:-$prefix/bin} ;; esac
+cmd_of() { n=${1#tools/}; n=${n%.sh}; n=${n%.py}; printf 'tend-%s' "$n"; }
 settings=${TEND_SETTINGS:-$root/.claude/settings.json}
 
 # The set: the protected set less the per-node wrapper, plus what those
@@ -86,13 +103,14 @@ hooked="kaizen.sh limit.sh fence.sh fence-hook.sh resolve.sh"
 mode=install
 case "${1:-}" in
     "") ;;
-    --check|--list|--hooks|--free) mode=${1#--} ;;
+    --check|--list|--hooks|--free|--bin) mode=${1#--} ;;
     --stage) mode=stage; stage_dir=${2:-}; [ -n "$stage_dir" ] || { echo "install: --stage DIR" >&2; exit 2; } ;;
     -h|--help) sed -n '4,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "install: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
 [ $mode = list ] && { set_list; exit 0; }
+[ $mode = bin ] && { for f in $(set_list); do printf '%s/%s -> %s/%s\n' "$bindir" "$(cmd_of "$f")" "$prefix" "$f"; done; exit 0; }
 
 hook_line() { # hook_line SCRIPT ARGS — how settings.json should run the installed copy
     printf 'TEND_TREE="$CLAUDE_PROJECT_DIR" %s/tools/%s%s\n' "$prefix" "$1" "$2"
@@ -158,12 +176,27 @@ stage() { # stage DIR — HEAD's copy of each file, and the record
             echo "  · $f has an uncommitted change — HEAD is installed, the edit is not (the gate has not seen it)"
         fi
     done
+    mkdir -p "$d/bin"
+    for f in $(set_list); do
+        c=$(cmd_of "$f")
+        case $f in *.py) run="exec \"\${TEND_PYTHON:-python3}\" \"$prefix/$f\" \"\$@\"" ;; *) run="exec \"$prefix/$f\" \"\$@\"" ;; esac
+        {
+            echo '#!/bin/sh'
+            echo "# $c — the installed $f at $prefix (tools/install.sh, $(date -u +%Y-%m-%d)); the tree is TEND_TREE, else the one you stand in"
+            echo '[ -n "${TEND_TREE:-}" ] || TEND_TREE=$(git rev-parse --show-toplevel 2>/dev/null) || TEND_TREE=""'
+            echo '[ -n "$TEND_TREE" ] && export TEND_TREE'
+            echo "$run"
+        } > "$d/bin/$c"
+        chmod 755 "$d/bin/$c"
+    done
     {
         echo "commit $head"
         echo "date $(date -u +%Y-%m-%dT%H:%M:%SZ)"
         echo "source $root"
         echo "prefix $prefix"
+        echo "bindir $bindir"
         (cd "$d" && for f in $(set_list); do sha256sum "$f"; done)
+        for f in $(set_list); do echo "bin $(cmd_of "$f") -> $f"; done
     } > "$d/installed"
     chmod 644 "$d/installed"
 }
@@ -197,6 +230,13 @@ if [ $mode = check ]; then
             else
                 say "✓" "$f — HEAD, read-only to you"
             fi
+        done
+        for f in $(set_list); do
+            c=$(cmd_of "$f")
+            if [ ! -e "$bindir/$c" ]; then say "✗" "$bindir/$c is not there — the command for $f (tools/install.sh installs it)"; fail=1
+            elif ! grep -qF "$prefix/$f" "$bindir/$c"; then say "✗" "$bindir/$c does not run $prefix/$f"; fail=1
+            elif [ -w "$bindir/$c" ]; then say "✗" "$bindir/$c is writable by you"; fail=1
+            else say "✓" "$c → $f"; fi
         done
         if [ -O "$prefix" ]; then say "·" "the prefix is yours, not root's — the weaker of the two: a chmod away for any process running as you, and invisible inside the fence rather than read-only there"; fi
     fi
@@ -259,5 +299,11 @@ for f in $(set_list) installed; do
     say "✓" "$f"
 done
 $as chmod 755 "$prefix" "$prefix/tools"
+$as mkdir -p "$bindir"
+for f in $(set_list); do
+    c=$(cmd_of "$f")
+    $as install $owner -m "$m_sh" "$tmp/bin/$c" "$bindir/$c"
+    say "✓" "$bindir/$c"
+done
 echo
 echo "install: done.  tools/install.sh --check reads it back; tools/install.sh --hooks says how the hooks reach it."
