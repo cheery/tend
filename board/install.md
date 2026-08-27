@@ -283,3 +283,34 @@ should say the tree's `tools/sandbox.sh` is writable and the prefix's
 is not.  Then a new prompt, and the session's first act is to edit a
 restraint in the tree in place and run its tests — the measurement that
 day two is true in practice and not only in mechanism.
+
+
+## 2026-08-27, 17:1x — day two measured in practice; recommendation: done
+
+Henri ran the four lines ("merged, installed, freed — check output says
+the fence is up").  From inside, the next session's first command:
+`TEND_FENCED=1`; `tools/fence.sh` says *in force: the installed copies
+at /usr/local/lib/tend — the tree's copies are the workbench*; the
+tree's `tools/sandbox.sh` is **writable** and the prefix's refuses
+`touch`.
+
+**Then the first restraint edited without a clone.**  `tools/kaizen.sh`
+— the lamp's baseline bug, open since 05:38 — fixed in place with
+`--diff-filter=A`, a test added, committed through the gate (eea4c87),
+in one command from a fenced seat.  And `tools/install.sh --check`
+answered with the line this card exists for: *tools/kaizen.sh differs
+from HEAD — the copy in force is not the vetted one.*  The change is
+vetted and not in force; putting it in force is `sudo tools/install.sh`,
+Henri's.  Both halves of the `because` are answered by execution: the
+workbench and the enforcement are two directories now, and the copy in
+force is on the machine outside every session's write access.
+
+**Recommendation: done, on Henri's review** — with the move his, the
+shape `fence` and `green` closed in.  What is left is not this card's:
+the lander (fast-forwarding `main` after the gates, the other half of
+the 0710 kaizen's card-shape) and, some day, an install on a machine
+without sudo, which `TEND_PREFIX` and `--check`'s "weaker" line already
+speak to.  `install.sh --check` is now the line to read first in any
+session: drift between HEAD and the prefix is the one silent state
+this arrangement can have.
+

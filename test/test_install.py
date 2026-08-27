@@ -210,6 +210,11 @@ def test_free_lifts_the_trees_edit_rules_only_once_the_hooks_run_the_prefix(tree
         for g in ev:
             for h in g["hooks"]:
                 h["command"] = re.sub(r'TEND_TREE="\$CLAUDE_PROJECT_DIR" \S+/tools/', '"$CLAUDE_PROJECT_DIR"/tools/', h["command"])
+    # ...and Edit-denied, the tree side's whole state (the clone's may be freed already)
+    protected = subprocess.run(["sh", str(tree / "tools/sandbox.sh"), "--protected"], capture_output=True, text=True).stdout.split()
+    for x in protected:
+        if f"Edit(./{x})" not in d["permissions"]["deny"]:
+            d["permissions"]["deny"].append(f"Edit(./{x})")
     s.write_text(json.dumps(d, indent=2))
     r = run("--free", tree=tree, prefix=p, settings=s, fenced="")
     assert r.returncode == 1 and "still what runs" in r.stderr, r.stderr
