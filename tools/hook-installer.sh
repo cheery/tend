@@ -12,6 +12,8 @@ here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 T=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 S=$T/.claude/settings.json
 H='"$CLAUDE_PROJECT_DIR"/tools/fence-hook.sh'
+# running installed (tools/install.sh): the line names this copy, and the tree by TEND_TREE
+[ "$here" = "$T/tools" ] || H="TEND_TREE=\"\$CLAUDE_PROJECT_DIR\" $here/fence-hook.sh"
 
 [ -x "$here/fence-hook.sh" ] || {
     echo "hook-installer: $here/fence-hook.sh is not there or not executable — nothing to install yet" >&2

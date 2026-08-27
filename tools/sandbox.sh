@@ -183,7 +183,16 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS --unsetenv TEND_TREE"
 # The protected set, bound read-only over the tree after it: a file bind
 # refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
-for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
+# **What runs protects itself; a workbench is free** (card:install.md, day
+# two, 2026-08-27).  The set is bound read-only over the tree only while
+# the tree's copies are what runs — this file running from the tree.  An
+# installed copy (tools/install.sh: `$here` is the prefix, not
+# `$root/tools`) is what the hooks run, is read-only by ownership, and
+# leaves the tree's copies writable: the workbench Henri asked for.
+in_tree=0; [ "$here" = "$root/tools" ] && in_tree=1
+if [ $in_tree = 1 ]; then
+    for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
+fi
 # The last bind of card:keep.md's session half (2026-08-26, the tree-row
 # measurement): in 310 fenced commands the session never wrote node/state
 # by name — the node writes it, from the person's side since the resolver
@@ -287,9 +296,19 @@ probe "the other tree's tools are read-only"   blocked sh -c "touch $trees/tools
 probe "the other tree's .git is not inside"    blocked sh -c "test -e $trees/.git"
 probe "the other tree's source is not inside"  blocked sh -c "test -e $trees/gestate"
 probe ".claude/ is read-only"           blocked sh -c "touch $root/.claude/settings.json"
-for p in $protected; do
-    probe "$p is read-only"             blocked sh -c "touch $root/$p"
-done
+if [ $in_tree = 1 ]; then
+    for p in $protected; do
+        probe "$p is read-only"             blocked sh -c "touch $root/$p"
+    done
+else
+    prefix=$(CDPATH= cd -- "$here/.." && pwd)
+    say "·" "running installed from $prefix — the tree's copies are the workbench"
+    for p in $protected; do
+        [ -e "$prefix/$p" ] || continue
+        probe "$prefix/$p is read-only"  blocked sh -c "touch $prefix/$p"
+    done
+    probe "the tree's tools/sandbox.sh is writable (the workbench)"  ok  sh -c "test -w $root/tools/sandbox.sh"
+fi
 # 4. What must be.
 probe "this tree is writable"           ok      sh -c "test -w $root"
 for grant in "$root"/*/grant; do

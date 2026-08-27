@@ -112,8 +112,29 @@ protected=$(sh "$here/sandbox.sh" --protected 2>/dev/null || true)
 [ -n "$protected" ] || protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh"
 nl='
 '
+# Which copies are in force is read off the hook lines (card:install.md,
+# day two, 2026-08-27): a line carrying `TEND_TREE=` runs an installed
+# copy, read-only by ownership, and then the tree's copies are the
+# workbench and the `Edit(./tools/…)` rules are not load-bearing — a
+# session may edit a restraint in the tree, and nothing runs it until
+# `git commit` and `sudo tools/install.sh`.  A line without it runs the
+# tree's copy, and the rules are required, as they were.  Both at once
+# is a mixed state, and red.  A file that is missing or unparseable is
+# read as the tree side: require everything.
+side=tree; prefix=""
+if [ -f "$settings" ] && valid; then
+    lines=$(jq -r '[.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | grep -E 'tools/(kaizen|limit|fence|fence-hook|resolve)\.sh' || true)
+    n_inst=$(printf '%s\n' "$lines" | grep -c 'TEND_TREE=' || true)
+    n_tree=$(printf '%s\n' "$lines" | grep -vc 'TEND_TREE=' || true)
+    if [ "$n_inst" -gt 0 ] && [ "$n_tree" -eq 0 ]; then
+        side=installed
+        prefix=$(printf '%s\n' "$lines" | head -1 | sed 's|.*TEND_TREE="[^"]*" ||; s|/tools/.*||')
+    elif [ "$n_inst" -gt 0 ]; then side=mixed; fi
+fi
 rules="Edit(./.claude/**)$nl"
-for p in $protected; do rules="${rules}Edit(./$p)$nl"; done
+if [ $side != installed ]; then
+    for p in $protected; do rules="${rules}Edit(./$p)$nl"; done
+fi
 rules="${rules}Bash(sudo:*)${nl}Bash(git push:*)${nl}Read(~/.ssh/**)"
 # The rules carry spaces and `*`: one per line, and never globbed.
 each_rule() { set -f; IFS=$nl; for rule in $rules; do "$@" "$rule"; done; unset IFS; set +f; }
@@ -169,6 +190,11 @@ else
             say "✗" "$1 — MISSING from the deny-list"; fail=1; missing=1
         fi
     }
+    case $side in
+        installed) say "✓" "in force: the installed copies at $prefix — the tree's copies are the workbench" ;;
+        tree)      say "✓" "in force: the tree's copies — the set is read-only inside and Edit-denied" ;;
+        mixed)     say "✗" "hooks run both the tree's and installed copies — one side or the other: tools/install.sh --hooks apply, or tools/fence.sh --force"; fail=1 ;;
+    esac
     each_rule in_force
     if [ $missing -ne 0 ]; then
         say "→" "tools/fence.sh --protect adds what is missing and nothing else — the person's key, not a session's"
