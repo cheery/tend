@@ -614,3 +614,42 @@ seat where the test always passed.  The fourth shape, then, is not a
 flaw in the detector but **a detector whose subject differs by seat**
 — and the count is what separated "flaky" from "found something."
 Filed on `resolver`; the fix carries a deterministic test for the race.
+
+## 2026-08-27 — worked in a batch; verdict for review: close
+
+Picked up in the same batch as `fence`, and Henri: "do your verdict on
+cards to be closed, then let me review."  This is the verdict, his to
+weigh against.
+
+**The day-one question is answered and the answer is recorded.**
+"Whether the problem is tend's or gestate's" → tend's, and measured to
+the bone: every detector in the suite mutation-swept through
+`tools/mutate.sh` (52 recorded rows, its own two claims held by
+`test_mutate.py`, 3 passed today), plus the lamp, the keep launcher,
+and the eight remaining files.  Every first-round survivor — nine of
+them — is now red by a test that names it, each shown red before it was
+trusted.  The finding holds without exception: **every survivor was the
+wiring between a detector and what runs it, a fixture with no seam, or a
+boundary a well-behaved program cannot exercise — never a rule going
+unnoticed.**  That is the whole of what the `because` asked.
+
+**Two residuals, neither a build and neither blocking closure:**
+
+* The unfenced-seat proofs the card called owed were largely paid — the
+  sandbox sweep was run from outside (`9b49e91`, 13 passed, the mutation
+  caught, the false-red fixed).  What remains needing an outside seat —
+  the leash scope path and the fence-hook round-trip — is *measurement
+  owed to the next unfenced run of the suite*, the same category as the
+  sandbox one before gestate-50 ran it.  Not open build; it lands
+  whenever tend's suite next runs outside the fence.
+* The one-line note on `sandbox.sh`'s header — a fence protects nothing
+  it also grants writable — is prepared for Henri's hand (a protected
+  file).
+
+**Verdict: close.**  The card resisted becoming a framework or a
+standing quota (§"What it must not become"), so keeping it open as a
+recurring sweep would be the thing it warned against; the sweep lives
+in `tools/mutate.sh` now, run by hand when a detector changes, which is
+where a standing check belongs.  The residuals above ride to `done/`
+with the file (citations resolve from there).  The move is Henri's, and
+this verdict is offered for his review, not taken.
