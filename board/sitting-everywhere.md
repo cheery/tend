@@ -164,3 +164,47 @@ once-a-day: those are day two and go through his hand.
 
 Unplaced — at the end, as a new card arrives; the session that wrote it
 asks whether it belongs further up, and the tiebreak is his.
+
+## 2026-08-27 — day one, built in a clone: the override checks its own reason
+
+Henri: "sitting-everywhere day one in a clone."  Built and tested in a
+clone (`clone-not-worktree-in-the-fence`) because `tools/limit.sh` is in
+the protected set; it reaches Henri as a branch to pull, not a patch.
+
+**What was built** — `sitting N because <word>`, parsed by the hook
+beside `sitting N`.  The difference is the card's whole day one: the
+hook checks the reason *itself* and only a reason a program can verify
+grants the time.  The grant row grows `reason=` and `verified=` in the
+ledger, pass or refuse — so the weekly summary can count what was
+overridden and how.
+
+**The words, day one.**  Two are wired because a machine can check them
+here and now:
+
+* `commit` — `git status --porcelain` on the tree is non-empty (real
+  uncommitted work), not a claim.
+* `patch` — a `*.patch` waits at the tree root for Henri's hand.
+
+Two are named and **refused with their blocker, never faked green** —
+which is the F88 discipline (`done/green.md`) applied before the check
+exists:
+
+* `run` — wants a definition of a work process the machine can see; day
+  two.
+* `andon` — has no record to read until the andon itself is built
+  (`card:cords.md`, 2026-08-31).
+
+And an unknown word is refused as "not a checkable reason."
+
+**Shown to hold** — `test/test_limit.py`, +7: each wired word green with
+the check real (a dirty tree, a patch present) and **red with it faked**
+(a clean tree, no patch), the two unwired words refused with their
+blocker, an unknown word refused, and the plain `sitting N` it extends
+still opens a sitting.  27 pass in the clone.
+
+**What day one is not** (the card's own bound): not the user-level move
+to `~/.claude/settings.json`, not the deny-list reaching `~/.claude/**`,
+not the once-a-day `unverified` reason, not the "15 minutes / not twice
+in a row" economy of an override.  Those are day two and go through
+Henri's hand.  This is the mechanism — a checkable reason, recorded —
+shown on the two words that can be checked today.

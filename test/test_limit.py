@@ -328,3 +328,92 @@ def test_a_prompt_that_merely_mentions_a_message_is_still_an_arrival(tmp_path):
     desk.prompt("sitting 45")
     desk.prompt("why was the cross-session-message blocked?")
     assert [l[1] for l in desk.lines()][-1] == "prompt"
+
+
+# ── the override: sitting N because <word>, checked by the hook ──
+# card:sitting-everywhere.md day one — the grant row grows reason= and
+# verified=, and only a reason a program can verify grants the time.
+
+def _git_tree(path, dirty=False, patch=False):
+    path.mkdir(parents=True, exist_ok=True)
+    g = ["git", "-c", "user.name=t", "-c", "user.email=t@t", "-C", str(path)]
+    subprocess.run(["git", "init", "-q", str(path)], check=True)
+    (path / "a.txt").write_text("x\n")
+    subprocess.run(g + ["add", "."], check=True)
+    subprocess.run(g + ["commit", "-qm", "base"], check=True)
+    if dirty:
+        (path / "a.txt").write_text("y\n")
+    if patch:
+        (path / "fix.patch").write_text("--- a\n+++ b\n")
+    return path
+
+
+def _override(tmp_path, prompt, tree):
+    desk = Desk(tmp_path)
+    desk.env["TEND_LIMIT_TREE"] = str(tree)
+    return desk, desk.prompt(prompt)
+
+
+def _last(desk, event):
+    rows = [l for l in desk.lines() if len(l) > 1 and l[1] == event]
+    return rows[-1] if rows else None
+
+
+def test_override_commit_verifies_on_a_dirty_tree(tmp_path):
+    """green with it real: the tree has uncommitted work, so `commit`
+    verifies, the sitting is granted, and the ledger says verified=1."""
+    tree = _git_tree(tmp_path / "tree", dirty=True)
+    desk, r = _override(tmp_path, "sitting 25 because commit", tree)
+    assert r.returncode == 2 and "verified" in r.stderr, r.stderr
+    row = _last(desk, "grant")
+    assert row and "reason=commit" in row[2] and "verified=1" in row[2], row
+    assert desk.state.read_text().split()[2] == "25"
+
+
+def test_override_commit_refused_on_a_clean_tree(tmp_path):
+    """red with the check faked: the tree is clean, so `commit` cannot
+    verify — refused, verified=0, and no new sitting granted."""
+    tree = _git_tree(tmp_path / "tree", dirty=False)
+    desk, r = _override(tmp_path, "sitting 25 because commit", tree)
+    assert r.returncode == 2 and "refused" in r.stderr, r.stderr
+    row = _last(desk, "grant-refused")
+    assert row and "reason=commit" in row[2] and "verified=0" in row[2], row
+    assert not desk.state.exists() or desk.state.read_text().split()[2] != "25"
+
+
+def test_override_patch_verifies_when_a_patch_waits(tmp_path):
+    tree = _git_tree(tmp_path / "tree", patch=True)
+    desk, r = _override(tmp_path, "sitting 20 because patch", tree)
+    assert r.returncode == 2 and "verified" in r.stderr, r.stderr
+    assert "verified=1" in _last(desk, "grant")[2]
+
+
+def test_override_patch_refused_without_one(tmp_path):
+    tree = _git_tree(tmp_path / "tree")
+    desk, r = _override(tmp_path, "sitting 20 because patch", tree)
+    assert "refused" in r.stderr and "verified=0" in _last(desk, "grant-refused")[2]
+
+
+def test_an_unwired_word_is_refused_with_its_blocker(tmp_path):
+    """run and andon are named on the card but have no record to check
+    yet; they are refused with the blocker, never faked green."""
+    tree = _git_tree(tmp_path / "tree", dirty=True)
+    _, run = _override(tmp_path, "sitting 15 because run", tree)
+    assert "refused" in run.stderr and "day two" in run.stderr, run.stderr
+    _, andon = _override(tmp_path, "sitting 15 because andon", tree)
+    assert "refused" in andon.stderr and "2026-08-31" in andon.stderr, andon.stderr
+
+
+def test_an_unknown_reason_is_refused(tmp_path):
+    tree = _git_tree(tmp_path / "tree", dirty=True)
+    _, r = _override(tmp_path, "sitting 15 because banana", tree)
+    assert r.returncode == 2 and "not a checkable reason" in r.stderr, r.stderr
+
+
+def test_a_plain_sitting_still_opens_one(tmp_path):
+    """the override did not break the plain word it extends."""
+    desk = Desk(tmp_path)
+    r = desk.prompt("sitting 30")
+    assert r.returncode == 2 and "Sitting of 30" in r.stderr
+    assert desk.state.read_text().split()[2] == "30"
+    assert "reason=" not in (_last(desk, "grant") or ["", "", ""])[2]

@@ -154,11 +154,51 @@ if [ "${1:-}" = "--hook" ]; then
   fi
   prompt="$(printf '%s' "$input" | jq -r '.prompt // ""')"
   # The one grant a session cannot forge: a word Henri typed himself.
-  if [[ "$prompt" =~ ^[[:space:]]*sitting([[:space:]]+([0-9]+))?[[:space:]]*$ ]]; then
+  # `sitting N` opens a sitting.  `sitting N because <word>` is an
+  # override, and the difference is the whole of card:sitting-everywhere.md
+  # day one: the hook checks the reason *itself* — never the session's
+  # word for it — and only a reason a program can verify grants the time.
+  # The reason and whether it verified go to the ledger pass or refuse, so
+  # the grant row grows `reason=` and `verified=`.  Day one wires the two
+  # words a machine can check here and now (`commit`, `patch`); `run` and
+  # `andon` are named and refused with their blocker, not faked green.
+  if [[ "$prompt" =~ ^[[:space:]]*sitting([[:space:]]+([0-9]+))?([[:space:]]+because[[:space:]]+([a-z]+))?[[:space:]]*$ ]]; then
     limit="${BASH_REMATCH[2]:-$LIMIT_MIN}"
-    printf '%s %s %s\n' "$now" "$now" "$limit" > "$STATE"
-    note grant "min=$limit gap=$gap"
-    echo "Sitting of $limit minutes, from $(date +%H:%M).  Ends $(date -d "@$((now + limit*60))" +%H:%M)." >&2
+    reason="${BASH_REMATCH[4]:-}"
+    if [ -z "$reason" ]; then
+      printf '%s %s %s\n' "$now" "$now" "$limit" > "$STATE"
+      note grant "min=$limit gap=$gap"
+      echo "Sitting of $limit minutes, from $(date +%H:%M).  Ends $(date -d "@$((now + limit*60))" +%H:%M)." >&2
+      exit 2
+    fi
+    # an override: only a reason the machine can check grants the time.
+    tree="${TEND_LIMIT_TREE:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
+    ok=0; why=""
+    case "$reason" in
+      commit)
+        if [ -n "$(git -C "$tree" status --porcelain 2>/dev/null)" ]
+          then ok=1; why="the tree has uncommitted work"
+          else why="the tree is clean — there is nothing to commit"; fi ;;
+      patch)
+        if [ -n "$(find "$tree" -maxdepth 1 -name '*.patch' 2>/dev/null | head -1)" ]
+          then ok=1; why="a *.patch waits at the tree root for your hand"
+          else why="no *.patch waits at the tree root"; fi ;;
+      run)
+        why="run is not wired yet — it wants a definition of a work process the machine can see, which is day two (card:sitting-everywhere.md)" ;;
+      andon)
+        why="andon has no record to read until the andon itself is built (card:cords.md, 2026-08-31)" ;;
+      *)
+        why="\`$reason\` is not a checkable reason — the wired words are commit and patch" ;;
+    esac
+    if [ "$ok" -eq 1 ]; then
+      printf '%s %s %s\n' "$now" "$now" "$limit" > "$STATE"
+      note grant "min=$limit gap=$gap reason=$reason verified=1"
+      echo "Sitting of $limit minutes, from $(date +%H:%M) — $reason verified ($why).  Ends $(date -d "@$((now + limit*60))" +%H:%M)." >&2
+      exit 2
+    fi
+    note grant-refused "reason=$reason verified=0 gap=$gap"
+    echo "limit: refused \`sitting $limit because $reason\` — $why." >&2
+    echo "       an override grants only for a reason the machine can check; the sitting is unchanged." >&2
     exit 2
   fi
 
