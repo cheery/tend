@@ -176,7 +176,15 @@ Landing is the one part the clone does not change: the original can
 working-tree write), but the `checkout`/`merge`/`pull` that writes a
 protected file is still Henri's hand outside the fence — the same
 boundary `card:self.md` drew, reached by a pull now instead of a patch
-file.
+file.  *Corrected the same evening, 2026-08-27, by `install` day two*:
+once the hooks run the installed copies at `/usr/local/lib/tend` and
+Henri has run `tools/install.sh --free`, the tree's copies are the
+workbench — edit a restraint in place, run the suite, commit through
+the gate; nothing runs it until his `sudo tools/install.sh`.  The
+clone is then for a change to the *installed* mechanism's tests only
+if the tree itself is what runs (a fresh clone with no install), which
+`tools/fence.sh` says on every prompt.  The paragraph above is kept:
+it is the day the tax was measured, and the reason the install exists.
 
 ## A word left for you
 

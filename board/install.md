@@ -233,3 +233,53 @@ what installs) and not yet in practice: the tree's copies are still
 ro-bound and `Edit`-denied, so a session still cannot edit a restraint
 in place.  Taking those off is day two, and Henri's call, now that
 `--check` has said the installed set is in force.
+
+## 2026-08-27, day two — "take the tree binds off": what runs protects itself, a workbench is free
+
+Henri: *"Lets do install day two, take the tree binds off."*
+
+**The rule, one sentence.**  The set is bound read-only over the tree
+only while the tree's copies are what runs.  `tools/sandbox.sh` knows
+which copy it is (`$here` = `$root/tools`, or a prefix) and binds the
+tree's set only from the tree; `tools/fence.sh` reads which side is in
+force off the hook lines — every line carrying `TEND_TREE=` is the
+installed side, and then the `Edit(./tools/…)` rules are not
+load-bearing; a line without it is the tree side and everything is
+required as before; both at once is mixed, and red.  `.claude/` stays
+read-only and Edit-denied on either side: hook config is enforcement
+wherever the hooks point.
+
+**What changes for a session, once Henri has run `--free`.**  A
+restraint in the tree is a file like any other — editable in place,
+runnable in the suite, committed through the gate — and *nothing runs
+it* until `git commit` and `sudo tools/install.sh`.  The clone-and-
+outside-hand tax this card was opened on is gone for the tree; the
+clone rule in `board/README.md` §"What the days taught" is corrected
+below it rather than deleted.  The one thing a session still cannot do
+is put a change in force, which is the boundary `card:self.md` drew
+and `work-environment-ai` exists for.
+
+**Built, on the branch `install-day2`** (the scripts were still ro-bound
+when this was written — the last clone this should cost): the two
+scripts above; `tools/install.sh --free` (the person's: refused inside
+the fence, refused while any hook still runs the tree's copy, then lifts
+exactly the set's Edit rules with a backup); `--check` notes what is
+left to free and, from outside, ends by running the *installed*
+sandbox's `--check` — the fence in force, where before
+`tools/sandbox.sh --check` from the tree measured the tree's copy, a
+gotcha found writing this; `hook-installer.sh` and `resolve.sh
+--install` write the installed line when running installed.  Four
+tests; the bwrap one is proposed, not declared, until the outside run.
+
+Henri's lines, in order, from outside the fence:
+
+    git merge install-day2
+    sudo tools/install.sh
+    tools/install.sh --free
+    tools/install.sh --check
+
+The last one ends with the installed fence's own `--check`, which
+should say the tree's `tools/sandbox.sh` is writable and the prefix's
+is not.  Then a new prompt, and the session's first act is to edit a
+restraint in the tree in place and run its tests — the measurement that
+day two is true in practice and not only in mechanism.
