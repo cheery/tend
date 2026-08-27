@@ -28,10 +28,14 @@
 # decided here: `tools/fence-hook.sh` holds the person's bound and
 # refuses a request outside it.  This script only knows the rows.
 #
-# **`audio` is wider than its name.**  It binds the PipeWire socket and
-# `/dev/snd`, and `/dev/snd` is the whole card: the programs-first trial
-# opened the capture device three times through it.  A socket-only ring
-# has not been measured; until it is, `audio` means the card, and says so.
+# **`audio` is the socket, and was the card.**  Until 2026-08-27 it bound
+# the PipeWire socket *and* `/dev/snd`, and `/dev/snd` is the whole card,
+# microphone included — the programs-first trial opened the capture
+# device three times through it.  The socket-only ring was measured that
+# day (card:cords.md): `tools/andon.sh ring` under `strace -e
+# openat,connect` from inside the fence connected to `$rt/pipewire-0` and
+# opened nothing under `/dev/snd`.  So the row is the socket alone now;
+# a caller that needs the card is a new row with its own measurement.
 #
 # **There is no `bus` row, and there was one.**  It handed the user bus
 # inside so that `tools/leash.sh` could make its cgroup there — and
@@ -144,7 +148,7 @@ while [ $# -gt 0 ]; do
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
   on   git       ~/.gitconfig  read-only — identity for commits
   off  net       the network; off, it fails as a name-resolution error
-  off  audio     the PipeWire socket and /dev/snd — the andon; the whole card, see the header
+  off  audio     the PipeWire socket — the andon rings through it; not /dev/snd, the card (see the header)
   off  display   the X socket and DISPLAY
 ROWS
             exit 0 ;;
@@ -217,7 +221,7 @@ for row in $reach; do
         # symlink into /run/systemd/resolve, and /run is not inside.
         # Found by test_sandbox.py the minute the row was written.
         net)     net=""; extra="$extra --ro-bind-try /run/systemd/resolve /run/systemd/resolve" ;;
-        audio)   extra="$extra --bind $rt/pipewire-0 $rt/pipewire-0 --dev-bind /dev/snd /dev/snd" ;;
+        audio)   extra="$extra --bind $rt/pipewire-0 $rt/pipewire-0" ;;
         display) display="--bind /tmp/.X11-unix /tmp/.X11-unix --setenv DISPLAY ${DISPLAY:-:0}" ;;
         *) echo "sandbox: no such row \`$row\` — tools/sandbox.sh --rows" >&2; exit 2 ;;
     esac
