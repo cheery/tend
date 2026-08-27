@@ -143,3 +143,42 @@ answer — it is his, and it would be a second word, not this one.
 did, and nothing lights when it does not) and the andon, which leans
 on `cords` and waits until 2026-08-31.  One of three, as §"What it
 must not become" set it.  The card stays open.
+
+## 2026-08-27 — the lamp measured, and it does not port to a node yet
+
+Second batch, after the sitting cord landed (9fb2400).  The card's
+§"What it must not become" said measure the lamp first, do not copy
+`tools/kaizen.sh` on its say-so.  Measured, and the measurement says
+**do not build it yet** — for a reason, not a shrug.
+
+**A node already accounts for what it did, mechanically.**  The tally
+node writes its own log as it runs — `gen 1 opened at 0 pulls`,
+`served 1, total 2`, `gen 2 stopped, idle 50s` — in its plain state
+file; the llm node's account is the launcher's `stopped` reason (the
+sitting cord writes it) and the server log.  A node cannot *forget* to
+account for itself the way a hosted session can, because the logging is
+a side effect of running, not an act of will.  The hosted lamp exists
+to compel the one thing a session can skip — the reflective account,
+what went right and wrong and should change — and a program that
+answers a pull has nothing to reflect and already logs what it did.
+
+**So the lamp's subject is a node that *leads* work and could reflect,
+and no such node exists.**  The frame (`card:work-environment-ai.md`,
+15:45) is that a local model is a *session* when tend runs it to lead
+the work rather than to answer a curl.  Only that node owes a kaizen's
+kind of account, and today's llm node is the curl-answering kind — a
+program, whose mechanical log is enough.  Building a reflective-account
+lamp now is building for a subject that is not here, which is exactly
+"a mechanism a session cannot test, it proposes, it does not declare"
+(board/README.md §"What the days taught", promoted 2026-08-27).  The
+lamp waits for the first node that leads.
+
+**Where that leaves the three cords.**  The limit ported and is built
+(9fb2400) — a node's sitting is a real thing to stop.  The lamp does
+*not* port yet — a node accounts automatically; the reflective account
+waits for a leading node.  The andon *does* port and is needed more by
+a node than by a hosted session ("no person is watching its
+transcript"), but it leans on `card:cords.md`, which waits until
+2026-08-31.  So the card's actionable next cord is the andon on its own
+date, and the lamp is deferred with this measurement rather than
+carded — it reopens when a node first leads work.  The card stays open.
