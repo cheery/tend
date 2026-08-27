@@ -51,7 +51,12 @@
 # the bound; that is the whole point of the arrangement.
 set -euo pipefail
 
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else the
+# parent of this file.  The leash and the sandbox are this file's siblings —
+# the installed hook runs the installed fence, never the tree's copy — and
+# the sandbox is told the tree the same way.
+root="${TEND_TREE:-$(cd "$here/.." && pwd)}"
 allow="${TEND_REACH_ALLOW:-}"
 
 payload="$(cat)"
@@ -94,9 +99,9 @@ done
 
 quoted="$(printf '%s' "$cmd" | jq -Rsr 'rtrimstr("\n") | @sh')"
 if [[ -n $reach ]]; then
-  wrapped="$root/tools/leash.sh -- $root/tools/sandbox.sh --reach $reach bash -c $quoted"
+  wrapped="TEND_TREE=$root $here/leash.sh -- $here/sandbox.sh --reach $reach bash -c $quoted"
 else
-  wrapped="$root/tools/leash.sh -- $root/tools/sandbox.sh bash -c $quoted"
+  wrapped="TEND_TREE=$root $here/leash.sh -- $here/sandbox.sh bash -c $quoted"
 fi
 
 jq -n --arg w "$wrapped" --arg r "$reach" \

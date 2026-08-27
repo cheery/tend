@@ -14,7 +14,10 @@
 # limit hook did the same when it was installed).  Idempotent.
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 S="$root/.claude/settings.json"
 sel='.hooks.PreToolUse[].hooks[] | select(.command | test("fence-hook"))'
 rows="${1:-}"
@@ -26,4 +29,4 @@ else
 fi
 mv "$S.new" "$S"
 echo "reach-allow: $(jq -r "$sel | .command" "$S")"
-"$root/tools/fence.sh" >/dev/null && echo "fence: up"
+"$here/fence.sh" >/dev/null && echo "fence: up"

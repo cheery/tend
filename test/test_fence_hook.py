@@ -67,12 +67,12 @@ def test_merely_naming_the_fence_does_not_escape_it(command):
     choosing its own rows by calling the fence directly is the same hole
     from the other side.  All of these are wrapped; the ones that then
     nest fail out loud, which is the right failure."""
-    assert rewritten(command).startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
+    assert rewritten(command).startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
 
 
 def test_everything_else_is_wrapped():
     cmd = rewritten("ls -la")
-    assert cmd.startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
+    assert cmd.startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh bash -c ")
     assert "--reach" not in cmd
 
 
@@ -114,7 +114,7 @@ def test_a_row_outside_the_bound_is_refused_with_a_reason():
 
 def test_a_row_inside_the_bound_is_granted_and_named():
     cmd = rewritten("REACH=net getent ahostsv4 example.com", allow="net,audio")
-    assert cmd.startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh --reach net bash -c ")
+    assert cmd.startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh --reach net bash -c ")
     assert "REACH=" not in cmd, "the prefix is consumed, not passed into the fence"
 
 
@@ -125,4 +125,4 @@ def test_every_requested_row_must_be_in_the_bound():
 
 def test_there_is_no_nofence():
     assert "NOFENCE" not in HOOK.read_text(encoding="utf-8").split("set -euo pipefail")[1]
-    assert rewritten("NOFENCE=1 ls").startswith(f"{ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh")
+    assert rewritten("NOFENCE=1 ls").startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh")

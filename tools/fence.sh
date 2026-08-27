@@ -53,7 +53,10 @@
 # `--force` is the way to say you meant it.
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 rel=.claude/settings.json
 settings="$root/$rel"
 
@@ -105,7 +108,7 @@ esac
 # deny to the edit tools, the same two ways `.claude/` is kept.  And the
 # four hooks, because on this tree hook config is enforcement: the lamp,
 # the sitting limit, this — and the fence around every shell command.
-protected=$(sh "$root/tools/sandbox.sh" --protected 2>/dev/null || true)
+protected=$(sh "$here/sandbox.sh" --protected 2>/dev/null || true)
 [ -n "$protected" ] || protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh"
 nl='
 '

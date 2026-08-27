@@ -89,6 +89,7 @@
 #       "command": "/home/cheery/gestate/tools/limit.sh --hook" } ] } ]
 
 set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # the andon is a sibling: installed with this, or the tree's beside it
 
 LIMIT_MIN="${GESTATE_LIMIT_MIN:-15}"
 GAP_MIN="${GESTATE_LIMIT_GAP:-30}"
@@ -186,9 +187,13 @@ if [ "${1:-}" = "--hook" ]; then
       run)
         why="run is not wired yet — it wants a definition of a work process the machine can see, which is day two (card:sitting-everywhere.md)" ;;
       andon)
-        why="andon has no record to read until the andon itself is built (card:cords.md, 2026-08-31)" ;;
+        # the record is the andon's own (tools/andon.sh pulled): a question
+        # asked and rung and not yet answered — read by a program, not the session
+        if sh "$here/andon.sh" pulled -q 2>/dev/null
+          then ok=1; why="a cord is pulled and unanswered — tools/andon.sh pending says which"
+          else why="no cord is pulled — nothing asked and rung since the last answer (tools/andon.sh)"; fi ;;
       *)
-        why="\`$reason\` is not a checkable reason — the wired words are commit and patch" ;;
+        why="\`$reason\` is not a checkable reason — the wired words are commit, patch and andon" ;;
     esac
     if [ "$ok" -eq 1 ]; then
       printf '%s %s %s\n' "$now" "$now" "$limit" > "$STATE"

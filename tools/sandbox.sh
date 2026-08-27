@@ -69,7 +69,10 @@
 # any, and that is checked rather than assumed.
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 trees="/home/cheery/gestate"
@@ -164,7 +167,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --ro-bind-try $HOME/.gitconfig $HOME/.gitconfig
   --setenv HOME $HOME --setenv XDG_RUNTIME_DIR $rt --setenv TEND_FENCED 1
   --setenv PATH $root/.venv/bin:/usr/local/bin:/usr/bin:/bin
-  --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS"
+  --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS --unsetenv TEND_TREE"
 # The protected set, bound read-only over the tree after it: a file bind
 # refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
 for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
@@ -184,7 +187,7 @@ for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
 for grant in "$root"/*/grant; do
     [ -f "$grant" ] || continue
     nd=$(dirname "$grant"); st="$nd/state"
-    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    pf=$(sh "$here/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
     [ -n "$pf" ] || continue
     mkdir -p "$st"; [ -e "$pf" ] || : > "$pf"
     opts="$opts --ro-bind $st $st --bind $pf $pf"
@@ -234,8 +237,8 @@ echo "sandbox: --check  ($root)"
 echo
 # 1. The clock, first.  The same sitting inside and out, or the fence has
 #    cut the person's cord.
-outside=$("$root/tools/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
-inside=$(fence "$root/tools/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
+outside=$("$here/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
+inside=$(fence "$here/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
 if [ -z "$outside" ]; then
     say "·" "no sitting running outside — the clock cannot be compared"
 elif [ "$inside" = "$outside" ]; then
@@ -278,7 +281,7 @@ done
 probe "this tree is writable"           ok      sh -c "test -w $root"
 for grant in "$root"/*/grant; do
     nd=$(dirname "$grant"); st="$nd/state"; n=$(basename "$nd")
-    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    pf=$(sh "$here/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
     [ -n "$pf" ] || continue
     probe "$n/state is read-only"           blocked sh -c "touch $st/.probe"
     probe "$n's pull file passes through"   ok      sh -c ": >> $pf"

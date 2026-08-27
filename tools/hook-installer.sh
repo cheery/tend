@@ -8,12 +8,13 @@
 # inert until the hook is built.
 set -eu
 
-T=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+T=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 S=$T/.claude/settings.json
 H='"$CLAUDE_PROJECT_DIR"/tools/fence-hook.sh'
 
-[ -x "$T/tools/fence-hook.sh" ] || {
-    echo "hook-installer: $T/tools/fence-hook.sh is not there or not executable — nothing to install yet" >&2
+[ -x "$here/fence-hook.sh" ] || {
+    echo "hook-installer: $here/fence-hook.sh is not there or not executable — nothing to install yet" >&2
     exit 1
 }
 cp "$S" "$S.before-fence-hook"
@@ -25,4 +26,4 @@ else
     echo "hook-installer: installed  PreToolUse[Bash] -> $H"
     echo "                 the previous file is at $S.before-fence-hook"
 fi
-"$T/tools/fence.sh"
+"$here/fence.sh"

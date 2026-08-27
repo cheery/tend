@@ -61,7 +61,10 @@
 # touches the person's own clock (`~/.local/state/gestate/sittings.log`):
 # a node's sitting is the node's, kept in its state directory.
 set -u
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 [ $# -ge 2 ] || { sed -n '4,10p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
 NODE=$(CDPATH= cd -- "$1" 2>/dev/null && pwd) || { echo "launch: no such node directory: $1" >&2; exit 2; }
 verb=$2; shift 2
@@ -119,7 +122,7 @@ run)
     if [ -n "$pulse" ] || [ -n "$sitting_s" ]; then
         # a program that cannot stop itself, or one with a sitting: run it, watch it, stop it —
         # the sitting is read first, because the person's clock outranks the program's pulse
-        "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1 &
+        "$py" "$here/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1 &
         pid=$!
         while kill -0 "$pid" 2>/dev/null; do
             sleep 1
@@ -138,7 +141,7 @@ run)
         if [ -n "$why" ]; then echo "launch: $why — stopping it" >> "$STATE/log"; kill "$pid" 2>/dev/null; fi
         wait "$pid"; rc=$?; [ "$rc" -eq 143 ] && rc=0
     else
-        "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
+        "$py" "$here/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
     fi
     [ -n "$why" ] || why="exited $rc: $name stopped by itself"
     echo "$why" > "$STATE/stopped"   # its mtime is the last stop (serve, status); its line is why
@@ -159,7 +162,7 @@ status)
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
-        eval "set -- $status_cmd"; "$py" "$root/tools/keep.py" $flags -- "$@"
+        eval "set -- $status_cmd"; "$py" "$here/keep.py" $flags -- "$@"
     elif [ -f "$STATE/log" ]; then
         tail -5 "$STATE/log" | sed 's/^/  /'
     fi
@@ -173,7 +176,7 @@ serve)
     [ -f "$pullfile" ] || exit 0
     if [ -f "$STATE/stopped" ] && [ ! "$pullfile" -nt "$STATE/stopped" ]; then exit 0; fi
     flock -n "$lock" true 2>/dev/null || exit 0
-    setsid -f sh -c "exec '$root/tools/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
+    setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
     echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
