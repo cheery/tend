@@ -11,10 +11,12 @@
 # instruments keep it honest, and they are deliberately split:
 #
 # * The **hard half** is `test/test_summary.py`, at the gate: every tree
-#   path the summary cites must exist, and its one live claim — that the
-#   andon is not built — must still hold.  Rename a tool, delete a card,
-#   or finish `cords`, and the commit is refused until the summary is
-#   reconciled.  That is correctness, so it blocks.
+#   path the summary cites must exist, its one live claim — that the
+#   andon is built — must agree with `card:cords.md`'s shelf, and the
+#   printable twin must say what the sheets say (`tools/sheets.py`,
+#   2026-08-27).  Rename a tool, move a card, or let the HTML lag, and
+#   the commit is refused until the summary is reconciled.  That is
+#   correctness, so it blocks.
 #
 # * The **soft half** is this lamp: it does not know whether the *prose*
 #   is still true, only that a mechanism the summary describes has a

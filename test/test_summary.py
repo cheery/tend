@@ -12,7 +12,9 @@ to prevent.
 
 import pathlib
 import re
+import shutil
 import subprocess
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SUMMARY = ROOT / "doc" / "summary"
@@ -117,3 +119,47 @@ def test_the_lamp_parses_and_runs():
     assert subprocess.run(["sh", "-n", str(lamp)]).returncode == 0
     out = subprocess.run(["sh", str(lamp), "--hook"], capture_output=True, text=True)
     assert out.returncode == 0, "the lamp is a lamp, never a refusal"
+
+
+SHEETS_PY = ROOT / "tools" / "sheets.py"
+
+
+def test_the_twin_says_what_the_sheets_say():
+    """`tools/sheets.py` at the gate: the printable twin carries every
+    heading and every tree file or card the sheets name, names nothing
+    they do not, and its chips agree with the cards' shelves."""
+    r = subprocess.run([sys.executable, str(SHEETS_PY)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def _twin_tree(tmp_path):
+    t = tmp_path / "tree"
+    shutil.copytree(SUMMARY, t / "doc" / "summary")
+    shutil.copytree(ROOT / "board", t / "board", ignore=shutil.ignore_patterns("__pycache__"))
+    return t
+
+
+def test_the_checker_is_red_when_the_twin_lags_the_sheets(tmp_path):
+    t = _twin_tree(tmp_path)
+    md = t / "doc/summary/interfaces.md"
+    md.write_text(md.read_text(encoding="utf-8") + "\n## A section only the sheet has\n\nNames `tools/nowhere.sh`.\n", encoding="utf-8")
+    r = subprocess.run([sys.executable, str(SHEETS_PY), "--root", str(t)], capture_output=True, text=True)
+    assert r.returncode == 1
+    assert "✗ heading “A section only the sheet has”" in r.stdout
+    assert "✗ tools/nowhere.sh — named by a sheet, in the twin" in r.stdout
+
+
+def test_the_checker_is_red_when_the_twin_says_more_than_the_sheets(tmp_path):
+    t = _twin_tree(tmp_path)
+    tw = t / "doc/summary/tend-sheets.html"
+    tw.write_text(tw.read_text(encoding="utf-8").replace("<code>tools/andon.sh</code>", "<code>tools/andon.sh</code> <code>tools/ghost.sh</code>", 1), encoding="utf-8")
+    r = subprocess.run([sys.executable, str(SHEETS_PY), "--root", str(t)], capture_output=True, text=True)
+    assert r.returncode == 1 and "✗ tools/ghost.sh — named by the twin, in a sheet" in r.stdout
+
+
+def test_the_checker_is_red_when_a_chip_disagrees_with_the_shelf(tmp_path):
+    t = _twin_tree(tmp_path)
+    tw = t / "doc/summary/tend-sheets.html"
+    tw.write_text(tw.read_text(encoding="utf-8").replace("card:cords.md · done 2026-08-27", "card:cords.md · blocked → 2026-08-31", 1), encoding="utf-8")
+    r = subprocess.run([sys.executable, str(SHEETS_PY), "--root", str(t)], capture_output=True, text=True)
+    assert r.returncode == 1 and "chip says card:cords.md is blocked; the card is done in done/" in r.stdout
