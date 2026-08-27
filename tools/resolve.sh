@@ -26,7 +26,10 @@
 # one `grep` per command; a leash line per runner started.  Where there
 # is no state directory yet, nothing.
 set -u
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 case "${1:-}" in
 --hook) cat >/dev/null ;;
 --install)
@@ -57,6 +60,6 @@ esac
 for grant in "$root"/*/grant; do
     [ -f "$grant" ] || continue
     node=$(dirname "$grant")
-    sh "$root/tools/launch.sh" "$node" serve || true
+    sh "$here/launch.sh" "$node" serve || true
 done
 exit 0

@@ -60,7 +60,10 @@
 #       "command": "\"$CLAUDE_PROJECT_DIR\"/tools/kaizen.sh --hook" } ] } ]
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 WANT="${TEND_KAIZEN_WANT:-$HOME/.local/state/tend/kaizen-wanted}"
 
 case "${1:-}" in
@@ -119,8 +122,8 @@ began=$(git -C "$root" log --reverse --format=%cd --date=format:%F-%H%M "$range"
 # HH:MM, Nm in, Mm left of L" or "closed at HH:MM — why".  Absent, the
 # unit is still said; nothing here decides when a sitting ends.
 clock=""
-if [ -f "$root/tools/limit.sh" ]; then
-    clock=$(bash "$root/tools/limit.sh" 2>/dev/null | sed -n 's/^sitting *//p' | head -1) || clock=""
+if [ -f "$here/limit.sh" ]; then
+    clock=$(bash "$here/limit.sh" 2>/dev/null | sed -n 's/^sitting *//p' | head -1) || clock=""
 fi
 case "$clock" in
     closed*)  when="the sitting is closed ($clock) — write it now" ;;

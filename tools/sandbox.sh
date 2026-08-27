@@ -28,10 +28,14 @@
 # decided here: `tools/fence-hook.sh` holds the person's bound and
 # refuses a request outside it.  This script only knows the rows.
 #
-# **`audio` is wider than its name.**  It binds the PipeWire socket and
-# `/dev/snd`, and `/dev/snd` is the whole card: the programs-first trial
-# opened the capture device three times through it.  A socket-only ring
-# has not been measured; until it is, `audio` means the card, and says so.
+# **`audio` is the socket, and was the card.**  Until 2026-08-27 it bound
+# the PipeWire socket *and* `/dev/snd`, and `/dev/snd` is the whole card,
+# microphone included — the programs-first trial opened the capture
+# device three times through it.  The socket-only ring was measured that
+# day (card:cords.md): `tools/andon.sh ring` under `strace -e
+# openat,connect` from inside the fence connected to `$rt/pipewire-0` and
+# opened nothing under `/dev/snd`.  So the row is the socket alone now;
+# a caller that needs the card is a new row with its own measurement.
 #
 # **There is no `bus` row, and there was one.**  It handed the user bus
 # inside so that `tools/leash.sh` could make its cgroup there — and
@@ -69,7 +73,10 @@
 # any, and that is checked rather than assumed.
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# The tree this governs: TEND_TREE when installed (tools/install.sh), else
+# the parent of this file — a tree's own copy works as it always did.
+root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 trees="/home/cheery/gestate"
@@ -100,8 +107,17 @@ tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.
 # side (card:resolver.md, 2026-08-26): the scripts the hooks run.  Not
 # `leash.sh`: it shapes cost, it does not enforce.  `tools/fence.sh`
 # checks the deny-list carries the matching `Edit(./…)` rule for each,
-# and `test_sandbox.py` holds the two lists to one.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh"
+# and `test_sandbox.py` holds the two lists to one.  And, from 2026-08-27
+# (card:install.md, found while listing what an install must carry):
+# `tools/leash.sh` — it "shapes cost, it does not enforce" was true and
+# beside the point, because the fence-hook rewrites every command to
+# `leash.sh -- sandbox.sh …` and the harness runs that on the host, so
+# leash.sh is the program that execs the fence, unfenced, and a session
+# editing it could drop the fence from the exec; `tools/keep.py` — the
+# launcher confines every node through it, from the person's side; and
+# `tools/andon.sh` — its `pulled` is the record `limit.sh` grants a
+# sitting on.  Each was writable inside the fence when found.
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh tools/leash.sh tools/keep.py tools/andon.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a
@@ -132,7 +148,7 @@ while [ $# -gt 0 ]; do
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
   on   git       ~/.gitconfig  read-only — identity for commits
   off  net       the network; off, it fails as a name-resolution error
-  off  audio     the PipeWire socket and /dev/snd — the andon; the whole card, see the header
+  off  audio     the PipeWire socket — the andon rings through it; not /dev/snd, the card (see the header)
   off  display   the X socket and DISPLAY
 ROWS
             exit 0 ;;
@@ -164,7 +180,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --ro-bind-try $HOME/.gitconfig $HOME/.gitconfig
   --setenv HOME $HOME --setenv XDG_RUNTIME_DIR $rt --setenv TEND_FENCED 1
   --setenv PATH $root/.venv/bin:/usr/local/bin:/usr/bin:/bin
-  --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS"
+  --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS --unsetenv TEND_TREE"
 # The protected set, bound read-only over the tree after it: a file bind
 # refuses writes (EROFS) and refuses rename or unlink of the mountpoint.
 for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
@@ -184,7 +200,7 @@ for p in $protected; do opts="$opts --ro-bind $root/$p $root/$p"; done
 for grant in "$root"/*/grant; do
     [ -f "$grant" ] || continue
     nd=$(dirname "$grant"); st="$nd/state"
-    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    pf=$(sh "$here/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
     [ -n "$pf" ] || continue
     mkdir -p "$st"; [ -e "$pf" ] || : > "$pf"
     opts="$opts --ro-bind $st $st --bind $pf $pf"
@@ -205,7 +221,7 @@ for row in $reach; do
         # symlink into /run/systemd/resolve, and /run is not inside.
         # Found by test_sandbox.py the minute the row was written.
         net)     net=""; extra="$extra --ro-bind-try /run/systemd/resolve /run/systemd/resolve" ;;
-        audio)   extra="$extra --bind $rt/pipewire-0 $rt/pipewire-0 --dev-bind /dev/snd /dev/snd" ;;
+        audio)   extra="$extra --bind $rt/pipewire-0 $rt/pipewire-0" ;;
         display) display="--bind /tmp/.X11-unix /tmp/.X11-unix --setenv DISPLAY ${DISPLAY:-:0}" ;;
         *) echo "sandbox: no such row \`$row\` — tools/sandbox.sh --rows" >&2; exit 2 ;;
     esac
@@ -234,8 +250,8 @@ echo "sandbox: --check  ($root)"
 echo
 # 1. The clock, first.  The same sitting inside and out, or the fence has
 #    cut the person's cord.
-outside=$("$root/tools/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
-inside=$(fence "$root/tools/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
+outside=$("$here/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
+inside=$(fence "$here/limit.sh" 2>/dev/null | head -1 | sed 's/, [0-9]*m in.*//')
 if [ -z "$outside" ]; then
     say "·" "no sitting running outside — the clock cannot be compared"
 elif [ "$inside" = "$outside" ]; then
@@ -278,7 +294,7 @@ done
 probe "this tree is writable"           ok      sh -c "test -w $root"
 for grant in "$root"/*/grant; do
     nd=$(dirname "$grant"); st="$nd/state"; n=$(basename "$nd")
-    pf=$(sh "$root/tools/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
+    pf=$(sh "$here/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
     [ -n "$pf" ] || continue
     probe "$n/state is read-only"           blocked sh -c "touch $st/.probe"
     probe "$n's pull file passes through"   ok      sh -c ": >> $pf"

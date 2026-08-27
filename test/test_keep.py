@@ -359,7 +359,7 @@ def test_the_launchers_grant_appears_once():
     its own.  A hardcoded grant beside `keep.py` is red."""
     launch = (ROOT / "tools" / "launch.sh").read_text()
     keep_lines = [l for l in launch.splitlines()
-                  if "tools/keep.py" in l and not l.lstrip().startswith("#")]
+                  if "/keep.py" in l and not l.lstrip().startswith("#")]
     assert keep_lines, "the launcher does not invoke keep"
     for l in keep_lines:
         assert "$flags" in l, f"a keep invocation does not use the one built grant: {l.strip()}"

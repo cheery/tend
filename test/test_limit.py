@@ -395,13 +395,43 @@ def test_override_patch_refused_without_one(tmp_path):
 
 
 def test_an_unwired_word_is_refused_with_its_blocker(tmp_path):
-    """run and andon are named on the card but have no record to check
-    yet; they are refused with the blocker, never faked green."""
+    """run is named on the card but has no record to check yet; it is
+    refused with the blocker, never faked green."""
     tree = _git_tree(tmp_path / "tree", dirty=True)
     _, run = _override(tmp_path, "sitting 15 because run", tree)
     assert "refused" in run.stderr and "day two" in run.stderr, run.stderr
-    _, andon = _override(tmp_path, "sitting 15 because andon", tree)
-    assert "refused" in andon.stderr and "2026-08-31" in andon.stderr, andon.stderr
+
+
+def _andon(tmp_path, *words):
+    env = dict(os.environ, TEND_ANDON_STATE=str(tmp_path / "andon"), TEND_ANDON_PLAYER="true", TEND_ANDON_GAP="0")
+    return subprocess.run(["sh", str(ROOT / "tools" / "andon.sh"), *words], env=env, capture_output=True, text=True)
+
+
+def test_override_andon_verifies_while_a_ring_is_unanswered(tmp_path):
+    """green with it real: a question asked and rung, nobody has answered —
+    the record is the andon's own, read by the hook, not the session's word."""
+    tree = _git_tree(tmp_path / "tree")
+    assert _andon(tmp_path, "ask", "which prefix?").returncode == 0
+    assert _andon(tmp_path, "ring").returncode == 0
+    desk = Desk(tmp_path)
+    desk.env["TEND_LIMIT_TREE"] = str(tree)
+    desk.env["TEND_ANDON_STATE"] = str(tmp_path / "andon")
+    r = desk.prompt("sitting 15 because andon")
+    assert r.returncode == 2 and "verified" in r.stderr, r.stderr
+    assert "reason=andon" in _last(desk, "grant")[2] and "verified=1" in _last(desk, "grant")[2]
+
+
+def test_override_andon_refused_with_nothing_pulled(tmp_path):
+    """red with the check faked: asked but never rung is a draft; answered is
+    hung up.  Neither grants."""
+    tree = _git_tree(tmp_path / "tree")
+    _andon(tmp_path, "ask", "q")
+    desk = Desk(tmp_path)
+    desk.env["TEND_LIMIT_TREE"] = str(tree)
+    desk.env["TEND_ANDON_STATE"] = str(tmp_path / "andon")
+    r = desk.prompt("sitting 15 because andon")
+    assert "refused" in r.stderr and "no cord is pulled" in r.stderr, r.stderr
+    assert "verified=0" in _last(desk, "grant-refused")[2]
 
 
 def test_an_unknown_reason_is_refused(tmp_path):
