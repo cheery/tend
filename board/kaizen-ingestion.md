@@ -111,7 +111,8 @@ session reads ten, and what each reading produces is one line.
 | 1 | Wed 2026-08-26 | 24-1549 24-1758 25-0626 25-0639 25-0646 25-0703 25-0714 25-0721 25-0732 25-0744 |
 | 2 | Thu 2026-08-27 | 25-0753 25-0803 25-0824 25-0828 25-1404 25-1412 25-1424 25-1428 25-1436 25-1445 |
 | 3 | Fri 2026-08-28 | 25-1506 25-1522 25-1530 25-1540 26-0721 26-0728 26-0739 26-0743 26-0751 26-0801 |
-| 4… | Mon 2026-08-31 → | the ten oldest unread, whatever has arrived since |
+| 4 | Mon 2026-08-31 | 26-0812 26-0822 26-0847 26-0855 26-0905 26-0910 26-0926 26-0931 26-1304 26-1309 |
+| 5… | Tue 2026-09-01 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -176,3 +177,33 @@ lamp out — `tools/kaizen.sh` reads the newest commit touching
 ledger is `doc/ingested.md`, one directory up, and the lamp's rule is
 a `green` row waiting to be written: a file in its directory that is
 not a kaizen, and the lamp goes dark.
+
+## 2026-08-27 — batch 2 read; the arrival rate measured against the plan
+
+Batch 2 is in `doc/ingested.md`: ten lines, the ledger's first
+`promoted` (one sentence in `board/README.md` §"What the days taught",
+cited to three kaizens), two strands at three faces left unpromoted
+with the reason written, one strand closed by application, and one
+line that is this card's `because` in a grep — a test workaround a
+kaizen named two days ago is still in the tree.  Batch 4 is filled in
+above; batch 3 stays Friday's and is Henri's or a session's that did
+not write it.
+
+**The arrival rate was a number picked in writing, and it was wrong
+by five.**  The plan said kaizens arrive at five to seven a day and
+that ten a day "drains the backlog in three days."  `ls doc/kaizen`
+today: 61 files; 2026-08-26 alone wrote 37.  After Friday's batch,
+31 are unread before Monday's arrivals.  The level holds at ten — the
+plan's own rule, a missed forecast moves the tail out and does not
+double the batch — and the drain claim is withdrawn, not the
+schedule.  The lamp slice (§"What this is not": nothing lights when a
+day's batch is unread) was to be built when the slipping is measured;
+what is measured today is arithmetic, not a missed day.  It waits for
+the first one.
+
+**The `see` line's "manifesto.md — R10 (measure, don't assert)"
+cites a rule that is not there.**  Neither tend's `manifesto.md` nor
+gestate's has an R10; the nearest is §"The three ways an instrument
+fails" and rule 2.  The line stays as written with this beside it
+(board/README.md: a tree that only ever reads as right teaches
+nothing); a reader following it will now find the correction first.

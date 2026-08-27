@@ -112,6 +112,15 @@ to a hook that had refused a commit — and the day a session remade
 gestate's `pgrep` bug an hour after reading about it, and had to be
 told to write this.
 
+**A mechanism a session cannot test is proposed, not declared** —
+three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
+counting itself "the third time in two days"), promoted by the second
+ingestion batch (`doc/ingested.md`, 2026-08-27).  What closed the
+strand was not this sentence but a route: a claim that cannot be run
+from where the session sits goes to the side that can run it — a
+gestate session unfenced, or Henri's hand — and until it comes back
+the commit says which line has not executed.
+
 ## A word left for you
 
 `doc/specimens/2026-08-24-qwen3.8-27b.txt` — a session on another
