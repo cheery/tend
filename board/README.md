@@ -30,7 +30,13 @@ is for.  `test/test_board.py` refuses a card without one.
 `board/*.md` is open work.  `done/` is finished — the problem no longer
 stands.  `later/` is real and not being worked: it waits on an event or
 on a decision, and it says which.  A `blocked` card names what it waits
-on.  Moving between shelves never renames the file.
+on.  Moving between shelves never renames the file.  **Cite a card as
+`card:<name>.md`**, never by shelf path: the notation resolves on
+whichever shelf the card is, so a move to `done/` breaks nothing — the
+form gestate's board uses, taken here on 2026-08-27 when closing two
+cards broke the summaries' path citations ("it starts to matter
+slowly" — Henri).  `test_board.py` resolves every citation in the
+board and the summaries; `test_summary.py` resolves the sheets'.
 
 ## The priority
 
@@ -41,20 +47,7 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[install](install.md)** — the files that enforce the boundary are
-   the tree's own, so protecting them and developing them are one
-   directory pulling two ways, and the copy in force still lives where a
-   session configures it; "we do way too much effort here now" (Henri,
-   2026-08-27).  *Placed here by the session that wrote it, below
-   `work-environment-ai` whose principle it advances and above the build
-   cards because the effort it names taxes every card that touches a
-   protected file — a stretch for a fresh card, so marked and his to
-   move.*  Researched and built 2026-08-27: `/usr/local/lib/tend`,
-   root-owned, `tools/install.sh` installs HEAD and reads it back; the
-   protected scripts' change rides the branch `install-day1`, and the
-   sudo install, the hook repoint and the `--check` are his lines
-   (the card has them).
-3. **[session-program](session-program.md)** — a node tend runs is a
+2. **[session-program](session-program.md)** — a node tend runs is a
    program, not a session, until it carries the cords: a limit, a lamp,
    a way to reach the person.  The grant half of "a session is a
    program" is built; this is the half `keep` and `resolver` named and
@@ -64,18 +57,13 @@ between two workable cards is Henri's.
    his to move.*  Blocked 2026-08-27 on one event, the first node that
    leads work — the limit is built, the lamp and the andon wait on it,
    and Henri's "not yet" closed the second-word question the same way.
-4. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
+3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-5. **[cords](cords.md)** — a session here cannot reach a person, and
-   nothing ends a sitting.  Taken into a batch 2026-08-27 before its
-   week was out, at Henri's word: `tools/andon.sh` built and rung, the
-   ring measured socket-only, the count closed at zero; recommendation
-   is done on his review after the branch merges.
-6. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
+4. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
    holds only for sessions started in two directories, and the grant it
    offers has no shape: on 2026-08-26 the desk was retaken within
    minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
@@ -107,6 +95,20 @@ level, and the blindness the sweep found lived only in the wiring
 between a detector and what runs it, never in a rule; the standing sweep
 is `tools/mutate.sh`, and the two proofs that need an unfenced seat ride
 to `done/` as measurement owed to the next outside run.
+
+`install` and `cords` finished 2026-08-27, the same evening, on Henri's
+"check that the install and cords are done, and then mark them done if
+they are fully done" — checked from both sides first.  `install`
+(`done/install.md`): the restraints in force live at
+`/usr/local/lib/tend`, root-owned, installed from HEAD and read back by
+`tools/install.sh --check`; the tree's copies are the workbench, and a
+change to a restraint is an edit in place, a commit through the gate,
+and his `sudo tools/install.sh`.  `cords` (`done/cords.md`):
+`tools/andon.sh` — ask, ring, be answered — closed its first loop at
+17:05, the `audio` row is the socket alone, and `sitting N because
+andon` reads the cord's own record.  The outside suite ran 346 with
+none skipped.  The residue is `lander` (not yet a card) and the andon
+on a node (`session-program`).
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.

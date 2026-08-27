@@ -1,6 +1,6 @@
 # install — the boundary lives in the tree it is meant to be outside of, and developing it costs too much
 
-    status   open
+    status   done — 2026-08-27
     because  the files that enforce the boundary are the tree's own, so
              protecting them and developing them are one directory
              pulling two ways.  A session cannot edit a restraint here —
@@ -313,4 +313,17 @@ without sudo, which `TEND_PREFIX` and `--check`'s "weaker" line already
 speak to.  `install.sh --check` is now the line to read first in any
 session: drift between HEAD and the prefix is the one silent state
 this arrangement can have.
+
+
+## Done — 2026-08-27, 17:1x, on Henri's review
+
+Henri: *"lets check that the install and cords are done, and then mark
+them done if they are fully done."*  Checked: `sudo tools/install.sh`
+put HEAD 4a6d353 in force; `tools/install.sh --check` from inside —
+every file at HEAD, every hook on the prefix, *the tree's copies are
+the workbench — no Edit rule denies them*, `in force: the installed
+set, at HEAD`.  And the suite run from outside, `python3
+tools/suite.py` in the venv: **346 passed, 0 skipped** — the bwrap
+workbench test and `test_fence_hook.py`'s `TEND_TREE=` line, proposed
+from inside, executed.  Moved to `done/` by the session, on his word.
 

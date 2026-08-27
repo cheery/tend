@@ -23,7 +23,7 @@ split the way the rest of the tree splits hard from soft:
 
 * **The gate — `test/test_summary.py`.**  Every tree path the summaries
   cite must exist, and their one live claim — that the andon is not yet
-  built — must still be true (`board/cords.md` not in `done/`).  Rename
+  built — must still be true (`card:cords.md` not in `done/`).  Rename
   a tool, delete a card, or finish `cords`, and the commit is refused
   until the summary is reconciled.  This is correctness; it blocks.
 

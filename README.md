@@ -48,9 +48,9 @@ node/run.sh pull                # nothing is running, so this starts the node �
 node/run.sh status              # what it did — also readable as node/state/node.state
 ```
 
-The node is the first program of tend's own (`board/done/pull.md`): a
+The node is the first program of tend's own (`card:pull.md`): a
 tally, whose whole memory is one JSON file.  Nobody starts it by hand —
-the pull is the launch (`board/resolver.md`).  `node/run.sh` runs it
+the pull is the launch (`card:resolver.md`).  `node/run.sh` runs it
 confined by `tools/keep.py` — it may read its own code and write its
 own state directory, and nothing else — which needs Landlock (Linux
 5.13+, no root, no build).  Where that is absent, keep refuses out loud
@@ -80,7 +80,7 @@ Three of these are **keys the person turns, not a session**:
 settings file is the person's.
 
 **Not built yet:** a way for a session to reach the person mid-run —
-the andon.  `board/cords.md` says why it waits, and until when.
+the andon.  `card:cords.md` says why it waits, and until when.
 
 ## Read next
 

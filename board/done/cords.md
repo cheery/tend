@@ -1,17 +1,12 @@
 # cords — a session in tend cannot reach a person, and nothing ends a sitting
 
-    status   blocked
+    status   done — 2026-08-27
     because  a session that hits a question it cannot answer has two
              bad moves — guess, or stop silently — and this tree offers
              it nothing else; and the person's hours are governed here
              by nothing at all
     asked    Henri, 2026-08-24 — "add the needed cards so that the
              absent work is completed"
-    blocked  the andon's week: it waits on 2026-08-31 and the count of
-             guessed questions, per this card's own last section.  The
-             sitting limit no longer waits on anything — installed for
-             tend on 2026-08-24, and gestate keeps its own copy by
-             Henri's decision (below)
     see      ~/gestate/tools/andon.sh, ~/gestate/tools/limit.sh — the
              two cords gestate has; the audit calls both absent here
              card:work-environment-ai.md — the budget, grant and
@@ -140,3 +135,16 @@ install, `REACH=audio tools/andon.sh ring` from inside the fence — the
 `audio` row now the PipeWire socket alone, no `/dev/snd` — rang the
 pending question once, exit 0.  The proposed line has executed; the
 row is the socket.
+
+
+## Done — 2026-08-27, 17:05, the first loop closed
+
+The cord's loop — ask, ring, be answered — closed for the first time at
+17:05: Henri's `tools/andon.sh answered` on the prefix question rung at
+16:30; `pulled` reads *not pulled — 0 pending*.  The andon word in
+`limit.sh` and the socket-only row are installed and in force, and the
+outside suite (346 passed, 0 skipped) executed the fence-hook lines.
+The week's count closed at zero on 2026-08-27, four days in, at his
+word.  What the card leaves is `session-program`'s: the same cord on a
+node that leads work.  Moved to `done/` by the session, on his word.
+

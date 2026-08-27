@@ -215,3 +215,46 @@ def test_the_board_lists_every_open_card_in_order():
     assert listed - on_disk == set(), (
         "the priority names cards that are not there (moved to done/?):\n  "
         + "\n  ".join(sorted(listed - on_disk)))
+
+
+
+CARD_CITE = re.compile(r"card:([a-z][a-z0-9-]*\.md)")
+
+
+#: The boards a citation may resolve on: this tree's, then gestate's —
+#: `work-environment-ai` came from there and still cites its cards, and
+#: the fence binds that board read-only for exactly this reading.  A
+#: tree that is not on this machine cannot be checked and is skipped.
+BOARDS = [BOARD, Path.home() / "gestate" / "board"]
+
+
+def resolve_card(name: str) -> Path | None:
+    """`card:<name>.md` — the citation form (board/README.md §"Where a card
+    is"): the filename is the id, the shelf is not part of it, and the
+    tree is whichever of the two holds it."""
+    for board in BOARDS:
+        if not board.is_dir():
+            continue
+        for shelf in ("", "done/", "later/"):
+            c = board / shelf / name
+            if c.is_file():
+                return c
+    return None
+
+
+def test_every_card_citation_resolves_on_some_shelf():
+    """A citation names a card, not a path, so moving a card between
+    shelves breaks nothing — and a citation to a card that is on no
+    shelf is a dangling name, red here.  Cards, the board README, the
+    root README and the summaries are read; kaizens are history and are
+    not (a kaizen may name a card that was later folded away)."""
+    sources = cards() + [BOARD / "README.md", ROOT / "README.md"] + sorted((ROOT / "doc" / "summary").glob("*.md"))
+    if not all(b.is_dir() for b in BOARDS):
+        pytest.skip("the other tree's board is not on this machine — cross-tree citations cannot be resolved here")
+    dangling = {}
+    for f in sources:
+        for name in set(CARD_CITE.findall(f.read_text(encoding="utf-8"))):
+            if resolve_card(name) is None:
+                dangling.setdefault(str(f.relative_to(ROOT)), []).append(name)
+    assert not dangling, f"citations to cards on no shelf, in either tree: {dangling}"
+    assert resolve_card("working-standard.md") is not None, "a cross-tree citation resolves on gestate's shelf"

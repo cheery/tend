@@ -2,8 +2,8 @@
 
 *Everything human-facing in tend, by kind: the keys only the person may
 turn, the instruments a session and the person both run, what the tree
-says back unbidden, the plain files a person reads — and the one cord
-not built yet.  Canonical text; the styled, printable version is
+says back unbidden, the plain files a person reads — and the one
+outward cord, the andon.  Canonical text; the styled, printable version is
 `tend-sheets.html`.  What keeps it honest is in [README.md](README.md).*
 
 ## Keys you hold — yours, run unfenced
@@ -63,16 +63,20 @@ session cannot edit it to effect.*
 - `node/*.state` — a program's whole memory, as JSON you can read
   without the program.
 
-## Not built yet — the andon (`board/cords.md`, blocked → 2026-08-31)
+## The andon — the outward cord (`card:cords.md`, done 2026-08-27)
 
-**The andon** — a way for a session to reach the person mid-run, capped,
-questions batched — does not exist.  Today a session that hits a
-question it cannot answer must guess or stop; the count of guesses is
-being kept first, to prove the cord is one somebody would pull.  The
-surface is honest about its own hole.
+**The andon** — `tools/andon.sh`: a session writes its question first
+(`ask`), then rings the person through the PipeWire socket (`ring` —
+at most three, eight seconds apart, refused within ten minutes of the
+last, refused with nothing asked).  The record —
+`~/.local/state/tend/andon.pending`, `andon.log` — is what `sitting N
+because andon` is granted on, read by the hook, not the session.
+`answered` is the person's word, refused inside the fence.  The count
+of guessed questions closed at zero after four days; the cord's first
+loop — ask, ring, answered — closed on 2026-08-27 at 17:05.
 
 ---
 
 *Keys turn the bound; instruments read it; the tree speaks in lamps,
-never alarms.  The only outward cord — a session reaching the person —
-is the one thing not built.*
+never alarms.  The one outward cord — a session reaching the person —
+rings through a socket and leaves a record.*

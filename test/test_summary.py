@@ -39,6 +39,31 @@ def cited_paths(text):
     return out
 
 
+CARD = re.compile(r"card:([a-z][a-z0-9-]*\.md)")
+
+
+def card_path(name):
+    """`card:<name>.md` resolves on whichever shelf the card is — board/,
+    done/, later/ — so a citation survives a move (board/README.md §"Where
+    a card is"; gestate's notation, taken 2026-08-27)."""
+    for shelf in ("", "done/", "later/"):
+        c = ROOT / "board" / shelf / name
+        if c.is_file():
+            return c
+    return None
+
+
+def test_every_card_the_summary_cites_resolves():
+    unresolved = {}
+    for f in SHEETS + [SUMMARY / "README.md"]:
+        for name in set(CARD.findall(f.read_text(encoding="utf-8"))):
+            if card_path(name) is None:
+                unresolved.setdefault(f.name, []).append(name)
+    assert not unresolved, f"summary cites cards on no shelf: {unresolved}"
+    assert "cords.md" in CARD.findall((SUMMARY / "interfaces.md").read_text(encoding="utf-8")), \
+        "the andon section cites its card by name"
+
+
 def test_the_summaries_exist_and_have_the_printable_sheet():
     for f in SHEETS:
         assert f.is_file(), f
@@ -68,21 +93,23 @@ def test_the_summary_names_the_real_tools():
         assert expect in cited, f"{expect} is no longer named in rules.md"
 
 
-def test_the_not_built_claim_still_holds():
-    """The one live claim on the sheets: the andon is not built, `cords`
-    is blocked.  If `cords` is finished (moves to done/) or unblocks, the
-    interfaces sheet is stale by exactly that, and this makes it say so."""
+def test_the_andon_claim_matches_the_cards_shelf():
+    """The one live claim on the sheets, in its second form.  Until
+    2026-08-27 the sheet said the andon was not built and `cords` was
+    blocked, and this test held that; `cords` moved to done/ that
+    evening and the sheet moved with it.  Now: the sheet says the cord
+    is built only while the card is in done/, and says "not built" only
+    while it is not."""
     text = (SUMMARY / "interfaces.md").read_text(encoding="utf-8")
-    assert "not built yet" in text.lower()
-    assert (ROOT / "board" / "cords.md").is_file(), \
-        "the sheet says cords is not built; if it moved, the sheet must too"
-    assert not (ROOT / "board" / "done" / "cords.md").exists(), \
-        "cords is done — update interfaces.md's 'Not built yet' section"
-    status = subprocess.run(
-        ["sed", "-n", "s/^    status *//p", str(ROOT / "board" / "cords.md")],
-        capture_output=True, text=True).stdout.strip()
-    assert status.startswith("blocked"), \
-        f"cords is '{status}', not blocked — interfaces.md's andon section is stale"
+    done = (ROOT / "board" / "done" / "cords.md").is_file()
+    if done:
+        assert "not built yet" not in text.lower(), "cords is done — the sheet still says not built"
+        assert "tools/andon.sh" in text, "the built cord is named by its tool"
+        status = subprocess.run(["sed", "-n", "s/^    status *//p", str(ROOT / "board" / "done" / "cords.md")],
+                                capture_output=True, text=True).stdout.strip()
+        assert status.startswith("done"), status
+    else:
+        assert "not built yet" in text.lower(), "cords is not done — the sheet must say the andon is not built"
 
 
 def test_the_lamp_parses_and_runs():
