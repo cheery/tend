@@ -21,6 +21,9 @@
 #     idle SECONDS      stop when nothing has pulled for this long (default 30; TEND_IDLE overrides)
 #     pulse FILE        a file whose mtime is the program's activity — for a program that cannot stop
 #                       itself, the launcher watches this and stops it on idle
+#     sitting MINUTES   a sitting has a length: the runner is stopped when it is up, however busy the
+#                       program is — the person's clock, not the program's (TEND_SITTING overrides,
+#                       in minutes).  Absent, the node is a program; present, it carries the first cord
 #     pull FILE         the file a pull appends to (default $STATE/pull)
 #     program CMD...    what runs, under the grant.  Lines may use $NODE, $STATE, $IDLE and $MODEL
 #     status CMD...     what says what it did (optional; run read-only under the grant)
@@ -38,6 +41,25 @@
 #     $MODEL   the first *.gguf under NODE/model, if any — a model is data the
 #              person brings; its name is never in the tree
 #     $STATE   NODE/state, or TEND_STATE_DIR (tests point it at a scratch dir)
+#
+# **The sitting** (2026-08-27, board/session-program.md — day one: one
+# cord on the llm node, shown to hold).  `idle` is the program's
+# lifecycle: it stops when nothing pulls.  `sitting` is the person's
+# clock: it stops when the minutes are up, pulled or not, the way
+# `tools/limit.sh` ends a hosted sitting — and a node with no `sitting`
+# line is a program, not a session.  The length is declared at the door,
+# in the grant beside the program, which the program cannot write (keep
+# hands it its model and its state and nothing else); so a node may end
+# its sitting early — idle — and can never extend one, the asymmetry
+# `test/test_limit.py` holds for the hosted session.  A pull's text is
+# never read as a grant: `pull sitting 90` is a line in the pull file
+# and nothing more.  The stop is a close, not a crash — exit 0, the
+# reason written into `$STATE/stopped` and the log — where the leash's
+# wall budget is a crash (exit 124); a sitting longer than that budget
+# is cut by the leash first, and sizing the budget is `grant`'s dial,
+# not this word's (doc/kaizen/2026-08-25-1436.md, item 2).  Nothing here
+# touches the person's own clock (`~/.local/state/gestate/sittings.log`):
+# a node's sitting is the node's, kept in its state directory.
 set -u
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 [ $# -ge 2 ] || { sed -n '4,10p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
@@ -50,7 +72,7 @@ py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch:
 MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
 export NODE STATE MODEL
 
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
@@ -60,6 +82,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         no-net)      flags="$flags --no-net" ;;
         idle)        idle_grant=$val ;;
         pulse)       eval "pulse=\"$val\"" ;;
+        sitting)     sitting_grant=$val ;;
         pull)        eval "pullfile=\"$val\"" ;;
         program)     program=$val ;;
         status)      status_cmd=$val ;;
@@ -67,6 +90,12 @@ while IFS= read -r line || [ -n "$line" ]; do
     esac
 done < "$NODE/grant"
 IDLE="${TEND_IDLE:-${TEND_NODE_IDLE:-${idle_grant:-30}}}"; export IDLE
+SITTING="${TEND_SITTING:-$sitting_grant}"; sitting_s=""
+case "$SITTING" in
+    "") ;;
+    *[!0-9.]*|.|"") echo "launch: $name/grant: sitting wants minutes, got \`$SITTING\`" >&2; exit 2 ;;
+    *) sitting_s=$(awk "BEGIN { print int($SITTING * 60) }") ;;
+esac
 [ -n "$program" ] || { echo "launch: $name/grant has no program line" >&2; exit 2; }
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
@@ -75,6 +104,7 @@ lock="$STATE/run.lock"
 case "$verb" in
 grant)
     echo "keep $flags"; echo "program $program"; [ -n "$pulse" ] && echo "pulse $pulse"; echo "pull $pullfile"; echo "idle $IDLE"
+    [ -n "$sitting_s" ] && echo "sitting $SITTING min"
     exit 0 ;;
 run)
     mkdir -p "$STATE"
@@ -85,25 +115,33 @@ run)
     flock -w 2 9 || { echo "launch: a runner already holds $lock — pull $name instead." >&2; exit 75; }
     rm -f "$STATE/stopped"
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
-    began=$(date +%s)
-    if [ -n "$pulse" ]; then
-        # a program that cannot stop itself: run it, watch its pulse, stop it on idle
+    began=$(date +%s); why=""
+    if [ -n "$pulse" ] || [ -n "$sitting_s" ]; then
+        # a program that cannot stop itself, or one with a sitting: run it, watch it, stop it —
+        # the sitting is read first, because the person's clock outranks the program's pulse
         "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1 &
         pid=$!
         while kill -0 "$pid" 2>/dev/null; do
             sleep 1
-            last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
-            [ "$last" -lt "$began" ] && last=$began
-            if [ $(( $(date +%s) - last )) -ge "${IDLE%.*}" ]; then
-                echo "launch: nothing has pulled $name for ${IDLE}s — stopping it" >> "$STATE/log"
-                kill "$pid" 2>/dev/null; break
+            now=$(date +%s)
+            if [ -n "$sitting_s" ] && [ $(( now - began )) -ge "$sitting_s" ]; then
+                why="sitting: the $SITTING minutes of $name are up (from $(date -d "@$began" +%H:%M); the length is $name/grant's)"; break
+            fi
+            if [ -n "$pulse" ]; then
+                last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
+                [ "$last" -lt "$began" ] && last=$began
+                if [ $(( now - last )) -ge "${IDLE%.*}" ]; then
+                    why="idle: nothing has pulled $name for ${IDLE}s"; break
+                fi
             fi
         done
+        if [ -n "$why" ]; then echo "launch: $why — stopping it" >> "$STATE/log"; kill "$pid" 2>/dev/null; fi
         wait "$pid"; rc=$?; [ "$rc" -eq 143 ] && rc=0
     else
         "$py" "$root/tools/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
     fi
-    touch "$STATE/stopped"
+    [ -n "$why" ] || why="exited $rc: $name stopped by itself"
+    echo "$why" > "$STATE/stopped"   # its mtime is the last stop (serve, status); its line is why
     exit "$rc" ;;
 pull)
     [ -d "$STATE" ] || mkdir -p "$STATE" 2>/dev/null || true
@@ -119,7 +157,7 @@ pull)
 status)
     if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"; else echo "$name: running"; fi
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
-    [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')"
+    [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
         eval "set -- $status_cmd"; "$py" "$root/tools/keep.py" $flags -- "$@"
     elif [ -f "$STATE/log" ]; then
