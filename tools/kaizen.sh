@@ -15,15 +15,28 @@
 # `tools/pre-commit.sh`, after the gates pass) and the prompt (as a
 # hook, so the line lands in the session's own context).
 #
-# **One kaizen per session, not per day.**  The first version counted
-# today's commits against today's file, and Henri, the same evening:
-# *"I do several sessions in a day."*  So the measure is **commits since
-# the last kaizen** — the newest commit that touched `doc/kaizen/` is
-# the last sitting that ended properly, and anything after it is work
-# no kaizen covers.  A file is named `doc/kaizen/<date>-<HHMM>.md` by
-# **when the session began** — the end is fuzzy, the start is a fact —
-# and the start is read from the tree: the first commit since the last
-# kaizen.  The lamp says the name, so two sessions cannot disagree.
+# **One kaizen per sitting — not per day, and not per session.**  The
+# first version counted today's commits against today's file, and
+# Henri, the same evening: *"I do several sessions in a day."*  So the
+# measure is **commits since the last kaizen** — the newest commit that
+# added a kaizen is the last sitting that ended properly, and anything
+# after it is work no kaizen covers.  A file is named
+# `doc/kaizen/<date>-<HHMM>.md` by **when the sitting began** — the end
+# is fuzzy, the start is a fact — and the start is read from the tree:
+# the first commit since the last kaizen.  The lamp says the name, so
+# two sessions cannot disagree.
+#
+# **And a session is not a sitting** (2026-08-27, `doc/reading-2026-08-27.md`):
+# on 2026-08-26 the desk had 14 sittings and this lamp was answered 39
+# times, because every session read *"the sitting is not over"* as its
+# own and wrote one before it ended.  The unit is the sitting — the
+# stretch Henri is at the desk, the thing `tools/limit.sh` measures.
+# A session that ends while the sitting goes on owes nothing: the lamp
+# stays lit and the next session inherits it.  The kaizen is written
+# when the sitting ends — when Henri closes it, or the clock does — and
+# covers every uncovered commit, whoever made them.  So the line says
+# the unit, and reads the desk's clock beside the name when
+# `tools/limit.sh` is there to ask; reading grants nothing.
 #
 # **A session does not judge whether it owes another.**  The first
 # draft said a session that goes on after its kaizen "owes another",
@@ -61,7 +74,7 @@ want)
     printf '%s\t%s\n' "$(date +%s)" "$2" > "$WANT"
     echo "kaizen wanted, $(date +%H:%M): $2"
     exit 0 ;;
--h|--help) sed -n '2,44p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+-h|--help) sed -n '2,60p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 *) echo "kaizen: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
@@ -102,9 +115,22 @@ fi
 began=$(git -C "$root" log --reverse --format=%cd --date=format:%F-%H%M "$range" 2>/dev/null | head -1)
 [ -n "$began" ] || began=$(date +%F-%H%M)
 
+# The desk's clock, if there is one to ask: `limit.sh` says "started
+# HH:MM, Nm in, Mm left of L" or "closed at HH:MM — why".  Absent, the
+# unit is still said; nothing here decides when a sitting ends.
+clock=""
+if [ -f "$root/tools/limit.sh" ]; then
+    clock=$(bash "$root/tools/limit.sh" 2>/dev/null | sed -n 's/^sitting *//p' | head -1) || clock=""
+fi
+case "$clock" in
+    closed*)  when="the sitting is closed ($clock) — write it now" ;;
+    started*) when="one per sitting, not per session — write it when the sitting ends (${clock#*, })" ;;
+    *)        when="one per sitting, not per session — write it when the sitting ends" ;;
+esac
+
 if [ -n "$wanted" ]; then
-    echo "🔴 kaizen wanted — $wanted — the sitting is not over until doc/kaizen/$began.md is written."
+    echo "🔴 kaizen wanted — $wanted — the sitting is not over until doc/kaizen/$began.md is written; $when."
 else
-    echo "🔴 kaizen: $n commit(s) $since — the sitting is not over until doc/kaizen/$began.md is written."
+    echo "🔴 kaizen: $n commit(s) $since — the sitting is not over until doc/kaizen/$began.md is written; $when."
 fi
 exit 0

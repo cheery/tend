@@ -178,3 +178,29 @@ def test_the_hook_form_reaches_the_session(tmp_path):
 
 def test_an_unknown_argument_is_refused_out_loud(tmp_path):
     assert Repo(tmp_path).lamp("--bogus").returncode == 2
+
+
+def test_the_lamp_says_one_per_sitting_not_per_session(tmp_path):
+    """**2026-08-27, doc/reading-2026-08-27.md**: 39 kaizens for 14
+    sittings on 08-26, because every session read "the sitting is not
+    over" as its own.  The line now says the unit, every time it lights."""
+    r = Repo(tmp_path)
+    r.commit()
+    out = r.lamp().stdout
+    assert "one per sitting, not per session" in out and "write it when the sitting ends" in out, out
+    r.lamp("want", "because")
+    assert "one per sitting, not per session" in r.lamp().stdout
+
+
+def test_the_lamp_reads_the_desks_clock_when_there_is_one(tmp_path):
+    """The clock is `tools/limit.sh`'s (its own tests are test_limit.py);
+    the lamp only repeats what it says — and says *now* when it says
+    closed.  Without a clock beside it the line still names the unit."""
+    r = Repo(tmp_path)
+    r.commit()
+    clock = tmp_path / "tools" / "limit.sh"
+    clock.write_text("#!/bin/sh\necho 'sitting  started 05:20, 33m in, 27m left of 60'\n")
+    assert "27m left of 60" in r.lamp().stdout
+    clock.write_text("#!/bin/sh\necho 'sitting  closed at 05:50 — the thing you came for is done'\n")
+    out = r.lamp().stdout
+    assert "the sitting is closed" in out and "write it now" in out, out

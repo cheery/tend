@@ -97,25 +97,36 @@ worked, and each says what it waits on.
 
 ## What the days taught
 
-**Every session ends with a kaizen** — Henri, 2026-08-24: *"it's big
-thing to do after each session"* — one file per session in
-`doc/kaizen/`, named `<date>-<HHMM>.md` by when the session began —
-its first commit after the last kaizen, which the lamp reads from the
-tree and says: what went
-right and why, what went wrong named as whose, what should change
-tomorrow.  It is not done when told; it is how a sitting ends.
-`tools/kaizen.sh` is the lamp: it lights while there are commits since
-the last kaizen, at every commit and (as a hook) at every prompt, and
-says which file to write — *the sitting is not over until it is
-written*.  Several sessions a day is the normal case (Henri,
-2026-08-24), so the measure is commits, never the date.  And a session
-never judges whether it owes another: it says so — `tools/kaizen.sh
-want "why"` — and the lamp carries the reason until the next kaizen
-lands.  The
-first, `2026-08-24-1549.md`, is the day this board went from one test
-to a hook that had refused a commit — and the day a session remade
-gestate's `pgrep` bug an hour after reading about it, and had to be
-told to write this.
+**Every sitting ends with a kaizen — one per sitting, not per
+session** — Henri, 2026-08-24: *"it's big thing to do after each
+session"*; and 2026-08-27, after 2026-08-26 had 39 kaizens for 14
+sittings (`doc/reading-2026-08-27.md`, point 1), the unit is the
+**sitting**: the stretch Henri is at the desk, the thing
+`tools/limit.sh` measures.  One file per sitting in `doc/kaizen/`,
+named `<date>-<HHMM>.md` by when the sitting began — its first commit
+after the last kaizen, which the lamp reads from the tree and says —
+written when the sitting ends (when Henri closes it, or the clock
+does) and covering every commit since the last kaizen, whoever made
+them: what went right and why, what went wrong named as whose, what
+should change tomorrow.  It is not done when told; it is how a sitting
+ends.  **A session that ends while the sitting goes on owes nothing**:
+the lamp stays lit and the next session inherits it.  `tools/kaizen.sh`
+is the lamp: it lights while there are commits since the last kaizen,
+at every commit and (as a hook) at every prompt, says which file to
+write — *the sitting is not over until it is written* — and, since
+2026-08-27, says the unit and the desk's clock beside the name.
+Several sessions a day, and several per sitting, is the normal case
+(Henri, 2026-08-24), so the measure is commits, never the date.  And a
+session never judges whether it owes another: it says so —
+`tools/kaizen.sh want "why"` — and the lamp carries the reason until
+the next kaizen lands.  The first, `2026-08-24-1549.md`, is the day
+this board went from one test to a hook that had refused a commit —
+and the day a session remade gestate's `pgrep` bug an hour after
+reading about it, and had to be told to write this.  *Until
+2026-08-27 this paragraph said "every session ends with a kaizen"*,
+and on 2026-08-26 thirty-nine sessions each wrote one; kept as a
+correction rather than rewritten, because the surplus is what
+`kaizen-ingestion` is reading.
 
 **A mechanism a session cannot test is proposed, not declared** —
 three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
