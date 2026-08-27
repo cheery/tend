@@ -126,6 +126,31 @@ from where the session sits goes to the side that can run it — a
 gestate session unfenced, or Henri's hand — and until it comes back
 the commit says which line has not executed.
 
+**To try a change to a protected script, clone the tree — never a
+worktree.**  A session cannot edit the protected set (`card:self.md`):
+those files are read-only inside the fence.  On 2026-08-27 a session
+reached for `git worktree` to get a writable copy and it broke the
+tree twice — a git write *inside* a linked worktree rewrites the
+shared `.git/config` and flips `core.bare` to `true`, after which
+every worktree, the main one included, reports all its tracked files
+deleted; and a backgrounded `git rebase` that was killed at its
+timeout leaked its change into the main working tree, into
+`tools/kaizen.sh`, which the fence binds read-only — so it could not
+be reverted from inside at all (`git checkout` on a read-only bind is
+"Device or resource busy").  A **clone** has none of this: `git clone
+~/tend <scratch>` gets its own `.git`, leaves the original's
+`core.bare` untouched, and its copy of a protected file is writable
+(the fence binds `~/tend/tools/*`, not the clone).  Edit and run the
+suite there with the tree's own venv
+(`~/tend/.venv/bin/python -m pytest <scratch>/test/…`) — measured
+2026-08-27, the clone's tests pass and the original is never touched.
+Landing is the one part the clone does not change: the original can
+`git fetch <clone>` from inside the fence (objects only, no
+working-tree write), but the `checkout`/`merge`/`pull` that writes a
+protected file is still Henri's hand outside the fence — the same
+boundary `card:self.md` drew, reached by a pull now instead of a patch
+file.
+
 ## A word left for you
 
 `doc/specimens/2026-08-24-qwen3.8-27b.txt` — a session on another
