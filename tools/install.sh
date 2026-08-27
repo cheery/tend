@@ -154,14 +154,18 @@ say() { printf '  %s %s\n' "$1" "$2"; }
 if [ $mode = check ]; then
     echo "install: $prefix  (HEAD $(git -C "$root" rev-parse --short HEAD))"
     echo
-    if [ ! -f "$prefix/installed" ]; then
+    if [ ! -e "$prefix/installed" ]; then
         say "✗" "nothing installed at $prefix — the restraints in force are the tree's own copies"; fail=1
+    elif [ ! -r "$prefix/installed" ]; then
+        say "✗" "$prefix/installed is not readable by you ($(stat -c '%A %U' "$prefix/installed")) — the copy cannot be read back, and the hooks cannot run it either; sudo tools/install.sh again"; fail=1
     else
         ic=$(sed -n 's/^commit //p' "$prefix/installed")
         say "·" "installed commit ${ic%${ic#???????}}, $(sed -n 's/^date //p' "$prefix/installed")"
         for f in $(set_list); do
-            if [ ! -f "$prefix/$f" ]; then
+            if [ ! -e "$prefix/$f" ]; then
                 say "✗" "$f is not installed"; fail=1
+            elif [ ! -r "$prefix/$f" ]; then
+                say "✗" "$f is not readable by you ($(stat -c '%A %U' "$prefix/$f")) — a hook running it dies Permission denied"; fail=1
             elif ! git -C "$root" show "HEAD:$f" | cmp -s - "$prefix/$f"; then
                 say "✗" "$f differs from HEAD — the copy in force is not the vetted one"; fail=1
             elif [ -w "$prefix/$f" ]; then
@@ -192,20 +196,32 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/tend-install.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
 echo "install: HEAD $(git -C "$root" rev-parse --short HEAD) → $prefix"
 stage "$tmp"
-if [ -w "$prefix" ] || { [ ! -e "$prefix" ] && [ -w "$(dirname "$prefix")" ]; }; then
-    as=""
+# Who is installing decides the owner and the mode.  Root (`sudo
+# tools/install.sh`) installs root-owned, 755/644 — readable and runnable
+# by everyone, writable by nobody but root.  A user whose prefix is their
+# own gets 555/444: not even they can write it without a chmod first,
+# which --check names as the weaker kind.  Anyone else is handed to sudo
+# for the copy alone.  (The first install, 2026-08-27 16:17, took the
+# user branch as root and computed the mode as 755-222 in decimal — 533,
+# -r-x-wx-wx — and every hook died "Permission denied".  Modes are
+# spelled out now, and root is recognised as root.)
+as=""
+if [ "$(id -u)" = 0 ]; then
+    owner="-o root -g root"; m_sh=755; m_other=644
+    echo "  · running as root — $prefix will be root's, 755/644"
+elif [ -w "$prefix" ] || { [ ! -e "$prefix" ] && [ -w "$(dirname "$prefix")" ]; }; then
+    owner=""; m_sh=555; m_other=444
     echo "  · $prefix is yours to write — no sudo; --check will say this copy is the weaker kind"
 else
-    as="sudo"
+    as="sudo"; owner="-o root -g root"; m_sh=755; m_other=644
     echo "  · $prefix is not yours — sudo for the copy, and root will own it"
 fi
 $as mkdir -p "$prefix/tools"
 for f in $(set_list) installed; do
-    case $f in *.sh) m=755 ;; *) m=644 ;; esac
-    if [ -n "$as" ]; then $as install -o root -g root -m $m "$tmp/$f" "$prefix/$f"
-    else install -m $((m - 222)) "$tmp/$f" "$prefix/$f"; fi   # 533/422: not even you, without a chmod first
+    case $f in *.sh) m=$m_sh ;; *) m=$m_other ;; esac
+    $as install $owner -m "$m" "$tmp/$f" "$prefix/$f"
     say "✓" "$f"
 done
-[ -n "$as" ] && $as chmod 755 "$prefix" "$prefix/tools"
+$as chmod 755 "$prefix" "$prefix/tools"
 echo
 echo "install: done.  tools/install.sh --check reads it back; tools/install.sh --hooks says how the hooks reach it."

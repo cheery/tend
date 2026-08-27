@@ -51,6 +51,10 @@ def tree(tmp_path):
         if (ROOT / d).is_dir():
             shutil.copytree(ROOT / d, t / d, dirs_exist_ok=True,
                             ignore=shutil.ignore_patterns("__pycache__", "state"))
+    # settings.json is enforcement and git is its canonical copy (tools/fence.sh):
+    # the clone keeps HEAD's, not a hand-edit in progress here.
+    (t / ".claude/settings.json").write_bytes(subprocess.run(
+        ["git", "-C", str(ROOT), "show", "HEAD:.claude/settings.json"], capture_output=True, check=True).stdout)
     subprocess.run(["git", "-C", str(t), "add", "-A"], check=True)
     subprocess.run(["git", "-C", str(t), "-c", "user.email=t@t", "-c", "user.name=t",
                     "commit", "-q", "-m", "working tree", "--allow-empty"], check=True)
@@ -117,12 +121,32 @@ def test_install_then_check_reads_back_head_and_names_the_hooks(tree, tmp_path):
     r = run(tree=tree, prefix=p, fenced="")
     assert r.returncode == 0, r.stderr
     assert (p / "installed").exists() and (p / "tools/sandbox.sh").exists()
-    assert not os.access(p / "tools/sandbox.sh", os.W_OK), "a user-owned copy is at least not writable without a chmod"
+    mode = (p / "tools/sandbox.sh").stat().st_mode & 0o777
+    assert mode == 0o555, f"a user-owned script is 555 — readable and runnable by all, writable by none — not {oct(mode)}"
+    assert (p / "installed").stat().st_mode & 0o777 == 0o444
+    assert (p / "tools/keep.py").stat().st_mode & 0o777 == 0o444
     r = run("--check", tree=tree, prefix=p)
     assert r.returncode == 1, "the hooks still run the tree's copies, and that is red"
     assert "✓ tools/sandbox.sh — HEAD" in r.stdout
     assert "hook runs the TREE's tools/limit.sh" in r.stdout
     assert "weaker" in r.stdout, "a prefix under $HOME says it is the weaker one"
+
+
+def test_check_is_red_on_a_copy_you_cannot_read(tree, tmp_path):
+    """The first root install (2026-08-27 16:17) left 533/422 — the mode
+    arithmetic done in decimal — and every hook died Permission denied,
+    while --check itself fell over on sed.  Unreadable is a finding."""
+    p = tmp_path / "p"
+    assert run(tree=tree, prefix=p, fenced="").returncode == 0
+    # root's 422/533 read as "other" is 0o022/0o033 for the owner running this
+    (p / "installed").chmod(0o022)
+    (p / "tools/kaizen.sh").chmod(0o033)
+    r = run("--check", tree=tree, prefix=p)
+    assert r.returncode == 1 and "sed:" not in r.stderr, r.stderr
+    assert "installed is not readable by you" in r.stdout and "sudo tools/install.sh again" in r.stdout
+    (p / "installed").chmod(0o444)
+    r = run("--check", tree=tree, prefix=p)
+    assert "✗ tools/kaizen.sh is not readable by you" in r.stdout and "Permission denied" in r.stdout
 
 
 def test_check_is_red_on_drift_and_on_absence(tree, tmp_path):
@@ -143,7 +167,7 @@ def test_check_is_red_on_drift_and_on_absence(tree, tmp_path):
 def test_hooks_apply_rewrites_every_tree_line_and_keeps_the_bound(tree, tmp_path):
     p = tmp_path / "p"
     s = tmp_path / "settings.json"
-    shutil.copy(ROOT / ".claude/settings.json", s)
+    shutil.copy(tree / ".claude/settings.json", s)
     printed = run("--hooks", tree=tree, prefix=p, settings=s).stdout
     assert f'TEND_TREE="$CLAUDE_PROJECT_DIR" {p}/tools/kaizen.sh --hook' in printed
     r = run("--hooks", "apply", tree=tree, prefix=p, settings=s, fenced="")
