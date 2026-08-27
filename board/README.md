@@ -70,6 +70,11 @@ between two workable cards is Henri's.
    2026-08-26, at Henri's "F88's finding earns a card in tend" — last,
    because its day one is a measurement and not a build; the tiebreak
    is his.*
+7. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
+   holds only for sessions started in two directories, and the grant it
+   offers has no shape: on 2026-08-26 the desk was retaken within
+   minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
+   session on 2026-08-27, as a new card arrives; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
