@@ -86,12 +86,18 @@ esac
 # 2026-08-26: a ledger committed into that directory (doc/kaizen/ingested.md)
 # was read as a kaizen landing and put the lamp out with one owed
 # (board/green.md).  The name is the kaizen; the directory is not.
+# And the *adding* is the landing (--diff-filter=A): a later commit that
+# corrects a kaizen file — a count fixed, a name — is not a new kaizen,
+# and until 2026-08-27 it put the lamp out with one owed (noted 05:38,
+# 07:10; fixed in place the evening the tree's copies became the
+# workbench, card:install.md day two — the first restraint edited
+# without a clone).
 kzn="doc/kaizen/????-??-??-????.md"
-last=$(git -C "$root" log -1 --format=%H -- "$kzn" 2>/dev/null || true)
+last=$(git -C "$root" log -1 --diff-filter=A --format=%H -- "$kzn" 2>/dev/null || true)
 if [ -n "$last" ]; then
     range="$last..HEAD"
-    since="since the last kaizen ($(git -C "$root" log -1 --format=%h -- "$kzn"))"
-    last_at=$(git -C "$root" log -1 --format=%ct -- "$kzn")
+    since="since the last kaizen ($(git -C "$root" log -1 --diff-filter=A --format=%h -- "$kzn"))"
+    last_at=$(git -C "$root" log -1 --diff-filter=A --format=%ct -- "$kzn")
 else
     range="HEAD"
     since="and no kaizen yet"

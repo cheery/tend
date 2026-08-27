@@ -55,6 +55,16 @@ class Repo:
             subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
                            cwd=self.at, env=env, check=True)
 
+    def correct(self):
+        """A correction to the newest kaizen file — a count fixed, a name —
+        committed.  It touches doc/kaizen/ and adds nothing."""
+        self.n += 1
+        f = sorted((self.at / "doc" / "kaizen").glob("????-??-??-????.md"))[-1]
+        f.write_text(f.read_text() + "corrected\n")
+        for a in (["add", "."], ["commit", "-q", "-m", f"fix{self.n}"]):
+            subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                           cwd=self.at, check=True)
+
     def stray(self, name):
         """A non-kaizen file committed into doc/kaizen/ — the thing that
         must not be read as a kaizen landing."""
