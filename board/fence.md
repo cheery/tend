@@ -300,3 +300,24 @@ sitting the card waited on is written, and the blast-radius half has
 its demonstration in the manifesto's sense.  What the card still holds
 is the `display` row, measured up to its refusal, waiting on a caller
 — which is a widening, not a debt.  Whether the card is done is Henri's.
+
+## 2026-08-27 — worked in a batch; the recommendation is done, and the move is Henri's
+
+Picked up in a batch (Henri: "fence, green, work-environment-ai,
+session-program").  Nothing to build: both halves are built and
+demonstrated in the manifesto's sense — the integrity measurement
+caught two open shell routes before the check existed (07:14), and the
+blast-radius half has its counted sitting of ordinary work with the
+hole closed (13:45, 53 commands, nothing that was work refused).
+Re-run today from inside the fence: `test_fence.py`, `test_sandbox.py`,
+`test_fence_hook.py` — 51 passed, 12 skipped (the fence's own tests
+skip at the gate, by design); the hook is live in `.claude/settings.json`
+and `fence.sh --hook` returns 0 on the live tree.
+
+**Recommendation: done.**  The one open item is the `display` row,
+inert for want of a cookie and waiting on a caller that is not on the
+board — a widening, not a debt, and it stays recorded here whether the
+card is on the board or in `done/`.  The blast-radius half remains
+`work-environment-ai`'s neighbour after closing; moving the file does
+not sever that (citations to `card:fence.md` resolve from `done/` too).
+The move is Henri's tiebreak, as this card has said throughout.
