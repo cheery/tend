@@ -134,3 +134,9 @@ but the ring is loud, and that is the check, and it is not a program's.
 shape `fence` and `green` closed in.  What the card leaves to others:
 the andon on a *node* is `session-program`'s, and waits with the rest
 of that card on the first node that leads work.
+
+**16:30, the row measured by execution.**  After the merge and the
+install, `REACH=audio tools/andon.sh ring` from inside the fence — the
+`audio` row now the PipeWire socket alone, no `/dev/snd` — rang the
+pending question once, exit 0.  The proposed line has executed; the
+row is the socket.

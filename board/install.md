@@ -191,3 +191,45 @@ and `resolve.sh --install` still insert tree lines and must learn the
 prefix.  And the lander: `install.sh` *is* a lander for restraints, so
 the unfenced lander the 0710 kaizen called card-shaped is half this
 card; the other half, fast-forwarding `main` after the gates, is not.
+
+## 2026-08-27, 16:17–16:30 — installed, and the measurement taken from both sides
+
+**The first install failed, and the failure was the script's.**  Henri
+ran the five lines; `sudo tools/install.sh` ran as root, for whom the
+prefix *is* writable, so the script took the "prefix is yours" branch —
+and that branch spelled the user mode as `755 - 222` in decimal: octal
+533/422, `-r---w--w-`, unreadable to anyone but root.  Every hook died
+`Permission denied`, `--check` fell over on `sed`, and he took the hooks
+off by hand to get a prompt back — which left the session that fixed it
+running **unfenced** for the fix (it touched `install.sh`, its test and
+`git add`, nothing else, and says so in the kaizen).  Fixed in 4cfcb74:
+uid 0 installs root-owned 755/644, a user prefix gets 555/444 spelled
+out, and `--check` reports an unreadable copy as a finding with the fix
+named.  The gate held the fix out until `tools/fence.sh --force` put
+his settings back — the gate reading a hand-edit in progress as the
+fence being down, which it was.
+
+**The second install went green, from outside**: all twelve files at
+HEAD, read-only to him; all five hooks running the installed copies;
+`tools/sandbox.sh --check` 35 of 35 — the installed fence, governing
+the tree it was told about by `TEND_TREE`, with the widened set
+(leash.sh, keep.py, andon.sh) read-only inside.
+
+**And from inside**, the next session's first command: `TEND_FENCED=1`
+with `TEND_TREE` unset (the sandbox strips it, so a clone's suite
+cannot be pointed at the wrong tree); `/usr/local/lib/tend/tools/sandbox.sh`
+visible, owned by `nobody` (root, seen through the user namespace),
+and `touch` refused; `tools/install.sh --check` green from a session's
+seat — the comparison the `$HOME` prefix could not have offered.  The
+copy in force is on the machine, outside every session's write access,
+and a session can read that it is.
+
+**Where the card stands.**  The `because` is answered in its second
+half: the boundary a session cannot reach is now on the machine, not
+only read-only inside a fence the tree configures.  The first half —
+"protecting them and developing them are one directory pulling two
+ways" — is answered in mechanism (the tree is the workbench, HEAD is
+what installs) and not yet in practice: the tree's copies are still
+ro-bound and `Edit`-denied, so a session still cannot edit a restraint
+in place.  Taking those off is day two, and Henri's call, now that
+`--check` has said the installed set is in force.
