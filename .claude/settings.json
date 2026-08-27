@@ -55,20 +55,7 @@
       "Edit(./.claude/**)",
       "Edit(~/.bashrc)",
       "Edit(~/.profile)",
-      "Edit(~/.config/**)",
-      "Edit(./tools/sandbox.sh)",
-      "Edit(./tools/fence-hook.sh)",
-      "Edit(./tools/fence.sh)",
-      "Edit(./tools/limit.sh)",
-      "Edit(./tools/kaizen.sh)",
-      "Edit(./tools/reach-allow.sh)",
-      "Edit(./tools/hook-installer.sh)",
-      "Edit(./node/run.sh)",
-      "Edit(./tools/resolve.sh)",
-      "Edit(./tools/launch.sh)",
-      "Edit(./tools/leash.sh)",
-      "Edit(./tools/keep.py)",
-      "Edit(./tools/andon.sh)"
+      "Edit(~/.config/**)"
     ]
   },
   "hooks": {
