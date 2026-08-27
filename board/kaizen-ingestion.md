@@ -192,7 +192,8 @@ not write it.
 **The arrival rate was a number picked in writing, and it was wrong
 by five.**  The plan said kaizens arrive at five to seven a day and
 that ten a day "drains the backlog in three days."  `ls doc/kaizen`
-today: 61 files; 2026-08-26 alone wrote 37.  After Friday's batch,
+today: 61 files; 2026-08-26 alone wrote 39 (this section first said 37, an
+eyeball count; `ls | grep -c` says 39, as does `doc/reading-2026-08-27.md`).  After Friday's batch,
 31 are unread before Monday's arrivals.  The level holds at ten — the
 plan's own rule, a missed forecast moves the tail out and does not
 double the batch — and the drain claim is withdrawn, not the

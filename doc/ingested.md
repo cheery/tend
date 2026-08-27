@@ -73,7 +73,8 @@ card's `because` made concrete: the two `; true` that
 cites *"manifesto.md — R10 (measure, don't assert)"*; there is no R10
 in tend's manifesto, nor in gestate's — the nearest is §"The three ways
 an instrument fails".  And the plan's arrival rate ("five to seven a
-day") was written the morning of a day that produced **37**; both are
+day") was written the morning of a day that produced **39** (first written
+here as 37 — an eyeball count, corrected by `grep -c` the same morning); both are
 on the card.  **Least certain line**: [[2026-08-25-0753]], which
 carries two lessons and the reading had to pick one — one uncertain
 verdict, not two in a row.
