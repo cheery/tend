@@ -68,6 +68,12 @@ between two workable cards is Henri's.
    offers has no shape: on 2026-08-26 the desk was retaken within
    minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
    session on 2026-08-27, as a new card arrives; the tiebreak is his.*
+5. **[lander](lander.md)** — a commit that passed the gates is not in
+   force until a person runs one line, and nothing but the person's
+   memory carries it there.  *Placed last by the session that wrote it
+   on 2026-08-27 at Henri's "Write the lander card"; its day one is a
+   lamp, which is also the count that would make the rest of it wrong;
+   the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
