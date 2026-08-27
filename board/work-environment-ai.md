@@ -702,3 +702,35 @@ not fixed for a session.  What survives is only the cheap half: a
 declared toolbox *manifest* serves `spec/os.md` property 2 (install
 testing) and is not enforcement.  The ambient-exec residual stays open
 here, without this candidate.
+
+## 2026-08-27 — the toolbox manifest, taken as the completeness it is
+
+Second batch, and the "if wanted" slice from §"Henri's toolbox idea":
+after the enforcement half was withdrawn (2026-08-26), what survived
+was a declared toolbox *manifest* serving `spec/os.md` property 2
+(install-testing).  Measured before building it: property 2 is already
+served in shape by `tools/toolbox.sh` (checks, reasons, idempotent), so
+a data-file refactor of it would be building what nothing needs
+(manifesto rule 1).  What is *not* served is completeness — the caller
+that makes this real.
+
+**The gap, found by grep, 2026-08-27**: `tools/launch.sh` and the llm
+node arrived after `toolbox.sh` was written, and it declared none of
+their load-bearing deps.  `flock` (the node's one-runner lock, 7 uses),
+`setsid` (the detached runner start), and `llama-server` (the second
+node's whole program) were all absent — so a stranger could pass
+`toolbox.sh` ("everything required is here") and then have a node
+refuse to run for a tool nobody named.  That is property 2 failing:
+the install test said yes to an incomplete install.
+
+**Built**: three declarations added — `flock` and `setsid` required
+(util-linux, the node lifecycle), `llama-server` wanted (the one node
+it belongs to, with the model named as data the person brings and never
+in the tree), and a line for the model's presence.  `test_toolbox.py`
+gains `test_the_launcher_and_the_second_node_are_declared`, which pins
+that the launcher's lock and the second node's program stay declared
+with a reason — so the next node's deps are a red test, not a silent
+gap.  The manifest, then, is not a new file; it is the discipline that
+what the tree runs is what the toolbox declares, now with a check.  The
+residual on this card is unchanged: the session-as-principal /
+ambient-exec question, which the withdrawn enforcement half was about.

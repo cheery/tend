@@ -60,6 +60,8 @@ need sh       "the hooks and this script"
 need jq       "tools/limit.sh reads the hook's stdin with it, and tools/fence.sh reads the deny-list"
 need timeout  "a hang is a crash only if something enforces it (tools/leash.sh)" "coreutils"
 need bwrap    "tools/sandbox.sh is the fence; with tools/fence-hook.sh installed every shell command runs inside it" "bubblewrap"
+need flock    "tools/launch.sh gives each node one runner with it — the lock a second run is refused on (exit 75)" "util-linux"
+need setsid   "tools/launch.sh and tools/resolve.sh start a node's runner detached with it, so it outlives the pull" "util-linux"
 if python3 -m pytest --version >/dev/null 2>&1; then
     echo "  ✓ pytest"
 else
@@ -75,6 +77,15 @@ else
     echo "  · systemd user manager — absent; tools/leash.sh degrades to nice + timeout"
 fi
 want bash "tools/limit.sh needs it only when installed as a hook"
+
+echo
+echo "  the nodes"
+want llama-server "the llm node (llm/grant) is a llama.cpp server; without it that one node cannot run, the others can"
+if [ -n "$(find "$root"/llm/model -maxdepth 1 -name '*.gguf' 2>/dev/null | head -1)" ]; then
+    echo "  ✓ a model under llm/model/ — the llm node has something to serve"
+else
+    echo "  · no *.gguf under llm/model/ — the llm node's model is data you bring; it is gitignored, never in the tree (card:work-environment-ai.md)"
+fi
 
 echo
 echo "  the fence"

@@ -8,6 +8,7 @@ clone is in.
 """
 
 import pathlib
+import re
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -42,3 +43,21 @@ def test_an_unknown_argument_is_refused_out_loud():
     r = sh("--bogus")
     assert r.returncode == 2
     assert "unknown argument" in r.stderr
+
+
+def test_the_launcher_and_the_second_node_are_declared():
+    """Install-testing is only not-hard if the check covers what the tree
+    actually runs (spec/os.md property 2).  The launcher's run-lock
+    (flock) and detached start (setsid) and the second node's program
+    (llama-server) arrived after this script was first written; a clone
+    that passes toolbox.sh must not then fail to run a node for a
+    dependency nobody named.  card:work-environment-ai.md, 2026-08-27."""
+    text = TOOLBOX.read_text()
+    # declared in the source with a reason (the need/want call carries it;
+    # a present tool's runtime line is just a tick, the reason shows when absent)
+    for tool in ("flock", "setsid", "llama-server"):
+        decl = [l for l in text.splitlines()
+                if re.match(rf'\s*(need|want)\s+{re.escape(tool)}\s+"', l)]
+        assert decl, f"the toolbox does not declare {tool} with a reason"
+    # and the check runs clean over the new lines
+    assert sh("--check").returncode in (0, 1)
