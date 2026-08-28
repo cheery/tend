@@ -360,7 +360,11 @@ def test_check_is_red_on_a_program_whose_shared_library_is_not_found(tmp_path):
     subprocess.run([cc, "-shared", "-fPIC", "-o", str(d / "libnope.so"), str(d / "nope.c")], check=True)
     subprocess.run([cc, "-o", str(d / "prog"), str(d / "main.c"), "-L", str(d), "-lnope", f"-Wl,-rpath,{d}"], check=True)
     n = tmp_path / "n"; n.mkdir()
+    # found by the loader, and outside keep's SYSTEM_READ with no allow: keep would refuse it
     (n / "grant").write_text(f"program {d}/prog\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and "keep would refuse it" in r.stdout and f"under: {d} " in r.stdout, r.stdout
+    (n / "grant").write_text(f"allow {d}\nprogram {d}/prog\n")
     r = launch(n, "check", state=tmp_path / "st")
     assert r.returncode == 0 and f"✓ program {d}/prog" in r.stdout and "loads" in r.stdout, r.stdout
     (d / "libnope.so").unlink()

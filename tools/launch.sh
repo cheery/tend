@@ -137,8 +137,27 @@ check)
     # binary has nothing to read and gets no line.
     if [ -n "$bin" ] && command -v ldd >/dev/null 2>&1 && deps=$(ldd "$bin" 2>/dev/null) && [ -n "$deps" ]; then
         missing=$(printf '%s\n' "$deps" | awk '/not found/ { print $1 }' | sort -u | tr '\n' ' ')
-        if [ -z "$missing" ]; then ok "program loads — every shared library it names is found"
-        else bad "program $bin cannot load — not found by the loader: $missing(ldd; the library is $name's own need, not the tree's)"; fi
+        if [ -n "$missing" ]; then bad "program $bin cannot load — not found by the loader: $missing(ldd; the library is $name's own need, not the tree's)"
+        else
+            # Found by the loader is not readable under keep: Landlock lets the
+            # program read beneath keep's SYSTEM_READ and the grant's allow/write
+            # paths and nowhere else.  The work laptop, 2026-08-28, second face:
+            # the check said "loads" from a shell whose LD_LIBRARY_PATH reached
+            # a oneAPI runtime in the person's home, where keep would not.
+            sysread=$("$py" -c "import sys; sys.path.insert(0, '$here'); import keep; print(' '.join(keep.SYSTEM_READ))")
+            grantread=""
+            for kv in $paths; do v=${kv#*=}; v=$(readlink -f "$v" 2>/dev/null || echo "$v"); grantread="$grantread $v"; done
+            outside=""
+            for lib in $(printf '%s\n' "$deps" | awk '$3 ~ /^\// { print $3 }'); do
+                real=$(readlink -f "$lib" 2>/dev/null) || real=$lib; inside=0
+                for root in $sysread $grantread; do case "$real" in "$root"/*) inside=1; break ;; esac; done
+                [ $inside -eq 1 ] && continue
+                dir=$(dirname "$real"); case " $outside " in *" $dir "*) ;; *) outside="$outside $dir" ;; esac
+            done
+            outside=${outside# }; [ -z "$outside" ] || outside="$outside "
+            if [ -z "$outside" ]; then ok "program loads — every shared library it names is found, where keep lets it read"
+            else bad "program loads for you, and keep would refuse it — shared libraries outside the grant, under: $outside(an \`allow\` line for the directory, or the runtime where keep's SYSTEM_READ looks)"; fi
+        fi
     fi
     for kv in $paths; do
         k=${kv%%=*}; v=${kv#*=}

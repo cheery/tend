@@ -199,5 +199,31 @@ directory — so an `allow` on the oneAPI lib directory belongs in
 `llm/grant` on this machine, or the runtime goes where `SYSTEM_READ`
 already looks.  Henri's to settle; the check will say when it is.
 
+**07:10 — the second face: found by the loader is not readable under
+keep.**  From his shell, with oneAPI on `LD_LIBRARY_PATH`, `tend-launch
+llm check` went green on every line including *loads* — and keep
+governs reads: Landlock lets the program read beneath `SYSTEM_READ`
+(`/usr`, `/etc`, `/lib*`, …) and the grant's `allow`/`write` paths and
+nowhere else, so the runner's `llama-server` would have died at the
+loader on twelve libraries under `/home/henri/intel/oneapi`, with the
+check having said yes.  `check` now resolves every library `ldd` finds
+(`readlink -f`, since Landlock sees the target) and asks whether it is
+beneath keep's own `SYSTEM_READ` — imported from `keep.py`, one source
+— or a grant path; if not: ✗ *loads for you, and keep would refuse it —
+shared libraries outside the grant, under: …*, naming the directories.
+Red first, in the same test: the fixture's library sits in a temp dir
+with no `allow` → ✗ naming it; `allow <dir>` → ✓.  The two faces are one
+lesson: a check reads from the seat it has, and the runner's seat is
+keep's; every line that can be asked from keep's seat should be.
+
+What is left for the grant on this machine is now a decision, not a
+discovery: the oneAPI runtime is in his home, and an `allow
+/home/henri/intel/oneapi` line in `llm/grant` would refuse on the other
+machine, where the path does not exist (keep: *nothing to grant at* —
+the same refusal the model directory gave this morning).  The runtime
+beside the binary — `/usr/local/lib`, where `SYSTEM_READ` already looks
+and where `/usr/local/bin/llama-server` already is — needs no grant line
+anywhere; a per-machine grant does.  Henri's; the check says either way.
+
 The card stays open: it closes when the check says *installed* here
 and the run that follows agrees.
