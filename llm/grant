@@ -10,10 +10,11 @@ allow-try /opt/intel/oneapi
 allow /sys
 write /dev/dri
 # the SYCL runtime's kernel cache: 80 s and 81 s on consecutive starts under keep (2026-08-28), because its
-# default cache is under ~/.cache, which keep does not grant.  $STATE is writable already; the runtime only
-# needs telling.  The second start after this line is the measurement
-env SYCL_CACHE_PERSISTENT=1
-env SYCL_CACHE_DIR=$STATE/sycl-cache
+# default cache is under ~/.cache, which keep does not grant.  Tried 08:17 as
+#     env SYCL_CACHE_PERSISTENT=1
+#     env SYCL_CACHE_DIR=$STATE/sycl-cache
+# and both starts died 139 at the kernel build with no cache written; without the two lines the node loads.
+# Taken out until the same env outside keep says whether it is the runtime or the boundary (done/node-install.md)
 bind 18080
 idle 60
 sitting 10

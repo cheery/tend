@@ -333,3 +333,20 @@ first start after `sudo tools/install.sh` fills the cache and the second
 is the measurement — *model loaded* at 1:21 before, and whatever it says
 then.  If it says 1:21 still, the driver's own cache (`NEO_CACHE_DIR`)
 is the next variable, one at a time.
+
+**08:21 — measured, and taken back out.**  Two starts with the two
+`env` lines in force (`warm`, `again`): both died **exit 139** a second
+after *threadpool init* — where the kernel build begins — and
+`$STATE/sycl-cache` was never created; the three starts before them,
+without the lines, loaded.  From the fence: keep's write bits let a
+program `mkdir` beneath `$STATE` (measured with `keep --write`), so it
+is not that.  The two lines are commented out of `llm/grant` — the tree
+does not carry a grant that kills its node on every start — and the
+`env` word stays, red-first and unblamed.  The one-variable experiment
+is the person's: the same two variables on a `llama-server` started by
+hand, outside keep.  Segfault there too → the runtime's persistent cache
+is broken on this build and the driver's cache (`NEO_CACHE_*`) is the
+next candidate; loads there → the boundary refuses something the cache
+does (a rename or link across directories is `REFER`, which keep does
+not handle) and the runtime segfaults on the refusal, which is a
+`strace -f -e trace=file,rename,link` away from a line.

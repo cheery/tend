@@ -58,7 +58,9 @@ fresh() {
 }
 # a breaking shell, run in the copy; NOOP if the copy is left as it was
 apply() { (cd "$T/t" && eval "$1") >/dev/null 2>&1 || return 2; (cd "$T/t" && { [ -n "$(git status --porcelain)" ] || [ ! -x .git/hooks/pre-commit ]; }); }
-run_tests() { (cd "$T/t" && python3 -m pytest -q -p no:cacheprovider -rf "$@" 2>&1); }
+# --color=no: tally and names read pytest's text by line start, and an environment that forces colour
+# (FORCE_COLOR=3, a session on 2026-08-28) wraps every line in escapes — a reader asks for plain text
+run_tests() { (cd "$T/t" && python3 -m pytest -q -p no:cacheprovider -rf --color=no "$@" 2>&1); }
 tally() { printf '%s\n' "$1" | grep -E '^[0-9]+ (passed|failed)' | tail -1 | sed -E 's/ in [0-9.]+s//'; }
 names() { printf '%s\n' "$1" | grep -E '^FAILED' | sed -E 's/^FAILED [^:]*::([^ ]*).*/\1/' | tr '\n' ' '; }
 say() { printf '  %-10s %-44s %-22s %s\n' "$@"; }
