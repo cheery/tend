@@ -74,12 +74,7 @@ between two workable cards is Henri's.
    on 2026-08-27 at Henri's "Write the lander card"; its day one is a
    lamp, which is also the count that would make the rest of it wrong;
    the tiebreak is his.*
-6. **[node-install](node-install.md)** — whether a node is installed
-   cannot be known without running it.  *Placed last by the session
-   that wrote it on 2026-08-28, at Henri's "write cards for these if
-   they need cards, then proceed on implementing the first"; its day
-   one is `launch.sh NODE check`; the tiebreak is his.*
-7. **[silent-cord](silent-cord.md)** — the andon sounds only through a
+6. **[silent-cord](silent-cord.md)** — the andon sounds only through a
    reach row the session must be allowed, so narrowing reach cuts the
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
@@ -125,6 +120,14 @@ and his `sudo tools/install.sh`.  `cords` (`done/cords.md`):
 andon` reads the cord's own record.  The outside suite ran 346 with
 none skipped.  The residue is `lander` (not yet a card) and the andon
 on a node (`session-program`).
+
+`node-install` finished 2026-08-28, the day after it was opened, on the
+work laptop it was written for (`done/node-install.md`): `launch.sh NODE
+check` said ✗ five times in one morning — the model, the loader, keep's
+read boundary, `/opt`, `/sys` — each true from its seat, and the third
+run under keep loaded the model, listened, and stopped on idle as the
+grant said.  It left `allow-try` in the grant's vocabulary and CPU
+progress in the launcher's idea of idle.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.

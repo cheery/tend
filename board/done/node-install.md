@@ -1,6 +1,6 @@
 # node-install — whether a node is installed cannot be known without running it
 
-    status   open
+    status   done — 2026-08-28
     because  a node is a directory with a grant beside the program, and
              nothing says whether that directory can run on this machine
              short of running it.  On 2026-08-27 a grep found the tree's
@@ -288,5 +288,24 @@ every start may pay the 45 s again — a `write` for a cache directory
 under `$STATE` and the runtime's cache variable pointed at it would be
 the shape, if the second start is as slow as the first.
 
-The card stays open: it closes when the check says *installed* here
-and the run that follows agrees.
+**08:02 — the third run: check and run agree, and the card closes.**
+`tend-launch llm check && tend-launch llm run` from his shell, after
+`sudo tools/install.sh`: twelve ✓, *installed*; then in `server.log` —
+*model loaded* at 1:20, *listening on http://127.0.0.1:18080*, and at
+2:20 *cleaning up before exit* on the launcher's *idle: nothing has
+pulled llm for 60s*.  The compile took 80 s in silence this time and
+the launcher held, reading the core it was burning; the server came up
+under keep with the model, its state, `/sys`, `/dev/dri` and the
+runtime, and nothing else; nobody asked it anything, so it stopped
+when the grant said to.  No exception in the run's slice of the log —
+only OpenMP's `/dev/shm` warning, which cost nothing here.
+
+What the `because` asked — can "is it installed?" be answered without
+running it — is answered on the machine that asked it: five ✗ in one
+morning, each true from its seat, each closed by his hand or a line;
+and the two things a check cannot read (a GPU open, a silent compile)
+were the run's to show and became a grant line and a launcher rule.
+Left for other cards: the SYCL cache under `$STATE` if every start
+pays the 80 s (the next start says); `/sys` in `SYSTEM_READ` as a
+`keep` question; and `llm/grant`'s program line, which is Henri's.
+The card stayed open one day.
