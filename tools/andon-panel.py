@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-28 — "open the interface card and build the TUI first.  I think we need it next." (card:andon-panel.md)
 """tools/andon-panel.py — the andon's person-side half: watch the record, announce a pull.
 
-    tools/andon-panel.py            a TUI over the andon record (needs a terminal)
+    tools/andon-panel.py [--canvas DIR]   a TUI over the andon record and a canvas (needs a terminal)
 
 The panel runs OUTSIDE the fence and only reads what a session writes —
 `andon.pending` (the questions) and `andon.log` (every ask, ring and
@@ -15,8 +15,30 @@ on the person's side, through a channel the session never touches
 It does not write the record; the one exception is `answered`, the
 person's word, run through `tools/andon.sh answered` — never something
 a session can reach.
+
+**The canvas** (card:canvas.md, 2026-08-28).  At 13:27 Henri pulled the
+llm node and llama-server died a second later at the loader; `pull` said
+"started", `stopped` said `exited 127`, the log said why, and he saw
+none of it — a pulled node's death was a line in a file nobody was
+looking at.  A *pin* is the person's "I am holding this": a file
+`<name>.pin` in a canvas directory, on the person's side, a line or two —
+
+    node  /path/to/NODE            the node directory
+    state /path/to/state           only if it is not NODE/state
+
+There can be many canvases (this desk, a server); which one the panel
+looks at is a path — `--canvas DIR`, TEND_CANVAS, else
+~/.local/state/tend/canvas.  The panel shows one row per pin from what
+the runner leaves (`run.lock` held = running; `stopped`, its mtime the
+last stop and its line the reason; `watch`, a stale heartbeat under a
+held lock = the cords are cut, the same rule `tools/launch.sh status`
+reads) and puts a runner's non-zero stop in the log column beside the
+andon's own lines, one timeline.  It shows; it never rings for a death
+(the panel's rule: not a second andon), and it never pins — a pin is the
+person's act.
 """
 import os
+import re
 import subprocess
 import sys
 from collections import namedtuple
@@ -79,6 +101,180 @@ def read_state(state_dir=None):
 
     pulled = bool(pending) and last_ring is not None
     return State(pending, rings, last_ring, pulled, answered)
+
+
+Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said")
+Event = namedtuple("Event", "epoch who text")
+
+CANVAS_DEFAULT = os.path.join(STATE_DEFAULT, "canvas")
+STALE = 60          # seconds of silent watch under a held lock: tools/launch.sh's TEND_WATCH_STALE
+_NOISE = ("deprecationwarning",)
+
+
+def _canvas_dir(d=None):
+    return str(d) if d is not None else os.environ.get("TEND_CANVAS", CANVAS_DEFAULT)
+
+
+def _lock_held(path):
+    """The runner's lock, tested the way `flock -n LOCK true` tests it — taken
+    for an instant and let go.  A lock file that is not there is a node that
+    never ran; this never creates it."""
+    import fcntl
+    try:
+        fd = os.open(path, os.O_RDONLY)
+    except OSError:
+        return False
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        return False
+    except OSError:
+        return True
+    finally:
+        os.close(fd)
+
+
+def _last_said(log):
+    """The log's last line that is not warning noise — what the program said
+    as it died (the same filter tools/launch.sh's last_said applies)."""
+    said = ""
+    try:
+        with open(log, errors="replace") as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if not line.strip() or line.lstrip().startswith("class "):
+                    continue
+                if any(n in line.lower() for n in _NOISE):
+                    continue
+                said = line
+    except OSError:
+        pass
+    return said
+
+
+def _read_pin(path):
+    name = os.path.basename(path)[:-len(".pin")]
+    node = state = None
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split(None, 1)
+            if len(parts) == 2 and parts[0] in ("node", "state"):
+                key, val = parts
+            else:
+                key, val = ("node" if node is None else "state"), line
+            val = os.path.expanduser(val)
+            if key == "node":
+                node = val
+            else:
+                state = val
+    if node is None:
+        return None
+    if state is None:
+        state = os.path.join(node, "state")
+    return name, node, state
+
+
+def read_pin_state(name, node, state):
+    """One row: what the runner left in its state directory, read."""
+    import time
+    running = _lock_held(os.path.join(state, "run.lock"))
+    cut = None
+    if running:
+        try:
+            silent = int(time.time() - os.stat(os.path.join(state, "watch")).st_mtime)
+            if silent >= int(os.environ.get("TEND_WATCH_STALE", STALE)):
+                cut = silent
+        except OSError:
+            pass
+    last_pull = None
+    try:
+        with open(os.path.join(state, "pull")) as f:
+            for line in f:
+                head = line.split(None, 1)[0] if line.strip() else ""
+                if head.isdigit():
+                    last_pull = int(head)
+    except OSError:
+        pass
+    last_stop = None; reason = ""; dead = False
+    try:
+        stopped = os.path.join(state, "stopped")
+        last_stop = int(os.stat(stopped).st_mtime)
+        with open(stopped) as f:
+            reason = f.readline().rstrip("\n")
+        m = re.match(r"exited (\d+)", reason)
+        dead = bool(m) and m.group(1) != "0"
+    except OSError:
+        pass
+    said = _last_said(os.path.join(state, "log")) if dead else ""
+    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said)
+
+
+def read_canvas(canvas_dir=None):
+    """The canvas, read: one row per `<name>.pin`, in name order.  A missing
+    canvas is no rows — nothing is held."""
+    d = _canvas_dir(canvas_dir)
+    rows = []
+    try:
+        names = sorted(n for n in os.listdir(d) if n.endswith(".pin"))
+    except OSError:
+        return rows
+    for n in names:
+        try:
+            got = _read_pin(os.path.join(d, n))
+        except OSError:
+            continue
+        if got:
+            rows.append(read_pin_state(*got))
+    return rows
+
+
+def read_log(state_dir=None, pins=()):
+    """One timeline: every line of the andon record (ask, ring, answered) and
+    every pinned runner's non-zero stop, in time order.  A clean stop —
+    idle, the sitting, exit 0 — is the row's last stop and not an event
+    here: the log column is for what went wrong."""
+    d = _state_dir(state_dir)
+    events = []
+    try:
+        with open(os.path.join(d, "andon.log")) as f:
+            for line in f:
+                parts = line.rstrip("\n").split(maxsplit=3)
+                if len(parts) < 4 or not parts[0].isdigit():
+                    continue
+                events.append(Event(int(parts[0]), "andon", parts[3]))
+    except OSError:
+        pass
+    for p in pins:
+        if p.dead and p.last_stop is not None:
+            text = p.stop_reason + (" — " + p.said if p.said else "")
+            events.append(Event(p.last_stop, p.name, text))
+    events.sort(key=lambda e: e.epoch)
+    return events
+
+
+def row_line(p):
+    """A pin's row, as one line."""
+    if p.cut:
+        state = f"runner up, watcher silent {p.cut // 60} min — the cords are cut"
+    elif p.running:
+        state = "running"
+    elif p.dead:
+        state = "DEAD"
+    else:
+        state = "not running"
+    bits = [p.name.ljust(10), state]
+    if p.last_pull:
+        bits.append(f"pulled {_hhmm(p.last_pull)}")
+    if p.last_stop:
+        bits.append(f"stopped {_hhmm(p.last_stop)}" + (f" — {p.stop_reason}" if p.stop_reason else ""))
+    return "  ".join(bits)
+
+
+def event_line(e):
+    return f"{_hhmm(e.epoch)}  {e.who.ljust(6)} {e.text}"
 
 
 def answer(state_dir=None):
@@ -145,15 +341,26 @@ def _play_alert(player=None):
             pass
 
 
-def _tui(stdscr):
+def _tui(stdscr, canvas=None):
     import curses
     curses.curs_set(0)
     stdscr.timeout(1000)
     prev_rings = read_state().rings
     flash_until = 0
     import time
+    canvas_dir = _canvas_dir(canvas)
+
+    def put(y, x, text, attr=0):
+        if 0 <= y < h - 1:
+            try:
+                stdscr.addstr(y, x, text[:max(0, w - x - 1)], attr)
+            except curses.error:
+                pass
+
     while True:
         st = read_state()
+        pins = read_canvas(canvas_dir)
+        events = read_log(None, pins)
         if st.rings > prev_rings:            # a new ring since last look
             if not _play_alert():            # a real tone; the terminal bell is muted too often
                 try:
@@ -177,23 +384,35 @@ def _tui(stdscr):
         except curses.error:
             pass
         row = 2
-        if not st.pending:
-            stdscr.addstr(row, 2, "nothing pending — the floor is quiet.")
+        # the canvas: what the person is holding, one row per pin
+        short = canvas_dir.replace(os.path.expanduser("~"), "~", 1)
+        if pins:
+            put(row, 2, f"canvas {short} — {len(pins)} pinned", curses.A_BOLD); row += 1
+            for p in pins:
+                attr = curses.A_BOLD if (p.dead or p.cut) else 0
+                put(row, 4, row_line(p), attr); row += 1
         else:
-            stdscr.addstr(row, 2, f"{len(st.pending)} pending"
-                          + (f", last ring {_hhmm(st.last_ring)}" if st.last_ring else "")
-                          + ":")
+            put(row, 2, f"canvas {short} — nothing pinned", curses.A_DIM); row += 1
+        row += 1
+        if not st.pending:
+            put(row, 2, "nothing pending — the floor is quiet."); row += 1
+        else:
+            put(row, 2, f"{len(st.pending)} pending"
+                + (f", last ring {_hhmm(st.last_ring)}" if st.last_ring else "")
+                + ":", curses.A_BOLD)
             row += 2
             for q in st.pending:
                 for i, chunk in enumerate([q.text[j:j + w - 6] for j in range(0, len(q.text), w - 6)] or [""]):
                     prefix = f"  {q.stamp}  " if i == 0 else " " * 4
-                    if row < h - 2:
-                        try:
-                            stdscr.addstr(row, 2, (prefix + chunk)[:w - 3])
-                        except curses.error:
-                            pass
-                        row += 1
+                    put(row, 2, prefix + chunk); row += 1
                 row += 1
+        # the andon/log: one timeline, the newest at the bottom, what fits
+        row += 1
+        room = h - 2 - row
+        if room >= 2:
+            put(row, 2, "log", curses.A_BOLD); row += 1
+            for e in events[-(room - 1):]:
+                put(row, 4, event_line(e), curses.A_BOLD if e.who != "andon" else 0); row += 1
         try:
             stdscr.addstr(h - 1, 0,
                           " [a] answer all   [r] refresh   [q] quit ".ljust(w - 1),
@@ -216,9 +435,20 @@ def _tui(stdscr):
 
 
 def main(argv):
-    if len(argv) > 1 and argv[1] in ("-h", "--help"):
-        sys.stdout.write(__doc__)
-        return 0
+    canvas = None
+    args = list(argv[1:])
+    while args:
+        a = args.pop(0)
+        if a in ("-h", "--help"):
+            sys.stdout.write(__doc__)
+            return 0
+        if a == "--canvas" and args:
+            canvas = args.pop(0)
+        elif a.startswith("--canvas="):
+            canvas = a[len("--canvas="):]
+        else:
+            sys.stderr.write(f"andon-panel: unknown argument {a!r}\n")
+            return 2
     try:
         import curses
     except ImportError:
@@ -226,12 +456,18 @@ def main(argv):
         return 1
     if not sys.stdout.isatty():
         st = read_state()
+        pins = read_canvas(canvas)
         n = len(st.pending)
         print(f"andon-panel: {n} pending"
               + (f", pulled since {_hhmm(st.last_ring)}" if st.pulled else "")
               + " — run in a terminal for the live panel.")
+        print(f"canvas {_canvas_dir(canvas)} — {len(pins)} pinned")
+        for p in pins:
+            print("  " + row_line(p))
+        for e in read_log(None, pins)[-5:]:
+            print("  " + event_line(e))
         return 0
-    curses.wrapper(_tui)
+    curses.wrapper(_tui, canvas)
     return 0
 
 

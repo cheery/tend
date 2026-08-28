@@ -128,7 +128,9 @@ card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
 mkdir -p "$propdir/lead" "$STATE"
-account="$propdir/lead/$stamp.md"
+# one account per turn: two turns in one minute (13:48, the first live ones) must not share a file
+account="$propdir/lead/$stamp.md"; _k=2
+while [ -e "$account" ]; do account="$propdir/lead/$stamp-$_k.md"; _k=$((_k + 1)); done
 outcome=""; result=""
 
 pull() {

@@ -114,3 +114,51 @@ at Henri's "open the canvas card"; a new card arrives unplaced and the
 tiebreak is his.  It is the andon strand's next build after
 `andon-panel` closed, and the thing `session-program`'s §13:45 watch
 waits on to be reverted.
+
+## 2026-08-28, 17:30 — day one built: the canvas read, one row per pin, the death in the log column
+
+Built in the sitting after the card was opened, red first with the 13:27
+minute as the fixture: a pin naming a node whose `stopped` says `exited
+127: llm stopped by itself` and whose log's last real line is the
+loader's (`libsvml.so: cannot open shared object file`).
+
+**What is there.**  `tools/andon-panel.py [--canvas DIR]` — the panel
+grown, not a second tool.  A canvas is a directory of `<name>.pin`
+files (`--canvas DIR`, `TEND_CANVAS`, else `~/.local/state/tend/canvas`),
+a pin a line or two: `node PATH`, and `state PATH` only when the state
+is not `NODE/state`.  `read_canvas` gives one row per pin from what the
+runner leaves and nothing else: `run.lock` taken for an instant the way
+`flock -n` takes it (never created — a node that never ran has no lock);
+`stopped`'s mtime the last stop and its line the reason, an `exited N`
+with N ≠ 0 read as a death and not a close; `watch` under a held lock
+older than `TEND_WATCH_STALE` read as *runner up, watcher silent N min
+— the cords are cut*, the rule `launch.sh status` reads, now read from
+outside; the pull file's last stamp.  `read_log` is the timeline: every
+line of `andon.log` and every pinned death — the stop's reason and what
+the program last said, filtered as `launch.sh`'s `last_said` filters —
+sorted by time.  A clean stop (idle, the sitting, exit 0) is the row's
+last stop and no line in the log: the column is for what went wrong.
+The TUI shows the canvas block above the pending questions and the log
+below, newest at the bottom, a death or a cut in bold; with no terminal
+it prints the rows and the last five lines.  Seven tests.
+
+**Measured against the real node** from inside the fence through a
+scratch pin: `llm — not running — pulled 13:57 — stopped 13:59 — idle:
+nothing has pulled llm for 60s`, and beneath it the afternoon's three
+cord pulls and Henri's answer, one column.  The 13:27 death itself is
+gone from the row — `stopped` has been rewritten by every stop since —
+which is the day-one shape the card set: the row shows the *last* stop,
+and the timeline shows a death only while it is the last thing the
+runner wrote.  A death that a later clean run overwrote is a line in
+the runner's log only; whether the timeline should keep it is the next
+question, and it is a want, not a build yet.
+
+**What it does not do**, by the card's rule: it does not ring for a
+death (the row and the line are shown; the tone is the andon's), it does
+not pin (`~/.local/state/tend/canvas/` does not exist on this machine —
+`llm.pin` is Henri's hand, `printf 'node ~/tend/llm\n' >
+~/.local/state/tend/canvas/llm.pin`), and it does not count proposals
+waiting in `proposals/lead/`, which the card's view named and day one
+did not need.  The one-second watch in `pull` (`card:session-program.md`
+§13:45) stays until the row has been on his screen: the revert is the
+card's first measurement, and the measurement is his.

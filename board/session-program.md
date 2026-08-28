@@ -536,3 +536,52 @@ test (a healthy pull returned late into a 4 s idle); it is 1 s, which
 the 13:27 log shows is enough.  `launch.sh` changed again: his `sudo
 tools/install.sh`, then pull from a shell with the oneAPI env, then the
 kept turn.
+
+### 2026-08-28, 13:48–13:58 — the first live led turns, read the next sitting
+
+Between the 13:45 fix and the kaizen, Henri ran the kept turn three
+times on the work laptop; the accounts are in `proposals/lead/` and the
+cord pulls in the andon record, answered at 13:59.  Read by the next
+session (17:15), because the milestone was reached and no card said so.
+
+**The node led.**  At 13:48 gemma read the seven open cards, picked
+`canvas.md` — the card opened twenty minutes earlier, whose `because` is
+the freshest text on the board — restated its `because` as the task,
+and `propose.sh` drafted with the card as material.  `lead.log`: `lead
+proposed canvas.md`.  The kernel held the boundary; no tracked file
+moved.  That is the event this card waited on since 2026-08-27.
+
+**What the turn produced is the measurement, and it is not a card
+finished.**  The draft (`proposals/2026-08-28-1348-…md`) is one
+paragraph saying that a draft is ready — *"It outlines the concept of a
+'pin' and a 'canvas'… The draft is ready to be read"* — repeated four
+times with `---` between, and *"No preamble is included as per the
+instructions."*  A description of a draft, not a draft: the model
+answered the instruction about the shape of its reply rather than the
+task.  The two turns after (13:57, 13:58) named `<canvas-script.md>` and
+`<canvas-death.md>` — the prompt's own `CARD: <filename from the list>`
+placeholder, angle brackets and all, echoed as a pick — and `lead.sh`
+read each as a card not on the open board and pulled the cord, which is
+the rule holding: the model's word was not trusted for the card, and a
+node that cannot say what it picked asked.  At 2048 context and 160
+tokens, on a 26B model with thinking off, the pick is sound and the
+draft is not; the milestone (§09:40) is a card gemma finishes that we
+can tell from gemma with no tree, and this is gemma with the tree,
+picking the right card and drafting nothing — conditioning shows in
+the pick, not yet in the work.  What to change is the prompt's
+placeholders (a small model echoes `<…>`) and the draft's length and
+material; that is tuning on the live seam, his hand, and it is where
+`later/model-acceptance.md`'s caveat lands.
+
+**One defect, fixed red first.**  `lead.log` has two 13:48 lines — an
+andon on `<canvas-death-2026-08-28>`, then the proposal — and
+`proposals/lead/` has one 13:48 account: the file is stamped by the
+minute, so the second turn wrote over the first and the first live
+cord pull's account is gone.  A turn whose stamp is taken now takes
+`-2`, `-3`; the test runs two turns in one minute and wants two
+accounts and two log lines.
+
+**Also today, from `card:canvas.md`**: the panel now shows a pinned
+node's row and its death on the andon's timeline (day one built,
+17:30), which is the person-side half of "no person is watching its
+transcript" that this card's andon section named.

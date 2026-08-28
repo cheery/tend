@@ -191,3 +191,19 @@ def test_a_kept_turn_waits_for_a_runner_that_is_still_loading(board, tmp_path):
         srv.shutdown(); holder.kill(); holder.wait()
     assert r.returncode == 0, r.stdout + r.stderr
     assert "waiting" in r.stderr, r.stderr
+
+
+def test_two_turns_in_one_minute_leave_two_accounts(board, tmp_path):
+    """2026-08-28, 13:48: the first two live led turns fell in the same
+    minute — lead.log has two 13:48 lines and proposals/lead/ one
+    13:48 account, the second turn's over the first's (an andon pull,
+    gone).  The lamp is per turn; a stamp by the minute is a stamp
+    that lies once a loop runs.  Red first."""
+    lead("CARD: lander.md\nTASK: one line\nWHY: because\n", board, tmp_path)
+    lead("ANDON: which card?\n", board, tmp_path)
+    accounts = sorted((tmp_path / "proposals" / "lead").glob("*.md"))
+    assert len(accounts) == 2, [a.name for a in accounts]
+    texts = [a.read_text() for a in accounts]
+    assert any("outcome  proposed" in t for t in texts) and any("outcome  andon" in t for t in texts)
+    log = (tmp_path / "state" / "lead.log").read_text().splitlines()
+    assert len(log) == 2
