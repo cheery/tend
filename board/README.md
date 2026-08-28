@@ -161,6 +161,26 @@ from where the session sits goes to the side that can run it — a
 gestate session unfenced, or Henri's hand — and until it comes back
 the commit says which line has not executed.
 
+**A fixture is a claim about the thing it copies, and it is measured
+like one** — three kaizens in one morning, 2026-08-26 (`07:21`, `07:28`,
+`07:39`, the last naming itself "the day's one lesson in three faces"
+and asking `kaizen-ingestion` to hand it up), promoted by the third
+ingestion batch (`doc/ingested.md`, 2026-08-28).  A harness reported a
+self-deleting `sed` as GREEN; a `write_text` of a script dropped its
+mode and the shim's `exec` was what refused; a fixture of one commit,
+or of a grant and a read in the same second, gave the defect and the
+correct program the same number.  What closed each was a mechanism,
+not care: `tools/mutate.sh` reads the intact copy before any row and
+refuses to read below a red one; the scratch copy of an executable is
+a copy (`test/test_precommit.py`'s `_scratch` chmods); and a fixture is
+built with something on both sides of the seam — two commits, two
+seconds — and tried against the defect before its green is trusted.
+It was paid a fourth time the next evening (`2026-08-27-1650`: three
+fixtures copied a live `.claude/settings.json` and modelled whatever
+state Henri had left it in), which is the same rule in its plainest
+form: **a test builds the side it means; it never copies the live
+thing as it is.**
+
 **To try a change to a protected script, clone the tree — never a
 worktree.**  A session cannot edit the protected set (`card:self.md`):
 those files are read-only inside the fence.  On 2026-08-27 a session

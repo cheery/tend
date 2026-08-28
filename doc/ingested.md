@@ -78,3 +78,43 @@ here as 37 — an eyeball count, corrected by `grep -c` the same morning); both 
 on the card.  **Least certain line**: [[2026-08-25-0753]], which
 carries two lessons and the reading had to pick one — one uncertain
 verdict, not two in a row.
+
+## Batch 3 — read 2026-08-28, the next ten (2026-08-25-1506 → 2026-08-26-0801)
+
+*Read by a session that wrote none of them, per the card's rule for this batch.*
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-25-1506 | "kept updated" for prose is a gate for the facts a test can check and a lamp for the rest; and the two copies of the sheets (md, html) had nothing holding them equal | `rule` — the split is tools/summary.sh's header; the drift half was closed 2026-08-27 by tools/sheets.py and test/test_summary.py:127–160, which hold the printable twin to the two sheets.  The third lesson — an instrument's test runs it in the state it ships in (the empty `git log` bug) — has its guard (summary.sh:55–56, `${sum_at:-0}`) and still no test of the untracked state; small, `once` |
+| 2026-08-25-1522 | the boundary is set from outside the bounded party — a program confining itself breaks Rule 1 as a session fencing itself does; a confined program's runtime is a grant like any other | `rule` — manifesto §"Two rules" and tools/keep.py's header (:8); the runtime finding is test_keep.py's shape.  Write-scoping is named at done/keep.md:158 ("reads only, for now") and waits on a caller — not a card, and not owed before one |
+| 2026-08-25-1530 | a comment that asserts a kernel behaviour is a claim and gets a measurement; and on a surprising change to a protected path, diff before stage | `rule` — the first half is batch 2's promotion (board/README.md §"What the days taught": proposed, not declared) and the card's own `because` names this kaizen as that strand's third face.  The diff-before-stage half is `once` in its form: since install day two the tree's copies are the workbench and `tools/fence.sh` says on every prompt which set is in force, so a protected file that moved is the session's own edit or Henri's `--free`, never a surprise |
+| 2026-08-25-1540 | the card about the write-only journal was written from the session's memory of the day — it sat inside the gap it named | `open — card:kaizen-ingestion.md` — this ledger is the reading aid the kaizen asked for, in its first form, and the `recurs — <kaizens>` column is what hands a strand up without a session having lived every face; this batch does exactly that once (below).  Its other lesson — a card names a problem on a prompt phrased as a fix — is `rule`, test_board.py, batch 2 [[2026-08-25-1445]] |
+| 2026-08-26-0721 | a harness lied twice and was caught by absurd numbers, not by a check — run a known-red and a known-green through it before any row; and "the file changed" is not "the break is in the file" | `rule` — tools/mutate.sh:91 reads the intact copy first and refuses to read below a red one, built the same morning ([[2026-08-26-0739]]); the `NOOP` column is a `cmp`.  First face of the fixture strand |
+| 2026-08-26-0728 | a copy that is not quite the original — `write_text` of a script drops its mode; three fixture errors in one day, each caught by output that read wrong | `recurs` — [[2026-08-26-0721]], the second face; the scratch copy chmods now (test/test_precommit.py:99).  The fold-commands memory applying to the session's own console is its second time in two kaizens (the locale `sed` in 0721) — same session, the memory is the rule, nothing more owed |
+| 2026-08-26-0739 | a fixture with nothing on either side of the seam — one commit, one second — gives the defect and the correct program the same number; "the day's one lesson in three faces, and `kaizen-ingestion` should one day hand it up" | `promoted` — board/README.md §"What the days taught", one paragraph cited to [[2026-08-26-0721]] [[2026-08-26-0728]] and this: the third face, and the kaizen asked for the promotion by name.  The strand was paid a **fourth** time the next evening — [[2026-08-27-1650]], three fixtures copying a live `.claude/settings.json` in one evening, unread by this ledger and found by `grep` — which is the card's `because` exactly, and why the paragraph says what closes a fixture and not "be careful" |
+| 2026-08-26-0743 | a message sent into a limit the session knew existed; and the finding offered as "not mine to make unasked" when the card was the thing to offer | `once` — the block is closed by `arrival` (done/arrival.md; tools/limit.sh:245 logs `peer`), and the offering-a-card half was applied within the hour (the card was made).  The vocabulary half — a verdict word is refused rather than invented — is `rule`, this card §"What one reading produces" |
+| 2026-08-26-0751 | test, break, fix, break again — nothing trusted for having passed once | `rule` — tools/mutate.sh and done/green.md, F88's rule; the protected set's cost paid visibly and no wider.  Carries a second lesson, below |
+| 2026-08-26-0801 | a card whose problem lives in two trees needs a paragraph to say which shelf it is on — one card per tree next time; and when two copies share a file, a fix's names are part of the fix: check the reader, not the writer only | `recurs` — [[2026-08-26-0751]] says the two-tree lesson first, this repeats it (2×, no home; `sitting-everywhere.md`'s title names two trees and is the next place it would show).  The gate refusing the keeper's own commit — two fields dropped in a header rewrite — is `rule`, test_board.py, and it fired.  The reader/writer half is `once` |
+
+**What batch 3 showed.**  Six `rule`, one `open`, two `once`, one
+`recurs` at two faces — and **one promotion, the ledger's second**,
+which is the mechanism doing what the `because` asked: the fixture
+strand has three faces in one morning ([[2026-08-26-0721]]
+[[2026-08-26-0728]] [[2026-08-26-0739]]), the third face asked
+`kaizen-ingestion` to hand it up by name, and a `grep` ahead of the
+schedule found it paid a fourth time on 2026-08-27 (`1650`, three
+fixtures copying a live settings file) — the lesson recorded and not
+read back, twice on two days, exactly the cost the card names.  It is
+one paragraph in `board/README.md` §"What the days taught", saying
+what closed each face (the harness reads the intact copy first; a copy
+of an executable is a copy; a fixture has something on both sides of
+the seam; a test builds the side it means) rather than a resolve.  The
+two-tree card strand ([[2026-08-26-0751]] [[2026-08-26-0801]]) is at
+two faces and waits for a third.  Two lessons of this batch closed by
+the tree moving on: the sheets' second copy is held by a checker
+since 2026-08-27, and the diff-before-stage face of the protected set
+lost its ground when install day two made the tree's copies the
+workbench.  **Least certain line**: [[2026-08-25-1530]], whose
+diff-before-stage half was judged `once` on an inference about the
+install rather than on a kaizen saying so — one uncertain verdict, not
+two in a row.  Zero verdict words added.

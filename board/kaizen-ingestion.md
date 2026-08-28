@@ -112,7 +112,8 @@ session reads ten, and what each reading produces is one line.
 | 2 | Thu 2026-08-27 | 25-0753 25-0803 25-0824 25-0828 25-1404 25-1412 25-1424 25-1428 25-1436 25-1445 |
 | 3 | Fri 2026-08-28 | 25-1506 25-1522 25-1530 25-1540 26-0721 26-0728 26-0739 26-0743 26-0751 26-0801 |
 | 4 | Mon 2026-08-31 | 26-0812 26-0822 26-0847 26-0855 26-0905 26-0910 26-0926 26-0931 26-1304 26-1309 |
-| 5… | Tue 2026-09-01 → | the ten oldest unread, whatever has arrived since |
+| 5 | Tue 2026-09-01 | 26-1317 26-1323 26-1334 26-1342 26-1356 26-1405 26-1412 26-1421 26-1433 26-1437 |
+| 6… | Wed 2026-09-02 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -208,3 +209,27 @@ gestate's has an R10; the nearest is §"The three ways an instrument
 fails" and rule 2.  The line stays as written with this beside it
 (board/README.md: a tree that only ever reads as right teaches
 nothing); a reader following it will now find the correction first.
+
+## 2026-08-28 — batch 3 read, by a session that wrote none of it
+
+Batch 3 is in `doc/ingested.md`: ten lines, the ledger's second
+`promoted` — the fixture strand, three faces in one morning
+(`2026-08-26-0721`, `-0728`, `-0739`), the third of which asked this
+card by name to hand it up, now one paragraph in `board/README.md`
+§"What the days taught" — and a `grep` ahead of the schedule that
+found the same strand paid a fourth time on 2026-08-27 (`1650`),
+unread by the ledger: the `because` of this card, measured twice.
+The two-tree-card strand (`-0751`, `-0801`) stands at two faces.
+Batch 5 is filled in above.
+
+**The count**: 72 kaizens in `doc/kaizen/` today; 30 read; 42 unread
+before Monday's arrivals, which at the level of ten is Monday
+through Thursday of next week with nothing arriving — and something
+will.  No day has been missed yet, so the lamp slice still waits for
+the first one.
+
+**Henri's half is due today** — batch 1 sent the self-shaped strand
+(`2026-08-24-1758`, `2026-08-25-0626`, `2026-08-25-0732`) to "Henri,
+Fri 08-28" because a session may not promote it, and the weekly three
+lines at random, disagreed with, have not happened once yet.  Both
+are his; neither is a session's to do for him.
