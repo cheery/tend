@@ -307,3 +307,33 @@ same three the cords give a hosted session; this is where they become a
 node's.  The limit is on the node now; delivery is what makes the node
 a thing a person is on the other end of, which is the whole of "a
 session is a program".*
+
+### 2026-08-28, 10:05 — brick 1 built: delivery
+
+`tools/deliver.sh NODE [question]` carries a pull's words to the running
+model and writes the answer back — the half named twice today and never
+built.  It reads the questions in `$STATE/pull` that have no reply yet,
+asks the node at its port (`enable_thinking:false`, so the answer is the
+answer and not gemma's reasoning), and appends a stamp, the question and
+the reply to `$STATE/replies`; a `$STATE/delivered` marker means no
+question is answered twice, and a first run with no marker arms rather
+than answering the backlog.  With a question argument it pulls it first
+(records and starts the node through the installed launcher), waits for
+`/health`, and answers that one — the round trip in one line.
+
+It runs on the person's side, like the runner: a fenced session's
+loopback is not the host's, so inside the fence it records the ask
+through `pull` and says the runner's side delivers — the same boundary
+`launch.sh pull` draws.  Five tests against a stub model on the test's
+own loopback (the node's real port is unreachable from the fence):
+answers the unanswered and skips a wordless line, does not answer twice,
+arms on a first run, records-and-answers a question argument, and inside
+the fence records without delivering.  Red first — the mechanism found
+its own line-reading bug (the whole pull file read as one question)
+before its green.
+
+What is left of brick 1 is the live round trip, which is the person's
+one command (`tools/deliver.sh llm "…"`) the way every run here has
+been — the fence cannot reach the port.  Brick 2, the model *acting* on
+what it reads, is the next; delivery is what makes the node a thing a
+person is on the other end of.
