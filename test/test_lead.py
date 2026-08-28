@@ -17,6 +17,7 @@ import threading
 from pathlib import Path
 
 import pytest
+import time
 
 ROOT = Path(__file__).resolve().parent.parent
 LEAD = ROOT / "tools" / "lead.sh"
@@ -141,3 +142,52 @@ def test_a_kept_turn_drafts_and_the_boundary_is_keeps_not_the_scripts(board, tmp
     assert list((tmp_path / "proposals").glob("*.md")), "the kept turn still drafts"
     assert "probe: refused" in r.stdout + r.stderr, r.stdout + r.stderr
     assert (board / "lander.md").read_text().startswith("# lander"), "the board is untouched under keep"
+
+
+def test_a_kept_turn_on_a_node_that_died_says_why_it_died(board, tmp_path):
+    """Henri, 2026-08-28 13:27: `lead.sh llm --kept` said "not up — start
+    it first" while the log said llama-server could not load libsvml.so.
+    A kept turn that finds no node reads the last stop and the log's last
+    error line, so the person sees the cause, not the symptom."""
+    st = tmp_path / "state"; st.mkdir()
+    (st / "stopped").write_text("exited 127: llm stopped by itself\n")
+    (st / "log").write_text("keep.py:153: DeprecationWarning: noise\n  class path_beneath_attr\n"
+                            "llama-server: error while loading shared libraries: libsvml.so: cannot open\n")
+    r, _ = lead("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_LEAD_KEPT="1",
+                TEND_LLM_HEALTH="http://127.0.0.1:1/health")
+    assert r.returncode != 0
+    out = r.stdout + r.stderr
+    assert "exited 127" in out and "libsvml.so" in out, out
+    assert "DeprecationWarning" not in out, "the warning noise is not the reason"
+
+
+def test_a_kept_turn_waits_for_a_runner_that_is_still_loading(board, tmp_path):
+    """A runner holds the lock and its port is not yet answering (the llm
+    node takes ~80 s to load): the kept turn waits for /health rather
+    than refusing at once."""
+    import http.server, threading, subprocess as sp
+    st = tmp_path / "state"; st.mkdir()
+    holder = sp.Popen(["sh", "-c", 'exec 9>>"$1"; flock 9; exec sleep 30', "_", str(st / "run.lock")])
+    t0 = time.monotonic()
+    class Slow(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            self.send_response(200 if time.monotonic() - t0 > 2 else 503); self.end_headers()
+        def do_POST(self):
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            out = {"choices": [{"message": {"role": "assistant", "content": "CARD: lander.md\nTASK: t\nWHY: w"}}]}
+            self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(json.dumps(out).encode())
+    srv = http.server.HTTPServer(("127.0.0.1", 0), Slow)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path), "TEND_LEAD_KEPT": "1",
+           "TEND_LLM_URL": base + "/v1/chat/completions", "TEND_LLM_HEALTH": base + "/health",
+           "TEND_PROPOSAL_DIR": str(tmp_path / "proposals"), "TEND_ANDON_STATE": str(tmp_path / "andon"),
+           "TEND_BOARD_DIR": str(board), "TEND_STATE_DIR": str(st)}
+    try:
+        r = sp.run(["sh", str(LEAD), str(NODE)], capture_output=True, text=True, env=env, timeout=60)
+    finally:
+        srv.shutdown(); holder.kill(); holder.wait()
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "waiting" in r.stderr, r.stderr

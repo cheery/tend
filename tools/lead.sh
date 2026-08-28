@@ -59,7 +59,23 @@ if [ "${2:-}" = "--kept" ] || [ -n "${TEND_LEAD_KEPT:-}" ]; then
     py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3)
     cport=$(printf '%s' "$CHAT" | sed -n 's|^http://[^:/]*:\([0-9]*\)/.*|\1|p'); : "${cport:=$port}"
     mkdir -p "$propdir/lead" "$STATE" "$andon_state"
-    curl -sf -m 2 "$HEALTH" >/dev/null 2>&1 || { echo "lead: $name is not up — start it first (tools/launch.sh $name pull); a kept turn cannot start a runner" >&2; exit 1; }
+    if ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then
+        if ! flock -n "$STATE/run.lock" true 2>/dev/null; then
+            # a runner holds the lock and is not answering yet: loading (the llm node takes ~80 s)
+            echo "lead: $name is up and not yet answering — waiting for $HEALTH (up to 150s)…" >&2
+            _n=0; until curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; do
+                [ "$_n" -lt 150 ] || { echo "lead: $name did not become ready within 150s — see $STATE/log" >&2; exit 1; }
+                sleep 2; _n=$((_n + 2)); done
+        else
+            # no runner at all: say what the last one said as it stopped, not just "not up"
+            # (Henri, 2026-08-28 13:27: "it should not crash silently" — the loader failure was in the log only)
+            echo "lead: $name is not up — a kept turn cannot start a runner; start it first: tools/launch.sh $name pull" >&2
+            [ -f "$STATE/stopped" ] && echo "lead: its last stop: $(head -1 "$STATE/stopped")" >&2
+            said=$(grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1)
+            [ -n "$said" ] && echo "lead: it last said: $said" >&2
+            exit 1
+        fi
+    fi
     extra=""; case "$board" in "$root"/*) ;; *) extra="--allow $board" ;; esac
     TEND_LEAD_KEPT= TEND_NO_START=1 TEND_LEAD_IN_KEEP=1 \
         exec "$py" "$here/keep.py" --allow "$root" $extra --write "$propdir" --write "$STATE" --write "$andon_state" --write /dev/null \

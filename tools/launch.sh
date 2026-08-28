@@ -130,6 +130,22 @@ for e in $envs; do eval "export $e"; done
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
+# the log's last line that is not warning noise — what a program said as it died
+last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
+# a runner that was just started and died at once, not cleanly: say why, exit 1 — a start that is
+# claimed and a runner that is gone a second later is a silent crash (Henri, 2026-08-28 13:27:
+# "it should not crash silently"; pull said "started llm", llama-server had died at the loader)
+died_at_once() {
+    _n=0; while [ "$_n" -lt 10 ]; do   # one second: the loader failure shows in less (13:27: pull :22, stop :23)
+        flock -n "$lock" true 2>/dev/null && break; sleep 0.1; _n=$((_n + 1)); done
+    flock -n "$lock" true 2>/dev/null || return 1     # still running
+    case "$(head -1 "$STATE/stopped" 2>/dev/null)" in
+        "exited 0:"*|"") return 1 ;;
+        *) echo "launch: $name stopped at once — $(head -1 "$STATE/stopped"); it said: $(last_said)" >&2
+           echo "launch: (tools/launch.sh $name check says what it needs; the runner's loader path is the shell's that pulls)" >&2
+           return 0 ;;
+    esac
+}
 stale="${TEND_WATCH_STALE:-60}"
 # seconds the watcher has been silent while a runner holds the lock — empty when the cords are fine
 cut_for() {
@@ -297,6 +313,7 @@ pull)
     elif flock -n "$lock" true 2>/dev/null; then
         setsid -f sh "$0" "$NODE" run >/dev/null 2>&1 </dev/null
         n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+        died_at_once && exit 1
         echo "launch: started $name (idle ${IDLE}s); it stops by itself when pulls stop" >&2
     fi
     exit 0 ;;
@@ -334,6 +351,7 @@ serve)
     flock -n "$lock" true 2>/dev/null || exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+    died_at_once && exit 1
     echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
 *) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, check, serve" >&2; exit 2 ;;

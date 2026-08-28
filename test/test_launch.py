@@ -522,3 +522,20 @@ def test_a_program_that_ignores_term_does_not_hang_the_runner(tmp_path):
     assert time.monotonic() - t < 20, "the runner hung on a program that ignored TERM"
     assert (st / "stopped").read_text().startswith("sitting:")
     assert "did not stop" in (st / "log").read_text()
+
+
+@needs_syspy
+def test_a_pull_whose_runner_dies_at_once_says_so_and_why(tmp_path):
+    """Henri, 2026-08-28 13:27: `pull` said "started llm" and the runner
+    had died a second later at the loader (libsvml.so), with nothing on
+    the terminal — "it should not crash silently".  A pull that starts a
+    runner watches it for a moment: if it stops at once and not by
+    itself cleanly, the pull says the reason and the log's last error
+    line, and exits 1."""
+    node = tmp_path / "dead"; node.mkdir()
+    (node / "grant").write_text("program /bin/sh -c 'echo \"prog: error while loading shared libraries: libx.so\" >&2; exit 127'\n")
+    st = tmp_path / "st"
+    r = launch(node, "pull", "hello", state=st)
+    assert r.returncode == 1, (r.returncode, r.stderr)
+    assert "exited 127" in r.stderr and "libx.so" in r.stderr, r.stderr
+    assert "started" not in r.stderr.split("exited 127")[0], "it does not claim a start it cannot stand behind"

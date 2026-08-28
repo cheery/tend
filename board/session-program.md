@@ -515,3 +515,24 @@ is on the node: the sitting (2026-08-27), the lamp (`proposals/lead/`,
 13:05), the andon (the record, 13:05; the heartbeat, 13:15), and the
 confinement (13:30).  Whether the node *conditions* is the next
 measurement, and `later/model-acceptance.md` is what it wakes.
+
+### 2026-08-28, 13:45 — the first live attempt: a silent crash, made loud
+
+Henri ran the install and `tools/lead.sh llm --kept`, and it said only
+"llm is not up — start it first".  The log said why: `pull` at 13:27:22
+had said "started llm", and a second later llama-server died at the
+loader — *libsvml.so: cannot open shared object file* — because the
+shell that pulled had no oneAPI on `LD_LIBRARY_PATH`, which the runner
+inherits (`card:node-install.md` §07:10; the same node served at 10:51
+from a shell that had it).  Henri: "ouch!  I forgot that, but it should
+not crash silently."  Two fixes, red first: `launch.sh pull` and `serve`
+watch the runner they started for a second, and a runner that stops at
+once with a non-zero exit is said out loud — the stop reason and the
+log's last line that is not warning noise — exit 1, no "started" claimed;
+and `lead.sh --kept` on a node with no runner says the last stop and
+what it last said, and on a runner still loading waits for `/health`
+instead of refusing.  A first watch window of 3 s broke an existing
+test (a healthy pull returned late into a 4 s idle); it is 1 s, which
+the 13:27 log shows is enough.  `launch.sh` changed again: his `sudo
+tools/install.sh`, then pull from a shell with the oneAPI env, then the
+kept turn.
