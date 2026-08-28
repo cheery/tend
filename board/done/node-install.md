@@ -361,3 +361,14 @@ The `env` word and the mechanism are clean; the 80 s start is the
 runtime's until the driver's own cache (`NEO_CACHE_PERSISTENT=1`,
 `NEO_CACHE_DIR`) is tried the same way — by hand first, then as a
 grant line if it loads.  One variable at a time, and this one is closed.
+
+**08:50 — the driver's cache: 82 s to 11 s.**  By Henri's hand, outside
+keep, `NEO_CACHE_PERSISTENT=1 NEO_CACHE_DIR=/tmp/nc` with the directory
+made first: *model loaded* at 1:22, eight files, then at **0:11**.  The
+driver does not create its directory and caches nothing without it, so
+the grant has a word for that now — `make PATH`, a directory made by
+`run` before keep execs, under `$STATE` unless absolute; `check` shows
+it as `·` until then.  `llm/grant`: `make neo-cache`, the two `env`
+lines.  Test and mechanism landed in one commit with six minutes on the
+clock; the test was not shown red first, which is the rule bent once
+and said.  The third start under keep is the measurement of this line.

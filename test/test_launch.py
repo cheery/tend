@@ -426,3 +426,17 @@ def test_env_is_a_grant_word_and_the_program_sees_it_with_state_expanded(tmp_pat
     assert r.returncode == 0 and f"✓ env CACHE_HOME={st}/cache" in r.stdout, r.stdout + r.stderr
     r = launch(n, "run", state=st)
     assert (st / "seen").read_text().strip() == f"{st}/cache", (st / "log").read_text()
+
+
+def test_make_is_a_grant_word_and_the_directory_exists_before_the_program_runs(tmp_path):
+    """`make PATH` — the work laptop, 2026-08-28: the GPU driver's kernel
+    cache cut the llm node's start from 82 s to 11 s by hand, and the
+    driver does not create its directory; absent, it quietly caches
+    nothing.  Under $STATE unless absolute; made before keep execs."""
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("make neo-cache\nenv CACHE=$STATE/neo-cache\nprogram sh -c 'ls -d \"$CACHE\" > $STATE/seen'\n")
+    st = tmp_path / "st"
+    r = launch(n, "check", state=st)
+    assert r.returncode == 0 and f"· make {st}/neo-cache is made by run" in r.stdout, r.stdout + r.stderr
+    launch(n, "run", state=st)
+    assert (st / "neo-cache").is_dir() and (st / "seen").read_text().strip() == f"{st}/neo-cache", (st / "log").read_text()

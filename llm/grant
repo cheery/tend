@@ -15,6 +15,11 @@ write /dev/dri
 #     env SYCL_CACHE_DIR=$STATE/sycl-cache
 # and both starts died 139 at the kernel build with no cache written; without the two lines the node loads.
 # Taken out until the same env outside keep says whether it is the runtime or the boundary (done/node-install.md)
+# The GPU driver's own cache instead: by hand, 82 s to 11 s on the second start (2026-08-28, 08:50), and the
+# driver does not create its directory — absent, it caches nothing and says nothing
+make neo-cache
+env NEO_CACHE_PERSISTENT=1
+env NEO_CACHE_DIR=$STATE/neo-cache
 bind 18080
 idle 60
 sitting 10

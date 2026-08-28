@@ -32,6 +32,8 @@
 #     pull FILE         the file a pull appends to (default $STATE/pull)
 #     program CMD...    what runs, under the grant.  Lines may use $NODE, $STATE, $IDLE and $MODEL
 #     status CMD...     what says what it did (optional; run read-only under the grant)
+#     make PATH         a directory made before the program runs, under $STATE unless absolute — for a
+#                       cache the program will not create for itself (the GPU driver's, 2026-08-28)
 #     env NAME=VALUE    exported to the program before keep execs it; $NODE, $STATE and $MODEL expand — for a
 #                       runtime's cache under $STATE, which keep already lets it write (2026-08-28)
 #
@@ -82,7 +84,7 @@ py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch:
 MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
 export NODE STATE MODEL
 
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
@@ -96,6 +98,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         pull)        eval "pullfile=\"$val\"" ;;
         program)     program=$val ;;
         status)      status_cmd=$val ;;
+        make)        case "$val" in /*) ;; *) val="$STATE/$val" ;; esac; makes="$makes $val" ;;
         env)         case "$val" in [A-Za-z_]*=*) envs="$envs $val" ;; *) echo "launch: $name/grant: env wants NAME=VALUE, got \`$val\`" >&2; exit 2 ;; esac ;;
         *) echo "launch: $name/grant: unknown word \`$key\`" >&2; exit 2 ;;
     esac
@@ -174,6 +177,7 @@ check)
         else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
     done
     for e in $envs; do nm=$(printf '%s' "$e" | cut -d= -f1); v=$(printenv "$nm"); ok "env $nm=$v"; done
+    for m in $makes; do if [ -d "$m" ]; then ok "make $m"; else printf '  · %s\n' "make $m is made by run"; fi; done
     case "$program $status_cmd" in
         *'$MODEL'*) if [ -n "$MODEL" ]; then ok "model $MODEL"
                     else bad "no *.gguf under $NODE/model — the program line uses \$MODEL, and the model is data the person brings (never in the tree)"; fi ;;
@@ -210,6 +214,7 @@ run)
     exec 9>>"$lock"
     flock -w 2 9 || { echo "launch: a runner already holds $lock — pull $name instead." >&2; exit 75; }
     rm -f "$STATE/stopped"
+    for m in $makes; do mkdir -p "$m"; done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
     busy=$began; prev_ticks=0; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
