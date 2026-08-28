@@ -119,10 +119,13 @@ def test_status_uses_the_grants_own_status_line(tmp_path):
     assert "node: not running" in r.stdout and "node tally:" in r.stdout, r.stdout
 
 
-has_llm = shutil.which("llama-server") and list((ROOT / "llm" / "model").glob("*.gguf"))
+# where the second node runs is what its own check says — on the work laptop, 2026-08-28,
+# the binary was on PATH and the model present and llama-server could not load its oneAPI
+# libraries; a guard that asked less than the check ran the node on a machine that could not
+has_llm = subprocess.run(["sh", str(LAUNCH), str(ROOT / "llm"), "check"], capture_output=True).returncode == 0
 
 
-@pytest.mark.skipif(not has_llm, reason="no llama-server on PATH or no *.gguf under llm/model — the second node cannot run here")
+@pytest.mark.skipif(not has_llm, reason="tools/launch.sh llm check says the second node cannot run here")
 def test_the_llm_node_serves_a_request_and_is_stopped_on_idle_by_its_pulse(tmp_path):
     """The second node: a program that cannot stop itself, run under its
     grant (model, state, one port), answers over loopback, and is stopped
@@ -240,7 +243,7 @@ def test_a_pull_cannot_declare_a_sitting(tmp_path):
     assert not sitting_line(g.stdout), g.stdout
 
 
-@pytest.mark.skipif(not has_llm, reason="no llama-server on PATH or no *.gguf under llm/model — the second node cannot run here")
+@pytest.mark.skipif(not has_llm, reason="tools/launch.sh llm check says the second node cannot run here")
 def test_the_llm_nodes_sitting_ends_while_it_is_still_being_asked(tmp_path):
     """The cord on the llm node, shown to hold: the server is loaded, is
     asked something — so its pulse is fresh and idle (60 s) is nowhere
@@ -341,3 +344,26 @@ def test_check_knows_a_read_only_state_is_the_fence_inside_and_a_fault_outside(t
         assert r.returncode == 1 and f"✗ state {st} is not writable by you" in r.stdout, r.stdout
     finally:
         st.chmod(0o755)
+
+
+def test_check_is_red_on_a_program_whose_shared_library_is_not_found(tmp_path):
+    """The work laptop, 2026-08-28: `check` said ✓ on a llama-server the
+    loader could not start — an Intel-LLVM build wanting libsvml.so from a
+    oneAPI the fence cannot see.  Present is not loadable; `ldd` reads a
+    binary's needs against the loader's view without running any of it."""
+    cc = shutil.which("cc")
+    if not cc:
+        pytest.skip("no C compiler here — the fixture builds a binary that needs a library")
+    d = tmp_path / "b"; d.mkdir()
+    (d / "nope.c").write_text("int nope(void) { return 0; }\n")
+    (d / "main.c").write_text("int nope(void); int main(void) { return nope(); }\n")
+    subprocess.run([cc, "-shared", "-fPIC", "-o", str(d / "libnope.so"), str(d / "nope.c")], check=True)
+    subprocess.run([cc, "-o", str(d / "prog"), str(d / "main.c"), "-L", str(d), "-lnope", f"-Wl,-rpath,{d}"], check=True)
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text(f"program {d}/prog\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ program {d}/prog" in r.stdout and "loads" in r.stdout, r.stdout
+    (d / "libnope.so").unlink()
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and "✗ program" in r.stdout and "cannot load" in r.stdout and "libnope.so" in r.stdout, r.stdout
+    assert "NOT installed" in r.stdout

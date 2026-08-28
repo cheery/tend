@@ -106,3 +106,98 @@ and a check of what the program itself needs beyond its binary — a
 shared library, a second binary it shells out to — which is the
 toolbox's kind of knowledge and not the grant's.  The card stays open
 until the check has been run on the machine it was built for.
+
+## 2026-08-28, 06:37 — the work laptop: the check ran, and said ✗ before anything ran
+
+The card's next line was `tools/launch.sh llm check` on the machine
+the node was built for.  Run from a fenced session at 06:37, one
+minute into a 15-minute sitting, on Henri's "We've arrived to the
+work laptop … there should be everything you need in place":
+
+    ✓ grant parses; 6 keep words
+    ✓ program llama-server → /usr/local/bin/llama-server
+    ✗ allow /home/henri/tend/llm/model does not exist
+    ✗ no *.gguf under /home/henri/tend/llm/model
+    · state … read-only to a session (the fence); … not checked from here
+    ✓ bind 18080 is free
+    ✗ keep refuses this grant here — llm would not run
+    NOT installed — the lines marked ✗ say what.
+
+`node check` on the same machine: installed.  And `llm/state/log`,
+written from the person's side at 06:36, holds the same refusal from
+keep — *nothing to grant at '/home/henri/tend/llm/model'* — so the
+runner had already paid the answer the check gives for free: the ✗ is
+the same fact, read before the run instead of after it.  That is the
+`because`, shown on the machine it was written about.
+
+**What the check cannot see, and why.**  The model on this laptop is
+wherever `~/qwen3.8-27B.sh` points, and inside the fence `~` is a
+tmpfs with `tend`, `.local/state` and `.gitconfig` bound in and nothing
+else: the script, and the `.gguf` it names, are not in the session's
+seat.  The check's ✗ is therefore honest and not yet actionable from
+here — the fix is one line of the person's, outside the fence:
+
+    mkdir -p ~/tend/llm/model && ln <the .gguf the script names> ~/tend/llm/model/
+
+A **hard link**, not a symlink: keep's Landlock rule is `path_beneath`
+on `llm/model`, and the kernel resolves a symlink to its target before
+the rule is checked, so a link into `~/models/…` would be refused at
+open with the grant looking correct.  `~` and `~/tend` are one
+filesystem here, so the link costs nothing.  Then `tools/launch.sh llm
+check` again, then `run`.
+
+**One thing the check does not know**: the grant's program line is
+`-c 2048 -t 2` with no GPU offload, which is the tiny-model shape from
+the other machine.  If the script here passes `-ngl` or a larger
+context, the grant's line is the one that runs, and the difference is
+the person's to settle in `llm/grant` — the check reads the grant, and
+only the grant.
+
+**The tree-wide half, on the same machine**: `tools/toolbox.sh` at
+06:38 — everything required present but `pytest` (*install:
+python3-pytest*).  Henri installed it within minutes, and the suite's
+first run here was **43 failed, 11 errors, 303 passed** on one root
+cause: every fixture that commits set `user.name` and inherited the
+rest of his live `~/.gitconfig` — `commit.gpgsign = true` with an SSH
+key the fence keeps out by design (`tools/sandbox.sh` probes that
+`~/.ssh` does not exist).  The fixture rule's fifth face, on a machine
+the fixtures had never met: `test/conftest.py` now gives every test an
+empty git config and an identity of its own — 357 passed after it.
+The one left, `test_mutate`, is a `.venv` made without pytest sitting
+first on PATH; the same thing refuses the gate, so this note waits on
+`.venv/bin/pip install pytest` from outside.  Two install tests, two
+seats, one morning: the node's says the model, the tree's says pytest,
+and neither ran anything to find out — and the suite, which does run
+things, found the third: the person's git config in the tests' seat.
+
+**06:52 — the model arrived, the check said *installed*, and it was
+wrong.**  Henri hard-linked `gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf` into
+`llm/model/` (17 GB, 2 links) and the check went green on every line —
+and `/usr/local/bin/llama-server --version` could not start: *error
+while loading shared libraries: libsvml.so*.  The build is Intel-LLVM
+(SYCL), and its runtime — twelve libraries: MKL, SYCL, TBB, dnnl, svml,
+imf, iomp5, intlc, irng — lives where oneAPI installs for a user, in
+his home, which the fence does not bind.  *Present is not loadable*, and
+day one had named exactly this gap as the toolbox's kind of knowledge;
+it is not — a program's libraries are the program's own need, read from
+the binary by `ldd` without running any of it.  `check` now has the
+line, ✓ *program loads* / ✗ *cannot load — not found by the loader:
+…*, with the caveat in the code that it reads with the check's
+`LD_LIBRARY_PATH`, which is the check's seat and may not be the
+runner's.  Red first: a test builds a binary against a library, deletes
+the library, and asks.  And the two tests that run the real second node
+had guarded on *binary on PATH and model present* — less than the check
+asks — so the moment the model arrived they ran a server that could not
+load; they now ask the check.  `llm/bin/` — his SYCL build beside the
+model — is gitignored like the model is.
+
+What the runner needs on this machine is now the ✗ line's list, and it
+is the grant's business twice over: the libraries must be on the
+runner's `LD_LIBRARY_PATH`, and under keep's Landlock they must also be
+*readable* — `SYSTEM_READ` covers `/usr` and `/lib*`, not a home
+directory — so an `allow` on the oneAPI lib directory belongs in
+`llm/grant` on this machine, or the runtime goes where `SYSTEM_READ`
+already looks.  Henri's to settle; the check will say when it is.
+
+The card stays open: it closes when the check says *installed* here
+and the run that follows agrees.

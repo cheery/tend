@@ -122,11 +122,24 @@ check)
     echo "check: $name  ($NODE)"
     ok "grant parses; $(echo "$flags" | wc -w | tr -d ' ') keep words"
     eval "set -- $program"; prog=$1
+    bin=""
     case "$prog" in
-        /*) if [ -x "$prog" ]; then ok "program $prog"; else bad "program $prog is not there or not executable"; fi ;;
-        *)  if found=$(command -v "$prog" 2>/dev/null); then ok "program $prog → $found"
+        /*) if [ -x "$prog" ]; then ok "program $prog"; bin=$prog; else bad "program $prog is not there or not executable"; fi ;;
+        *)  if found=$(command -v "$prog" 2>/dev/null); then ok "program $prog → $found"; bin=$found
             else bad "program \`$prog\` is not on PATH — tools/toolbox.sh says what the tree wants; this is $name's own"; fi ;;
     esac
+    # Present is not loadable.  The work laptop, 2026-08-28: the check said
+    # ✓ on a llama-server whose Intel-LLVM build wanted libsvml.so from a
+    # oneAPI the fence cannot see, and the binary could not start.  ldd
+    # reads what the binary names against the loader's view — with this
+    # shell's LD_LIBRARY_PATH, which is the check's seat and may not be the
+    # runner's — and none of the program runs.  A script or a static
+    # binary has nothing to read and gets no line.
+    if [ -n "$bin" ] && command -v ldd >/dev/null 2>&1 && deps=$(ldd "$bin" 2>/dev/null) && [ -n "$deps" ]; then
+        missing=$(printf '%s\n' "$deps" | awk '/not found/ { print $1 }' | sort -u | tr '\n' ' ')
+        if [ -z "$missing" ]; then ok "program loads — every shared library it names is found"
+        else bad "program $bin cannot load — not found by the loader: $missing(ldd; the library is $name's own need, not the tree's)"; fi
+    fi
     for kv in $paths; do
         k=${kv%%=*}; v=${kv#*=}
         if [ -e "$v" ]; then ok "$k $v"; else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi

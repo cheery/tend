@@ -21,3 +21,6 @@ llm/model/
 
 # the second node's state — runtime, like node/state/
 llm/state/
+
+# the second node's own llama.cpp build on a machine that has one (the work laptop, 2026-08-28: SYCL) — the person brings it, like the model
+llm/bin/
