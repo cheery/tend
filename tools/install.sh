@@ -202,7 +202,10 @@ if [ $mode = hook ]; then
         wait="?"; since="the installed commit is not behind HEAD (${ic%${ic#???????}})"
     fi
     mkdir -p "$(dirname "$log")" 2>/dev/null && printf '%s\t%s\tbehind=%s\twait=%s\t%s\n' "$now" "$(date -d "@$now" +%F\ %H:%M)" "$n" "$wait" "$behind" >> "$log" 2>/dev/null || true
-    echo "🔴 lander: the prefix is behind HEAD — $n commit(s) touching $(echo "$behind" | sed 's/ /, /g'), $since — vetted, not in force until the person's line: sudo tend-install"
+    # The line handed to the person is one that runs: tend-install exists
+    # only after the first install; before it, the tree's script.
+    line="sudo tend-install"; [ -x "$bindir/tend-install" ] || line="sudo tools/install.sh"
+    echo "🔴 lander: the prefix is behind HEAD — $n commit(s) touching $(echo "$behind" | sed 's/ /, /g'), $since — vetted, not in force until the person's line: $line"
     exit 0
 fi
 
