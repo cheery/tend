@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-25 — "go with A" (board/keep.md; the reusable launcher, not the node confining itself)
 """tools/keep.py — run a program able to read only what it was handed.
 
-    tools/keep.py [--allow PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args...
+    tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args...
 
 A launcher, and the grant is the launcher's, not the program's — the
 boundary is set from outside the thing bounded (board/keep.md, and the
@@ -15,6 +15,12 @@ program reads what it was given and gets EACCES on the file beside it.
   reads, always: --allow grants read beneath a path; a program is blind
   to data it was not handed, which is exactly problem 1 ("how are users'
   data protected from programs?").
+  --allow-try is --allow where the path exists and one line on stderr
+  where it does not — for a machine's runtime named in a tracked grant
+  (the work laptop's /opt/intel/oneapi, 2026-08-28): the fence's own
+  --ro-bind-try (tools/sandbox.sh), as a grant word.  --allow on a path
+  that is not there still refuses: a grant that names the person's data
+  and finds nothing is a grant that is wrong.
 
   writes, opt-in: --write grants read+write beneath a path, and turns on
   the write boundary — with at least one --write the program may change
@@ -147,7 +153,7 @@ def landlock_abi():
     return v if v > 0 else 0
 
 
-def confine(read_allow, write_allow, no_net=False, bind_ports=()):
+def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=()):
     abiv = landlock_abi()
     write_bits = 0
     handled = HANDLED
@@ -175,7 +181,7 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=()):
     # be opened for writing and truncated, a writable dir may also have
     # names made and removed beneath it.
     file_write = FS_READ_FILE | FS_WRITE_FILE | (FS_TRUNCATE if abiv >= 3 else 0)
-    plan = ([(p, False) for p in SYSTEM_READ + list(read_allow)]
+    plan = ([(p, False) for p in SYSTEM_READ + list(read_allow) + list(try_allow)]
             + [(p, True) for p in write_allow])
     for path, writable in plan:
         try:
@@ -183,6 +189,9 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=()):
         except FileNotFoundError:
             if path in SYSTEM_READ:
                 continue  # a root this machine does not have
+            if path in try_allow:
+                sys.stderr.write(f"keep: allow-try {path!r} is not here — not granted\n")
+                continue
             _fail(f"nothing to grant at {path!r} — it does not exist.")
         try:
             isdir = os.path.isdir(path)
@@ -213,13 +222,17 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=()):
 
 
 def main(argv):
-    allow, write, no_net, bind, i = [], [], False, [], 0
+    allow, allow_try, write, no_net, bind, i = [], [], [], False, [], 0
     while i < len(argv):
         a = argv[i]
         if a == "--allow":
             if i + 1 >= len(argv):
                 _fail("--allow needs a path", 2)
             allow.append(argv[i + 1]); i += 2
+        elif a == "--allow-try":
+            if i + 1 >= len(argv):
+                _fail("--allow-try needs a path", 2)
+            allow_try.append(argv[i + 1]); i += 2
         elif a == "--write":
             if i + 1 >= len(argv):
                 _fail("--write needs a path", 2)
@@ -240,8 +253,8 @@ def main(argv):
             break
     prog = argv[i:]
     if not prog:
-        _fail("nothing to run — tools/keep.py [--allow PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args", 2)
-    confine(allow, write, no_net, bind)
+        _fail("nothing to run — tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args", 2)
+    confine(allow, write, no_net, bind, try_allow=allow_try)
     try:
         os.execvp(prog[0], prog)
     except OSError as e:

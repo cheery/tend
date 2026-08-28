@@ -18,6 +18,8 @@
 #
 # NODE/grant — one word and its value per line, paths relative to NODE:
 #     allow PATH        readable
+#     allow-try PATH    readable where it exists; where it does not, said and not refused — a machine's
+#                       runtime in a tracked grant (the fence's --ro-bind-try, as a grant word; 2026-08-28)
 #     write PATH        writable (the state directory always is)
 #     bind PORT         one TCP port to listen on, and no other bind, no connect anywhere
 #     no-net            no TCP at all
@@ -83,7 +85,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
     case "$key" in
-        allow|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val"; paths="$paths $key=$val" ;;
+        allow|allow-try|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val"; paths="$paths $key=$val" ;;
         bind)        flags="$flags --bind $val"; port=$val ;;
         no-net)      flags="$flags --no-net" ;;
         idle)        idle_grant=$val ;;
@@ -161,7 +163,9 @@ check)
     fi
     for kv in $paths; do
         k=${kv%%=*}; v=${kv#*=}
-        if [ -e "$v" ]; then ok "$k $v"; else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
+        if [ -e "$v" ]; then ok "$k $v"
+        elif [ "$k" = allow-try ]; then printf '  · %s\n' "$k $v is not here — keep grants it where it is, and this machine has not got it"
+        else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
     done
     case "$program $status_cmd" in
         *'$MODEL'*) if [ -n "$MODEL" ]; then ok "model $MODEL"

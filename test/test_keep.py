@@ -434,3 +434,21 @@ def test_bind_wants_a_port_number():
     assert r.returncode == 2 and "port number" in r.stderr
     r = keep("--bind", "70000", "--", "true")
     assert r.returncode == 2 and "port number" in r.stderr
+
+
+@needs_landlock
+def test_allow_try_grants_a_path_the_machine_has_and_forgives_one_it_does_not(tmp_path):
+    """`--allow-try PATH` — the work laptop, 2026-08-28: the llm node's
+    runtime is under /opt/intel/oneapi there and nowhere on the other
+    machine, and a tracked grant naming it with --allow refuses everywhere
+    the path is not.  The word is the fence's own `--ro-bind-try`
+    (tools/sandbox.sh): readable where it is; absent is said, not refused."""
+    r = keep("--allow-try", str(tmp_path / "nope"), "--", "true")
+    assert r.returncode == 0, r.stderr
+    assert "not here" in r.stderr, "absence is said, not silent"
+    (tmp_path / "d").mkdir(); (tmp_path / "d" / "f").write_text("mine")
+    (tmp_path / "e").mkdir(); (tmp_path / "e" / "f").write_text("mine")
+    r = keep("--allow-try", str(tmp_path / "d"), "--", "cat", str(tmp_path / "d" / "f"))
+    assert r.returncode == 0 and r.stdout == "mine", r.stderr
+    r = keep("--allow-try", str(tmp_path / "d"), "--", "cat", str(tmp_path / "e" / "f"))
+    assert r.returncode != 0 and denied(r.stderr), "present, it grants exactly what --allow grants"

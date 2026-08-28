@@ -367,7 +367,25 @@ def test_check_is_red_on_a_program_whose_shared_library_is_not_found(tmp_path):
     (n / "grant").write_text(f"allow {d}\nprogram {d}/prog\n")
     r = launch(n, "check", state=tmp_path / "st")
     assert r.returncode == 0 and f"✓ program {d}/prog" in r.stdout and "loads" in r.stdout, r.stdout
+    (n / "grant").write_text(f"allow-try {d}\nprogram {d}/prog\n")   # present, allow-try reads like allow
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and "where keep lets it read" in r.stdout, r.stdout
     (d / "libnope.so").unlink()
     r = launch(n, "check", state=tmp_path / "st")
     assert r.returncode == 1 and "✗ program" in r.stdout and "cannot load" in r.stdout and "libnope.so" in r.stdout, r.stdout
     assert "NOT installed" in r.stdout
+
+
+def test_allow_try_is_a_grant_word_and_check_says_when_the_path_is_not_here(tmp_path):
+    """A grant is tracked and a machine's runtime is not: `allow-try PATH`
+    is readable where it exists and no refusal where it does not (the
+    fence's `--ro-bind-try`, as a grant word — 2026-08-28)."""
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text(f"allow-try {tmp_path}/rt\nprogram true\n")
+    r = launch(n, "grant", state=tmp_path / "st")
+    assert r.returncode == 0 and f"--allow-try {tmp_path}/rt" in r.stdout, r.stdout + r.stderr
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"· allow-try {tmp_path}/rt is not here" in r.stdout and "installed:" in r.stdout, r.stdout + r.stderr
+    (tmp_path / "rt").mkdir()
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ allow-try {tmp_path}/rt" in r.stdout, r.stdout
