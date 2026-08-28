@@ -420,3 +420,43 @@ itself (§"What it is") are still the session-half this card opened for.
 The model now reads the tree, answers from it, and drafts for it; a node
 that *leads* work is these three under a loop with the cords, which is
 where `session-program` goes next.
+### 2026-08-28, 13:05 — the loop: `lead.sh`, one led turn, and the node's lamp lights
+
+At Henri's "take session-program", the sitting after the three bricks
+closed.  `tools/lead.sh NODE` is one led turn — the bricks under a loop
+with the cords, which §11:10 named as where this card goes next.  The
+node is handed the open board as a digest its small context can hold
+(each open card's title and `because`; never `done/` or `later/`, and a
+test holds that), and answers in a three-line shape — `CARD / TASK /
+WHY` — or with one line, `ANDON: <question>`.  A pick goes through
+`propose.sh` with the card as material, so the draft lands in the
+gitignored `proposals/` and the boundary is brick 3's, unchanged: no
+tracked file is written, and a test reads the whole board before and
+after.  The cord is `andon.sh ask` — the record, no reach row — so a
+node that cannot decide reaches the person through the panel outside
+the fence (`card:andon-panel.md`), the reach-free path heard at 11:03.
+**The model's word is not trusted for the card**: a name not on the
+open shelf, or a reply with no shape at all, is a cord pull, not a
+proposal — a node that leads and cannot say what it picked is exactly
+the node that should ask.
+
+**The lamp lights.**  The 2026-08-27 measurement said the reflective
+account waits for a node that leads, because a curl-answering node has
+nothing to reflect.  A led turn has: every turn writes
+`proposals/lead/<stamp>.md` — what it read, what it picked and why, the
+outcome, the reply verbatim — and a line in `$STATE/lead.log`.  That is
+the node's own kaizen-shaped account, beside its proposals and never in
+the tree; a turn that produced nothing still writes it.  Two of the
+three cords are now on the node in the form the card asked for — the
+sitting limit in the grant is the clock over any loop of turns, and the
+andon is the record the panel hears.  Six tests, red first, against a
+stub that answers the pick and then the draft.
+
+**What this does not show**: a real pick.  The stub decides; gemma has
+not yet led a turn on the live board, and the milestone (§09:40) is a
+card gemma finishes that we can tell from gemma with no tree.  The live
+turn is the person's one command — `tools/lead.sh llm` — and a loop over
+it is `while tools/lead.sh llm; do :; done` under the grant's `sitting`,
+which is what makes the loop a session and not a program.  The watcher
+heartbeat (§09:37, nothing asks whether a runner still honours its
+cords) and the `keep`-enforced proposal boundary are the hardening left.
