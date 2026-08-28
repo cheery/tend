@@ -82,6 +82,14 @@ between two workable cards is Henri's.
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
    first with the row off; the tiebreak is his.*
+7. **[canvas](canvas.md)** — a pulled node's death is a line in a file
+   nobody is looking at: nothing on the person's side shows what they
+   are holding, and a death and a cord pull are events on one timeline
+   seen in two places or in none.  *Placed last by the session that
+   wrote it on 2026-08-28 at Henri's "open the canvas card"; day one is
+   a canvas directory of `name.pin` files and the panel showing a row
+   per pin with the stop's reason in the log column; the tiebreak is
+   his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
