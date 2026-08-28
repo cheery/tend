@@ -689,3 +689,35 @@ from the same `because` and the same 2-line ask means the dials named
 at 18:20 are the model's; a Claude reply that also restates the
 problem means the turn asks for too little and the digest is the
 thing to change, whatever model leads.
+
+### 2026-08-28, 18:27 — Sonnet 5 and Opus 5 on the same turn: the pick is a small thing; the draft was the tool's fault
+
+Henri ran `tools/compare.py` (`proposals/compare/2026-08-28-1827-*.md`).
+**The picks.**  Both chose `canvas.md`.  Sonnet 5, at 90 tokens,
+`end_turn`: *"draft a short note format that writes the death reason
+(exit code + last log line) into the node's state directory when the
+runner exits, so it's on disk next to 'stopped'"* — WHY: *"the fact
+already exists in the log; it just needs one place a person would
+look."*  Opus 5: *"Draft the exact one-line death notice — node name,
+exit code, last log line, path."*  From the same digest — one `because`
+per card and nothing else — both named a *thing*, of the size the prompt
+asked for, and the thing is nearly what the tree already has
+(`stopped` holds the reason; `last_said` the line; the canvas row shows
+both), which is what a pick from a `because` alone can be: right in
+kind, blind to the body.  gemma at 13:48 and 18:09 restated the
+`because`.  That is the answer to §18:20's question: **the turn's shape
+is enough for a model that can hold it; the tautology is the model's**,
+and the three dials are worth turning only if the aim is gemma
+specifically.
+
+**The drafts were empty, and that was the tool.**  Both accounts read
+`draft …→600 (stop max_tokens)` with no text, and Opus's pick hit 160
+the same way (no WHY): on these models thinking is adaptive by default
+and its tokens count against `max_tokens`, so a limit copied from the
+node without the node's other setting (`enable_thinking:false`) bought
+thinking and no draft.  A fixture copied from the live thing, in its
+API form — the session's.  Fixed: `thinking: disabled` is sent, the
+node's condition; `--thinking` is the other measurement, adaptive on
+with 16000 to write in, and the account's `usage` line says which.  His
+line again: `tools/compare.py`, and `tools/compare.py --thinking` if he
+wants the second number.

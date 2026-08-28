@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-28 — "I have anthropic api key here.. you could try how sonnet or opus fares in the task you've given to the local llm" (card:session-program.md)
 """tools/compare.py — the led turn's two prompts, put to a Claude model, for comparison with the node.
 
-    tools/compare.py [MODEL ...]        one led turn per model (default: claude-sonnet-5 claude-opus-5)
+    tools/compare.py [--thinking] [MODEL ...]   one led turn per model (default: claude-sonnet-5 claude-opus-5)
 
 The same turn `tools/lead.sh` gives the llm node — the open board as a
 digest (each card's title and `because`, never done/ or later/), the
@@ -26,6 +26,16 @@ it never writes the andon record: this is a measurement, not a turn.
 The default model set is his ask ("sonnet or opus"); the SDK's refusal
 fallbacks are left off on purpose — a comparison is of the model named,
 and a refusal is a result.
+
+**Thinking is off, as it is on the node.**  The first run (18:27) came
+back with both drafts empty at `600 (stop max_tokens)`: on these models
+thinking is adaptive by default and its tokens count against
+`max_tokens`, so the whole budget went to thinking and none to the
+draft — a limit copied from the node without the node's other setting
+(`enable_thinking:false`).  Now `thinking: disabled` is sent, which is
+the node's condition; `--thinking` is the other measurement — adaptive
+thinking on, with `max_tokens` raised to 16000 so the draft has room —
+and its account says so.
 """
 import datetime
 import os
@@ -112,31 +122,37 @@ def _text(response):
     return "".join(b.text for b in response.content if b.type == "text")
 
 
-def one_turn(client, model, board, propdir):
-    import anthropic
+def one_turn(client, model, board, propdir, thinking=False):
     d = digest(board)
-    kw = dict(model=model, max_tokens=PICK_TOKENS, system=PICK_SYS + d,
-              messages=[{"role": "user", "content": "Pick."}])
-    r1 = client.messages.create(**kw)
+    if thinking:
+        # the other measurement: adaptive thinking on, and room for it — not the node's limits
+        mode = dict(thinking={"type": "adaptive"}); pick_max = 16000; draft_max = 16000
+    else:
+        # the node's condition: enable_thinking:false, and the node's limits
+        mode = dict(thinking={"type": "disabled"}); pick_max = PICK_TOKENS; draft_max = DRAFT_TOKENS
+    r1 = client.messages.create(model=model, max_tokens=pick_max, system=PICK_SYS + d,
+                                messages=[{"role": "user", "content": "Pick."}], **mode)
     reply = _text(r1)
     got = read_reply(reply, board)
     draft = ""; r2 = None
     if got["card"]:
         card = Path(board) / got["card"]
         material = f"\n=== {card} ===\n" + card.read_text()
-        r2 = client.messages.create(model=model, max_tokens=DRAFT_TOKENS,
+        r2 = client.messages.create(model=model, max_tokens=draft_max,
                                     system=DRAFT_SYS + material[:MATERIAL_CHARS],
-                                    messages=[{"role": "user", "content": got["task"]}])
+                                    messages=[{"role": "user", "content": got["task"]}], **mode)
         draft = _text(r2)
     now = datetime.datetime.now()
     stamp = now.strftime("%Y-%m-%d-%H%M")
     propdir = Path(propdir); propdir.mkdir(parents=True, exist_ok=True)
-    account = propdir / f"{stamp}-{model}.md"
+    tag = f"{model}-thinking" if thinking else model
+    account = propdir / f"{stamp}-{tag}.md"
     k = 2
     while account.exists():
-        account = propdir / f"{stamp}-{model}-{k}.md"; k += 1
+        account = propdir / f"{stamp}-{tag}-{k}.md"; k += 1
     outcome = "andon" if got["andon"] else "proposed"
-    usage = f"pick {r1.usage.input_tokens}→{r1.usage.output_tokens} (stop {r1.stop_reason})"
+    usage = ("thinking adaptive, max_tokens 16000; " if thinking else "thinking off, the node's limits; ") \
+        + f"pick {r1.usage.input_tokens}→{r1.usage.output_tokens} (stop {r1.stop_reason})"
     if r2 is not None:
         usage += f", draft {r2.usage.input_tokens}→{r2.usage.output_tokens} (stop {r2.stop_reason})"
     account.write_text(
@@ -165,7 +181,9 @@ def main(argv):
     except ImportError:
         sys.stderr.write("compare: the anthropic SDK is not installed — .venv/bin/pip install anthropic\n")
         return 1
-    models = argv[1:] or ["claude-sonnet-5", "claude-opus-5"]
+    args = argv[1:]
+    thinking = "--thinking" in args
+    models = [a for a in args if a != "--thinking"] or ["claude-sonnet-5", "claude-opus-5"]
     board = os.environ.get("TEND_BOARD_DIR", ROOT / "board")
     propdir = os.environ.get("TEND_PROPOSAL_DIR", ROOT / "proposals")
     propdir = Path(propdir) / "compare"
@@ -173,7 +191,7 @@ def main(argv):
     rc = 0
     for model in models:
         try:
-            account, got, draft = one_turn(client, model, board, propdir)
+            account, got, draft = one_turn(client, model, board, propdir, thinking)
         except anthropic.APIStatusError as e:
             sys.stderr.write(f"compare: {model}: the API refused the request ({e.status_code}): {e.message}\n"); rc = 1; continue
         except anthropic.APIConnectionError as e:
