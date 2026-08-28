@@ -61,6 +61,22 @@ sys="You are answering using only the material below, from the tend project. If 
 
 $material"
 
+# ensure the node is up: consult is run by hand, so start it if it is not
+# and wait for /health, the way deliver does — unless a test says not to
+wait_ready() {
+    _n=0
+    while [ "$_n" -lt 150 ]; do
+        curl -sf -m 2 "$HEALTH" >/dev/null 2>&1 && return 0
+        sleep 2; _n=$((_n + 2))
+    done
+    echo "consult: $name did not become ready at $HEALTH within 150s" >&2; return 1
+}
+if [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then
+    echo "consult: $name is not up — starting it (first start compiles kernels, ~80s)…" >&2
+    sh "$here/launch.sh" "$NODE" pull "consult warmup" >/dev/null 2>&1 || true
+    wait_ready || exit 1
+fi
+
 body=$(jq -cn --arg s "$sys" --arg q "$question" --argjson n "$maxtok" \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
 out=$(curl -sS -m 180 -H 'Content-Type: application/json' -d "$body" "$CHAT") || {

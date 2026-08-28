@@ -69,6 +69,15 @@ def test_a_missing_file_is_refused_out_loud(tmp_path, stub):
     assert r.returncode != 0 and "no such" in (r.stdout + r.stderr).lower()
 
 
+def test_it_does_not_start_the_node_when_health_already_answers(tmp_path, stub):
+    """The stub answers /health, so consult must not try to start a node —
+    it just asks.  (A down node's start path is the person's, over a real
+    port; here the stub stands in for an up node.)"""
+    doc = tmp_path / "d.md"; doc.write_text("grounding material here")
+    r = consult(NODE, "q?", str(doc), stub=stub)
+    assert r.returncode == 0 and "grounding material here" in r.stdout, r.stdout + r.stderr
+
+
 def test_inside_the_fence_it_says_the_runners_side_answers(tmp_path, stub):
     doc = tmp_path / "d.md"; doc.write_text("x")
     r = consult(NODE, "q", str(doc), stub=stub, TEND_FENCED="1")
