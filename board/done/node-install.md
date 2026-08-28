@@ -400,3 +400,23 @@ file out of it is still refused — red first with a raw `rename(2)`
 wrote and the driver does not do).  Measured next by two pulls under
 keep after `sudo tools/install.sh`: the second's *model loaded* is the
 number, 0:11 by hand.
+
+**09:37 — the number, under keep: 1:20 → 0:12.**  With `REFER` handled
+(`ab63bc1`) and no strace in the way, a normal run wrote thirteen
+`.l0_cache` entries (`rename` across the driver's bucket directories now
+lands instead of `EXDEV`), and the second start read them: *model
+loaded* at **0:12** against 1:20 cold — the 0:11 measured by hand, now
+under the boundary.  The whole chain is the tree's: `make` creates the
+directory the driver will not, `env` points the driver at it, `keep`
+grants the cross-directory rename beneath `--write`.  The card's last
+open number is closed.
+
+One thing this run also settled: the earlier 25-minute overrun was the
+strace wrapper alone.  `$pid` was the tracer, and a tracer ptrace-
+stopped on its tracee does not die on `kill`'s SIGTERM, so the runner
+hung at `wait` with the lock held while `status` read *running* — idle
+had fired correctly at ~60 s and the stop could not complete.  A normal
+run stops clean (six idle-stops in today's log, and this one at 09:36:14).
+The wrapper is not normal operation, but the gap it showed is real and
+is `card:session-program.md`'s: nothing external asks whether a runner
+still honours its cords — a watcher heartbeat is the build, with a test.

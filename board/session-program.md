@@ -243,3 +243,18 @@ that reads them.  And **the sitting cord held on a node** without being
 reached: `sitting 10` is in the grant and the idle stop came first every
 time; the limit is built and has not yet had to fire.  The event this
 card waits on has not happened: the node answered, it did not lead.
+
+### 2026-08-28, 09:37 — a runner can be alive and not watching
+
+On the work laptop a runner wrapped in `strace` overran its 10-minute
+sitting by 25 (`done/node-install.md`): idle fired at ~60 s and set the
+stop, but `kill "$pid"` could not end the tracer, so the shell hung at
+`wait` with the lock held and `status` reading *running* the whole time.
+The wrapper is a confound — a normal run stops clean — but the gap is
+this card's: **the cords are checked by nothing.**  `status` reads the
+lock; it never asks whether the watch loop is alive or the sitting is
+blown.  The build: the runner touches a heartbeat file each loop, and
+`status`/`serve`/`check` read "runner up, watcher silent N min — the
+cords are cut", with the resolver free to kill it.  That is the andon
+on a node the card names, reached from the failure rather than the
+design.  Red first, and without a real strace in the fixture.
