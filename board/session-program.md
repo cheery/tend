@@ -392,3 +392,31 @@ is a line rather than a recollection.  This is the specimen's successor
 made runnable — the qwen at 1.5 tokens a second that read the method
 cold, now gemma reading the method's documents at 9.4, and getting
 right what it got wrong without them.
+
+### 2026-08-28, 11:10 — brick 3 built: the model writes, and only proposes
+
+`tools/propose.sh NODE "task" [file ...]` has the node draft tree-shaped
+work — a kaizen, a card edit — grounded in named material, and writes it
+to a gitignored `proposals/` area, banner-marked *NOT tree content until
+a person lands it by hand*.  It never touches a tracked file: the whole
+boundary in one place, and it is the tree's own rule — a party may not
+bound itself, so the model may not land its own words, the same seam a
+clone's pull crosses and the same hand that runs `sudo tools/install.sh`.
+Five tests, red first, and the load-bearing one asserts the boundary:
+given a card as material, propose leaves it byte-for-byte and writes the
+draft to `proposals/` instead.
+
+**This closes the road's three bricks.**  deliver carries a pull's
+words (brick 1), consult grounds a question in the tree (brick 2), and
+propose lets the model produce work the person reviews and lands (brick
+3) — read, then read-and-answer, then draft-and-propose, each further
+from the tree and none of them able to change it without a hand.  What
+brick 3 does *not* do is enforce the boundary in `keep` — the model
+process confined so it *could* only write `proposals/`; here the
+boundary is in `propose.sh`'s code, which is honest for a tool the
+person runs and is the weaker form of the same line.  A `keep`-enforced
+proposal is the hardening, and the andon/limit/lamp cords on the node
+itself (§"What it is") are still the session-half this card opened for.
+The model now reads the tree, answers from it, and drafts for it; a node
+that *leads* work is these three under a loop with the cords, which is
+where `session-program` goes next.
