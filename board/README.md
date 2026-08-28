@@ -82,6 +82,12 @@ between two workable cards is Henri's.
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
    first with the row off; the tiebreak is his.*
+7. **[andon-panel](andon-panel.md)** — a cord pulled while the person is
+   away is a line in a file nobody is watching; the sound did not travel
+   from inside the fence, so the person-side half must.  *Placed here by
+   the session that opened it on 2026-08-28 at Henri's "open the interface
+   card and build the TUI first.  I think we need it next" — the andon
+   strand's active build; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
