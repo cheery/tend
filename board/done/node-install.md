@@ -321,3 +321,15 @@ The start took 81 s, the same as the run before: the kernel compile is
 paid every time, which is the SYCL cache line above, measured twice.
 And a pull that carries words nobody delivers is `card:session-program.md`'s
 to think about — the first node was live today, and not yet leading.
+
+**08:20 — the cache line, at Henri's "can you do that".**  Smaller than
+the card said: `$STATE` is writable under keep already, so the runtime
+only needs telling where its cache is.  `env NAME=VALUE` is a grant word
+now — exported once after the grant is read, so `run`, `status` and
+`check` see one expansion of `$STATE`, `$NODE`, `$MODEL`; `grant` and
+`check` show it.  Red first.  `llm/grant` carries
+`SYCL_CACHE_PERSISTENT=1` and `SYCL_CACHE_DIR=$STATE/sycl-cache`; the
+first start after `sudo tools/install.sh` fills the cache and the second
+is the measurement — *model loaded* at 1:21 before, and whatever it says
+then.  If it says 1:21 still, the driver's own cache (`NEO_CACHE_DIR`)
+is the next variable, one at a time.

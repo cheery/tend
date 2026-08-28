@@ -409,3 +409,20 @@ def test_a_program_that_is_busy_and_silent_is_not_idle(tmp_path):
     t0 = time.time()
     r = launch(n, "run", state=tmp_path / "st2", idle="2", timeout=60)
     assert "idle" in (tmp_path / "st2" / "stopped").read_text() and time.time() - t0 < 10, "silent and asleep is idle"
+
+
+def test_env_is_a_grant_word_and_the_program_sees_it_with_state_expanded(tmp_path):
+    """`env NAME=VALUE` — the work laptop, 2026-08-28: the llm node paid an
+    81 s kernel compile on every start because the SYCL runtime's cache
+    lives under ~/.cache, which keep does not grant; $STATE is writable
+    already, so the runtime only needs telling.  The launcher exports the
+    line before keep execs the program; $STATE, $NODE and $MODEL expand."""
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("env CACHE_HOME=$STATE/cache\nprogram sh -c 'echo \"$CACHE_HOME\" > $STATE/seen'\n")
+    st = tmp_path / "st"
+    r = launch(n, "grant", state=st)
+    assert r.returncode == 0 and "env CACHE_HOME=$STATE/cache" in r.stdout, r.stdout + r.stderr
+    r = launch(n, "check", state=st)
+    assert r.returncode == 0 and f"✓ env CACHE_HOME={st}/cache" in r.stdout, r.stdout + r.stderr
+    r = launch(n, "run", state=st)
+    assert (st / "seen").read_text().strip() == f"{st}/cache", (st / "log").read_text()

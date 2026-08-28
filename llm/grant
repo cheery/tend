@@ -9,6 +9,11 @@ allow-try /opt/intel/oneapi
 # /dev/dri/renderD* read-write (the write boundary is on).  Measured by the next run here, not before
 allow /sys
 write /dev/dri
+# the SYCL runtime's kernel cache: 80 s and 81 s on consecutive starts under keep (2026-08-28), because its
+# default cache is under ~/.cache, which keep does not grant.  $STATE is writable already; the runtime only
+# needs telling.  The second start after this line is the measurement
+env SYCL_CACHE_PERSISTENT=1
+env SYCL_CACHE_DIR=$STATE/sycl-cache
 bind 18080
 idle 60
 sitting 10

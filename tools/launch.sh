@@ -32,6 +32,8 @@
 #     pull FILE         the file a pull appends to (default $STATE/pull)
 #     program CMD...    what runs, under the grant.  Lines may use $NODE, $STATE, $IDLE and $MODEL
 #     status CMD...     what says what it did (optional; run read-only under the grant)
+#     env NAME=VALUE    exported to the program before keep execs it; $NODE, $STATE and $MODEL expand — for a
+#                       runtime's cache under $STATE, which keep already lets it write (2026-08-28)
 #
 # **Why a file and not a launcher per program** (2026-08-26): the first
 # node's grant was three flags in `node/run.sh`, and the second node's
@@ -80,7 +82,7 @@ py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch:
 MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
 export NODE STATE MODEL
 
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
@@ -94,6 +96,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         pull)        eval "pullfile=\"$val\"" ;;
         program)     program=$val ;;
         status)      status_cmd=$val ;;
+        env)         case "$val" in [A-Za-z_]*=*) envs="$envs $val" ;; *) echo "launch: $name/grant: env wants NAME=VALUE, got \`$val\`" >&2; exit 2 ;; esac ;;
         *) echo "launch: $name/grant: unknown word \`$key\`" >&2; exit 2 ;;
     esac
 done < "$NODE/grant"
@@ -105,6 +108,8 @@ case "$SITTING" in
     *) sitting_s=$(awk "BEGIN { print int($SITTING * 60) }") ;;
 esac
 [ -n "$program" ] || { echo "launch: $name/grant has no program line" >&2; exit 2; }
+# the grant's env lines, exported once here so run, status (under keep) and check all see one expansion
+for e in $envs; do eval "export $e"; done
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
@@ -112,6 +117,7 @@ lock="$STATE/run.lock"
 case "$verb" in
 grant)
     echo "keep $flags"; echo "program $program"; [ -n "$pulse" ] && echo "pulse $pulse"; echo "pull $pullfile"; echo "idle $IDLE"
+    for e in $envs; do echo "env $e"; done
     [ -n "$sitting_s" ] && echo "sitting $SITTING min"
     exit 0 ;;
 check)
@@ -167,6 +173,7 @@ check)
         elif [ "$k" = allow-try ]; then printf '  · %s\n' "$k $v is not here — keep grants it where it is, and this machine has not got it"
         else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
     done
+    for e in $envs; do nm=$(printf '%s' "$e" | cut -d= -f1); v=$(printenv "$nm"); ok "env $nm=$v"; done
     case "$program $status_cmd" in
         *'$MODEL'*) if [ -n "$MODEL" ]; then ok "model $MODEL"
                     else bad "no *.gguf under $NODE/model — the program line uses \$MODEL, and the model is data the person brings (never in the tree)"; fi ;;
