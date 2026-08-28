@@ -158,3 +158,12 @@ def test_relay_after_an_answer_is_silent(tmp_path):
 def test_relay_is_the_persons_word_refused_inside_the_fence(tmp_path):
     r = andon(tmp_path, "relay", fenced="1")
     assert r.returncode == 2 and "outside the fence" in r.stderr
+
+
+def test_a_blank_question_is_nothing_asked(tmp_path):
+    """Henri, 2026-08-28 18:00: `tools/andon.sh ask " "` was accepted and
+    rang as a blank line — a ring with nothing asked is noise, and a
+    space is nothing."""
+    r = andon(tmp_path, "ask", "   ")
+    assert r.returncode == 2 and "nothing asked" in r.stderr
+    assert not (tmp_path / "andon.pending").exists()

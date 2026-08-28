@@ -103,7 +103,7 @@ count() { if [ -f "$pending" ]; then grep -c . "$pending" || true; else echo 0; 
 
 case "$mode" in
     ask)
-        q="${1:-}"
+        q=$(printf '%s' "${1:-}" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')   # a space is nothing asked (18:00)
         [ -n "$q" ] || { echo "andon: nothing asked — tools/andon.sh ask \"the question\"" >&2; exit 2; }
         mkdir -p "$state"
         printf '%s %s\n' "$(stamp)" "$q" >> "$pending"
