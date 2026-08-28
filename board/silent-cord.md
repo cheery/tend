@@ -143,6 +143,8 @@ that pulls the cord hands the ring across the same seam a pull already
 crosses.  The record-and-fallback of §10:07 still stands beneath either:
 a ring that cannot sound says so to a channel the person sees.
 
-*Confirmed working host-side is the next check: `tools/andon.sh ring 1`
-from Henri's own shell, outside the fence, against the real socket — if
-it sounds, the mechanism is whole and the fence is the whole of the gap.*
+*Confirmed, 10:20: `tools/andon.sh ring 1` from Henri's shell outside the
+fence rang clean (`pw-play` exit 0) against the real socket.  The
+mechanism is whole; the fence is the whole of the gap, and the build is
+one of the two shapes above — the sound need not be rebuilt, only carried
+across the seam.*
