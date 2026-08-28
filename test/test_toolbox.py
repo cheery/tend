@@ -61,3 +61,14 @@ def test_the_launcher_and_the_second_node_are_declared():
         assert decl, f"the toolbox does not declare {tool} with a reason"
     # and the check runs clean over the new lines
     assert sh("--check").returncode in (0, 1)
+
+
+def test_the_andon_player_is_declared_among_the_optional_tools():
+    """The andon rings through a sound player (pw-play/paplay/aplay);
+    without one it can record but not sound — measured on the work
+    laptop 2026-08-28 (card:silent-cord.md).  Optional: the andon
+    degrades to its record, it does not break the tree."""
+    r = sh("--check")
+    assert re.search(r"(pw-play|paplay|aplay).*andon", r.stdout, re.I), r.stdout
+    text = TOOLBOX.read_text()
+    assert "pw-play" in text and "andon" in text, "the player is named in the source with its reason"

@@ -77,6 +77,19 @@ else
     echo "  · systemd user manager — absent; tools/leash.sh degrades to nice + timeout"
 fi
 want bash "tools/limit.sh needs it only when installed as a hook"
+# the andon (tools/andon.sh) rings through a sound player; without one it
+# records the question and cannot sound.  The player is a package; the
+# *socket* it needs (PipeWire's $XDG_RUNTIME_DIR/pipewire-0) is runtime,
+# not a package, and this cannot check it — the work laptop had the player
+# and no socket on 2026-08-28 (card:silent-cord.md), so a green here is
+# "a player exists", never "the andon will sound".
+andon_player=""
+for c in pw-play paplay aplay; do command -v "$c" >/dev/null 2>&1 && { andon_player=$c; break; }; done
+if [ -n "$andon_player" ]; then
+    echo "  ✓ $andon_player — the andon rings through it (tools/andon.sh); the socket it needs is runtime, not a package"
+else
+    echo "  · pw-play — absent; the andon (tools/andon.sh) can record but not sound (install: pipewire-bin)"
+fi
 
 echo
 echo "  the nodes"
