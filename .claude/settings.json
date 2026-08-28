@@ -83,7 +83,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "TEND_REACH_ALLOW=net,audio,display TEND_TREE=\"$CLAUDE_PROJECT_DIR\" /usr/local/lib/tend/tools/fence-hook.sh"
+            "command": "TEND_REACH_ALLOW=net TEND_TREE=\"$CLAUDE_PROJECT_DIR\" /usr/local/lib/tend/tools/fence-hook.sh"
           }
         ]
       }

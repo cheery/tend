@@ -110,7 +110,7 @@ sys="You are leading one turn of work on the tend project's board.  Below
 are the open cards: each one's title and the problem it names.  Pick ONE
 card and ONE small thing that could be drafted for it now — a few lines,
 not a build.  Answer in exactly this shape, three lines, nothing else:
-CARD: the filename, exactly as it appears between === below
+CARD: the filename only, one word ending in .md, from the list below
 TASK: the one small thing, in one line
 WHY: one line
 If you cannot decide, or need the person, answer instead with one line:
@@ -125,9 +125,10 @@ reply=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $
 
 field() { printf '%s\n' "$reply" | sed -n "s/^[[:space:]]*$1:[[:space:]]*//p" | head -1; }
 card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
-# the prompt's own typography, echoed (13:57, live: `CARD: <canvas-script.md>`): the brackets are
-# the shape and the name is what the open shelf judges — a bracketed invented card is still a pull
-card=$(printf '%s' "$card" | sed 's/^[<`*[:space:]]*//; s/[>`*[:space:]]*$//')
+# the prompt's own typography, echoed (13:57, live: `CARD: <canvas-script.md>`; 18:01: `CARD: canvas.md ===`,
+# the digest's fence): the filename is the one thing the open shelf judges, whatever the model wraps it in —
+# the first word ending in .md, and an invented card so wrapped is still a pull
+card=$(printf '%s' "$card" | grep -o '[A-Za-z0-9_][A-Za-z0-9_.-]*\.md' | head -1 || true)
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
 mkdir -p "$propdir/lead" "$STATE"

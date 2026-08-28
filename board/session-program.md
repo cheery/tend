@@ -605,3 +605,24 @@ declared** (board/README.md, "What the days taught"): the next live
 `tools/lead.sh llm --kept` on the work laptop is what says whether the
 draft is a draft.  If it still is not, the dial is the material and
 `max_tokens`, not the prompt's manners.
+
+### 2026-08-28, 18:15 — the second live turns: the fence echoed this time
+
+Henri ran the kept turn twice more (17:46, 18:01) after the prompt lost
+its angle brackets.  gemma answered `CARD: canvas.md ===` both times —
+the digest's own `=== name ===` fence, echoed where the brackets had
+been — and went on to complete the digest's pattern for the other cards
+with `TASK: the one small thing, in one line` verbatim.  The shelf
+refused `canvas.md ===` and the cord was pulled, which is the rule
+holding; but the pick under the decoration was right both times, and
+the tuning of 17:45 had only moved the echo.  So the field is read for
+what the shelf judges and nothing else: the first word ending in `.md`,
+whatever wraps it (`lead.sh`; one test, red first, with the fence and
+with backticks, and an invented card so wrapped is still a pull).  The
+prompt says "the filename only, one word ending in .md".  Proposed as
+before: the next live turn says whether the pick lands and whether the
+draft is a draft — the 18:01 reply repeated one line about "a line of
+text that describes the task" twice, which is §17:45's second question
+still open, and its dial is the material and `max_tokens`.  Also seen:
+his `andon.sh ask " "` at 18:00 — a blank question is accepted and
+listed as a blank line; small, and `ask` should refuse it.

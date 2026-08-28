@@ -223,3 +223,16 @@ def test_a_pick_in_the_prompts_own_angle_brackets_resolves_to_the_open_card(boar
     assert "lead proposed lander.md" in (tmp_path / "state" / "lead.log").read_text()
     r, _ = lead("CARD: <unicorn.md>\nTASK: build it\nWHY: y", board, tmp_path)
     assert "unicorn.md" in (tmp_path / "andon" / "andon.pending").read_text(), "an invented card, bracketed, is still a cord pull"
+
+
+def test_a_pick_decorated_with_the_digests_own_fence_is_read_by_its_filename(board, tmp_path):
+    """17:46 and 18:01, live, after the angle brackets were taken out of the
+    prompt: `CARD: canvas.md ===` — the digest's `=== name ===` fence
+    echoed this time, and the shelf refused `canvas.md ===`.  The
+    filename is the one thing checked; whatever the model wraps it in
+    is not.  Red first."""
+    r, _ = lead("CARD: lander.md ===\nTASK: one line\nWHY: because\n=== lander.md ===\nmore\n", board, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "lead proposed lander.md" in (tmp_path / "state" / "lead.log").read_text()
+    r, _ = lead("CARD: `unicorn.md` ===\nTASK: x\nWHY: y", board, tmp_path)
+    assert "unicorn.md" in (tmp_path / "andon" / "andon.pending").read_text()
