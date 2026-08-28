@@ -225,5 +225,35 @@ beside the binary — `/usr/local/lib`, where `SYSTEM_READ` already looks
 and where `/usr/local/bin/llama-server` already is — needs no grant line
 anywhere; a per-machine grant does.  Henri's; the check says either way.
 
+**07:30 — Henri moved the runtime to `/opt/intel/oneapi` and granted
+it; the check went green from his shell; the run did not agree.**
+`tend-launch llm run` under keep: *terminate called … can not find
+preferred GPU platform*, exit 134 — SYCL could not reach the GPU.  Not
+a thing a check can read: what a program opens at runtime is the run's
+to show, and it showed it in `llm/state/log`.  From inside a fence that
+binds neither `/sys` nor `/dev/dri`, the session cannot measure the
+cause; from the runtime's shape it is two things keep does not hand a
+program — Level Zero enumerates devices through `/sys`, which is not
+in `SYSTEM_READ`, and opens `/dev/dri/renderD*` read-write, which the
+write boundary (on, because the grant has a `write`) refuses under a
+read-only `/dev`.  Two grant lines, `allow /sys` and `write /dev/dri`,
+are in `llm/grant` marked *proposed* — the next run here is the
+measurement, and whether `/sys` belongs in `SYSTEM_READ` (the machine,
+not the person's data) is a question for `keep` once it does.
+
+**`allow-try`** (`bcd8e96`) — at Henri's "implement allow that accepts
+absence, come up with some good name": the tree already had the
+semantics in its own fence, bwrap's `--ro-bind-try` in
+`tools/sandbox.sh`, so the word is `allow-try PATH`: readable where it
+exists; where it does not, one line on stderr (*keep: allow-try … is
+not here — not granted*) and no refusal.  `--allow` on a missing path
+still refuses — a grant that names the person's data and finds nothing
+is wrong, and the model directory this morning is the case.  `check`
+prints `·` for an absent `allow-try` and ✓ for a present one, and the
+loader line counts a present one as keep's.  Red first in both
+`test_keep` and `test_launch`.  `llm/grant` names the oneAPI runtime
+with it now, so the other machine's llm node is not refused for a
+directory it never had.
+
 The card stays open: it closes when the check says *installed* here
 and the run that follows agrees.
