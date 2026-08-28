@@ -162,3 +162,16 @@ waiting in `proposals/lead/`, which the card's view named and day one
 did not need.  The one-second watch in `pull` (`card:session-program.md`
 §13:45) stays until the row has been on his screen: the revert is the
 card's first measurement, and the measurement is his.
+
+## 2026-08-28, 17:55 — Henri saw it: "interesting but I am a bit mystified by it"
+
+He made the pin and opened the panel.  His words: *"I tried the canvas,
+it was interesting but I am a bit mystified by it.  Though, it'll
+probably makes more sense later."*  Recorded as a measurement, not
+argued with: the row he saw was the idle stop from 13:59 and beneath
+it three answered cord pulls — a quiet afternoon, nothing dead, and a
+view whose reason is a death that had already been overwritten.  The
+canvas makes sense at the minute it was carded for and shows little on
+a good one; whether that is the view's fault (say what a pin *is* on
+the screen; keep a death past the next clean stop) or only the hour's
+is a question for the next 13:27, and the card keeps it.

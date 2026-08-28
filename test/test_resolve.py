@@ -116,3 +116,22 @@ def test_install_is_refused_inside_the_fence(tmp_path):
 def test_an_unknown_argument_is_refused(tmp_path):
     r = resolve(tmp_path, "--bogus")
     assert r.returncode == 2 and "unknown argument" in r.stderr
+
+
+def test_the_hook_relays_a_ring_the_fence_could_not_sound(tmp_path):
+    """card:silent-cord.md day one: the resolver's hook runs on the person's
+    side after every command, so it is where a fenced session's failed
+    ring becomes a sound — the same seam a pull already crosses, and
+    never a daemon."""
+    andon_state = tmp_path / "andon"
+    marker = tmp_path / "played"
+    fake = tmp_path / "player.sh"
+    fake.write_text('#!/bin/sh\necho x >> "%s"\n' % marker); fake.chmod(0o755)
+    env = {"TEND_ANDON_STATE": str(andon_state), "TEND_ANDON_PLAYER": "false", "TEND_ANDON_GAP": "0"}
+    subprocess.run(["sh", str(ROOT / "tools" / "andon.sh"), "ask", "q"], env={**os.environ, **env}, check=True, capture_output=True)
+    subprocess.run(["sh", str(ROOT / "tools" / "andon.sh"), "ring"], env={**os.environ, **env}, capture_output=True)
+    assert "ring-failed" in (andon_state / "andon.log").read_text()
+    r = resolve(tmp_path, "--hook", env={**env, "TEND_ANDON_PLAYER": str(fake)})
+    assert r.returncode == 0, r.stderr
+    assert marker.exists() and marker.read_text().count("x") == 1
+    assert "relayed" in (andon_state / "andon.log").read_text()

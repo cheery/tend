@@ -67,13 +67,17 @@ def test_pulled_is_true_only_between_a_ring_and_an_answer(tmp_path):
     assert (tmp_path / "andon.pending").read_text() == ""
 
 
-def test_a_player_that_fails_is_loud_and_does_not_count_as_a_ring(tmp_path):
+def test_a_player_that_fails_is_loud(tmp_path):
+    """Until 2026-08-28 this test went on: "a ring nobody could hear is not a
+    pull" and "does not start the quiet window".  Reversed by
+    card:silent-cord.md — a fenced ring is the normal case and the record
+    is the cord; the panel counted a `ring-failed` as a pull from its
+    first day, and `pulled` and the window now agree (the two tests
+    below).  The loud half stands: a failure is said, never silent."""
     andon(tmp_path, "ask", "q")
     r = andon(tmp_path, "ring", player="false")
     assert r.returncode == 1 and "could not reach the sound card" in r.stderr
     assert "REACH=audio" in r.stderr, "inside the fence the fix is the row, and the message says so"
-    assert andon(tmp_path, "pulled").returncode == 1, "a ring nobody could hear is not a pull"
-    assert andon(tmp_path, "ring").returncode == 0, "and it does not start the quiet window"
 
 
 def test_answered_is_refused_inside_the_fence(tmp_path):
@@ -87,3 +91,70 @@ def test_an_unknown_word_and_an_empty_ask_are_refused_out_loud(tmp_path):
     assert andon(tmp_path, "shout").returncode == 2
     assert andon(tmp_path, "ask", "").returncode == 2
     assert andon(tmp_path, "ring", "many").returncode == 2
+
+
+# --- silent-cord day one: the ring crosses the seam (card:silent-cord.md) ---
+#
+# Inside the fence the player cannot reach the socket, so a ring is a
+# `ring-failed` line in the record and nothing else — and until today
+# that line was not a pull for `pulled`, did not buy the quiet window,
+# and reached no ear.  Henri: "the andon needs to sound even with no
+# sound allowed."  The record already crosses the fence; the sound is
+# carried by the person's side — `relay`, run by the resolver's hook
+# when it already runs (never a daemon), which plays each failed ring
+# once, through the real player, and writes `relayed`.
+
+def test_a_ring_that_could_not_sound_is_still_a_pull(tmp_path):
+    andon(tmp_path, "ask", "q")
+    r = andon(tmp_path, "ring", player="false")
+    assert r.returncode == 1 and "ring-failed" in (tmp_path / "andon.log").read_text()
+    assert andon(tmp_path, "pulled").returncode == 0, "a failed ring is a pull the limit must read"
+
+
+def test_a_failed_ring_buys_the_quiet_window_too(tmp_path):
+    andon(tmp_path, "ask", "q")
+    assert andon(tmp_path, "ring", player="false").returncode == 1
+    r = andon(tmp_path, "ring", player="false")
+    assert r.returncode == 3 and "not ringing again" in r.stderr, "ringing again into the same silence, whether or not it sounded"
+
+
+def test_relay_sounds_a_failed_ring_once_on_the_persons_side(tmp_path):
+    marker = tmp_path / "played"
+    fake = tmp_path / "player.sh"
+    fake.write_text('#!/bin/sh\necho x >> "%s"\n' % marker); fake.chmod(0o755)
+    andon(tmp_path, "ask", "q")
+    andon(tmp_path, "ring", player="false")                   # the fenced ring: failed, recorded
+    r = andon(tmp_path, "relay", player=str(fake), fenced="")
+    assert r.returncode == 0, r.stderr
+    assert marker.read_text().count("x") == 1, "one failed ring, one sound"
+    assert "relayed" in (tmp_path / "andon.log").read_text()
+    r = andon(tmp_path, "relay", player=str(fake), fenced="")
+    assert r.returncode == 0 and marker.read_text().count("x") == 1, "already relayed: silence"
+    andon(tmp_path, "ring", player="false", quiet="0")        # a new failed ring
+    andon(tmp_path, "relay", player=str(fake), fenced="")
+    assert marker.read_text().count("x") == 2
+
+
+def test_relay_with_nothing_failed_is_silent_and_quick(tmp_path):
+    marker = tmp_path / "played"
+    fake = tmp_path / "player.sh"
+    fake.write_text('#!/bin/sh\necho x >> "%s"\n' % marker); fake.chmod(0o755)
+    assert andon(tmp_path, "relay", player=str(fake), fenced="").returncode == 0, "no record at all"
+    andon(tmp_path, "ask", "q"); andon(tmp_path, "ring")     # a ring that sounded needs no relay
+    assert andon(tmp_path, "relay", player=str(fake), fenced="").returncode == 0
+    assert not marker.exists()
+
+
+def test_relay_after_an_answer_is_silent(tmp_path):
+    marker = tmp_path / "played"
+    fake = tmp_path / "player.sh"
+    fake.write_text('#!/bin/sh\necho x >> "%s"\n' % marker); fake.chmod(0o755)
+    andon(tmp_path, "ask", "q"); andon(tmp_path, "ring", player="false")
+    andon(tmp_path, "answered", fenced="")
+    andon(tmp_path, "relay", player=str(fake), fenced="")
+    assert not marker.exists(), "answered clears the pull; there is nothing to sound"
+
+
+def test_relay_is_the_persons_word_refused_inside_the_fence(tmp_path):
+    r = andon(tmp_path, "relay", fenced="1")
+    assert r.returncode == 2 and "outside the fence" in r.stderr

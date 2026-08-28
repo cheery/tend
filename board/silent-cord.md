@@ -192,3 +192,39 @@ as its own line, below the interface, not instead of it.
 a build with a shape of its own, and `silent-cord`'s `because` is the
 reach, not the panel.  Left here as the direction until then, at his
 word.*
+## 2026-08-28, 18:10 — day one built: the ring crosses the seam, on the person's side
+
+Built from inside the fence, red first, with the row off — which is
+this seat's normal state, and the reason the tests build the person's
+side explicitly (`fenced=""`) rather than inherit the seat they run
+from.
+
+**What changed.**  Three things in `tools/andon.sh`, one line in
+`tools/resolve.sh`.  (1) A `ring-failed` is a pull: `pulled` and the
+quiet window count it as a ring — until today a fenced session's ring
+was a loud exit 1 and *not* a pull for `sitting N because andon`, and
+a second ring a minute later was not refused; the panel had counted it
+as a pull from its first day, and the two now agree.  (2) `relay`, the
+person's word like `answered`, refused inside the fence: it reads the
+record and, for a failed ring no `relayed` line follows (by the
+record's order, not the clock — a failed ring and its relay can share
+a second, and the first fixture found that), plays the andon's own tone
+once through the real player where the socket is, and writes
+`relayed`.  Nothing crosses but the fact that the record has a ring in
+it.  (3) `tools/resolve.sh --hook` runs `relay` first, before the
+nodes: the resolver already runs on the person's side after every
+command, so it is where the ring is carried across — the second of
+§10:18's two shapes, and not a daemon.  Seven tests (six in
+`test_andon.py`, one in `test_resolve.py`); one old test reversed with
+its reason kept in the docstring.
+
+**What this does not do.**  It does not fix the reach (§10:18:
+`REACH=audio` nested in an already-fenced session does not bind
+`pipewire-0`) — Henri's "that reach should be fixed" stays its own
+line below this one.  It is not the demonstration: `resolve.sh` and
+`andon.sh` are installed restraints, so nothing runs this until his
+`sudo tools/install.sh` — and then the card's own demonstration, in
+§"Where it sits": `tend-reach-allow` without `audio`, one fenced ring,
+and a tone he hears from the hook.  With the panel open the same
+failed ring sounds twice once — the panel's on the ring, the hook's on
+the relay — and which yields is a want.

@@ -53,6 +53,12 @@ case "${1:-}" in
 *) echo "resolve: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
+# The andon's ring crosses the same seam a pull does (card:silent-cord.md,
+# 2026-08-28): a fenced session's ring fails at the player and is a line in
+# the record; this side, which already runs after every command, sounds
+# it once.  Not a daemon; the resolver's cost, one awk when nothing failed.
+sh "$here/andon.sh" relay >/dev/null 2>&1 || true
+
 # Every node is a directory with a grant beside its program; the launcher
 # knows each one's pull file and lock and makes the per-node decision
 # (`launch.sh NODE serve`).  This loop is program-agnostic: it adds the
