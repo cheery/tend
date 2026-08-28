@@ -337,3 +337,27 @@ one command (`tools/deliver.sh llm "…"`) the way every run here has
 been — the fence cannot reach the port.  Brick 2, the model *acting* on
 what it reads, is the next; delivery is what makes the node a thing a
 person is on the other end of.
+
+### 2026-08-28, 10:45 — brick 2 built: the model acts on what it reads
+
+`tools/consult.sh NODE "question" [file ...]` grounds a question in
+named tree files and asks the node, so the answer is shaped by the
+tree's own documents rather than the model's cold memory.  Where
+`deliver.sh` carries a bare pull, consult reads material off the tree
+and hands it to gemma as the ground to answer from — the model acting
+on what it reads, which is this brick.  Default material is
+board/README.md; the context is capped (llm/grant: -c 2048, so a card
+fits and the board does not) and a trim is said, not silent.  Runs on
+the person's side like deliver; inside the fence it says the port is
+unreachable.  Four tests against an echo stub: the named file's text
+reaches the model and the answer returns, the README is the default,
+a missing file is refused, and the fence is named.  Red first.
+
+**This is the conditioning test made runnable.**  Cold, gemma called
+jidoka a Buddhist practice (`done/node-install.md`, 10:08); with a tree
+document that says stop-the-line handed to it, `consult` is the same
+question grounded — the before and after in one tool.  What brick 2 does
+*not* yet do is have the model *write* the tree (a card edit, a kaizen);
+that is the next step and it is the one that needs a boundary on what
+the model may change — this brick is read-and-answer, which is safe and
+is where the measurement lives.
