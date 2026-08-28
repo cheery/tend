@@ -108,3 +108,15 @@ belongs outside the fence — a real player there reaches the socket the
 fenced andon could not (`card:silent-cord.md`), which Henri's host-side
 ring already proved.  Tested: the tone is a valid wav, and `_play_alert`
 hands it to the player.  Restart the panel to pick it up.
+
+## 2026-08-28, 11:03 — heard
+
+Confirmed: rung from inside the fence, the restarted panel played the
+tone and Henri heard it — "yes, I heard it."  The reach-free cord is
+whole end to end: a fenced session writes the record with no row, the
+panel outside the fence reads it and plays the andon's own two-note tone
+through `pw-play`, and it reaches the person in the next room.  The
+audio line is closed; what keeps this card `doing` is only the later
+views (a server, a GUI tray) and Henri's word on whether the TUI is the
+whole of what he wants — the `because` is answered, and the card is his
+to move to `done/`.
