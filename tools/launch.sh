@@ -205,6 +205,7 @@ run)
     rm -f "$STATE/stopped"
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
+    busy=$began; prev_ticks=0; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
     if [ -n "$pulse" ] || [ -n "$sitting_s" ]; then
         # a program that cannot stop itself, or one with a sitting: run it, watch it, stop it —
         # the sitting is read first, because the person's clock outranks the program's pulse
@@ -216,10 +217,17 @@ run)
             if [ -n "$sitting_s" ] && [ $(( now - began )) -ge "$sitting_s" ]; then
                 why="sitting: the $SITTING minutes of $name are up (from $(date -d "@$began" +%H:%M); the length is $name/grant's)"; break
             fi
+            # CPU progress is activity too.  The work laptop, 2026-08-28, 07:50: llama-server
+            # loaded its model, then compiled its GPU kernels for 45 s with no log line — busy on a
+            # core, silent on its pulse — and was stopped for idleness mid-compile.  A program that
+            # used at least half a core in the last second is busy, whatever its pulse says.
+            ticks=$(awk '{ print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null || echo "$prev_ticks")
+            [ $(( ticks - prev_ticks )) -ge $(( clk / 2 )) ] && busy=$now
+            prev_ticks=$ticks
             if [ -n "$pulse" ]; then
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began
-                if [ $(( now - last )) -ge "${IDLE%.*}" ]; then
+                if [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
                     why="idle: nothing has pulled $name for ${IDLE}s"; break
                 fi
             fi

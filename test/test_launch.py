@@ -389,3 +389,23 @@ def test_allow_try_is_a_grant_word_and_check_says_when_the_path_is_not_here(tmp_
     (tmp_path / "rt").mkdir()
     r = launch(n, "check", state=tmp_path / "st")
     assert r.returncode == 0 and f"✓ allow-try {tmp_path}/rt" in r.stdout, r.stdout
+
+
+def test_a_program_that_is_busy_and_silent_is_not_idle(tmp_path):
+    """The work laptop, 2026-08-28, 07:50: llama-server loaded the model,
+    then compiled its GPU kernels for 45 s with no log line — busy on a
+    core, silent on its pulse — and the launcher stopped it for idleness
+    mid-compile.  A pulse is one sign of activity; CPU progress is the
+    other, and it needs no new word: a program burning a core is not idle."""
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("pulse beat\nidle 2\nprogram /usr/bin/python3 -c 'exec(\"import time\\nt=time.time()+8\\nwhile time.time()<t: pass\")'\n")
+    st = tmp_path / "st"
+    t0 = time.time()
+    r = launch(n, "run", state=st, idle="2", timeout=60)
+    took = time.time() - t0
+    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + (st / "log").read_text()
+    assert took > 6, f"it was stopped at idle, {took:.1f}s"
+    (n / "grant").write_text("pulse beat\nidle 2\nprogram sleep 30\n")
+    t0 = time.time()
+    r = launch(n, "run", state=tmp_path / "st2", idle="2", timeout=60)
+    assert "idle" in (tmp_path / "st2" / "stopped").read_text() and time.time() - t0 < 10, "silent and asleep is idle"

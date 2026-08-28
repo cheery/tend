@@ -255,5 +255,38 @@ loader line counts a present one as keep's.  Red first in both
 with it now, so the other machine's llm node is not refused for a
 directory it never had.
 
+**07:50 — the second run: the GPU was reached, and the launcher
+stopped the server while it was starting.**  With `sudo tools/install.sh`
+and the four new grant lines, `tend-launch llm check` was green on all
+twelve words from his shell, and `run` got further than any run before:
+the model loaded, *Build program log for 'Intel(R) Arc(TM) Graphics'* —
+`allow /sys` and `write /dev/dri` measured true, the proposal is a
+finding.  Then `llm/state/log` in order: *launch: idle: nothing has
+pulled llm for 60s — stopping it*, and only after it *IGC: Internal
+Compiler Error: Termination request sent to the program*.  The server
+had logged its last line at 15 s and spent the next 45 compiling its
+GPU kernels — a core pegged, the pulse (`server.log`'s mtime) silent —
+and the launcher read silence as idleness and sent the SIGTERM that
+the compiler reported as its own crash.  The pulse is one sign of
+activity and was never the only one: CPU progress is the other, and
+needs no new grant word.  `launch.sh` now samples the program's ticks
+from `/proc/$pid/stat` each second, and idle requires both the pulse
+quiet and the CPU quiet (under half a core in the last second) for
+`idle` seconds.  Red first: a program that is silent and busy for 8 s
+under `idle 2` is not stopped, and one that is silent and asleep is.
+Two fixtures were wrong before the mechanism was: CPU spent in a child
+of the program is not the program's until the child is reaped, and
+`python3` under keep is the venv's, which reads `.venv/pyvenv.cfg`
+outside the grant — `/usr/bin/python3` is what a fixture means.
+
+Also in that log, unresolved: *OMP: Warning #179: Function Can't set
+size of SHM failed* — OpenMP wanting `/dev/shm` under a write boundary
+that has not got it; a warning, not a stop, and the next run says
+whether it matters.  And the kernel compile itself: the SYCL runtime's
+persistent cache lives under `~/.cache`, which keep does not grant, so
+every start may pay the 45 s again — a `write` for a cache directory
+under `$STATE` and the runtime's cache variable pointed at it would be
+the shape, if the second start is as slow as the first.
+
 The card stays open: it closes when the check says *installed* here
 and the run that follows agrees.
