@@ -84,3 +84,33 @@ person's side, shown red first with the row off — this morning's
 measurement is the red — and then green with the row off; then his
 `tend-reach-allow` without `audio` and one ring he hears, which is the
 demonstration and the only one there is.
+
+## 2026-08-28, 10:07 — the row was on and the cord was still silent
+
+At Henri's "you can also try andon there", a session inside the fence
+rang the andon with the `audio` row allowed (`TEND_REACH_ALLOW` carried
+`net,audio,display`, and `REACH=audio tools/andon.sh ring 2` was the
+call).  It did not sound.  Not the failure this card was opened for —
+the row was *on* — but a second one beneath it: on the work laptop
+there is no PipeWire socket at `$XDG_RUNTIME_DIR/pipewire-0` for the
+`audio` row to bind (the fence's `/run/user/1000` held only
+`gestate-sitting-1000`), so `pw-play` reached no server and the ring
+failed loudly (`ring-failed player=pw-play` in `andon.log`).  The
+alternate channels are no better from here: `notify-send` exists and
+`WAYLAND_DISPLAY` is set, but the fence binds neither the Wayland nor
+the D-Bus session socket, so a desktop notification cannot travel
+either.
+
+**What it means for this card.**  The andon's sound rides one host
+socket, and that socket is not a given — a different machine, a
+headless session, a PipeWire that is not running, and the person in the
+next room hears nothing while the row reads *allowed*.  The record held
+(the question is in `andon.pending`), which is the cord's other half
+doing its job; but a record the person is not looking at is not a reach.
+So `silent-cord`'s day one is larger than "red with the row off": the
+cord needs a fallback that does not assume PipeWire — the plainest being
+that a ring which cannot reach a sound server says so *to a channel the
+person will see* (a marked line the lander/limit lamp surfaces, a file
+the person's shell greets them with), and the andon's exit already
+distinguishes "no server" from "row off" for it to branch on.  Measured
+red here, on the machine, before any of it is built.
