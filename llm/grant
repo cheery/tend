@@ -24,4 +24,4 @@ bind 18080
 idle 60
 sitting 10
 pulse server.log
-program llama-server -m $MODEL --host 127.0.0.1 --port 18080 -c 2048 -t 2 --log-file $STATE/server.log
+program llama-server -m $MODEL --host 127.0.0.1 --port 18080 -c 8192 -t 2 --log-file $STATE/server.log

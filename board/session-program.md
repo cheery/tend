@@ -661,3 +661,31 @@ kept turn is its measurement.  Whether to keep turning dials on a 26B
 model at 9 tokens a second, or to read this as the conditioning
 result — *the tree moves the pick and not the prose* — is the reading
 `later/model-acceptance.md` is shelved for, and it is his.
+
+### 2026-08-28, 18:35 — the same turn, to a Claude model: `tools/compare.py`, his to run
+
+Henri: *"I have anthropic api key here.. you could try how sonnet or opus
+fares in the task you've given to the local llm."*  The seat cannot:
+no key in its environment, no net inside the fence (`api http 000`),
+no SDK in the venv.  So the comparison is a tool on the person's side,
+the route the README names for a claim this seat cannot run.
+`tools/compare.py [MODEL ...]` gives a Claude model the led turn as the
+node gets it — `lead.sh`'s digest (title and `because` per open card,
+never done/ or later/, capped at 5000 chars), the pick prompt at 160
+tokens, then `propose.sh`'s draft prompt with the picked card as
+material at 600 — reads the reply the way `lead.sh` reads it (the
+first word ending in `.md`, judged by the open shelf), and writes one
+account per model under `proposals/compare/`, with the draft and the
+token usage; the andon record is never written — a measurement, not a
+turn.  Default models `claude-sonnet-5` and `claude-opus-5`; the SDK's
+refusal fallbacks left off, because a comparison is of the model named.
+Two tests hold the digest and the reading against `lead.sh`'s; the
+call itself is untested here and unrun — **proposed**.  His two lines:
+`.venv/bin/pip install anthropic`, then `tools/compare.py`.
+
+What it will say, if it says anything: whether the tautology of 18:09
+is the 26B model or the turn's shape.  A Claude draft that is a draft
+from the same `because` and the same 2-line ask means the dials named
+at 18:20 are the model's; a Claude reply that also restates the
+problem means the turn asks for too little and the digest is the
+thing to change, whatever model leads.
