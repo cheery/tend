@@ -114,3 +114,35 @@ person will see* (a marked line the lander/limit lamp surfaces, a file
 the person's shell greets them with), and the andon's exit already
 distinguishes "no server" from "row off" for it to branch on.  Measured
 red here, on the machine, before any of it is built.
+
+## 2026-08-28, 10:18 — the socket is there; the fence is what blocks
+
+Henri checked the host: `/run/user/1000/pipewire-0` is a live socket and
+`pipewire`/`pipewire-pulse` have run since 06:26.  So the 10:07 reading
+("no socket") was the fence's view, not the machine's — the socket
+exists and the fenced session cannot see it.  With `audio` allowed and
+`REACH=audio` on the ring, a command inside the fence still reports
+`XDG_RUNTIME_DIR=/run/user/1000` with no `pipewire-0` beneath it, and
+the ring fails at `pw-play` all the same.  A hard `--bind` of a source
+that exists would not vanish silently, so the audio row is not reaching
+the exec that runs a session's command — most likely because the
+session already runs fenced (`TEND_FENCED=1`) and a per-command
+`--reach audio` nests inside a parent fence that never bound the socket,
+so there is nothing in the child's parent namespace to bind.
+
+**This is the sharper finding.**  The andon is a *session's* cord — its
+whole purpose is a restrained session reaching the person — and a
+restrained session is exactly where the sound does not travel.  The row
+being allowed is necessary and not sufficient; the socket must be in the
+namespace the ring runs in.  Two shapes for the build, and the choice is
+Henri's: the session's own fence carries `audio` (binds the socket at
+session start when reach allows it, so a nested ring inherits it), or the
+ring is delegated to the host side — the resolver, which starts a node's
+runner outside the fence, carries the andon too, and a fenced session
+that pulls the cord hands the ring across the same seam a pull already
+crosses.  The record-and-fallback of §10:07 still stands beneath either:
+a ring that cannot sound says so to a channel the person sees.
+
+*Confirmed working host-side is the next check: `tools/andon.sh ring 1`
+from Henri's own shell, outside the fence, against the real socket — if
+it sounds, the mechanism is whole and the fence is the whole of the gap.*
