@@ -54,9 +54,12 @@ between two workable cards is Henri's.
    did not build.  *Placed here by a session on 2026-08-26, at Henri's
    "open the cords card for the session's program", below the build
    cards and above the count-only ones; the tiebreak is his and this is
-   his to move.*  Blocked 2026-08-27 on one event, the first node that
-   leads work — the limit is built, the lamp and the andon wait on it,
-   and Henri's "not yet" closed the second-word question the same way.
+   his to move.*  Unblocked 2026-08-28 at Henri's "I think that 'not yet'
+   lifts now": the first node may lead work.  The substrate is built —
+   the llm node answers under keep (`card:node-install.md`) — and the
+   card carries the road from there (delivery, a minimal work loop, the
+   node's own cords; ~2–4 sittings to gemma4 working the board next to
+   gemma4 cold, the conditioning measurement).
 3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here

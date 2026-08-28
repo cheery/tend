@@ -1,9 +1,6 @@
 # session-program — a node tend runs is a program, not a session, until it carries the cords
 
-    status   blocked
-    blocked  the first node that leads work — the limit is built; the
-             lamp, the andon on a node, and the second sitting word all
-             wait on that one event (§2026-08-27, "not yet")
+    status   doing
     because  the grant half of "a session is a program" is built: any
              node runs under one boundary — budget, grant, lifecycle —
              and adding one is adding a directory (card:keep.md,
@@ -258,3 +255,55 @@ blown.  The build: the runner touches a heartbeat file each loop, and
 cords are cut", with the resolver free to kill it.  That is the andon
 on a node the card names, reached from the failure rather than the
 design.  Red first, and without a real strace in the fixture.
+
+## 2026-08-28, 09:40 — the "not yet" lifts, and the road to a node that leads work
+
+At Henri's "I think that 'not yet' lifts now", the block set on
+2026-08-27 is gone: the first node *may* lead work.  What that unblocks
+and what it still needs, measured against the tree as it stands the day
+the llm node first answered under keep (`card:node-install.md`):
+
+**The substrate is built and shown.**  A local model (gemma-4-26B) runs
+under keep — grant, budget, lifecycle — answers at the port at 9.4
+tokens a second, caches to a 0:12 warm start, and stops on its cords.
+That is the hard part, and it is done.
+
+**Three bricks stand between "it serves" and "it conditions the
+tree" — gemma4 as a session that works the board, next to gemma4 cold,
+which is the measurement Henri wants ("whether gemma4 conditions").**
+
+1. **Delivery — a pull's words reach the model and the answer comes
+   back.**  Today `pull "…"` appends the words to the pull file and
+   nothing reads them; the person talks to `:18080` by hand.  The brick
+   is a loop that reads an unserved pull's words, asks the running node,
+   and writes the reply where the puller can read it.  Unblocked,
+   cheap — ~1 sitting.  This is the "a pull with words is an ask nobody
+   delivers" line above, now the next build.
+
+2. **A minimal work loop — the model reads the board and does one
+   thing.**  The board is already bound readable into the fence; the
+   reading is free.  The *doing* — a card edit proposed, a kaizen
+   drafted, the next card picked — leans on `card:work-environment-ai.md`'s
+   residual (a session exec'ing an arbitrary program), whose cheap path
+   (§"Cheap, in roughly this order") does not need the broker built.
+   ~1–2 sittings once started.
+
+3. **The cords on the node itself.**  The sitting limit is built; a
+   node's lamp and its andon are not, and the andon waits on
+   `card:silent-cord.md` (2026-08-31).  The watcher heartbeat carded
+   above (§09:37) is part of this — nothing yet asks whether a runner
+   still honours its cords.  Wanted for a first led run, not a blocker.
+
+**Estimate.**  A local model answering under the full boundary: done
+today.  gemma4 doing board work you can read as conditioned-or-not:
+~2–4 sittings, the first of them delivery (brick 1) whenever Henri says
+go.  The milestone is not "gemma4 answers" but "gemma4 finishes a card
+and we can tell it from gemma4 with no tree".  Lighting it also wakes
+`later/model-acceptance.md`, shelved waiting on a door that admits a
+model — which this card, led, becomes.
+
+*The three faces the card named — a limit, a lamp, an andon — are the
+same three the cords give a hosted session; this is where they become a
+node's.  The limit is on the node now; delivery is what makes the node
+a thing a person is on the other end of, which is the whole of "a
+session is a program".*
