@@ -148,3 +148,8 @@ The week's count closed at zero on 2026-08-27, four days in, at his
 word.  What the card leaves is `session-program`'s: the same cord on a
 node that leads work.  Moved to `done/` by the session, on his word.
 
+*2026-08-28 — Henri, after a fenced session measured that a ring is
+refused with `audio` out of the bound: "the andon needs to sound even
+with no sound allowed."  Noted on `card:session-program.md`, the open
+card that owns the andon; the sound must not depend on a reach row the
+session has to be allowed.*

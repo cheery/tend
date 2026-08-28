@@ -202,3 +202,34 @@ lamp waits for.  Every open item on this card now waits on that one
 event, so the status says so: **blocked — the first node that leads
 work.**  The move back to open is a session's the day such a node is
 started, and the placing stays Henri's.
+
+## 2026-08-28 — Henri: the andon must sound even with no sound allowed
+
+Measured this morning, from a fenced session, before the words: with
+`audio` out of `TEND_REACH_ALLOW`, `REACH=audio tools/andon.sh ring`
+is **denied by the hook before it runs** ("the row `audio` is outside
+the bound Henri set … ask him"), and a bare `ring` inside the fence
+fails at the player — exit 1, `ring-failed` in the log, `pulled`
+false.  Loud, never silent: that half is right.  But the cord's only
+path is a reach row the session has to be *allowed*, and Henri's word
+on it: **"the andon needs to sound even with no sound allowed."**
+
+The problem, not a fix: a cord a session must be granted reach to
+pull is not a cord — the person who narrows a session's reach (and
+narrowing is the normal case; `tend-reach-allow` with no `audio` is
+one line) has, without meaning to, cut the one line the session is
+supposed to use when it is stuck.  The reach bound governs what a
+session may *touch*; the andon is what it may *say*, and the two
+were tied together by the first row Henri ever allowed
+(`tools/andon.sh`'s header: "the first row Henri ever put in
+`TEND_REACH_ALLOW` was `audio`, for this").  The record half already
+lives on the person's side (`~/.local/state/tend/andon.pending`
+passes through the fence); the sound does not.
+
+Noted here because this is the open card that owns the andon
+(`card:cords.md` is done and its residue is this card's); the shape
+that already exists for "a thing the session may not do, done on the
+person's side on the session's prompt" is `tools/resolve.sh`, and it
+is named only as a pointer.  Not built, not carded as its own: Henri
+asked for a note.  The day it is built, the measurement above is its
+red-before-trusted.

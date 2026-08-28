@@ -734,3 +734,62 @@ gap.  The manifest, then, is not a new file; it is the discipline that
 what the tree runs is what the toolbox declares, now with a check.  The
 residual on this card is unchanged: the session-as-principal /
 ambient-exec question, which the withdrawn enforcement half was about.
+
+## 2026-08-28 — the session's exec set, measured from the ledger, not designed
+
+Henri: *"lets take work-environment-ai & lander and work on them."*
+The card's residual is the session as principal — a session execs any
+program by hand, bounded by the fence and by no grant (§16:50) — and
+the toolbox-enforcement idea for it was withdrawn on three tensions,
+the third being that *"the set is broad, changing, and
+machine-varying"* (§toolbox idea).  That was an argument.  The leash
+ledger has held every fenced command since 2026-08-24, so the set is
+a thing to read, the way the reach table was written from complaints
+and not from a design pass (`doc/kaizen/2026-08-25-0646.md`).
+
+**Read** (`~/.local/state/tend/leash.log`, 1,439 fenced records,
+2026-08-24 → 08-28; the first word of every simple command, split on
+`;`, `|`, `&&`, `$(` and the shell keywords, environment assignments
+stripped, builtins dropped — a rough parse, and the prose words it
+lets through (`as`, `write`, from commit messages) were dropped by
+hand):
+
+* **61 distinct programs on PATH**, 3,107 execs.  The top 10 carry
+  **84.8 %**, the top 20 **95.2 %**, the top 30 **98.2 %**.
+* The top ten, in order: `sh` 706, `grep` 402, `git` 350, `head` 314,
+  `sed` 200, `cat` 191, `python3` 156, `tail` 122, `ls` 99, `awk` 93.
+  Then `cut rm ps wc sleep date sort mkdir touch tr jq uniq flock cp
+  env curl find seq bash`.  Reading tools, file tools, process tools,
+  git, python, the shell.
+* **9 of the 61 are declared** by `tools/toolbox.sh` (`sh git python3
+  jq flock bash llama-server bwrap timeout`); `setsid`, declared, was
+  never exec'd by a session (it is the launcher's).  The manifest
+  declares what the *tree* needs to run; what the session runs is
+  the person's shell.
+* **23 execs in four days touched a reach row**: `curl` 11 (loopback,
+  the llm node), `systemd-run` 3 (the bus), and 9 across `xdpyinfo
+  xwininfo xwd xdotool xclip xinput` (the display row — the probes
+  `doc/kaizen/2026-08-25-1428.md` is about).  `sudo` appears in one
+  command in 1,439 (the deny-list's).  `pw-play`/`paplay`: 2.
+* 53 tree-path first words (`tools/kaizen.sh` 17, `.venv/bin/python`
+  16, `tools/andon.sh` 7, `tools/install.sh` 5, …) — the tree's own
+  instruments, run by the sessions they instrument.
+
+**What the number says.**  The session's set is not broad and it is
+not changing: thirty programs, nearly all coreutils, cover 98 % of
+four days, and the tail is probes.  The withdrawn idea's third tension
+was about the *machine-varying* part (SYCL on the work laptop), and
+that survives; the "broad and changing" part does not, for this
+machine, on this evidence.  That does **not** revive the enforcement:
+tensions one and two stand on their own (PATH is not a boundary — a
+session execs by absolute path, and the fence binds `/usr` whole;
+the install-test "why" is the manifest's, not exclusivity's).  What
+it does is put a number under the residual: the grant a session would
+want, if it were ever a node's kind of grant, is about thirty
+binaries plus the tree, and 0.7 % of its execs reach past the fence's
+default rows.  Whether that grant is worth a mechanism is a question
+for the day a session runs as a node — the frame's own event
+(§15:45), the same one `card:session-program.md` waits on — and this
+reading is what that day starts from rather than a design.  The
+parse is in the session's scratch, not the tree: a tool wants a
+caller, and the ledger is one `awk` away for the next reading.

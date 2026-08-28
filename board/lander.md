@@ -101,3 +101,47 @@ count that would make the rest of the card wrong — and the lamp is a
 slice of `tools/install.sh --check` with a `--hook` form, on the
 person's side like the other lamps.  Not built with the card: a card
 that arrives with its own solution has already decided.
+
+## 2026-08-28 — day one: the lamp, built, and it takes the count
+
+Henri: *"lets take work-environment-ai & lander and work on them."*
+The card's day one was the lamp, which is also the count that would
+make the rest of the card wrong, and it is a slice of
+`tools/install.sh`: **`--hook`**, a `UserPromptSubmit` hook beside
+the kaizen lamp's.  At every prompt it compares HEAD's copy of each
+installed file to the sha256 in the prefix's `installed` record; if
+any differs, one line —
+
+    🔴 lander: the prefix is behind HEAD — 2 commit(s) touching tools/limit.sh, tools/kaizen.sh, waiting since 05:55 (0m) — vetted, not in force until the person's line: sudo tend-install
+
+— and every lit prompt is appended to `~/.local/state/tend/lander.log`
+as `epoch  date  behind=N  wait=SECONDS  files`.  Dark when in force;
+silent where nothing is installed (that is `--check`'s finding, not a
+wait); it never installs.  An uncommitted edit does not light it —
+HEAD is what installs, and HEAD is what it reads.
+
+**The shape, and where it lives.**  A lamp on the person's side must
+not be session-writable, so `tools/install.sh` joins the installed
+set (`persons_side`, beside `leash.sh`, `keep.py`, `andon.sh`), which
+also gives it a command: `tend-install`.  `--hooks` prints the lamp's
+line and `--hooks apply` adds it once, idempotently, in the
+hook-installer's shape; `--check` says whether the lamp is on a hook
+as a `·` note, not a `✗` — a lamp is not a restraint, and a check
+that went red to announce a lamp would be the gate-before-clean move
+`board/README.md` names.  Two tests in `test/test_install.py`, each
+red before the lamp existed: dark in force, lit with the count and
+the files once HEAD moves past the prefix, two rows in the log for
+two lit prompts, dark again after a fresh install; and silent where
+nothing is installed.  Suite passes.
+
+**Not in force until the wait it measures is paid once more.**  The
+installed `install.sh` at `/usr/local/lib/tend` has no `--hook` — a
+hook line added before the install would fail at every prompt — so
+the order is the person's two lines, in this order: `sudo
+tools/install.sh`, then `tools/install.sh --hooks apply`.  After that
+the lamp reads the drift from the person's side and the log starts.
+
+**What the count decides.**  The card's §"What would make this card
+wrong" holds: if `wait=` never exceeds a sitting's length in a week
+of `lander.log`, the lamp is the whole card and the actor is not
+built.  Read the log on 2026-09-04; the card stays open until then.

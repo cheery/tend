@@ -74,8 +74,8 @@ def test_the_set_is_the_protected_set_plus_the_persons_side():
             assert p not in listed, "a per-node wrapper stays in the tree"
         else:
             assert p in listed, f"{p} is protected but not installed"
-    for p in ("tools/leash.sh", "tools/keep.py"):
-        assert p in listed, f"{p} runs on the person's side (the hook, the launcher) and must be installed"
+    for p in ("tools/leash.sh", "tools/keep.py", "tools/install.sh"):
+        assert p in listed, f"{p} runs on the person's side (the hook, the launcher, the lander lamp) and must be installed"
 
 
 def test_the_set_is_closed_under_what_its_scripts_call():
@@ -191,6 +191,12 @@ def test_hooks_apply_rewrites_every_tree_line_and_keeps_the_bound(tree, tmp_path
     # and the fence's own check still finds every hook, by the names it greps for
     r2 = run("--hooks", "apply", tree=tree, prefix=p, settings=s, fenced="")
     assert json.loads(s.read_text())["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"].count("TEND_TREE") == 1, "idempotent"
+    # the lander lamp's line is added once, beside the kaizen lamp's, and never twice
+    lamps = [h["command"] for g in json.loads(s.read_text())["hooks"]["UserPromptSubmit"] for h in g["hooks"]]
+    assert lamps.count(f'TEND_TREE="$CLAUDE_PROJECT_DIR" {p}/tools/install.sh --hook') == 1, lamps
+    assert f'{p}/tools/install.sh --hook' in printed, "--hooks prints the line it would add"
+    r = run("--check", tree=tree, prefix=p, settings=s)
+    assert "✓ the lander lamp is on a prompt hook" in r.stdout, r.stdout
 
 
 def test_free_lifts_the_trees_edit_rules_only_once_the_hooks_run_the_prefix(tree, tmp_path):
@@ -265,3 +271,54 @@ def test_each_installed_script_is_a_command(tree, tmp_path):
 
 def test_an_unknown_argument_is_refused_out_loud():
     assert run("--frobnicate").returncode == 2
+
+
+def _hook(tree, prefix, log):
+    env = dict(os.environ, TEND_FENCED="1", TEND_PREFIX=str(prefix), TEND_LANDER_LOG=str(log))
+    return subprocess.run(["sh", str(tree / "tools/install.sh"), "--hook"], input="{}",
+                          env=env, capture_output=True, text=True)
+
+
+def _commit_a_change(tree, path, text):
+    f = tree / path
+    f.write_text(f.read_text() + text)
+    subprocess.run(["git", "-C", str(tree), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(tree), "-c", "user.email=t@t", "-c", "user.name=t",
+                    "commit", "-q", "-m", "a change to a restraint"], check=True)
+
+
+def test_the_lander_lamp_is_dark_in_force_and_lights_when_head_moves_past_the_prefix(tree, tmp_path):
+    """card:lander.md, day one.  The lamp is dark while the installed record
+    matches HEAD, lights with how many commits and which files once a
+    commit touches an installed file, and appends every lit prompt to
+    its log — the count that decides whether the card wants an actor."""
+    p, log = tmp_path / "p", tmp_path / "lander.log"
+    assert run(tree=tree, prefix=p, fenced="").returncode == 0
+    r = _hook(tree, p, log)
+    assert r.returncode == 0 and r.stdout == "" and r.stderr == "", (r.stdout, r.stderr)
+    assert not log.exists(), "dark: nothing logged"
+    _commit_a_change(tree, "tools/limit.sh", "\n# a vetted change\n")
+    r = _hook(tree, p, log)
+    assert r.returncode == 0, r.stderr
+    assert "lander: the prefix is behind HEAD" in r.stdout and "1 commit(s)" in r.stdout, r.stdout
+    assert "tools/limit.sh" in r.stdout and "tools/kaizen.sh" not in r.stdout, "only what differs is named"
+    assert "sudo tend-install" in r.stdout, "the person's line, once, not a nag"
+    _commit_a_change(tree, "tools/kaizen.sh", "\n# another\n")
+    r = _hook(tree, p, log)
+    assert "2 commit(s)" in r.stdout and "tools/kaizen.sh" in r.stdout and "tools/limit.sh" in r.stdout, r.stdout
+    rows = log.read_text().splitlines()
+    assert len(rows) == 2 and "behind=1" in rows[0] and "behind=2" in rows[1], rows
+    assert all("wait=" in x and "tools/limit.sh" in x for x in rows), rows
+    # a fresh install puts it out, and a partial edit to the working tree does not light it: HEAD is what installs
+    assert run(tree=tree, prefix=p, fenced="").returncode == 0
+    (tree / "tools/limit.sh").write_text((tree / "tools/limit.sh").read_text() + "# uncommitted\n")
+    r = _hook(tree, p, log)
+    assert r.stdout == "" and len(log.read_text().splitlines()) == 2, "dark again; an uncommitted edit is not a vetted change"
+
+
+def test_the_lander_lamp_is_silent_where_nothing_is_installed(tree, tmp_path):
+    """Nothing installed is --check's finding — the restraints in force are
+    the tree's own — not a vetted change waiting; the lamp says nothing."""
+    log = tmp_path / "lander.log"
+    r = _hook(tree, tmp_path / "nowhere", log)
+    assert r.returncode == 0 and r.stdout == "" and not log.exists()

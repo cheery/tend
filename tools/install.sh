@@ -15,6 +15,9 @@
 #     tools/install.sh --free       day two, the person's: lift the Edit(./tools/…) rules from
 #                                   settings.json once the hooks run the installed copies — the
 #                                   tree's copies become the workbench
+#     tools/install.sh --hook       the lander lamp (card:lander.md): as a UserPromptSubmit hook — while
+#                                   the prefix is behind HEAD, one line says by how much and which
+#                                   files, and logs it; dark when in force; never acts
 #
 # **Where, and why there** (card:install.md, researched 2026-08-27).
 # `/usr/local/lib/tend`, owned by root.  Three reasons, each a
@@ -69,6 +72,21 @@
 # governs ~/tend.  Henri, 2026-08-27: "make neat symlinks into bin, eg.
 # tend-keep tend-reach-allow for each tend command during install."
 #
+# **The lander lamp is `--hook`** (card:lander.md, day one, 2026-08-28).
+# A commit through the gate is vetted and not in force until the
+# person's `sudo`, and until this nothing said so between the two —
+# `--check` said it only when run, and twice a session reached across
+# the boundary rather than wait in silence (doc/kaizen/2026-08-27-0710.md).
+# The lamp is the kaizen lamp's shape: at every prompt, if HEAD's copy
+# of any installed file differs from the record's sha256, one line —
+# how many commits, which files, how long the oldest has waited — and
+# nothing else; dark when in force; it never installs.  Every lit prompt
+# is appended to `~/.local/state/tend/lander.log` with how far behind,
+# which is the count the card says would make its actor wrong: if the
+# wait never outlives a sitting, the lamp is the whole card.  It runs
+# on the person's side like the other lamps, so this script is in the
+# installed set and the hook line names the prefix's copy.
+#
 # **`installed` is the record** (spec/os.md, property 5 and 6): the
 # commit, the date, the source tree and a sha256 per file, written
 # beside the copies.  `--check` reads it back and compares to HEAD —
@@ -90,7 +108,7 @@ settings=${TEND_SETTINGS:-$root/.claude/settings.json}
 # The set: the protected set less the per-node wrapper, plus what those
 # scripts exec on the person's side.  `test/test_install.py` holds the
 # closure: every `$here/tools/X` an installed script names is installed.
-persons_side="tools/leash.sh tools/keep.py tools/andon.sh"
+persons_side="tools/leash.sh tools/keep.py tools/andon.sh tools/install.sh"
 set_list() {
     p=$(sh "$root/tools/sandbox.sh" --protected 2>/dev/null || true)
     [ -n "$p" ] || p="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh tools/resolve.sh tools/launch.sh"
@@ -103,9 +121,9 @@ hooked="kaizen.sh limit.sh fence.sh fence-hook.sh resolve.sh"
 mode=install
 case "${1:-}" in
     "") ;;
-    --check|--list|--hooks|--free|--bin) mode=${1#--} ;;
+    --check|--list|--hooks|--free|--bin|--hook) mode=${1#--} ;;
     --stage) mode=stage; stage_dir=${2:-}; [ -n "$stage_dir" ] || { echo "install: --stage DIR" >&2; exit 2; } ;;
-    -h|--help) sed -n '4,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '4,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "install: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
@@ -129,12 +147,17 @@ if [ $mode = hooks ]; then
           | gsub("TEND_TREE=\"\\$CLAUDE_PROJECT_DIR\" [^ ]+/tools/"; "TEND_TREE=\"$CLAUDE_PROJECT_DIR\" " + $p + "/tools/")
           | ltrimstr(" ")
           else . end)'
+    # The lander lamp's line is added when absent (idempotent, the
+    # hook-installer's shape): a prompt hook, beside the kaizen lamp's.
+    lander=$(hook_line install.sh " --hook")
+    add='if ([.hooks.UserPromptSubmit[]?.hooks[]?.command] | index($h)) then . else
+           .hooks.UserPromptSubmit = ((.hooks.UserPromptSubmit // []) + [{hooks: [{type: "command", command: $h}]}]) end'
     if [ "${2:-}" = apply ]; then
         [ "${TEND_FENCED:-}" = 1 ] && { echo "install: --hooks apply is the person's hand, from outside the fence (hook config is enforcement)" >&2; exit 2; }
         command -v jq >/dev/null 2>&1 || { echo "install: jq is needed to edit $settings" >&2; exit 2; }
         jq -e . "$settings" >/dev/null 2>&1 || { echo "install: $settings is missing or not valid JSON — tools/fence.sh --restore first" >&2; exit 1; }
         cp "$settings" "$settings.before-install"
-        jq --arg p "$prefix" "$prog" "$settings" > "$settings.new" && mv "$settings.new" "$settings"
+        jq --arg p "$prefix" --arg h "$lander" "$prog | $add" "$settings" > "$settings.new" && mv "$settings.new" "$settings"
         echo "install: hooks now run $prefix/tools/ — the previous file is at $settings.before-install"
         jq -r '[.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | sed 's/^/  /'
         exit 0
@@ -142,7 +165,44 @@ if [ $mode = hooks ]; then
     echo "# .claude/settings.json — the hook lines as they would read with the installed copies in force ($prefix)."
     echo "# Printed only.  The edit is the person's: tools/install.sh --hooks apply, from outside the fence."
     command -v jq >/dev/null 2>&1 && [ -f "$settings" ] \
-        && jq -r --arg p "$prefix" "$prog"' | [.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | sed 's/^/  /'
+        && jq -r --arg p "$prefix" --arg h "$lander" "$prog | $add"' | [.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | sed 's/^/  /'
+    exit 0
+fi
+
+if [ $mode = hook ]; then
+    cat >/dev/null                      # the harness's JSON; nothing in it is needed
+    log=${TEND_LANDER_LOG:-$HOME/.local/state/tend/lander.log}
+    # Nothing installed, or a record this user cannot read, is --check's
+    # finding and not a wait: the lamp is about a vetted change waiting.
+    [ -r "$prefix/installed" ] || exit 0
+    git -C "$root" rev-parse --verify -q HEAD >/dev/null 2>&1 || exit 0
+    ic=$(sed -n 's/^commit //p' "$prefix/installed")
+    behind=""
+    for f in $(set_list); do
+        want=$(git -C "$root" show "HEAD:$f" 2>/dev/null | sha256sum | cut -d' ' -f1)
+        have=$(awk -v f="$f" '$2 == f { print $1 }' "$prefix/installed")
+        [ "$want" = "$have" ] || behind="$behind $f"
+    done
+    [ -n "$behind" ] || exit 0
+    behind=${behind# }
+    # How far: commits since the installed one touching what differs, and
+    # how long the oldest of them has waited.  A record whose commit is
+    # not behind HEAD (a rebase, another tree) counts as `?`.
+    n=$(git -C "$root" rev-list --count "$ic..HEAD" -- $behind 2>/dev/null) || n="?"
+    [ "$n" = 0 ] && n="?"
+    oldest=$(git -C "$root" rev-list --reverse "$ic..HEAD" -- $behind 2>/dev/null | head -1)
+    now=$(date +%s)
+    if [ -n "$oldest" ]; then
+        at=$(git -C "$root" show -s --format=%ct "$oldest"); wait=$((now - at))
+        if [ "$wait" -ge 86400 ]; then ago="$((wait / 86400))d $(( (wait % 86400) / 3600 ))h"
+        elif [ "$wait" -ge 3600 ]; then ago="$((wait / 3600))h $(( (wait % 3600) / 60 ))m"
+        else ago="$((wait / 60))m"; fi
+        since="waiting since $(date -d "@$at" +%H:%M) ($ago)"
+    else
+        wait="?"; since="the installed commit is not behind HEAD (${ic%${ic#???????}})"
+    fi
+    mkdir -p "$(dirname "$log")" 2>/dev/null && printf '%s\t%s\tbehind=%s\twait=%s\t%s\n' "$now" "$(date -d "@$now" +%F\ %H:%M)" "$n" "$wait" "$behind" >> "$log" 2>/dev/null || true
+    echo "🔴 lander: the prefix is behind HEAD — $n commit(s) touching $(echo "$behind" | sed 's/ /, /g'), $since — vetted, not in force until the person's line: sudo tend-install"
     exit 0
 fi
 
@@ -249,6 +309,9 @@ if [ $mode = check ]; then
             elif printf '%s' "$line" | grep -q 'TEND_TREE='; then say "✗" "hook runs ANOTHER prefix's tools/$h — ${line#*TEND_TREE=\"\$CLAUDE_PROJECT_DIR\" }"; fail=1
             else say "✗" "hook runs the TREE's tools/$h — the installed copy is not in force (tools/install.sh --hooks)"; fail=1; fi
         done
+        # The lander lamp is a lamp, not a restraint: absent is a note, not a fault.
+        if printf '%s\n' "$cmds" | grep -F "tools/install.sh --hook" | grep -qF "$prefix/tools/install.sh"; then say "✓" "the lander lamp is on a prompt hook (tools/install.sh --hook)"
+        else say "·" "the lander lamp is on no hook — a vetted change waits in silence; tools/install.sh --hooks apply adds the line (card:lander.md)"; fi
     fi
     if [ -f "$settings" ] && command -v jq >/dev/null 2>&1 && [ $fail -eq 0 ]; then
         deny_now=$(jq -r '.permissions.deny[]' "$settings")
