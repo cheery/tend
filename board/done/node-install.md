@@ -372,3 +372,15 @@ it as `·` until then.  `llm/grant`: `make neo-cache`, the two `env`
 lines.  Test and mechanism landed in one commit with six minutes on the
 clock; the test was not shown red first, which is the rule bent once
 and said.  The third start under keep is the measurement of this line.
+
+**08:55 — under keep, the driver's cache misses.**  Run *one* filled
+`$STATE/neo-cache` (eight entries, 08:51) and loaded at 1:19; run *two*
+loaded at **1:21** — no gain — and the directory shows why it was not a
+refusal: two more buckets (`3`, `c`, 08:54:12) were *written*, so the
+cache was readable and writable and the key run two looked up was not
+the key run one stored.  By hand, the second start hit at 0:11.  What
+keep changes in the driver's cache key is the next sitting's question;
+the tool is `strace -f -e trace=openat,rename,renameat2,flock,fcntl` on
+the program line for one run, or a diff of the two directories' entry
+names against `/tmp/nc`'s.  The grant keeps the three lines: they cost
+nothing and the cache is where the answer will be read.
