@@ -74,6 +74,11 @@ between two workable cards is Henri's.
    on 2026-08-27 at Henri's "Write the lander card"; its day one is a
    lamp, which is also the count that would make the rest of it wrong;
    the tiebreak is his.*
+6. **[node-install](node-install.md)** — whether a node is installed
+   cannot be known without running it.  *Placed last by the session
+   that wrote it on 2026-08-28, at Henri's "write cards for these if
+   they need cards, then proceed on implementing the first"; its day
+   one is `launch.sh NODE check`; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

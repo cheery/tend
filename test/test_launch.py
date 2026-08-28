@@ -275,3 +275,69 @@ def test_the_llm_nodes_sitting_ends_while_it_is_still_being_asked(tmp_path):
         assert False, "the port is still bound"
     except OSError:
         pass
+
+
+# ── check: an install test that runs nothing (card:node-install.md) ──────
+
+def test_check_says_the_first_node_is_installed_and_runs_nothing(tmp_path):
+    r = launch(ROOT / "node", "check", state=tmp_path / "st")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "✓ program /usr/bin/python3" in r.stdout or "✓ program" in r.stdout
+    assert "✓ allow " in r.stdout and "installed: node can run" in r.stdout, r.stdout
+    assert not (tmp_path / "st" / "log").exists() and not (tmp_path / "st" / "stopped").exists(), "nothing ran"
+
+
+def test_check_is_red_on_a_missing_program_and_a_missing_path_and_says_which(tmp_path):
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("allow data.txt\nprogram no-such-binary-xyz $NODE/data.txt\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1, r.stdout
+    assert "✗ program `no-such-binary-xyz` is not on PATH" in r.stdout, r.stdout
+    assert f"✗ allow {n}/data.txt does not exist" in r.stdout, r.stdout
+    assert "NOT installed" in r.stdout
+    (n / "data.txt").write_text("x")
+    (n / "grant").write_text("allow data.txt\nprogram cat $NODE/data.txt\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and "✓ program cat" in r.stdout and f"✓ allow {n}/data.txt" in r.stdout, r.stdout
+
+
+def test_check_wants_the_model_the_person_brings_when_the_program_line_uses_it(tmp_path):
+    n = tmp_path / "m"; n.mkdir()
+    (n / "grant").write_text("allow model\nprogram cat $MODEL\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and "no *.gguf under" in r.stdout and "the person brings" in r.stdout, r.stdout
+    (n / "model").mkdir(); (n / "model" / "tiny.gguf").write_bytes(b"GGUF")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ model {n}/model/tiny.gguf" in r.stdout, r.stdout
+
+
+def test_check_says_whether_the_bound_port_is_free_and_whose_it_is(tmp_path):
+    import socket
+    n = tmp_path / "p"; n.mkdir()
+    s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]
+    (n / "grant").write_text(f"bind {port}\nprogram true\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and f"✗ bind {port} is in use" in r.stdout, r.stdout
+    s.close()
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ bind {port} is free" in r.stdout, r.stdout
+    assert "✓ keep confines with this grant here" in r.stdout, "keep itself, with the grant, is the last line"
+
+
+def test_check_inside_the_fence_reads_and_runs_nothing(tmp_path):
+    r = launch(ROOT / "node", "check", state=tmp_path / "st", fenced=True)
+    assert r.returncode == 0 and "installed:" in r.stdout, r.stdout + r.stderr
+
+
+def test_check_knows_a_read_only_state_is_the_fence_inside_and_a_fault_outside(tmp_path):
+    """The check's first run on the real nodes (2026-08-28) said ✗ on the
+    state directory from inside the fence — where it is read-only to a
+    session by design, and the runner writes it from the person's side."""
+    st = tmp_path / "st"; st.mkdir(); st.chmod(0o555)
+    try:
+        r = launch(ROOT / "node", "check", state=st, fenced=True)
+        assert r.returncode == 0 and "read-only to a session (the fence)" in r.stdout and "✗" not in r.stdout, r.stdout
+        r = launch(ROOT / "node", "check", state=st, fenced=False)
+        assert r.returncode == 1 and f"✗ state {st} is not writable by you" in r.stdout, r.stdout
+    finally:
+        st.chmod(0o755)

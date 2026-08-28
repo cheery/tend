@@ -10,6 +10,9 @@
 #     tools/launch.sh NODE status         running or not, the last pull, the last stop, the log's tail —
 #                                         or the grant's own `status` line, under the grant
 #     tools/launch.sh NODE grant          what the grant becomes: keep's flags, and the program line
+#     tools/launch.sh NODE check          is it installed?  each thing the grant names, checked against
+#                                         this machine, nothing run — the program's binary, every path,
+#                                         the model, the state, the port, keep's boundary; exit 1 on any ✗
 #     tools/launch.sh NODE serve           start a runner IF a pull is unserved and none is up, else nothing —
 #                                          what the resolver calls for each node, from the person's side
 #
@@ -75,13 +78,13 @@ py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch:
 MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
 export NODE STATE MODEL
 
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
     case "$key" in
-        allow|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val" ;;
-        bind)        flags="$flags --bind $val" ;;
+        allow|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val"; paths="$paths $key=$val" ;;
+        bind)        flags="$flags --bind $val"; port=$val ;;
         no-net)      flags="$flags --no-net" ;;
         idle)        idle_grant=$val ;;
         pulse)       eval "pulse=\"$val\"" ;;
@@ -109,6 +112,53 @@ grant)
     echo "keep $flags"; echo "program $program"; [ -n "$pulse" ] && echo "pulse $pulse"; echo "pull $pullfile"; echo "idle $IDLE"
     [ -n "$sitting_s" ] && echo "sitting $SITTING min"
     exit 0 ;;
+check)
+    # An install test that runs nothing (card:node-install.md): the grant
+    # read as `run` reads it, and each thing it names checked against the
+    # machine.  Inside the fence a session may read, so it may ask this.
+    fail=0
+    ok()  { printf '  ✓ %s\n' "$1"; }
+    bad() { printf '  ✗ %s\n' "$1"; fail=1; }
+    echo "check: $name  ($NODE)"
+    ok "grant parses; $(echo "$flags" | wc -w | tr -d ' ') keep words"
+    eval "set -- $program"; prog=$1
+    case "$prog" in
+        /*) if [ -x "$prog" ]; then ok "program $prog"; else bad "program $prog is not there or not executable"; fi ;;
+        *)  if found=$(command -v "$prog" 2>/dev/null); then ok "program $prog → $found"
+            else bad "program \`$prog\` is not on PATH — tools/toolbox.sh says what the tree wants; this is $name's own"; fi ;;
+    esac
+    for kv in $paths; do
+        k=${kv%%=*}; v=${kv#*=}
+        if [ -e "$v" ]; then ok "$k $v"; else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
+    done
+    case "$program $status_cmd" in
+        *'$MODEL'*) if [ -n "$MODEL" ]; then ok "model $MODEL"
+                    else bad "no *.gguf under $NODE/model — the program line uses \$MODEL, and the model is data the person brings (never in the tree)"; fi ;;
+    esac
+    # Inside the fence the state directory is read-only to a session by
+    # design (tools/sandbox.sh: the pull file is the one write) and the
+    # runner writes it from the person's side — found by the check's own
+    # first run on the real nodes, 2026-08-28: a ✗ that was the fence.
+    if [ -d "$STATE" ]; then
+        if [ -w "$STATE" ]; then ok "state $STATE is writable"
+        elif [ "${TEND_FENCED:-}" = 1 ]; then printf '  · %s\n' "state $STATE is read-only to a session (the fence); the runner writes it from the person's side — not checked from here"
+        else bad "state $STATE is not writable by you — the runner writes its log, lock and stop there"; fi
+    elif mkdir -p "$STATE" 2>/dev/null; then ok "state $STATE (created)"
+    else bad "state $STATE cannot be created"; fi
+    if [ -n "$port" ]; then
+        if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
+        elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
+        else bad "bind $port is in use by something that is not $name's runner"; fi
+    fi
+    # keep itself, with this grant, confining `true`: not the node's program,
+    # and the one measurement of whether the boundary can be built here —
+    # keep refuses rather than run unconfined, and says why (the ABI it needs).
+    if why=$("$py" "$here/keep.py" $flags -- true 2>&1); then ok "keep confines with this grant here (true ran under it)"
+    else bad "keep refuses this grant here — $name would not run: $(printf '%s' "$why" | tail -1)"; fi
+    echo
+    if [ $fail -eq 0 ]; then echo "  installed: $name can run under its grant on this machine."
+    else echo "  NOT installed — the lines marked ✗ say what."; fi
+    exit $fail ;;
 run)
     mkdir -p "$STATE"
     # the lock is taken here and inherited through keep's exec; a short wait,
@@ -180,5 +230,5 @@ serve)
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
     echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
-*) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, serve" >&2; exit 2 ;;
+*) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, check, serve" >&2; exit 2 ;;
 esac

@@ -117,7 +117,7 @@ tree_parts="board tools spec doc journal fixme.md vision.md manifesto.md README.
 # launcher confines every node through it, from the person's side; and
 # `tools/andon.sh` — its `pulled` is the record `limit.sh` grants a
 # sitting on.  Each was writable inside the fence when found.
-protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh tools/leash.sh tools/keep.py tools/andon.sh"
+protected="tools/sandbox.sh tools/fence-hook.sh tools/fence.sh tools/limit.sh tools/kaizen.sh tools/reach-allow.sh tools/hook-installer.sh node/run.sh tools/resolve.sh tools/launch.sh tools/leash.sh tools/keep.py tools/andon.sh tools/install.sh"
 
 # Answered before anything needs bwrap: `--rows`, `--help`, a bad row, no
 # command.  The nesting refusal sits where bwrap would be started, so a
