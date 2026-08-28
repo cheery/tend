@@ -309,3 +309,15 @@ Left for other cards: the SYCL cache under `$STATE` if every start
 pays the 80 s (the next start says); `/sys` in `SYSTEM_READ` as a
 `keep` question; and `llm/grant`'s program line, which is Henri's.
 The card stayed open one day.
+
+**08:08 — the first answer.**  Henri pulled the node with a question —
+`tend-launch llm pull "How to make a sandwitch?"` — and the words went
+to the pull file, not to the model; `pull` is *wanted*, and `serve` and
+`status` read its time.  He asked at the port: 22 prompt tokens at 13.3
+a second, 200 generated at 9.4 a second, on the Arc under keep — the
+specimen this tree opened with ran at 1.5.  All 200 were the model's
+reasoning; the answer never started, `max_tokens` being what it was.
+The start took 81 s, the same as the run before: the kernel compile is
+paid every time, which is the SYCL cache line above, measured twice.
+And a pull that carries words nobody delivers is `card:session-program.md`'s
+to think about — the first node was live today, and not yet leading.

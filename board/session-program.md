@@ -230,3 +230,16 @@ Noted here first, as the open card that owned the andon; **carded
 the same morning** at Henri's "andon card" — `card:silent-cord.md`,
 where the measurement above is day one's red-before-trusted.  The
 andon on a *node* stays this card's.
+
+## 2026-08-28 — the first live node, not yet leading
+
+On the work laptop the llm node ran under its grant for the first time
+(`done/node-install.md`): pulled with a question, up in 81 s, answered
+at the port at 9.4 tokens a second, stopped on idle.  Two things for this
+card from that hour.  **A pull with words is an ask, and nothing carries
+the words** — `pull` appends them and starts the node; the person then
+talks to the port by hand.  The node that *leads* work would be the one
+that reads them.  And **the sitting cord held on a node** without being
+reached: `sitting 10` is in the grant and the idle stop came first every
+time; the limit is built and has not yet had to fire.  The event this
+card waits on has not happened: the node answered, it did not lead.
