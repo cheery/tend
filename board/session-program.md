@@ -585,3 +585,23 @@ accounts and two log lines.
 node's row and its death on the andon's timeline (day one built,
 17:30), which is the person-side half of "no person is watching its
 transcript" that this card's andon section named.
+
+### 2026-08-28, 17:45 — the prompt's placeholders, and a draft that is not about itself: proposed
+
+From the live turns' measurement, the cheap half done in the tree, the
+effect his to measure.  `lead.sh`'s prompt no longer shows the model
+`<filename from the list>` — a 26B model with thinking off echoed the
+brackets as a pick twice in two turns — and reads a bracketed name by
+its name: `CARD: <lander.md>` proposes on lander.md, `CARD:
+<unicorn.md>` is still a cord pull, because the open shelf is the
+judge, not the typography (one test, red first).  `propose.sh`'s prompt
+said *"Output the draft itself, ready to read — no preamble"* and got
+*"The draft … is ready … No preamble is included as per the
+instructions"* four times over; it now says to write the draft's own
+lines and nothing about them, not to repeat, not to mention the
+instructions.  That second change is a mechanism this seat cannot run
+— the stub answers whatever it is told — so it is **proposed, not
+declared** (board/README.md, "What the days taught"): the next live
+`tools/lead.sh llm --kept` on the work laptop is what says whether the
+draft is a draft.  If it still is not, the dial is the material and
+`max_tokens`, not the prompt's manners.

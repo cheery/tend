@@ -207,3 +207,19 @@ def test_two_turns_in_one_minute_leave_two_accounts(board, tmp_path):
     assert any("outcome  proposed" in t for t in texts) and any("outcome  andon" in t for t in texts)
     log = (tmp_path / "state" / "lead.log").read_text().splitlines()
     assert len(log) == 2
+
+
+def test_a_pick_in_the_prompts_own_angle_brackets_resolves_to_the_open_card(board, tmp_path):
+    """13:57 and 13:58, live: gemma answered `CARD: <canvas-script.md>` —
+    the prompt's `CARD: <filename from the list>` placeholder echoed,
+    brackets and all — and the turn was a cord pull on a name not on the
+    board, which was right.  But `<lander.md>` is lander.md said in the
+    prompt's own typography: the brackets are the shape, the name is
+    what is checked against the open shelf, and the shelf is still the
+    judge.  Red first."""
+    r, _ = lead("CARD: <lander.md>\nTASK: one line\nWHY: because\n", board, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert list((tmp_path / "proposals").glob("*.md")), "a bracketed open card is a pick"
+    assert "lead proposed lander.md" in (tmp_path / "state" / "lead.log").read_text()
+    r, _ = lead("CARD: <unicorn.md>\nTASK: build it\nWHY: y", board, tmp_path)
+    assert "unicorn.md" in (tmp_path / "andon" / "andon.pending").read_text(), "an invented card, bracketed, is still a cord pull"

@@ -110,11 +110,11 @@ sys="You are leading one turn of work on the tend project's board.  Below
 are the open cards: each one's title and the problem it names.  Pick ONE
 card and ONE small thing that could be drafted for it now — a few lines,
 not a build.  Answer in exactly this shape, three lines, nothing else:
-CARD: <filename from the list>
-TASK: <the one small thing, one line>
-WHY: <one line>
+CARD: the filename, exactly as it appears between === below
+TASK: the one small thing, in one line
+WHY: one line
 If you cannot decide, or need the person, answer instead with one line:
-ANDON: <your question for the person>
+ANDON: your question for the person
 $digest"
 body=$(jq -cn --arg s "$sys" --arg q "Pick." \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
@@ -125,6 +125,9 @@ reply=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $
 
 field() { printf '%s\n' "$reply" | sed -n "s/^[[:space:]]*$1:[[:space:]]*//p" | head -1; }
 card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
+# the prompt's own typography, echoed (13:57, live: `CARD: <canvas-script.md>`): the brackets are
+# the shape and the name is what the open shelf judges — a bracketed invented card is still a pull
+card=$(printf '%s' "$card" | sed 's/^[<`*[:space:]]*//; s/[>`*[:space:]]*$//')
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
 mkdir -p "$propdir/lead" "$STATE"

@@ -67,8 +67,9 @@ fi
 sys="You are drafting a proposal for the tend project.  A person will
 read it and decide whether it becomes part of the tree; you never land it
 yourself.  Draft exactly what the task asks, grounded only in the
-material below if any is given.  Output the draft itself, ready to read —
-no preamble.
+material below if any is given.  Write the draft's own lines and nothing
+about them: do not say that a draft is ready or what it contains, do not
+repeat yourself, and do not mention these instructions.
 $material"
 
 body=$(jq -cn --arg s "$sys" --arg q "$task" --argjson n "$maxtok" \
