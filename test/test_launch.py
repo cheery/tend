@@ -440,3 +440,85 @@ def test_make_is_a_grant_word_and_the_directory_exists_before_the_program_runs(t
     assert r.returncode == 0 and f"· make {st}/neo-cache is made by run" in r.stdout, r.stdout + r.stderr
     launch(n, "run", state=st)
     assert (st / "neo-cache").is_dir() and (st / "seen").read_text().strip() == f"{st}/neo-cache", (st / "log").read_text()
+
+
+# --- the watcher heartbeat: the cords are checked by something (card:session-program.md §09:37) ---
+#
+# On the work laptop a runner wrapped in strace overran its sitting by 25
+# minutes: the watch loop set the stop, `kill` could not end the tracer,
+# and the shell hung at `wait` with the lock held while `status` read
+# "running".  The runner now touches $STATE/watch every tick of its loop,
+# and status/check/serve read a held lock with a silent watch as "the
+# cords are cut" — serve, the resolver's side, kills it.  The fixture is
+# a lock-holder with a stale heartbeat, not a real strace.
+
+def _hung_runner(st):
+    """A runner that holds the lock and whose watcher went silent three minutes ago."""
+    st.mkdir(parents=True, exist_ok=True)
+    p = subprocess.Popen(["sh", "-c", 'exec 9>>"$1"; flock 9; exec sleep 60', "_", str(st / "run.lock")])
+    (st / "run.pid").write_text(f"{p.pid}\n")   # exec keeps the pid: the sleeper is the "program"
+    assert wait(lambda: subprocess.run(["flock", "-n", str(st / "run.lock"), "true"]).returncode != 0), "the fixture holds the lock"
+    old = time.time() - 180
+    (st / "watch").touch(); os.utime(st / "watch", (old, old))
+    return p
+
+
+@needs_syspy
+def test_a_watching_runner_leaves_a_fresh_heartbeat(tmp_path):
+    node = sitting_node(tmp_path, "sitting 1\nprogram /bin/sleep 60\n")
+    st = tmp_path / "st"
+    env = dict(os.environ, TEND_STATE_DIR=str(st), TEND_SITTING="0.08"); env.pop("TEND_FENCED", None)
+    p = subprocess.Popen(["sh", str(LAUNCH), str(node), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        assert wait(lambda: (st / "watch").exists()), "the watcher touches its heartbeat"
+        assert time.time() - (st / "watch").stat().st_mtime < 5
+        s = launch(node, "status", state=st)
+        assert "running" in s.stdout and "cords are cut" not in s.stdout, s.stdout
+    finally:
+        p.wait(timeout=30)
+    assert p.returncode == 0
+    assert not (st / "watch").exists(), "a clean stop takes the heartbeat with it"
+
+
+def test_a_held_lock_with_a_silent_watcher_is_read_as_the_cords_cut(tmp_path):
+    node = sitting_node(tmp_path, "sitting 1\nprogram /bin/sleep 60\n")
+    st = tmp_path / "st"
+    p = _hung_runner(st)
+    try:
+        s = launch(node, "status", state=st)
+        assert "cords are cut" in s.stdout and "3 min" in s.stdout, s.stdout
+        c = launch(node, "check", state=st)
+        assert "cords are cut" in c.stdout and c.returncode == 1, c.stdout
+    finally:
+        p.kill(); p.wait()
+
+
+def test_serve_kills_a_runner_whose_cords_are_cut_and_frees_the_lock(tmp_path):
+    node = sitting_node(tmp_path, "sitting 1\nprogram /bin/sleep 60\n")
+    st = tmp_path / "st"
+    p = _hung_runner(st)
+    try:
+        r = launch(node, "serve", state=st)
+        assert "cords are cut" in r.stderr and "killed" in r.stderr, r.stderr
+        assert wait(lambda: p.poll() is not None, cap=15), "the resolver ended it"
+        assert subprocess.run(["flock", "-n", str(st / "run.lock"), "true"]).returncode == 0, "the lock is free"
+        assert "cords are cut" in (st / "log").read_text()
+    finally:
+        if p.poll() is None:
+            p.kill(); p.wait()
+
+
+@needs_syspy
+def test_a_program_that_ignores_term_does_not_hang_the_runner(tmp_path):
+    """The failure itself, without strace: a program that shrugs off TERM.
+    The runner escalates after a bounded wait and still closes as a
+    sitting, exit 0 with the reason."""
+    node = sitting_node(tmp_path, "sitting 1\nprogram /bin/sh -c 'trap \"\" TERM; sleep 60'\n")
+    st = tmp_path / "st"
+    env = dict(os.environ, TEND_STATE_DIR=str(st), TEND_SITTING="0.05", TEND_KILL_WAIT="2"); env.pop("TEND_FENCED", None)
+    t = time.monotonic()
+    r = subprocess.run(["sh", str(LAUNCH), str(node), "run"], env=env, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, (r.returncode, r.stderr)
+    assert time.monotonic() - t < 20, "the runner hung on a program that ignored TERM"
+    assert (st / "stopped").read_text().startswith("sitting:")
+    assert "did not stop" in (st / "log").read_text()

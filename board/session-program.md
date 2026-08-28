@@ -460,3 +460,27 @@ it is `while tools/lead.sh llm; do :; done` under the grant's `sitting`,
 which is what makes the loop a session and not a program.  The watcher
 heartbeat (§09:37, nothing asks whether a runner still honours its
 cords) and the `keep`-enforced proposal boundary are the hardening left.
+
+### 2026-08-28, 13:15 — the heartbeat: the cords are checked by something
+
+The §09:37 gap, built and measured, in the sitting Henri granted at
+13:07.  The runner's watch loop now touches `$STATE/watch` every tick
+and writes the program's pid to `$STATE/run.pid`; `status`, `check` and
+`serve` read a held lock with a heartbeat older than `TEND_WATCH_STALE`
+(60 s) as **"runner up, watcher silent N min — the cords are cut"**, and
+`serve` — the resolver's call, the person's side — kills the pid so the
+runner's `wait` returns and the lock frees; `check` goes red on it.  And
+the stop itself no longer trusts TERM: after `TEND_KILL_WAIT` (10 s) it
+escalates to KILL, logs "did not stop", and still closes as a sitting,
+exit 0 — the laptop's failure reproduced without strace as a program
+that traps TERM, which hung the old runner past the test's 30 s and
+closes in ~5 s now.  Four tests, red first; the hung-runner fixture is a
+lock-holder with a three-minute-old heartbeat, not a tracer.
+
+This is the andon on a node the card named, reached from the failure:
+not a sound, but a reading that a session outside cannot fake and the
+resolver acts on.  `tools/launch.sh` is an installed restraint, so
+nothing runs this until Henri's `sudo tools/install.sh` — `card:lander.md`'s
+wait, said here rather than forgotten.  What is left on this card: the
+live led turn (`tools/lead.sh llm`, his hand), and the `keep`-enforced
+proposal boundary.

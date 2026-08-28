@@ -69,6 +69,20 @@
 # not this word's (doc/kaizen/2026-08-25-1436.md, item 2).  Nothing here
 # touches the person's own clock (`~/.local/state/gestate/sittings.log`):
 # a node's sitting is the node's, kept in its state directory.
+#
+# **The heartbeat** (2026-08-28, board/session-program.md §09:37: "a
+# runner can be alive and not watching").  On the work laptop a runner
+# wrapped in strace overran its sitting by 25 minutes: the loop set the
+# stop, `kill` could not end the tracer, and the shell hung at `wait`
+# with the lock held while `status` read "running" — the cords were
+# checked by nothing.  Now the watch loop touches `$STATE/watch` every
+# tick and writes the program's pid to `$STATE/run.pid`; `status`,
+# `check` and `serve` read a held lock with a heartbeat older than
+# TEND_WATCH_STALE (default 60 s) as "the cords are cut", and `serve` —
+# the resolver's side, the person's — kills the program so the runner's
+# `wait` returns and the lock frees.  And the stop itself no longer
+# trusts TERM: after TEND_KILL_WAIT (default 10 s) it escalates to KILL,
+# says so in the log, and still closes as a sitting, exit 0.
 set -u
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # The tree this governs: TEND_TREE when installed (tools/install.sh), else
@@ -116,6 +130,16 @@ for e in $envs; do eval "export $e"; done
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
+stale="${TEND_WATCH_STALE:-60}"
+# seconds the watcher has been silent while a runner holds the lock — empty when the cords are fine
+cut_for() {
+    flock -n "$lock" true 2>/dev/null && return 1
+    [ -f "$STATE/watch" ] || return 1
+    _s=$(( $(date +%s) - $(stat -c %Y "$STATE/watch") ))
+    [ "$_s" -ge "$stale" ] || return 1
+    echo "$_s"
+}
+cut_line() { echo "$name: runner up, watcher silent $(( $1 / 60 )) min — the cords are cut (a held lock and a stale $STATE/watch; \`serve\` kills it)"; }
 
 case "$verb" in
 grant)
@@ -192,6 +216,7 @@ check)
         else bad "state $STATE is not writable by you — the runner writes its log, lock and stop there"; fi
     elif mkdir -p "$STATE" 2>/dev/null; then ok "state $STATE (created)"
     else bad "state $STATE cannot be created"; fi
+    if silent=$(cut_for); then bad "$(cut_line "$silent")"; fi
     if [ -n "$port" ]; then
         if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
@@ -223,9 +248,11 @@ run)
         # the sitting is read first, because the person's clock outranks the program's pulse
         "$py" "$here/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1 &
         pid=$!
+        echo "$pid" > "$STATE/run.pid"
         while kill -0 "$pid" 2>/dev/null; do
             sleep 1
             now=$(date +%s)
+            touch "$STATE/watch"   # the heartbeat: this loop is alive and watching
             if [ -n "$sitting_s" ] && [ $(( now - began )) -ge "$sitting_s" ]; then
                 why="sitting: the $SITTING minutes of $name are up (from $(date -d "@$began" +%H:%M); the length is $name/grant's)"; break
             fi
@@ -244,8 +271,18 @@ run)
                 fi
             fi
         done
-        if [ -n "$why" ]; then echo "launch: $why — stopping it" >> "$STATE/log"; kill "$pid" 2>/dev/null; fi
+        if [ -n "$why" ]; then
+            echo "launch: $why — stopping it" >> "$STATE/log"; kill "$pid" 2>/dev/null
+            # a close is asked for once; a program that does not take it is ended — the
+            # tracer that would not die (2026-08-28) left this shell at wait for 25 minutes
+            _w=0; while kill -0 "$pid" 2>/dev/null && [ "$_w" -lt "${TEND_KILL_WAIT:-10}" ]; do sleep 1; _w=$((_w + 1)); done
+            if kill -0 "$pid" 2>/dev/null; then
+                echo "launch: $name did not stop on TERM in s — killing it" >> "$STATE/log"; kill -9 "$pid" 2>/dev/null
+            fi
+        fi
         wait "$pid"; rc=$?; [ "$rc" -eq 143 ] && rc=0
+        [ -n "$why" ] && rc=0   # the stop was the launcher's, a close: not the program's exit
+        rm -f "$STATE/watch" "$STATE/run.pid"
     else
         "$py" "$here/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
     fi
@@ -264,7 +301,9 @@ pull)
     fi
     exit 0 ;;
 status)
-    if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"; else echo "$name: running"; fi
+    if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"
+    elif silent=$(cut_for); then cut_line "$silent"
+    else echo "$name: running"; fi
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
@@ -279,6 +318,17 @@ serve)
     # no stop yet); start one runner only then, and only if none is up.
     # An mtime rule, not a served-count, so it holds for any program — a
     # server has no tally (board/resolver.md, the grant beside the program).
+    # first, a runner whose cords are cut: the person's side is free to kill it
+    if silent=$(cut_for); then
+        pid=$(cat "$STATE/run.pid" 2>/dev/null)
+        echo "launch: $(cut_line "$silent")" >> "$STATE/log"
+        if [ -n "$pid" ] && kill -9 "$pid" 2>/dev/null; then
+            echo "launch: $(cut_line "$silent") — killed $pid" >&2
+        else
+            echo "launch: $(cut_line "$silent") — no pid to kill; the lock's holder is yours" >&2
+        fi
+        exit 0
+    fi
     [ -f "$pullfile" ] || exit 0
     if [ -f "$STATE/stopped" ] && [ ! "$pullfile" -nt "$STATE/stopped" ]; then exit 0; fi
     flock -n "$lock" true 2>/dev/null || exit 0
