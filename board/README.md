@@ -90,6 +90,12 @@ between two workable cards is Henri's.
    a canvas directory of `name.pin` files and the panel showing a row
    per pin with the stop's reason in the log column; the tiebreak is
    his.*
+8. **[model-acceptance](model-acceptance.md)** — something breaks when
+   nobody picks the mind, and the keeper is the only check.  *Woken
+   from `later/` on 2026-08-28 by a session at Henri's "do
+   session-program", on the event it waited for — a door where a
+   model is admitted (the llm node's cords) — with `tools/compare.py`
+   as its first instrument; placed last; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

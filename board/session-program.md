@@ -721,3 +721,46 @@ node's condition; `--thinking` is the other measurement, adaptive on
 with 16000 to write in, and the account's `usage` line says which.  His
 line again: `tools/compare.py`, and `tools/compare.py --thinking` if he
 wants the second number.
+
+### 2026-08-28, 18:45 — with thinking off, both drafted a draft; the fork, decided
+
+Henri ran `tools/compare.py` again (`proposals/compare/2026-08-28-1835-*.md`),
+thinking off, the node's limits.  **Both picked `canvas.md` and both
+wrote the thing they named.**  Sonnet 5 (draft 600, cut at the cap): a
+`died` file beside `stopped` — four lines, when / exit / last / from,
+"the current fact, checked the way `run.lock` and `watch` are checked".
+Opus 5 (434 tokens, `end_turn`): a one-line death notice appended by
+the runner's own stop path to the andon record on the person's side —
+*"so the death and a cord pull land on one timeline"* — with the rule
+that the runner appends and nobody else, that a zero exit writes
+nothing, and that *"`pull` does not write it (its one-second watch is
+the thing this replaces)"*.  That last clause is the canvas card's own
+§13:45 prediction, reached from the card's `because` and nothing else,
+by a model that had never seen the tree before this turn.
+
+**The measurement is complete.**  The turn's shape — the open board as
+one `because` per card, a pick at 160 tokens, the card as material at
+600 — is enough for a model that can hold it to name a small thing and
+draft it; gemma-4-26B at 9 tokens a second restated the `because` on
+every landed turn.  The tautology is the model's, not the loop's.  So
+the three dials of §18:20 are worth turning only if the aim is gemma
+specifically, and the road from §09:40 — "gemma4 working the board next
+to gemma4 cold" — has its answer in a different form than it expected:
+the tree moves the *pick* on gemma (13:48, 18:09: the right card every
+time) and not the prose; on Sonnet and Opus it moves both.
+
+**What this decides, and what it opens.**  The loop does not care which
+port answers: `lead.sh` is a digest, a pick, `propose.sh`, an account,
+under keep.  A Claude model as the leader is the same loop with a
+different door — and a door is exactly what `later/model-acceptance.md`
+was shelved for: *"tend has a place where a model is admitted at all …
+the llm node's cords, board/session-program.md — so that a refusal has
+somewhere to sit."*  That place exists as of today, and `compare.py` is
+its first instrument — the same turn put to N models, with accounts a
+person can read side by side.  **Woken, this sitting, to the board**,
+placed last; the tiebreak is his.  What stays on this card: the node's
+cords are built and installed; the live turn runs; the leading model
+is a choice, and the card that judges a model is the one that just
+woke.  A Claude-led turn under keep is a build — keep's `--connect` is
+one loopback port, and a leader that calls out needs a reach the node
+does not — and it is not started until he says which model leads.

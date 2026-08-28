@@ -145,3 +145,13 @@ the lamp reads the drift from the person's side and the log starts.
 wrong" holds: if `wait=` never exceeds a sitting's length in a week
 of `lander.log`, the lamp is the whole card and the actor is not
 built.  Read the log on 2026-09-04; the card stays open until then.
+
+## 2026-08-28, 18:37 — the lamp is on a hook
+
+Henri: `tools/install.sh --hooks apply` — the hooks now run the
+installed copies at `/usr/local/lib/tend/tools/`, `install.sh --hook`
+among them, so the lander lamp lights at every prompt where the
+installed set is behind HEAD.  The check's "the lander lamp is on no
+hook" line, seen every prompt today, is answered.  The count it would
+make wrong (day one, §"What it must not become") is the next
+measurement, and it is what the lamp says tomorrow.

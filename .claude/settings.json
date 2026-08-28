@@ -75,6 +75,14 @@
             "command": "TEND_TREE=\"$CLAUDE_PROJECT_DIR\" /usr/local/lib/tend/tools/fence.sh --hook"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "TEND_TREE=\"$CLAUDE_PROJECT_DIR\" /usr/local/lib/tend/tools/install.sh --hook"
+          }
+        ]
       }
     ],
     "PreToolUse": [

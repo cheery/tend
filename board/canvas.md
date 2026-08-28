@@ -175,3 +175,24 @@ canvas makes sense at the minute it was carded for and shows little on
 a good one; whether that is the view's fault (say what a pin *is* on
 the screen; keep a death past the next clean stop) or only the hour's
 is a question for the next 13:27, and the card keeps it.
+
+## 2026-08-28, 18:45 — the next build, named by a model that never saw the tree
+
+`proposals/compare/2026-08-28-1835-claude-opus-5.md`: given this card's
+`because` and then the card as material, Opus 5 drafted the death
+notice as a line the runner appends to the andon record on the person's
+side — *"so the death and a cord pull land on one timeline"* — appended
+by the stop path that already writes `stopped`, by nobody else, never
+for a zero exit, and it named `pull`'s one-second watch as "the thing
+this replaces".  That is a write-time record where day one built a
+read-time merge (`read_log` joins the stop into the timeline when the
+panel looks, and loses it at the next clean stop — §17:30's open
+question), and it is the card's own "reach-free route for a death the
+way the panel is for a ring", stated more exactly than §"What it is"
+states it.  Sonnet 5's `died` file (`…-claude-sonnet-5.md`) is the
+same fact kept in the state directory instead.  **Neither is landed**:
+the model proposes, the person lands (`card:session-program.md`, brick
+3), and the draft is his to read.  A session's reading: Opus's line is
+day two, it answers §17:30's question (a death survives the next clean
+stop because the record keeps it), and it is the revert of §13:45's
+watch with a replacement rather than a hope.

@@ -1,6 +1,6 @@
 # model-acceptance — something breaks when nobody picks the mind, and the keeper is the only check
 
-    status   shelved — 2026-08-27
+    status   open
     because  Henri, 2026-08-27, 9:42: "I worry that something breaks
              when I'm not on entire control of which LLM runs.  I've
              seen at least one session where the model was so robotic
@@ -89,3 +89,44 @@ card is the caller for it, which is what a design has lacked since
 3. Who runs it, and how often — once per model, or per session?  A
    per-session run is a tax on every sitting and the sitting is a
    body constraint.  Henri's call.
+
+## 2026-08-28, 18:45 — woken: the door exists, and the first instrument with it
+
+Moved from `later/` to the board by a session at Henri's "do
+session-program", on the first of the two events the `blocked` line
+named: tend has a place where a model is admitted at all.  As of today
+the llm node runs under keep with its cords (`card:session-program.md`:
+the sitting, the lamp, the andon, the heartbeat, the kernel's boundary
+on a led turn), leads work through `tools/lead.sh`, and its output is
+on disk in a shape a person reads.  A refusal has somewhere to sit.
+
+**What woke with it, unasked: an instrument.**  `tools/compare.py` puts
+the led turn — the open board as a digest, a pick, the card as material,
+a draft — to any Claude model, thinking off, at the node's limits, and
+writes one account per model beside the node's own.  Run twice today:
+gemma-4-26B restated the card's `because` on every landed turn; Sonnet
+5 and Opus 5 named a small thing and drafted it, and Opus's draft
+reached the card's own prediction from its `because` alone.  That is
+the `because`'s "robotic" with a line number — the first thing
+§"Found by looking" said this card wanted — and it is the
+prediction's second measurement: *judgment degrades first*, seen now
+on a 26B against two models that can hold the turn.  Specimens:
+`proposals/lead/2026-08-28-1809.md`, `proposals/compare/2026-08-28-1835-*.md`.
+
+**Question 1, answered provisionally by the door that landed.**  The
+door is the grant beside the program: `llm/grant`'s program line names
+the model as data the person brings (the first `.gguf` under the node's
+model directory), and `tools/launch.sh NODE check` is where a ✗ already
+refuses a node before it runs.  A model gate sits there — a `check`
+that runs the trap turn and reads the account — not at the leash (a
+budget, not a judgment) and not at `keep` (a boundary, not a reader).
+Questions 2 and 3 stand; 3 is his, and the sitting is a body
+constraint.  **Day one, when he places it**: the compare accounts are
+the trap kit's first shape for this tree — a fixed turn, a fixed
+board, accounts side by side — and the sheet that says what a pass
+licenses is owed before any refusal is wired.
+
+## Where it sits
+
+Placed last on the board by the session that woke it, 2026-08-28; the
+tiebreak is his.
