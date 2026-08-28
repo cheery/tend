@@ -150,6 +150,5 @@ node that leads work.  Moved to `done/` by the session, on his word.
 
 *2026-08-28 — Henri, after a fenced session measured that a ring is
 refused with `audio` out of the bound: "the andon needs to sound even
-with no sound allowed."  Noted on `card:session-program.md`, the open
-card that owns the andon; the sound must not depend on a reach row the
-session has to be allowed.*
+with no sound allowed."  Its card is `card:silent-cord.md`: the sound must
+not depend on a reach row the session has to be allowed.*

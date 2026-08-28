@@ -79,6 +79,11 @@ between two workable cards is Henri's.
    that wrote it on 2026-08-28, at Henri's "write cards for these if
    they need cards, then proceed on implementing the first"; its day
    one is `launch.sh NODE check`; the tiebreak is his.*
+7. **[silent-cord](silent-cord.md)** — the andon sounds only through a
+   reach row the session must be allowed, so narrowing reach cuts the
+   cord.  *Placed last by the session that wrote it on 2026-08-28 at
+   Henri's "andon card"; day one is the sound on the person's side, red
+   first with the row off; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

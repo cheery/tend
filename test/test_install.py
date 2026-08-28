@@ -322,3 +322,18 @@ def test_the_lander_lamp_is_silent_where_nothing_is_installed(tree, tmp_path):
     log = tmp_path / "lander.log"
     r = _hook(tree, tmp_path / "nowhere", log)
     assert r.returncode == 0 and r.stdout == "" and not log.exists()
+
+
+def test_every_script_the_hooks_would_run_is_protected_before_apply():
+    """2026-08-28: the lander's hook line was committed with install.sh
+    outside the protected set, and test_sandbox's rule — every script a
+    hook runs is protected — could only go red after Henri's `--hooks
+    apply` put the line in settings.  The gate must see it before: what
+    `--hooks` prints is what apply would add, so its scripts are checked
+    here against `sandbox.sh --protected` at commit time."""
+    printed = run("--hooks").stdout
+    protected = set(subprocess.run(["sh", str(ROOT / "tools/sandbox.sh"), "--protected"],
+                                   capture_output=True, text=True).stdout.split())
+    hooked = set("tools/" + m for m in re.findall(r"/tools/([\w-]+\.sh)", printed))
+    assert hooked, printed
+    assert hooked <= protected, f"--hooks would put an unprotected script on a hook: {hooked - protected}"

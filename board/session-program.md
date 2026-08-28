@@ -226,10 +226,7 @@ were tied together by the first row Henri ever allowed
 lives on the person's side (`~/.local/state/tend/andon.pending`
 passes through the fence); the sound does not.
 
-Noted here because this is the open card that owns the andon
-(`card:cords.md` is done and its residue is this card's); the shape
-that already exists for "a thing the session may not do, done on the
-person's side on the session's prompt" is `tools/resolve.sh`, and it
-is named only as a pointer.  Not built, not carded as its own: Henri
-asked for a note.  The day it is built, the measurement above is its
-red-before-trusted.
+Noted here first, as the open card that owned the andon; **carded
+the same morning** at Henri's "andon card" — `card:silent-cord.md`,
+where the measurement above is day one's red-before-trusted.  The
+andon on a *node* stays this card's.
