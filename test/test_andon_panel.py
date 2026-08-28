@@ -54,6 +54,19 @@ def test_another_ring_increments_the_count_the_view_watches(tmp_path):
     assert st.rings == 2 and st.last_ring == 3
 
 
+def test_a_ring_that_could_not_sound_still_reaches_the_panel(tmp_path):
+    """Inside the fence pw-play fails and tools/andon.sh logs `ring-failed`,
+    not `ring` (card:silent-cord.md) — and that is precisely the pull the
+    panel exists to announce: the cord reached no sound, so the person-side
+    must.  read_state counts it as a ring."""
+    write(tmp_path,
+          pending="2026-08-28 10:06 a fenced question\n",
+          log="1 2026-08-28 10:06 ask a fenced question\n"
+              "2 2026-08-28 10:07 ring-failed player=pw-play pending=1\n")
+    st = read_state(tmp_path)
+    assert st.rings == 1 and st.last_ring == 2 and st.pulled
+
+
 def test_answered_clears_the_pull(tmp_path):
     write(tmp_path,
           pending="",

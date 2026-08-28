@@ -63,7 +63,9 @@ def read_state(state_dir=None):
                 if len(parts) < 4:
                     continue
                 epoch, kind = parts[0], parts[3].split()[0]
-                if kind == "ring":
+                # a ring that could not sound (ring-failed, inside the fence:
+                # card:silent-cord.md) is still a pull the panel must announce
+                if kind in ("ring", "ring-failed"):
                     rings += 1
                     try:
                         last_ring = int(epoch)
