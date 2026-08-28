@@ -626,3 +626,38 @@ text that describes the task" twice, which is §17:45's second question
 still open, and its dial is the material and `max_tokens`.  Also seen:
 his `andon.sh ask " "` at 18:00 — a blank question is accepted and
 listed as a blank line; small, and `ask` should refuse it.
+
+### 2026-08-28, 18:20 — the pick lands; the draft is a tautology
+
+After his `sudo tools/install.sh` (18:05) and one more kept turn: the
+filename read cleanly, `work-environment-ai.md` was proposed on, the
+kernel held, and `proposals/2026-08-28-1809-….md` is two sentences —
+*"The reason we are missing a way to work with each other is that we
+are not yet able to work with each other.  This is because we are not
+yet able to work with each other."*  TASK and WHY were both the card's
+`because`, verbatim.  Henri read it (`gvim`) and answered the three
+pending questions; no word yet.
+
+**What it measures.**  The loop is whole end to end — read, pick,
+propose, account, answer — with no hand in the tree, which is what this
+card opened for.  What the loop carries is the `because` alone: the
+digest hands the model one paragraph per card, `propose.sh` hands it
+the card as material into a 2048-token context that the card does not
+fit, and a model given a problem statement and asked for "one small
+thing" restates the problem.  The milestone of §09:40 — a card gemma
+finishes that we can tell from gemma with no tree — is not met, and
+the reason is now specific rather than "the model is small": nothing
+in the turn tells it what a small thing *is* on this board (a card's
+"Day one" section does), and it cannot read far enough to find out.
+
+**The dials, in order, all his to turn on the live seam**: (1) the
+digest carries each card's "Day one" paragraph beside its `because`,
+so the ask names a shape; (2) `-c 4096` in `llm/grant` so a card fits
+as material, at the cost of a slower start and the ledger's budget;
+(3) `max_tokens` up from 160 for the pick and whatever `propose.sh`
+sets for the draft.  A session can build (1) with the stub and cannot
+say whether it moves the draft; that is a proposed change, and the
+kept turn is its measurement.  Whether to keep turning dials on a 26B
+model at 9 tokens a second, or to read this as the conditioning
+result — *the tree moves the pick and not the prose* — is the reading
+`later/model-acceptance.md` is shelved for, and it is his.
