@@ -350,3 +350,14 @@ next candidate; loads there → the boundary refuses something the cache
 does (a rename or link across directories is `REFER`, which keep does
 not handle) and the runtime segfaults on the refusal, which is a
 `strace -f -e trace=file,rename,link` away from a line.
+
+**08:33 — the split, answered by Henri's hand.**  The same two variables
+on a `llama-server` started by hand, outside keep: *Segmentation fault
+(core dumped)* a second after *threadpool init*, and `/tmp/sc` never
+created — the same death in the same place.  So it is the runtime:
+oneAPI 2026.1's persistent cache with this llama.cpp build segfaults
+before it writes a byte, and keep's boundary had nothing to do with it.
+The `env` word and the mechanism are clean; the 80 s start is the
+runtime's until the driver's own cache (`NEO_CACHE_PERSISTENT=1`,
+`NEO_CACHE_DIR`) is tried the same way — by hand first, then as a
+grant line if it loads.  One variable at a time, and this one is closed.
