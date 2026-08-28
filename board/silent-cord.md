@@ -148,3 +148,47 @@ fence rang clean (`pw-play` exit 0) against the real socket.  The
 mechanism is whole; the fence is the whole of the gap, and the build is
 one of the two shapes above — the sound need not be rebuilt, only carried
 across the seam.*
+
+## 2026-08-28, 10:25 — Henri's direction: an interface reacts to the record, so no reach is needed
+
+At Henri's "there should be an interface — a small server, a TUI, or a
+GUI panel — that reacts to the andon, so that no audio required from
+inside the fence.  Though that reach should be fixed."  This is the
+build, and it turns the gap into a non-problem rather than fighting it.
+
+**Why it fits what is already here.**  The andon's session-side half is
+already reach-free: `ask` and `ring` write `andon.pending`, `andon.log`,
+and the pulled-state, all under `~/.local/state/tend`, which the fence
+binds *writable* to a session (it is the sitting limit's channel too).
+A session inside the fence can pull the cord — write the question, mark
+it rung — with no `audio`, `display` or `bus` row at all.  What is
+missing is only the person-side half: something watching that record
+and announcing it.  Today that half was `pw-play` reaching a socket
+across the fence, which is the fragile thing; move it to a host-side
+interface and the reach requirement drops away entirely.
+
+**The interface (person-side, outside the fence).**  It watches the
+andon record and reacts — a new unanswered ring becomes a sound, a
+flash, a notification, a lit panel; the pending questions are shown as
+a list; and the person answers there (which is `andon.sh answered`, the
+word the fence already refuses a session, so the interface owns it).
+Shape is open, cheapest first: a **TUI** the person keeps in a spare
+terminal (tails `andon.log`, rings the terminal bell and prints the
+question on a new pull) is a day; a **small local server** with a web
+panel or a **GUI tray** is more, and buys remote/away reach.  None of
+them needs the fenced session to reach anything — the session writes,
+the interface reads, the seam between is a file the person owns.
+
+**The two tracks, kept apart.**  This interface is the load-bearing
+fix: the cord reaches the person through a channel a fenced session
+cannot cut, because the session never touches it.  The audio-row bug
+(§10:18 — `REACH=audio` does not bind `pipewire-0` into an
+already-fenced session) is still worth fixing for the case where a
+session wants to make a *direct* sound, but the interface makes that
+convenience, not the cord.  Henri: "that reach should be fixed" — kept
+as its own line, below the interface, not instead of it.
+
+*This likely wants its own card when it is picked up — the interface is
+a build with a shape of its own, and `silent-cord`'s `because` is the
+reach, not the panel.  Left here as the direction until then, at his
+word.*
