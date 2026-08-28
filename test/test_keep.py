@@ -452,3 +452,24 @@ def test_allow_try_grants_a_path_the_machine_has_and_forgives_one_it_does_not(tm
     assert r.returncode == 0 and r.stdout == "mine", r.stderr
     r = keep("--allow-try", str(tmp_path / "d"), "--", "cat", str(tmp_path / "e" / "f"))
     assert r.returncode != 0 and denied(r.stderr), "present, it grants exactly what --allow grants"
+
+
+@needs_landlock
+def test_a_rename_across_directories_inside_a_writable_root_works_and_out_of_it_is_refused(tmp_path):
+    """The work laptop, 2026-08-28, 09:03, from an strace on the llm node:
+    the GPU driver's cache writes an entry to a temp file in the cache
+    root and renames it into a bucket directory — EXDEV under keep, every
+    time, so no entry ever landed and every start paid the 80 s compile.
+    A Landlock ruleset that does not handle REFER refuses every rename
+    across directories (ABI ≥ 2); keep handles it now and grants it
+    beneath --write paths — a rename within a writable root works, and
+    one that would carry a file out of it is still refused."""
+    root = tmp_path / "w"; (root / "a").mkdir(parents=True); (root / "b").mkdir()
+    (root / "a" / "f").write_text("mine")
+    out = tmp_path / "out"; out.mkdir()
+    # a raw rename(2): `mv` would hide the defect by copying on EXDEV, which the driver does not
+    mv = ["/usr/bin/python3", "-c", "import os, sys; os.rename(sys.argv[1], sys.argv[2])"]
+    r = keep("--write", str(root), "--", *mv, str(root / "a" / "f"), str(root / "b" / "f"))
+    assert r.returncode == 0 and (root / "b" / "f").read_text() == "mine", r.stderr
+    r = keep("--write", str(root), "--", *mv, str(root / "b" / "f"), str(out / "f"))
+    assert r.returncode != 0 and not (out / "f").exists(), "a rename out of the writable root is refused"

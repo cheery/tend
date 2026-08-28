@@ -384,3 +384,19 @@ the tool is `strace -f -e trace=openat,rename,renameat2,flock,fcntl` on
 the program line for one run, or a diff of the two directories' entry
 names against `/tmp/nc`'s.  The grant keeps the three lines: they cost
 nothing and the cache is where the answer will be read.
+
+**09:03 — the miss, read from an strace: `rename` → `EXDEV`.**  One
+run with `strace -f` on the program line (his pull, the session's
+read).  The driver writes each cache entry to a temp file in the cache
+root (`cl_cache.XXXXXX`), makes the bucket directory, and **renames the
+entry across directories — `EXDEV`, every time** — then unlinks the temp.
+A Landlock ruleset that does not handle `REFER` refuses every
+cross-directory rename outright (ABI ≥ 2), so no entry ever landed and
+the eight "entries" were empty buckets; by hand there is no ruleset, so
+it hit.  `keep.py` handles `REFER` now and grants it beneath `--write`
+paths: a rename within a writable root works, one that would carry a
+file out of it is still refused — red first with a raw `rename(2)`
+(`mv` hides the defect by copying on `EXDEV`, which the first test
+wrote and the driver does not do).  Measured next by two pulls under
+keep after `sudo tools/install.sh`: the second's *model loaded* is the
+number, 0:11 by hand.

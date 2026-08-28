@@ -92,6 +92,12 @@ FS_MAKE_FIFO = 1 << 10
 FS_MAKE_BLOCK = 1 << 11
 FS_MAKE_SYM = 1 << 12
 FS_TRUNCATE = 1 << 14
+# REFER (ABI 2): a rename or link *across* directories.  A ruleset that does not
+# handle it refuses every such rename outright (EXDEV) — found 2026-08-28 by an
+# strace on the llm node: the GPU driver's cache renamed each entry from the cache
+# root into a bucket directory and none ever landed.  Handled and granted beneath
+# --write paths: within a writable root a rename works, out of it is refused.
+FS_REFER = 1 << 13
 WRITE_HANDLED = (FS_WRITE_FILE | FS_REMOVE_DIR | FS_REMOVE_FILE
                  | FS_MAKE_CHAR | FS_MAKE_DIR | FS_MAKE_REG | FS_MAKE_SOCK
                  | FS_MAKE_FIFO | FS_MAKE_BLOCK | FS_MAKE_SYM)
@@ -158,7 +164,7 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=()):
     write_bits = 0
     handled = HANDLED
     if write_allow:
-        write_bits = WRITE_HANDLED | (FS_TRUNCATE if abiv >= 3 else 0)
+        write_bits = WRITE_HANDLED | (FS_REFER if abiv >= 2 else 0) | (FS_TRUNCATE if abiv >= 3 else 0)
         handled |= write_bits
     net = no_net or bool(bind_ports)
     if net:
