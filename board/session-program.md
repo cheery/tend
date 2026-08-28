@@ -484,3 +484,34 @@ nothing runs this until Henri's `sudo tools/install.sh` — `card:lander.md`'s
 wait, said here rather than forgotten.  What is left on this card: the
 live led turn (`tools/lead.sh llm`, his hand), and the `keep`-enforced
 proposal boundary.
+
+### 2026-08-28, 13:30 — the boundary is the kernel's: `--connect`, and a led turn under keep
+
+The last named hardening, built.  `keep.py --connect PORT` is
+`--bind`'s twin — the same TCP boundary, one port the program may talk
+to, no other connect and no bind; the Landlock bit was there from the
+first day (`NET_CONNECT_TCP`, handled and never granted), and the test
+mirrors bind's: granted ok, other EACCES, bind EACCES.  Then
+`tools/lead.sh NODE --kept` re-execs the turn under keep — the tree
+readable, only `proposals/`, the node's state, the andon record (and
+`/dev/null`, which the first run found: a shell's `2>/dev/null` is a
+write) writable, one connect to the node's port.  The node must be up
+first, because a runner started from inside keep would inherit the
+confinement.
+
+The proof is the mutate-style one: `TEND_KEPT_PROBE=<a board card>`
+makes the kept process try to append to that file after its turn, and
+the test wants `probe: refused` beside a proposal that was written — the
+same turn, one write allowed and one refused by the kernel, not by the
+script.  Brick 3's rule "the model proposes, the person lands" was held
+by `propose.sh`'s code; a kept turn holds it the way the fence and the
+grant hold theirs, from outside the party.  Three tests, red first; none
+skipped here (Landlock ABI ≥ 4).
+
+**What is left on this card** is one thing, and it is Henri's hand: the
+live led turn — `tools/launch.sh llm pull` then `tools/lead.sh llm
+--kept` — and reading what gemma picks.  Everything the card opened for
+is on the node: the sitting (2026-08-27), the lamp (`proposals/lead/`,
+13:05), the andon (the record, 13:05; the heartbeat, 13:15), and the
+confinement (13:30).  Whether the node *conditions* is the next
+measurement, and `later/model-acceptance.md` is what it wakes.

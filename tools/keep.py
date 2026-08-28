@@ -2,7 +2,7 @@
 #: asked-by: Henri, 2026-08-25 — "go with A" (board/keep.md; the reusable launcher, not the node confining itself)
 """tools/keep.py — run a program able to read only what it was handed.
 
-    tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args...
+    tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... [--connect PORT]... -- program args...
 
 A launcher, and the grant is the launcher's, not the program's — the
 boundary is set from outside the thing bounded (board/keep.md, and the
@@ -44,6 +44,15 @@ program reads what it was given and gets EACCES on the file beside it.
   node (board/work-environment-ai.md, 2026-08-26): a server's whole
   reach is one listening port, so that is its whole grant.  Repeatable.
   --bind and --no-net together are just --bind.
+
+  a port, talked to: --connect PORT is --bind's twin — the same TCP
+  boundary, and the program may connect to that one port on any host
+  (and nothing else: no other connect, no bind at all).  The first
+  caller is a led turn under keep (board/session-program.md, 2026-08-28,
+  `tools/lead.sh NODE --kept`): a program whose whole reach is the
+  node it asks, and whose writes are proposals/ and a state directory,
+  so that the rule "the model proposes, the person lands" is held by the
+  kernel and not by a script's care.  Repeatable; combines with --bind.
 
   never silent (Rule 9): if Landlock is not available, keep does NOT run
   the program unconfined — it refuses, loudly, because a grant that
@@ -159,17 +168,17 @@ def landlock_abi():
     return v if v > 0 else 0
 
 
-def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=()):
+def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=(), connect_ports=()):
     abiv = landlock_abi()
     write_bits = 0
     handled = HANDLED
     if write_allow:
         write_bits = WRITE_HANDLED | (FS_REFER if abiv >= 2 else 0) | (FS_TRUNCATE if abiv >= 3 else 0)
         handled |= write_bits
-    net = no_net or bool(bind_ports)
+    net = no_net or bool(bind_ports) or bool(connect_ports)
     if net:
         if abiv < 4:
-            _fail(f"--no-net/--bind need Landlock ABI 4 and this kernel offers "
+            _fail(f"--no-net/--bind/--connect need Landlock ABI 4 and this kernel offers "
                   f"{abiv} — refusing to run the program with the network it "
                   f"was told to lose.")
         attr = ruleset_attr_v4(handled, NET_HANDLED)
@@ -219,6 +228,11 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=()):
         r = libc.syscall(NR_add_rule, fd, LANDLOCK_RULE_NET_PORT, ctypes.byref(np), 0)
         if r != 0:
             _fail(f"could not grant bind on port {port}: {os.strerror(ctypes.get_errno())}")
+    for port in connect_ports:
+        np = net_port_attr(NET_CONNECT_TCP, port)
+        r = libc.syscall(NR_add_rule, fd, LANDLOCK_RULE_NET_PORT, ctypes.byref(np), 0)
+        if r != 0:
+            _fail(f"could not grant connect on port {port}: {os.strerror(ctypes.get_errno())}")
 
     if libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0:
         _fail(f"no_new_privs: {os.strerror(ctypes.get_errno())}")
@@ -228,7 +242,7 @@ def confine(read_allow, write_allow, no_net=False, bind_ports=(), try_allow=()):
 
 
 def main(argv):
-    allow, allow_try, write, no_net, bind, i = [], [], [], False, [], 0
+    allow, allow_try, write, no_net, bind, connect, i = [], [], [], False, [], [], 0
     while i < len(argv):
         a = argv[i]
         if a == "--allow":
@@ -249,6 +263,10 @@ def main(argv):
             if i + 1 >= len(argv) or not argv[i + 1].isdigit() or not 0 < int(argv[i + 1]) < 65536:
                 _fail("--bind needs a port number, 1-65535", 2)
             bind.append(int(argv[i + 1])); i += 2
+        elif a == "--connect":
+            if i + 1 >= len(argv) or not argv[i + 1].isdigit() or not 0 < int(argv[i + 1]) < 65536:
+                _fail("--connect needs a port number, 1-65535", 2)
+            connect.append(int(argv[i + 1])); i += 2
         elif a == "--":
             i += 1; break
         elif a in ("-h", "--help"):
@@ -259,8 +277,8 @@ def main(argv):
             break
     prog = argv[i:]
     if not prog:
-        _fail("nothing to run — tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... -- program args", 2)
-    confine(allow, write, no_net, bind, try_allow=allow_try)
+        _fail("nothing to run — tools/keep.py [--allow PATH]... [--allow-try PATH]... [--write PATH]... [--no-net] [--bind PORT]... [--connect PORT]... -- program args", 2)
+    confine(allow, write, no_net, bind, try_allow=allow_try, connect_ports=connect)
     try:
         os.execvp(prog[0], prog)
     except OSError as e:

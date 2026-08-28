@@ -473,3 +473,34 @@ def test_a_rename_across_directories_inside_a_writable_root_works_and_out_of_it_
     assert r.returncode == 0 and (root / "b" / "f").read_text() == "mine", r.stderr
     r = keep("--write", str(root), "--", *mv, str(root / "b" / "f"), str(out / "f"))
     assert r.returncode != 0 and not (out / "f").exists(), "a rename out of the writable root is refused"
+
+
+_CONNECT_ONE = ("import socket, errno, sys\n"
+                "def t(what, f):\n"
+                "    try: f(); print(what, 'ok')\n"
+                "    except OSError as e: print(what, errno.errorcode.get(e.errno, e.errno))\n"
+                "t('granted', lambda: socket.socket().connect(('127.0.0.1', int(sys.argv[1]))))\n"
+                "t('other', lambda: socket.socket().connect(('127.0.0.1', int(sys.argv[2]))))\n"
+                "t('bind', lambda: socket.socket().bind(('127.0.0.1', 0)))\n")
+
+
+@pytest.mark.skipif(_landlock_abi() < 4,
+                    reason="Landlock below ABI 4 — no network bits to hold")
+def test_connect_grants_one_port_and_nothing_else(tmp_path):
+    """`--bind`'s twin (card:session-program.md, the keep-enforced led
+    turn): a program whose whole reach is one port it *talks to* — the
+    node's — may connect there and nowhere else, and may bind nothing."""
+    srv, lp = _loopback_listener()
+    srv2, lp2 = _loopback_listener()
+    try:
+        r = keep("--allow", str(tmp_path), "--connect", str(lp), "--", "/usr/bin/python3",
+                 "-c", _CONNECT_ONE, str(lp), str(lp2))
+        lines = dict(l.split(" ", 1) for l in r.stdout.strip().splitlines())
+        assert lines == {"granted": "ok", "other": "EACCES", "bind": "EACCES"}, (r.stdout, r.stderr)
+    finally:
+        srv.close(); srv2.close()
+
+
+def test_connect_wants_a_port_number():
+    r = keep("--connect", "llm", "--", "true")
+    assert r.returncode == 2 and "port number" in r.stderr

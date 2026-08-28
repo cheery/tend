@@ -118,3 +118,26 @@ def test_a_reply_with_no_shape_is_a_cord_pull(board, tmp_path):
 def test_inside_the_fence_it_refuses(board, tmp_path):
     r, _ = lead("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_FENCED="1")
     assert r.returncode != 0 and "fence" in (r.stdout + r.stderr).lower()
+
+
+def _landlock_abi():
+    import ctypes
+    libc = ctypes.CDLL(None, use_errno=True)
+    v = libc.syscall(444, 0, 0, 1)  # landlock_create_ruleset(NULL, 0, VERSION)
+    return v if v > 0 else 0
+
+
+@pytest.mark.skipif(_landlock_abi() < 4 or not Path("/usr/bin/python3").exists(),
+                    reason="the kept turn needs Landlock ABI 4 and a system python3 for keep")
+def test_a_kept_turn_drafts_and_the_boundary_is_keeps_not_the_scripts(board, tmp_path):
+    """`lead.sh NODE --kept` runs the turn under keep: the tree readable,
+    only proposals/, the node's state and the andon record writable, one
+    connect to the node's port.  The turn drafts as before — and a write
+    to the board from the same confinement is refused, so the boundary
+    brick 3 held in propose.sh's code is now held by the kernel."""
+    r, seen = lead("CARD: lander.md\nTASK: one line\nWHY: w", board, tmp_path, TEND_LEAD_KEPT="1",
+                   TEND_KEPT_PROBE=str(board / "lander.md"))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert list((tmp_path / "proposals").glob("*.md")), "the kept turn still drafts"
+    assert "probe: refused" in r.stdout + r.stderr, r.stdout + r.stderr
+    assert (board / "lander.md").read_text().startswith("# lander"), "the board is untouched under keep"

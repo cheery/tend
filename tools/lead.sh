@@ -1,7 +1,7 @@
 #!/bin/sh
 #: asked-by: Henri, 2026-08-28 — "take session-program" (card:session-program.md, §11:10: "a node that leads work is these three under a loop with the cords")
 #
-# tools/lead.sh NODE
+# tools/lead.sh NODE [--kept]
 #
 # One led turn.  The three bricks — deliver, consult, propose — put under
 # a loop with the cords: the node reads the open board, names one card
@@ -22,6 +22,17 @@
 # the sitting limit in the node's grant is the clock over any loop of
 # these.  Env: TEND_BOARD_DIR (default <tree>/board); TEND_PROPOSAL_DIR;
 # TEND_ANDON_STATE; TEND_LLM_URL / TEND_LLM_HEALTH; TEND_NO_START.
+#
+# **--kept** (or TEND_LEAD_KEPT=1): the turn runs under keep — the tree
+# readable, only proposals/, the node's state and the andon record
+# writable, one `--connect` to the node's port — so the boundary brick
+# 3 held in propose.sh's code is the kernel's: a party may not bound
+# itself, and here the party is confined rather than trusted.  The node
+# must be up first (`tools/launch.sh NODE pull`), because a runner
+# started from inside keep would inherit the confinement.
+# TEND_KEPT_PROBE=FILE is the test's proof: after the turn, the kept
+# process tries to append to FILE and says `probe: refused` or
+# `probe: WROTE` — a board file named there must come back refused.
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -40,6 +51,19 @@ ctxchars="${TEND_CTXCHARS:-5000}"
 if [ -n "${TEND_FENCED:-}" ]; then
     echo "lead: inside the fence the node's port is unreachable (--unshare-net) — run tools/lead.sh $name outside the fence" >&2
     exit 1
+fi
+
+andon_state="${TEND_ANDON_STATE:-$HOME/.local/state/tend}"
+if [ "${2:-}" = "--kept" ] || [ -n "${TEND_LEAD_KEPT:-}" ]; then
+    # re-exec this turn under keep; the grants must exist before keep can name them
+    py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3)
+    cport=$(printf '%s' "$CHAT" | sed -n 's|^http://[^:/]*:\([0-9]*\)/.*|\1|p'); : "${cport:=$port}"
+    mkdir -p "$propdir/lead" "$STATE" "$andon_state"
+    curl -sf -m 2 "$HEALTH" >/dev/null 2>&1 || { echo "lead: $name is not up — start it first (tools/launch.sh $name pull); a kept turn cannot start a runner" >&2; exit 1; }
+    extra=""; case "$board" in "$root"/*) ;; *) extra="--allow $board" ;; esac
+    TEND_LEAD_KEPT= TEND_NO_START=1 TEND_LEAD_IN_KEEP=1 \
+        exec "$py" "$here/keep.py" --allow "$root" $extra --write "$propdir" --write "$STATE" --write "$andon_state" --write /dev/null \
+             --connect "$cport" -- sh "$0" "$NODE"
 fi
 
 # the open board, as a digest the node's small context can hold: each
@@ -128,3 +152,7 @@ fi
 } > "$account"
 printf '%s lead %s %s\n' "$now" "$outcome" "${card:-}" >> "$STATE/lead.log"
 echo "account: $account"
+if [ -n "${TEND_KEPT_PROBE:-}" ]; then
+    if echo "probe" >> "$TEND_KEPT_PROBE" 2>/dev/null; then echo "probe: WROTE $TEND_KEPT_PROBE"
+    else echo "probe: refused — $TEND_KEPT_PROBE is outside what keep granted${TEND_LEAD_IN_KEEP:+ (under keep)}"; fi
+fi
