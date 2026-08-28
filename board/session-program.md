@@ -361,3 +361,34 @@ question grounded — the before and after in one tool.  What brick 2 does
 that is the next step and it is the one that needs a boundary on what
 the model may change — this brick is read-and-answer, which is safe and
 is where the measurement lives.
+
+### 2026-08-28, 10:50 — the conditioning measurement, run
+
+Henri ran the two consult commands on the work laptop.  The result is
+the milestone the road was for.
+
+**Jidoka, cold vs grounded — the tree changed the answer.**  Cold
+(`done/node-install.md`, 10:08) gemma called jidoka *"a Buddhist
+philosophy of mindfulness and non-attachment."*  Grounded by `consult`
+in `doc/specimens/README.md` (which says "jidoka as stop the line"),
+the same model, same question: *"Jidoka is a Japanese concept of
+stopping work to prevent accidents, emphasizing safety and
+efficiency."*  Stop-the-line, correct — the hallucination gone, the
+tree's own document the only thing that changed between the two runs.
+
+**It read a card it could not know cold.**  Asked what `andon-panel.md`
+says the panel must never become, it returned all three: a way for a
+session to answer its own cord, a second andon, a load-bearing sound —
+the card's own three, grounded verbatim in reasoning.
+
+**What this measures, and does not.**  It shows the substrate carries
+the material and the material moves the answer — the method's claim that
+a process's conditions shape its output, on a local model, under keep.
+It does not yet show *judgment* conditioned — both runs were retrieval,
+not a live seam (the caveat `later/model-acceptance.md` and the trap-kit
+carry).  But the door that card is shelved behind is now open: a model
+is admitted, grounded, and answering on the tree, and the before/after
+is a line rather than a recollection.  This is the specimen's successor
+made runnable — the qwen at 1.5 tokens a second that read the method
+cold, now gemma reading the method's documents at 9.4, and getting
+right what it got wrong without them.
