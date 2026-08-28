@@ -94,6 +94,57 @@ def _hhmm(epoch):
     return datetime.datetime.fromtimestamp(epoch).strftime("%H:%M")
 
 
+def _write_tone(path):
+    """The andon's two-note tone (tools/andon.sh), written with wave —
+    the panel plays the same sound the cord means."""
+    import math, struct, wave
+    rate = 22050
+
+    def tone(f, secs, vol=0.35):
+        n = int(rate * secs)
+        for i in range(n):
+            env = min(1.0, i / (rate * 0.02), (n - i) / (rate * 0.10))
+            yield vol * env * math.sin(2 * math.pi * f * i / rate)
+
+    samples = list(tone(660, 0.30)) + [0.0] * int(rate * 0.05) + list(tone(880, 0.45))
+    with wave.open(path, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+        w.writeframes(b"".join(struct.pack("<h", int(x * 32767)) for x in samples))
+    return path
+
+
+def _play_alert(player=None):
+    """Make an actual sound on a new pull.  The panel is outside the fence,
+    so a real player reaches the socket the fenced andon could not
+    (card:silent-cord.md).  curses.beep is the terminal bell and many
+    terminals mute it — this plays the tone instead, and returns whether
+    it reached a player."""
+    import os, shutil, subprocess, tempfile
+    fd, path = tempfile.mkstemp(suffix=".wav"); os.close(fd)
+    try:
+        _write_tone(path)
+        candidates = [player] if player else [
+            os.environ.get("TEND_PANEL_PLAYER"), "pw-play", "paplay", "aplay"]
+        for c in candidates:
+            if not c:
+                continue
+            exe = c if os.sep in c else shutil.which(c)
+            if not exe:
+                continue
+            try:
+                if subprocess.run([exe, path], stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL).returncode == 0:
+                    return True
+            except OSError:
+                continue
+        return False
+    finally:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+
+
 def _tui(stdscr):
     import curses
     curses.curs_set(0)
@@ -104,8 +155,13 @@ def _tui(stdscr):
     while True:
         st = read_state()
         if st.rings > prev_rings:            # a new ring since last look
+            if not _play_alert():            # a real tone; the terminal bell is muted too often
+                try:
+                    curses.beep()
+                except curses.error:
+                    pass
             try:
-                curses.beep(); curses.flash()
+                curses.flash()
             except curses.error:
                 pass
             flash_until = time.time() + 3

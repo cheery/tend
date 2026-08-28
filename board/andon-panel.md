@@ -94,3 +94,17 @@ views over the same record), and any *remote* reach — the TUI is the
 terminal in the room.  The card stays `doing` until Henri has kept it
 open through a real pull and said the announce is enough; the audio-row
 fix (`card:silent-cord.md` §10:18) is still its own line, parallel.
+
+## 2026-08-28, 10:52 — the panel now plays a real tone
+
+Henri, keeping the panel open through a ring: "the TUI doesn't produce
+audio when it reacts to andon."  The cause was `curses.beep()` — the
+terminal bell (BEL), which terminals mute or make visual by default, so
+the panel flashed and stayed silent.  Fixed: on a new ring the panel
+writes the andon's own two-note tone and plays it through a real player
+(`pw-play`/`paplay`/`aplay`, or `TEND_PANEL_PLAYER`), with `curses.beep`
+only as the fallback when no player is found.  This is why the panel
+belongs outside the fence — a real player there reaches the socket the
+fenced andon could not (`card:silent-cord.md`), which Henri's host-side
+ring already proved.  Tested: the tone is a valid wav, and `_play_alert`
+hands it to the player.  Restart the panel to pick it up.

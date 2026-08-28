@@ -75,3 +75,24 @@ def test_answered_clears_the_pull(tmp_path):
     st = read_state(tmp_path)
     assert not st.pulled and st.last_ring is None, "a ring before the answer does not keep it pulled"
     assert st.answered == 1
+
+
+def test_the_panel_plays_a_real_tone_not_the_terminal_bell(tmp_path):
+    """The bug on the work laptop, 2026-08-28: the panel reacted but made
+    no sound, because curses.beep is the terminal bell and terminals mute
+    it.  The panel is outside the fence, so it plays an actual tone through
+    a real player (card:andon-panel.md, card:silent-cord.md)."""
+    # the tone is a valid wav
+    import wave
+    wav = tmp_path / "t.wav"
+    andon_panel._write_tone(str(wav))
+    with wave.open(str(wav)) as w:
+        assert w.getnframes() > 1000 and w.getframerate() == 22050
+
+    # _play_alert hands the wav to a player; a fake one records it was called
+    marker = tmp_path / "played"
+    fake = tmp_path / "player.sh"
+    fake.write_text('#!/bin/sh\necho "$1" > "%s"\n' % marker)
+    fake.chmod(0o755)
+    assert andon_panel._play_alert(player=str(fake)) is True
+    assert marker.exists() and marker.read_text().strip().endswith(".wav")
