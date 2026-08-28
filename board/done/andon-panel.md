@@ -1,6 +1,6 @@
 # andon-panel — a cord pulled while the person is away is a line in a file nobody is watching
 
-    status   doing
+    status   done — 2026-08-28
     because  Henri, 2026-08-28: the andon reaches the person only through
              a sound, and on 2026-08-28 that sound did not travel — the
              `audio` row allowed, the PipeWire socket present on the
@@ -120,3 +120,11 @@ audio line is closed; what keeps this card `doing` is only the later
 views (a server, a GUI tray) and Henri's word on whether the TUI is the
 whole of what he wants — the `because` is answered, and the card is his
 to move to `done/`.
+## 2026-08-28, 13:00 — done
+
+Moved to `done/` at Henri's "Move andon-panel to done" — the sitting
+after "yes, I heard it".  The `because` no longer stands: a cord pulled
+while the person is away is a two-note tone in the next room, through
+`tools/andon-panel.py` outside the fence, with no reach row in the
+path.  The later views (a server, a GUI tray) are widenings awaiting a
+want, not debt; the `audio` row's own fix stays `card:silent-cord.md`'s.

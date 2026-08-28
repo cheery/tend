@@ -82,12 +82,6 @@ between two workable cards is Henri's.
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
    first with the row off; the tiebreak is his.*
-7. **[andon-panel](andon-panel.md)** — a cord pulled while the person is
-   away is a line in a file nobody is watching; the sound did not travel
-   from inside the fence, so the person-side half must.  *Placed here by
-   the session that opened it on 2026-08-28 at Henri's "open the interface
-   card and build the TUI first.  I think we need it next" — the andon
-   strand's active build; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
@@ -137,6 +131,16 @@ read boundary, `/opt`, `/sys` — each true from its seat, and the third
 run under keep loaded the model, listened, and stopped on idle as the
 grant said.  It left `allow-try` in the grant's vocabulary and CPU
 progress in the launcher's idea of idle.
+
+`andon-panel` finished 2026-08-28, the day it was opened, on Henri's
+"Move andon-panel to done" (`done/andon-panel.md`): the andon's
+person-side half, `tools/andon-panel.py`, a TUI outside the fence that
+watches the record a fenced session writes with no reach row and plays
+the andon's own two-note tone through a real player — rung from inside
+the fence at 11:03, heard in the next room ("yes, I heard it").  Its
+first tone was `curses.beep()`, which terminals mute; that is why the
+panel lives outside the fence.  The later views (server, GUI tray) are
+widenings awaiting a want; the `audio` row's fix stays `silent-cord`'s.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
