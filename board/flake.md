@@ -90,6 +90,22 @@ either is measured by the same shake, which is the point of the tool.
 The counted flake of 2026-08-26 took a sitting to reach this line; this
 one took a command.
 
+*20:03, at Henri's "do 1":* the rule is now over the window — half a
+core-second summed since the program was last busy or the window last
+slid — and a test with both sides (a program burning 0.3 s in every
+second, 30 % of a core: stopped as idle at 3.5 s under the old rule,
+running past 5 s under this one) went red then green.  **And the shake
+did not move: 8 of 10 under load, stopped as idle at exactly 2 s, both
+before and after.**  So the per-second granularity was a real defect
+and not the load failure's cause; the window is landed on its own test,
+and the shake's count is the honest measurement of what remains.  The
+next instrument is not reasoning: the launcher's tick reads under eight
+burners, written where a test can read them (`$STATE/ticks`, one line
+per second), and the sum they show at the second the stop fired.
+Candidates the reads will decide between — keep's own startup under
+load leaving too few ticks in the first window, or the read naming a
+process that is not the one burning.
+
 *The same evening, chasing kaizen 1337's item 5 with the ledger's habit
 of counting:* `mutate.sh`'s `fatal: failed to write commit object` on
 every row was not noise.  A fresh `git init` in the scratch copy

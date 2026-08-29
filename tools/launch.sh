@@ -319,7 +319,7 @@ run)
     for m in $makes; do mkdir -p "$m"; done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
-    busy=$began; prev_ticks=0; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
+    busy=$began; base_ticks=0; base_at=$began; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
     if [ -n "$pulse" ] || [ -n "$sitting_s" ]; then
         # a program that cannot stop itself, or one with a sitting: run it, watch it, stop it —
         # the sitting is read first, because the person's clock outranks the program's pulse
@@ -337,9 +337,15 @@ run)
             # loaded its model, then compiled its GPU kernels for 45 s with no log line — busy on a
             # core, silent on its pulse — and was stopped for idleness mid-compile.  A program that
             # used at least half a core in the last second is busy, whatever its pulse says.
-            ticks=$(awk '{ print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null || echo "$prev_ticks")
-            [ $(( ticks - prev_ticks )) -ge $(( clk / 2 )) ] && busy=$now
-            prev_ticks=$ticks
+            # Over the idle window, not per second (card:flake.md, 2026-08-29 — the first shake:
+            # 8 of 10 under load; a busy loop contending for a core got under half of it two
+            # seconds running and was stopped as idle, which is what this rule would do to
+            # llama-server on a loaded box).  Half a core-*second* summed since the last time it
+            # was busy, or since the window last slid: a program burning 30 % of a core is busy
+            # at the second second, and one that only housekeeps never sums to it.
+            ticks=$(awk '{ print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null || echo "$base_ticks")
+            if [ $(( ticks - base_ticks )) -ge $(( clk / 2 )) ]; then busy=$now; base_ticks=$ticks; base_at=$now
+            elif [ $(( now - base_at )) -ge "${IDLE%.*}" ]; then base_ticks=$ticks; base_at=$now; fi
             if [ -n "$pulse" ]; then
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began

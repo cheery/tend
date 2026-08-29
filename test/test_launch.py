@@ -695,3 +695,23 @@ def test_a_bare_path_line_in_a_hold_is_its_state(tmp_path):
     hold(st, "there", f"node node\n{tmp_path}/elsewhere\nanother state\n")
     s = launch(ROOT / "node", "status", state=st)
     assert s.stdout.count("held:") == 1 and "held: this state, on its own line (" in s.stdout, s.stdout
+
+
+def test_a_program_busy_in_bursts_is_busy_over_the_idle_window(tmp_path):
+    """card:flake.md, the first shake (2026-08-29, 8 of 10 under load): the
+    busy rule read half a core *per second*, and a program that gets less
+    than that for two seconds running — contention, or honest bursts —
+    was stopped as idle.  Busy-ness is now half a core-second summed over
+    the idle window: 0.3 s of burning per second is 30 % of a core, under
+    the old rule idle within `idle 2`, under this one 60 ticks in two
+    seconds — busy.  Silent on its pulse throughout."""
+    n = tmp_path / "n"; n.mkdir()
+    prog = ("exec(\"import time\\nend=time.time()+7\\nwhile time.time()<end:\\n"
+            "  t=time.time()+0.3\\n  while time.time()<t: pass\\n  time.sleep(0.7)\")")
+    (n / "grant").write_text(f"pulse beat\nidle 2\nprogram /usr/bin/python3 -c '{prog}'\n")
+    st = tmp_path / "st"
+    t0 = time.time()
+    r = launch(n, "run", state=st, idle="2", timeout=60)
+    took = time.time() - t0
+    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + (st / "log").read_text()
+    assert took > 5, f"it was stopped at idle, {took:.1f}s"
