@@ -72,6 +72,40 @@ were found by running, not by reading; the second is itself a flake of
 the kind this card is for, caught on the first run only because the
 bodies happened to collide.
 
+## The first shake — 19:47, the busy rule under load
+
+`tools/suite.py --shake test/test_launch.py::test_a_program_that_is_busy_and_silent_is_not_idle 10`,
+eight cores burning: **8 of 10 failed**, eight `shake` lines on the
+ledger, wall 7.4–8.7 s each.  Not a flake: a rule.  `tools/launch.sh`
+counts a program busy only if it burned ≥ half a core in the last
+second (`clk / 2` ticks between two 1 s reads), and with `idle 2` two
+lean seconds stop it; a busy loop contending with eight burners gets
+under half a core two seconds running most of the time.  On a loaded
+box the same rule stops llama-server mid-compile — the case the rule
+was written for on 2026-08-28 — so this is `card:node-install.md`'s
+residual, measured.  The fix is a design choice and not this card's:
+count busy-ness over the idle window (≥ half a core-*second* summed
+across `idle` seconds) instead of per second, or lower the fraction;
+either is measured by the same shake, which is the point of the tool.
+The counted flake of 2026-08-26 took a sitting to reach this line; this
+one took a command.
+
+*The same evening, chasing kaizen 1337's item 5 with the ledger's habit
+of counting:* `mutate.sh`'s `fatal: failed to write commit object` on
+every row was not noise.  A fresh `git init` in the scratch copy
+inherits the global signing config (ssh, a key the fence cannot see),
+the intact commit died, the copy had no HEAD and no hook, and every
+`gate` row's "refused" was a dud commit failing to *sign* — never the
+gate refusing it.  `$G` now says `-c commit.gpgsign=false`, and a copy
+with no intact commit is exit 3, not a row.  Two recorded gate breaks
+had also gone NOOP against lines this sitting rewrote (`pre-commit.sh`'s
+suite line, `suite.py`'s return) and are re-aimed.  Measured at 19:54,
+one gate row for real — `sh tools/pre-commit.sh --uninstall`:
+`COMMITTED  suite: red  test_the_hook_is_installed_in_this_clone` —
+the dud commit landed because the hook was gone and the suite said so;
+a verdict the harness could not reach while its commits could not
+sign, when the same row read "refused".
+
 ## Rules
 
 1. **Never a silent retry.**  The suite runs once and reports once; the

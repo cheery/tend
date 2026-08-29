@@ -49,12 +49,21 @@
 set -u
 SRC=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 T=$(mktemp -d "${TMPDIR:-/tmp}/mutate.XXXXXX"); trap 'rm -rf "$T"' EXIT
-G="git -c user.name=mutate -c user.email=mutate@tend"
+# -c commit.gpgsign=false (2026-08-29 evening, kaizen 1337's item 5 chased): a
+# fresh `git init` inherits the global signing config — ssh, with a key the
+# fence cannot see — so the intact commit died `fatal: failed to write commit
+# object` on every row, the copy had no HEAD and no hook, and every gate row
+# read "refused" because a dud commit cannot sign, never because the gate
+# refused it.  The harness is not a signer; and a copy with no HEAD is now
+# exit 3, not a row.
+G="git -c user.name=mutate -c user.email=mutate@tend -c commit.gpgsign=false"
 
 fresh() {
     rm -rf "$T/t"; mkdir -p "$T/t"
     (cd "$SRC" && git ls-files -co --exclude-standard -z | xargs -0 cp --parents -t "$T/t")
     (cd "$T/t" && git init -q && $G add -A && $G commit -qm intact && sh tools/pre-commit.sh --install) >/dev/null
+    (cd "$T/t" && git rev-parse -q --verify HEAD >/dev/null 2>&1 && [ -x .git/hooks/pre-commit ]) \
+        || { echo "mutate: the copy has no intact commit or no hook — nothing below can be read (git commit in $T/t failed; signing?)"; exit 3; }
 }
 # a breaking shell, run in the copy; NOOP if the copy is left as it was
 apply() { (cd "$T/t" && eval "$1") >/dev/null 2>&1 || return 2; (cd "$T/t" && { [ -n "$(git status --porcelain)" ] || [ ! -x .git/hooks/pre-commit ]; }); }
@@ -144,12 +153,12 @@ test/test_board.py	board: header indented 3, not 4	sed -i "s/^    \(status\|beca
 test/test_board.py	board: done with no date, in done/	sed -i "s/^    status   done.*/    status   done/" board/done/grant.md
 test/test_kaizen.py	kaizen: lamp matches the dir, not the name	sed -i 's|kzn="doc/kaizen/[^"]*"|kzn="doc/kaizen/"|' tools/kaizen.sh
 # the gates hook against a commit — 2026-08-26
-gate	gate: pre-commit.sh ignores the suite's verdict	sed -i "s/^if python3 tools\/suite.py; then/if python3 tools\/suite.py || true; then/" tools/pre-commit.sh
-gate	gate: suite.py always returns 0	sed -i "s/^    return r.returncode/    return 0/" tools/suite.py
+gate	gate: pre-commit.sh ignores the suite's verdict	sed -i "s/^if TEND_SUITE_WHERE=gate python3 tools\/suite.py; then/if TEND_SUITE_WHERE=gate python3 tools\/suite.py || true; then/" tools/pre-commit.sh
+gate	gate: suite.py always returns 0	sed -i "s/^    return rc$/    return 0/" tools/suite.py
 gate	gate: the drift block removed	sed -i "/^drift=\"\"/,/^fi$/d" tools/pre-commit.sh
 gate	gate: hook uninstalled	sh tools/pre-commit.sh --uninstall
 test/test_keep.py	keep: node launcher drops the code grant	sed -i '/--allow "$here\/node.py"/d' node/run.sh
-test/test_suite.py	suite: always returns 0	sed -i "s/^    return r.returncode/    return 0/" tools/suite.py
+test/test_suite.py	suite: always returns 0	sed -i "s/^    return rc$/    return 0/" tools/suite.py
 # test_kaizen.py against tools/kaizen.sh, test_limit.py against tools/limit.sh — 2026-08-26
 test/test_kaizen.py	kaizen: never lights	sed -i 's/^if \[ "\$n" -eq 0 \] && \[ -z "\$wanted" \]; then/if true; then/' tools/kaizen.sh
 test/test_kaizen.py	kaizen: last kaizen never found	sed -i 's/^last=\$(git .*/last=""/' tools/kaizen.sh
