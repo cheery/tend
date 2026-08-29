@@ -122,6 +122,22 @@ the dud commit landed because the hook was gone and the suite said so;
 a verdict the harness could not reach while its commits could not
 sign, when the same row read "refused".
 
+*20:52 — the ledger's first catch, and it is this card's own test.*
+Two commits in the last half hour were refused once and landed
+unchanged on retry, and the session had filtered the gate's output to
+nothing both times.  The ledger had the lines: `20:40 gate
+test/test_launch.py::test_a_program_busy_in_bursts_is_busy_over_the_idle_window
+load 0.70 wall 213.9s` and the same at `20:48`, load 0.62 — **2 of 4
+gate runs, at no load.**  The window rule's test, written at "do 1",
+was not shaken before it landed (tomorrow's item 3 in kaizen 1934,
+broken the same evening).  Suspected, not measured: when the program
+under keep is slow to start, the first window's slide (`now - base_at
+≥ idle`) and the idle check (`now - busy ≥ idle`) fire on the same
+tick, and the program is stopped before its first fifty ticks are
+read.  The next sitting shakes it (`--shake … 20`, with and without
+burners), reads the launcher's ticks (item 2 there), and fixes the
+rule or the fixture — never marks the test.
+
 ## Rules
 
 1. **Never a silent retry.**  The suite runs once and reports once; the
