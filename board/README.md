@@ -105,7 +105,10 @@ between two workable cards is Henri's.
    and whose mtime re-asserts it after a death; the tiebreak is his.
    Day one landed the same day at his "do the hold", and its second
    pass at his review — the hold names its node inside the file, the
-   panel shows holds as rows, and a hold not kept is loud.*
+   panel shows holds as rows, and a hold not kept is loud; its third
+   pass put the person's hand in the panel — hold, pin, unhold, and the
+   resolver run on every write and on entry — and the hold-to-death flow
+   test found `serve` silent on a node with no state directory yet.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

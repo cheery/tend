@@ -271,6 +271,55 @@ Red first again: both passes' tests were run against the launcher and
 panel of the commit before them.  Nothing runs the launcher's half
 until his `sudo tools/install.sh`; the panel runs from the tree.
 
+## Day one, third pass — the person's hand, the same sitting
+
+Henri, having installed and seen the row read right: *"the andon panel
+should have a tool to insert .pin and .hold files to the canvas, and
+allow one to remove the .hold, then ensure that the log flows (in case
+the program fails or crashes on exit) and that the resolver is called
+after the file is added.  Also, entering the andon panel should run
+the resolver."*  And, first: *"how do I run the resolver on the
+canvas?"* — the answer being `tools/resolve.sh` once, by hand, since
+nothing but a hook ran it.
+
+**Built.**  `tools/andon-panel.py hold LABEL NODE [--state DIR]
+[WORDS...]`, `pin NAME NODE [--state DIR]`, `unhold LABEL`, `unpin
+NAME` — from a shell, and in the TUI as `[h] [p] [u]` with one typed
+line — write the canvas and nothing else, then run the resolver once
+and show what it said; `[r]` is now resolve, not just refresh.  A hold
+from the panel is never wordless (`held by <user>, from the panel`
+when no words are given).  The hand refuses a node that is not one (no
+grant beside it), a label with a `/` in it, an `unhold` of nothing —
+nothing written, the resolver not run; a BROKEN row stays for a file
+written by hand.  **Entering the panel runs the resolver** before the
+first look — the TUI and the non-tty print alike — so a held node with
+no runner is started, and its row says running or which way it is not.
+The resolver it runs is `TEND_RESOLVE`, else the installed copy (the
+set in force), else the tree's; the panel still starts no program
+itself.  The panel's old rule, "it never pins — a pin is the person's
+act", is kept as history in its docstring: it still is the person's
+act, and the panel is where the person's hand is.
+
+**The log flows — measured, not declared.**  The one test that runs
+the whole thing real: the hand writes a hold for a scratch node whose
+program dies at once (`exit 3`, a loader line on stderr); the tree's
+resolver, `TEND_TREE` at the scratch tree, starts it under the leash;
+it dies; the death notice is on the timeline as `dying: exited 3 — …`
+in the node's own name; the row reads `DEAD, HELD — the hold is older
+than the death; touch it to restart`; and a second visit starts
+nothing.  That test found a hole the day's earlier passes had not: **a
+node held before it ever ran has no state directory**, and `serve`'s
+lock test — `flock -n $STATE/run.lock` — failed to open the file and
+read as "a runner is up", exit 0, silent.  A pull never met it because
+`pull` makes the directory first.  `serve` now makes `$STATE` once it
+has decided to start.
+
+Still not built, by the card's order: the resolver on a timer or at
+login (the "user canvas that opens" — nothing runs it when no one is
+at the desk, and it is the first thing in this tree that would); a
+node's pull as a lock (day two); the canvas's own reach row (day
+three).
+
 ## Where it sits
 
 Placed last in the priority by the session that wrote it, 2026-08-29,

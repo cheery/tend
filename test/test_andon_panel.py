@@ -109,6 +109,8 @@ def test_the_panel_plays_a_real_tone_not_the_terminal_bell(tmp_path):
 # (run.lock, stopped, watch) and puts a non-zero stop in the log column
 # beside the andon's own lines.  The fixture is the 13:27 minute.
 import os
+import pathlib
+import pytest
 import subprocess
 import time
 
@@ -329,3 +331,97 @@ def test_a_hold_that_holds_nothing_is_a_broken_row_and_a_held_death_says_which_w
     os.utime(h, (1787912843 + 60, 1787912843 + 60))       # touched, having seen why
     r = read_canvas(canvas)[0]
     assert "DEAD, HELD — the resolver restarts it at its next visit" in andon_panel.row_line(r)
+
+
+# --- the person's hand: the panel writes the canvas and runs the resolver (card:hold.md, 2026-08-29) ---
+#
+# Henri: "the andon panel should have a tool to insert .pin and .hold
+# files to the canvas, and allow one to remove the .hold, then ensure
+# that the log flows (in case the program fails or crashes on exit) and
+# that the resolver is called after the file is added.  Also, entering
+# the andon panel should run the resolver."
+
+def stub_resolver(tmp_path):
+    """A resolver that only counts its visits — the hand's contract is
+    "call it once after the write", measured without starting anything."""
+    log = tmp_path / "resolver.calls"
+    script = tmp_path / "resolve-stub.sh"
+    script.write_text(f"#!/bin/sh\necho visit >> {log}\necho 'launch: stub started nothing' >&2\n")
+    script.chmod(0o755)
+    return script, log
+
+
+def visits(log):
+    return log.read_text().count("visit") if log.exists() else 0
+
+
+def test_the_hand_writes_pin_shaped_files_and_runs_the_resolver_once_per_write(tmp_path, monkeypatch, capsys):
+    script, log = stub_resolver(tmp_path)
+    monkeypatch.setenv("TEND_RESOLVE", str(script))
+    node = dead_node(tmp_path)
+    canvas = tmp_path / "canvas"
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "mine", str(node), "held by henri, the desk"])
+    assert rc == 0 and visits(log) == 1
+    assert (canvas / "mine.hold").read_text() == f"node {node}\nheld by henri, the desk\n"
+    out = capsys.readouterr().out
+    assert "held: " in out and "resolver: launch: stub started nothing" in out, out
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "pin", "llm", str(node), "--state", str(tmp_path / "s")])
+    assert rc == 0 and visits(log) == 2
+    assert (canvas / "llm.pin").read_text() == f"node {node}\nstate {tmp_path / 's'}\n"
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "quiet", str(node)])
+    assert rc == 0 and visits(log) == 3
+    assert (canvas / "quiet.hold").read_text().splitlines()[1].startswith("held by "), "a hold from the panel is never wordless"
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "unhold", "mine"])
+    assert rc == 0 and not (canvas / "mine.hold").exists() and visits(log) == 4
+    assert "removed: " in capsys.readouterr().out
+
+
+def test_the_hand_refuses_what_is_not_a_node_and_does_not_resolve(tmp_path, monkeypatch, capsys):
+    script, log = stub_resolver(tmp_path)
+    monkeypatch.setenv("TEND_RESOLVE", str(script))
+    canvas = tmp_path / "canvas"
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "ghost", str(tmp_path / "nowhere")])
+    assert rc == 2 and "no node at" in capsys.readouterr().err
+    assert not canvas.exists() and visits(log) == 0
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "unhold", "never"])
+    assert rc == 2 and "no hold named never" in capsys.readouterr().err and visits(log) == 0
+    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "../up", str(dead_node(tmp_path))])
+    assert rc == 2 and "not a name" in capsys.readouterr().err and visits(log) == 0
+
+
+def test_entering_the_panel_runs_the_resolver(tmp_path, monkeypatch, capsys):
+    script, log = stub_resolver(tmp_path)
+    monkeypatch.setenv("TEND_RESOLVE", str(script))
+    monkeypatch.setenv("TEND_ANDON_STATE", str(tmp_path))
+    assert andon_panel.main(["x", "--canvas", str(tmp_path / "canvas")]) == 0
+    assert visits(log) == 1
+    assert "resolver: launch: stub started nothing" in capsys.readouterr().out
+
+
+@pytest.mark.skipif(not os.path.exists("/usr/bin/python3"), reason="no system python3 for keep")
+def test_a_hold_written_by_the_hand_starts_the_node_and_its_death_flows_to_the_timeline(tmp_path, monkeypatch):
+    """The whole flow, real: the hand writes a hold for a node whose
+    program dies at once; the resolver (this tree's) starts it under the
+    leash; it dies; the death notice is on the timeline as the node's
+    own line, and the row says DEAD, HELD — the hold is older than the
+    death; touch it — and a second visit starts nothing (rule 3)."""
+    tree = tmp_path / "tree"; node = tree / "dying"; node.mkdir(parents=True)
+    (node / "grant").write_text("program /bin/sh -c 'echo \"dying: error while loading shared libraries: libx.so\" >&2; exit 3'\n")
+    canvas = pathlib.Path(os.environ["TEND_CANVAS"])          # conftest's: the launcher reads the same one
+    monkeypatch.setenv("TEND_RESOLVE", os.path.join(andon_panel.HERE, "resolve.sh"))
+    monkeypatch.setenv("TEND_TREE", str(tree))
+    monkeypatch.setenv("TEND_ANDON_STATE", str(tmp_path))
+    monkeypatch.delenv("TEND_FENCED", raising=False)
+    lines = andon_panel.hand("hold", ["dying", str(node), "held by the fixture"], str(canvas))
+    assert any("is held and no runner — started one" in l for l in lines), lines
+    record = tmp_path / "andon.log"
+    t = time.monotonic()
+    while time.monotonic() - t < 10 and not record.exists():
+        time.sleep(0.05)
+    assert record.exists(), "the death never reached the record"
+    rows = read_canvas(canvas)
+    assert [r.name for r in rows] == ["dying"] and rows[0].dead and rows[0].held == "held by the fixture", rows
+    events = read_log(tmp_path, rows)
+    assert len(events) == 1 and events[0].who == "dying" and "exited 3 — dying: error while loading" in events[0].text, events
+    assert "DEAD, HELD — the hold is older than the death; touch it to restart" in andon_panel.row_line(rows[0])
+    assert andon_panel.resolve_once() == "", "a death is not hammered: the hold is older, nothing starts"

@@ -428,6 +428,9 @@ serve)
         esac
     fi
     [ -n "$want" ] || exit 0
+    # a node held before it ever ran has no state directory, and a lock that cannot be opened
+    # read as "a runner is up" — found by the panel's hold-to-death flow test, 2026-08-29
+    mkdir -p "$STATE" 2>/dev/null || true
     flock -n "$lock" true 2>/dev/null || exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done

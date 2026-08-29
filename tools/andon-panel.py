@@ -3,6 +3,9 @@
 """tools/andon-panel.py — the andon's person-side half: watch the record, announce a pull.
 
     tools/andon-panel.py [--canvas DIR]   a TUI over the andon record and a canvas (needs a terminal)
+    tools/andon-panel.py hold LABEL NODE [--state DIR] [WORDS...]   write LABEL.hold on the canvas, then resolve
+    tools/andon-panel.py pin NAME NODE [--state DIR]                write NAME.pin, then resolve
+    tools/andon-panel.py unhold LABEL | unpin NAME                  remove it, then resolve
 
 The panel runs OUTSIDE the fence and only reads what a session writes —
 `andon.pending` (the questions) and `andon.log` (every ask, ring and
@@ -35,8 +38,23 @@ held lock = the cords are cut, the same rule `tools/launch.sh status`
 reads) and shows the death notice a runner writes into the record as it
 dies (tools/launch.sh, card:canvas.md day two) in the log column beside
 the andon's own lines, one timeline.  It shows; it never rings for a death
-(the panel's rule: not a second andon), and it never pins — a pin is the
-person's act.
+(the panel's rule: not a second andon).
+
+**The person's hand** (card:hold.md, 2026-08-29 — Henri: "the andon
+panel should have a tool to insert .pin and .hold files to the canvas,
+and allow one to remove the .hold … and the resolver is called after the
+file is added.  Also, entering the andon panel should run the
+resolver").  Until then this said "it never pins — a pin is the person's
+act"; it still is, and the panel is where the person's hand is: `hold`,
+`pin`, `unhold`, `unpin` write the canvas and nothing else, refuse a node
+that is not one (no grant beside it — a BROKEN row is for a file written
+by hand), and every write, and every entry to the panel, runs the
+resolver once (`tools/resolve.sh`: the installed copy, the set in force,
+else the tree's; TEND_RESOLVE overrides for a test), so a hold written
+here is a node started here and a death is a line on this timeline
+before the person looks away.  The panel writes the canvas and calls the
+resolver; it does not start a program itself — the resolver is the one
+thing that does, on the person's side, as before.
 """
 import os
 import re
@@ -381,6 +399,117 @@ def read_log(state_dir=None, pins=()):
     return events
 
 
+INSTALLED_RESOLVE = "/usr/local/lib/tend/tools/resolve.sh"
+
+
+def resolver():
+    """The resolver the panel runs: TEND_RESOLVE, else the installed copy —
+    the set in force (tools/install.sh) — else this tree's."""
+    r = os.environ.get("TEND_RESOLVE")
+    if r:
+        return r
+    return INSTALLED_RESOLVE if os.path.exists(INSTALLED_RESOLVE) else os.path.join(HERE, "resolve.sh")
+
+
+def resolve_once():
+    """One visit by the resolver: every node with an unserved pull or a
+    standing hold and no runner is started, on the person's side.  Returns
+    what it said (stderr: one line per runner started), never raises for
+    a resolver that fails — the rows show what is up."""
+    env = dict(os.environ)
+    env.setdefault("TEND_TREE", ROOT)
+    try:
+        r = subprocess.run(["sh", resolver()], env=env, capture_output=True, text=True, timeout=120)
+        return (r.stderr or "").strip()
+    except (OSError, subprocess.SubprocessError) as e:
+        return f"resolver: {e}"
+
+
+def _label_ok(label):
+    if not label or "/" in label or label.startswith(".") or label != label.strip():
+        raise ValueError(f"not a name for a canvas file: {label!r}")
+
+
+def _node_ok(node):
+    path = _node_path(node)
+    if not os.path.isfile(os.path.join(path, "grant")):
+        raise ValueError(f"no node at {path} (no grant beside it) — the canvas is not written")
+    return path
+
+
+def write_hold(label, node, state=None, words="", canvas_dir=None):
+    """`LABEL.hold` on the canvas: node, state if given, and the words —
+    who is holding it and why; no words is `held by <user>, from the
+    panel`, so a hold written here is never wordless."""
+    _label_ok(label); _node_ok(node)
+    d = _canvas_dir(canvas_dir); os.makedirs(d, exist_ok=True)
+    if not words:
+        import getpass
+        words = f"held by {getpass.getuser()}, from the panel"
+    text = f"node {node}\n" + (f"state {state}\n" if state else "") + words.strip() + "\n"
+    path = os.path.join(d, label + ".hold")
+    with open(path, "w") as f:
+        f.write(text)
+    return path
+
+
+def write_pin(name, node, state=None, canvas_dir=None):
+    _label_ok(name); _node_ok(node)
+    d = _canvas_dir(canvas_dir); os.makedirs(d, exist_ok=True)
+    path = os.path.join(d, name + ".pin")
+    with open(path, "w") as f:
+        f.write(f"node {node}\n" + (f"state {state}\n" if state else ""))
+    return path
+
+
+def remove_canvas_file(label, kind, canvas_dir=None):
+    _label_ok(label)
+    path = os.path.join(_canvas_dir(canvas_dir), f"{label}.{kind}")
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        raise ValueError(f"no {kind} named {label} on {_canvas_dir(canvas_dir)}")
+    return path
+
+
+def hand(verb, args, canvas_dir=None):
+    """The person's hand on the canvas, as one call: do the verb, then
+    resolve.  Returns the lines to show; raises ValueError for a refusal
+    (nothing written, the resolver not run)."""
+    state = None; rest = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--state" and i + 1 < len(args):
+            state = args[i + 1]; i += 2
+        elif args[i].startswith("--state="):
+            state = args[i][len("--state="):]; i += 1
+        else:
+            rest.append(args[i]); i += 1
+    if verb == "hold":
+        if len(rest) < 2:
+            raise ValueError("hold LABEL NODE [--state DIR] [WORDS...]")
+        path = write_hold(rest[0], rest[1], state, " ".join(rest[2:]), canvas_dir)
+        lines = [f"held: {path}"]
+    elif verb == "pin":
+        if len(rest) != 2:
+            raise ValueError("pin NAME NODE [--state DIR]")
+        path = write_pin(rest[0], rest[1], state, canvas_dir)
+        lines = [f"pinned: {path}"]
+    elif verb in ("unhold", "unpin"):
+        if len(rest) != 1:
+            raise ValueError(f"{verb} NAME")
+        path = remove_canvas_file(rest[0], verb[2:], canvas_dir)
+        lines = [f"removed: {path}"]
+    else:
+        raise ValueError(f"unknown verb {verb!r} — hold, pin, unhold, unpin")
+    said = resolve_once()
+    lines += [f"resolver: {l}" for l in said.splitlines()] if said else ["resolver: nothing to start"]
+    return lines
+
+
+VERBS = ("hold", "pin", "unhold", "unpin")
+
+
 def _counts(rows):
     held = sum(1 for r in rows if r.held is not None)
     broken = sum(1 for r in rows if r.broken)
@@ -508,6 +637,21 @@ def _tui(stdscr, canvas=None):
             except curses.error:
                 pass
 
+    def ask(prompt):
+        """One line typed at the bottom; empty is a change of mind."""
+        try:
+            stdscr.addstr(h - 1, 0, (" " + prompt + " ").ljust(w - 1), curses.A_REVERSE)
+            stdscr.refresh()
+            curses.echo(); curses.curs_set(1); stdscr.timeout(-1)
+            got = stdscr.getstr(h - 1, len(prompt) + 2, max(1, w - len(prompt) - 4)).decode(errors="replace").strip()
+        except (curses.error, KeyboardInterrupt):
+            got = ""
+        finally:
+            curses.noecho(); curses.curs_set(0); stdscr.timeout(1000)
+        return got
+
+    notice = ""   # what the hand last did, shown until the next keystroke
+
     while True:
         st = read_state()
         pins = read_canvas(canvas_dir)
@@ -564,9 +708,11 @@ def _tui(stdscr, canvas=None):
             put(row, 2, "log", curses.A_BOLD); row += 1
             for e in events[-(room - 1):]:
                 put(row, 4, event_line(e), curses.A_BOLD if e.who != "andon" else 0); row += 1
+        if notice:
+            put(h - 2, 2, notice, curses.A_BOLD)
         try:
             stdscr.addstr(h - 1, 0,
-                          " [a] answer all   [r] refresh   [q] quit ".ljust(w - 1),
+                          " [h] hold  [p] pin  [u] unhold  [a] answer all  [r] resolve  [q] quit ".ljust(w - 1),
                           curses.A_REVERSE)
         except curses.error:
             pass
@@ -582,7 +728,24 @@ def _tui(stdscr, canvas=None):
             curses.endwin()
             answer()
             stdscr.clear()
-        # 'r' and timeout both just loop and re-read
+        elif c in (ord("h"), ord("p"), ord("u")):
+            # the person's hand: one typed line, the verb's own words, then the resolver
+            verb, prompt = {ord("h"): ("hold", "hold LABEL NODE [--state DIR] [WORDS...]:"),
+                            ord("p"): ("pin", "pin NAME NODE [--state DIR]:"),
+                            ord("u"): ("unhold", "unhold LABEL:")}[c]
+            line = ask(prompt)
+            if line:
+                try:
+                    notice = " · ".join(hand(verb, line.split(), canvas_dir))
+                except ValueError as e:
+                    notice = f"refused: {e}"
+            stdscr.clear()
+        elif c == ord("r"):
+            said = resolve_once()
+            notice = "resolver: " + (said.replace("\n", " · ") if said else "nothing to start")
+        elif c != -1:
+            notice = ""
+        # the timeout just loops and re-reads
 
 
 def main(argv):
@@ -597,6 +760,15 @@ def main(argv):
             canvas = args.pop(0)
         elif a.startswith("--canvas="):
             canvas = a[len("--canvas="):]
+        elif a in VERBS:
+            # the person's hand, from a shell: write the canvas, then resolve
+            try:
+                for line in hand(a, args, canvas):
+                    print(line)
+                return 0
+            except ValueError as e:
+                sys.stderr.write(f"andon-panel: {e}\n")
+                return 2
         else:
             sys.stderr.write(f"andon-panel: unknown argument {a!r}\n")
             return 2
@@ -605,9 +777,14 @@ def main(argv):
     except ImportError:
         sys.stderr.write("andon-panel: no curses available; the TUI needs a terminal\n")
         return 1
+    # entering the panel runs the resolver once (Henri, 2026-08-29): a held node with no
+    # runner is started before the first look, and its row says running or why not
+    said = resolve_once()
     if not sys.stdout.isatty():
         st = read_state()
         pins = read_canvas(canvas)
+        for line in said.splitlines():
+            print(f"resolver: {line}")
         n = len(st.pending)
         print(f"andon-panel: {n} pending"
               + (f", pulled since {_hhmm(st.last_ring)}" if st.pulled else "")
