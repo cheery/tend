@@ -112,7 +112,7 @@ MSG
     exit 1
 fi
 
-if python3 tools/suite.py; then
+if TEND_SUITE_WHERE=gate python3 tools/suite.py; then
     # The lamp, lit where somebody is already standing.  Never changes
     # the exit code — `tools/kaizen.sh` says why.
     sh tools/kaizen.sh || true

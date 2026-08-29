@@ -8,6 +8,7 @@ around this script — refused nothing.  So: a copy of the script over a
 over a passing one it returns zero and says the gates hold.
 """
 
+import os
 import pathlib
 import subprocess
 import sys
@@ -35,3 +36,60 @@ def test_a_passing_suite_holds(tmp_path):
     r = _tree(tmp_path, "def test_yes():\n    assert True\n")
     assert r.returncode == 0, r.stdout + r.stderr
     assert "the gates hold" in r.stdout
+
+
+# --- the failure ledger and the shake (card:flake.md, 2026-08-29 — Henri: "Would there be a way to catch the flake?") ---
+
+def _run(tmp_path, body, *args, env=None):
+    (tmp_path / "tools").mkdir(exist_ok=True)
+    (tmp_path / "tools" / "suite.py").write_text(SUITE.read_text(encoding="utf-8"))
+    (tmp_path / "test").mkdir(exist_ok=True)
+    (tmp_path / "test" / "test_one.py").write_text(body)
+    e = dict(os.environ, TEND_FAILED_LOG=str(tmp_path / "failed.log"))
+    e.pop("TEND_SUITE_WHERE", None)      # the seat is the test's to name, never the gate's inherited one
+    e.update(env or {})
+    return subprocess.run([sys.executable, "tools/suite.py", *args, "-p", "no:cacheprovider"],
+                          cwd=tmp_path, capture_output=True, text=True, env=e)
+
+
+def test_a_failed_test_is_a_line_on_the_ledger_and_a_passing_suite_leaves_none(tmp_path):
+    r = _run(tmp_path, "def test_no():\n    assert False\n")
+    assert r.returncode != 0
+    lines = (tmp_path / "failed.log").read_text().splitlines()
+    assert len(lines) == 1, lines
+    assert "test_one.py::test_no" in lines[0] and "  hand  " in lines[0] and "load " in lines[0] and "wall " in lines[0], lines[0]
+    assert str(tmp_path / "failed.log") in r.stdout, "the report names the ledger"
+    r = _run(tmp_path, "def test_yes():\n    assert True\n")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len((tmp_path / "failed.log").read_text().splitlines()) == 1, "a passing run appends nothing"
+
+
+def test_the_seat_is_on_the_line(tmp_path):
+    r = _run(tmp_path, "def test_no():\n    assert False\n", env={"TEND_SUITE_WHERE": "gate"})
+    assert "  gate  " in (tmp_path / "failed.log").read_text()
+
+
+def test_a_failure_seen_before_is_counted_in_the_report(tmp_path):
+    r = _run(tmp_path, "def test_no():\n    assert False\n")
+    assert "seen before" not in r.stdout, r.stdout
+    r = _run(tmp_path, "def test_no():\n    assert False\n")
+    assert "seen before" in r.stdout and "1 time" in r.stdout, r.stdout
+    r = _run(tmp_path, "def test_no():\n    assert False\n")
+    assert "2 times" in r.stdout, r.stdout
+
+
+def test_the_shake_runs_one_test_many_times_under_load_and_counts(tmp_path):
+    """A test that fails on every other run — the fixture has both sides —
+    shakes to 2 of 4, each failure a `shake` line on the ledger."""
+    body = ("import pathlib\n"
+            "def test_flaky():\n"
+            "    p = pathlib.Path('count'); n = int(p.read_text()) if p.exists() else 0\n"
+            "    p.write_text(str(n + 1)); assert n % 2 == 0\n")
+    r = _run(tmp_path, body, "--shake", "test/test_one.py::test_flaky", "4")
+    assert r.returncode != 0
+    assert "2 of 4" in r.stdout, r.stdout + r.stderr
+    lines = (tmp_path / "failed.log").read_text().splitlines()
+    assert len(lines) == 2 and all("  shake  " in l for l in lines), lines
+    body = "def test_steady():\n    assert True\n"
+    r = _run(tmp_path, body, "--shake", "test/test_one.py::test_steady", "2")
+    assert r.returncode == 0 and "0 of 2" in r.stdout, r.stdout + r.stderr

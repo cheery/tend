@@ -119,6 +119,13 @@ between two workable cards is Henri's.
    `TICK STALE` under a hold), and `install.sh --tick` is Ubuntu's
    carrier, a user timer running the installed copy; systemd is the
    implementation, never the dependency (Henri's words).*
+10. **[flake](flake.md)** — a red that vanishes on retry is met with
+    the session's memory, and the tree keeps no count: three times in
+    six days, each real once counted.  *Placed last by the session that
+    wrote it on 2026-08-29 at Henri's "lets card it, then do it"; day
+    one is the failure ledger the suite writes and reads back, and the
+    shake — one test N times with every core burning; the tiebreak is
+    his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
