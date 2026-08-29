@@ -52,11 +52,19 @@ session's objection, leans against it and is remade by the next
 session that meets it (`doc/ingested.md`, batch 1, the self-shaped
 rule).
 
-**3. If it agrees, the install is your hand, not the session's.**  The
-lamp lives in hook configuration and a commit hook; both are
-enforcement, and a session that installs its own reminder can uninstall
-it.  The steps are under "How to lift it" at the foot.  Do them
-yourself, from outside any sandbox the session runs in.
+**3. If it agrees, the session installs it.**  Not you.  The steps are
+under "How to lift it" at the foot, and they are a session's work: the
+script, the directory, the hook line, the commit line, the paragraph.
+It does not need to be bolted down.  Henri, 2026-08-29, correcting the
+first draft of this sheet, which had made the install the author's hand
+because hooks are enforcement: *"the session implements it, not the
+author.  It doesn't need to be bolted down.  I've proved that you obey
+it even if it were modifiable.  You have a morale in that sense."*  Six
+days of this project are the proof: the lamp's script and hook line
+were editable by every session that met them, and none touched them —
+the practice held because the session kept it, and a practice the
+session agreed to and installed itself is the one it keeps.  (This is
+also why step 1 matters: the agreement is what the install rests on.)
 
 **4. Then leave it alone for a week.**  The practice is measured by
 what its files catch, and that takes days.  Do not tune it on the
@@ -177,12 +185,14 @@ Six reasons, each one a thing the practice got wrong first and then
 fixed.  A reader lifting the module should keep all six; each one that
 is dropped brings its failure back.
 
-1. **The reminder is outside the party it reminds.**  Hooks and commit
-   hooks are the person's configuration; the session cannot forget, and
-   cannot turn it off.  Every practice this project has tried that
-   lived in a session's instructions was forgotten within a day
+1. **The reminder is outside the party's attention, not outside its
+   reach.**  A hook and a commit line fire whether or not the session
+   remembers; that is what they are for.  They are *not* what keeps
+   the practice — the session could edit both and never has (author's
+   step 3).  Every practice this project has tried that lived only in a
+   session's instructions was forgotten within a day
    (`doc/ingested.md`, 2026-08-25-0626: "reading a countermeasure is
-   not applying it").
+   not applying it"); the difference a hook makes is memory, not force.
 
 2. **The unit is measured, not felt.**  A session cannot tell when a
    sitting ends; the tree can tell when one began (the first uncovered
@@ -299,7 +309,9 @@ are this project's; rename freely, but keep the shapes.
    env).  Change the directory name in one place if yours differs.
 2. **`doc/kaizen/`** — create it empty.  The first file's name is what
    the lamp says after the first uncovered commit.
-3. **The prompt hook** — the person's edit to `.claude/settings.json`:
+3. **The prompt hook** — the session's edit to `.claude/settings.json`
+   (the person's, only where their project's rules make hook
+   configuration theirs):
 
         "UserPromptSubmit": [ { "hooks": [ { "type": "command",
           "command": "\"$CLAUDE_PROJECT_DIR\"/tools/kaizen.sh --hook" } ] } ]
