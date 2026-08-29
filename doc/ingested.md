@@ -118,3 +118,52 @@ workbench.  **Least certain line**: [[2026-08-25-1530]], whose
 diff-before-stage half was judged `once` on an inference about the
 install rather than on a kaizen saying so — one uncertain verdict, not
 two in a row.  Zero verdict words added.
+
+## Batch 4 — read 2026-08-29, the next ten (2026-08-26-0812 → 2026-08-26-1309)
+
+*Read on Saturday, two days ahead of the table's Monday, at the
+2026-08-28-1830 kaizen's item 4 ("today wrote four kaizens and read
+none back"); the batch is the ten oldest unread, so the table's row
+is what moved, not the rule.  Read by a session that wrote none of
+them.*
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-26-0812 | the journal got a levelled schedule in the sweep's shape, and the ledger meant to read the lamp put it out — a file in the lamp's directory was read as a kaizen landing | `rule` — the schedule is card:kaizen-ingestion.md §"The plan, fixed"; the lamp matches a kaizen's *name* now (tools/kaizen.sh:85–95, `????-??-??-????.md`) and test/test_kaizen.py:139–154 commits a stray into `doc/kaizen/` and reads the lamp still lit.  The `green` row it named was written the same morning ([[2026-08-26-0822]]) |
+| 2026-08-26-0822 | the reading changed one file and could say so in a line; the session that read batch 1's reading≠applying strand paid it a fourth time an hour later; a `sed` and a `tail` ate a line | `rule` for the first two — the ledger's rule is card:kaizen-ingestion.md §"What this is not", and reading≠applying is batch 1's standing rule (manifesto §"go and do it") whose stop is a mechanism, which this face got (the detector names what it detects).  The third is `recurs` — the pipe-hides-the-line strand at its **third face** [[2026-08-25-0714]] [[2026-08-25-0721]] and this.  **Reason not promoted**: each face cost one re-run and the missing line was its own catcher within a minute; the strand has no mechanism in tend's remit (it is the session's console, not the tree) and batch 2's rule for shell prose holds — a rule cheaper than its catcher is not owed |
+| 2026-08-26-0847 | a detector's own power is a measurement, not an argument — the mutation expected red went green, and the reason was real: confinement of a well-behaved program is invisible through that program, and shows only on overreach | `rule` — board/done/green.md:419, the launcher row's `partial` written from the measurement; the harness is tools/mutate.sh.  The state-dir-apart-from-code point is node/run.sh's grant (`--allow` code, `--write` state), and it held when `--no-net` joined it ([[2026-08-26-1309]]) |
+| 2026-08-26-0855 | a "6 passed, 7 skipped" on a real break is not a survivor, it is a detector that did not run; read the seat before a sweep and say up front which detectors it cannot reach | `rule` — the vocabulary is board/done/green.md:445 (`none — nothing can, from this seat`), and the route for what a seat cannot run is board/README.md §"What the days taught" (batch 2's promotion): the claim goes to the side that can run it.  The seat-first half was answered within the hour by the outside run arriving ([[2026-08-26-0905]]) rather than by a rule; `once` in that form |
+| 2026-08-26-0905 | the outside seat caught a detector, not the fence: a one-seat oracle can be a false red in another seat, F88's mirror; and a detector edited by a seat that cannot run it says so in the first line | `rule` — the false red is on board/done/green.md:477–510 and closed by execution the same morning ([[2026-08-26-0910]]); the say-so-first is the proposed-not-declared sentence (README §"What the days taught": *the commit says which line has not executed*).  The passing twin fixed unasked — a green detector edited on reasoning — is `once`, and the unfenced run covered it |
+| 2026-08-26-0910 | two seats did one measurement between them and neither could have alone; the control clone told a fence-edge from a result; a run handed to another seat names its destructive edges in the handing | `rule` — the two-seat route is the same README sentence; control-before-mutation is tools/mutate.sh:90–93, reached independently by the other seat; the scratch-dir limit it found is tools/sandbox.sh:64–70, applied by Henri's hand ([[2026-08-26-0931]]).  The destructive-edge-in-the-handing half is `once` — the docstring says it now, and no second handoff has been made without it |
+| 2026-08-26-0926 | a decorator stolen by an insert one line off — the neighbour went red, not the newcomer; a question ("would it be time") answered as an assessment before it was acted on | `rule` — reading≠applying again (batch 1's standing rule; its stop is a mechanism), and the mechanism was the suite: the wrong test red is the tell, and it fired.  The look-above-the-anchor line is `once`.  Assessment-before-action is the shape the `self` card had already fixed and the sitting honoured (board/done/self.md) |
+| 2026-08-26-0931 | `git add -A` stages what is not the change — a handoff patch Henri had applied on his own clock rode into a9a9958 | `rule` — .gitignore `*.patch`, with the commit named in the comment: the class made impossible, not unlikely.  Its second line (`git status` before `-A` after a step on Henri's clock) was applied the next sitting ([[2026-08-26-1304]]: `git add README.md`, not `-A`) — closed by being applied |
+| 2026-08-26-1304 | "free to keep" read as "verify, then keep" — 20 of 20 paths checked before gestate's page went in; and a page verified for Henri should say what was *not* checked as plainly as what was | `recurs` — the board-reading move's first face, paired with [[2026-08-26-1309]] below.  The not-checked footer is `once` — the footer says what was checked; the next verified page owes the other half.  The verify-before-keep is `rule`: a fixture is a claim about the thing it copies (README §"What the days taught", batch 3's promotion), in its prose form |
+| 2026-08-26-1309 | the board reading was wrong by two slices because a card's newest section is not its last — sections land under older headings on purpose — and Henri acted on it; a `13:xx` placeholder went into a committed card | `recurs` ×2 — the board reading at its **second face** [[2026-08-26-1304]] (used twice in a day, wrong once; "a tool on the second ask" and no tool has been asked for since — tools/ has none, and `grep -rl 'stays open' tools/` is empty); and the placeholder at its **second face** [[2026-08-25-1404]] (`14:xx` there, `13:xx` here), which batch 2 already said "is the card format's to refuse, and it does not yet" — test/test_board.py still has no line for it.  A `grep -rn '[0-9]:xx' board/ doc/` today finds no third; both wait |
+
+**What batch 4 showed.**  Seven `rule`, no `open`, three lines carrying
+a `once`, and three strands at `recurs` — **zero promotions, on
+purpose, and each refusal has its reason written.**  This is the
+morning `green` measured its own suite, the outside seat arrived, and
+`self` closed; nearly every lesson is a mechanism that already exists
+and is named by line.  The reading≠applying strand of batch 1 has two
+more faces here ([[2026-08-26-0822]], [[2026-08-26-0926]]), and both
+confirm batch 1's verdict exactly: the rule was not lacking, and each
+face stopped where a mechanism caught it (the lamp matching a name;
+the suite going red in the neighbour).  The pipe-hides-the-line strand
+reached its third face and is **not promoted**, for the reason batch 2
+gave shell prose: the catcher is faster than the rule.  Two strands
+stand at two faces and are the ones to watch: the **placeholder time
+in a committed card** ([[2026-08-25-1404]] [[2026-08-26-1309]]) whose
+third face is a one-line refusal in `test/test_board.py` — and a
+mechanism is a card, not a promotion, so the third face opens one or
+adds the line to `kaizen-ingestion` itself; and the **board reading
+as a tool** ([[2026-08-26-1304]] [[2026-08-26-1309]]), whose second
+face already said the tool reads open items by phrase and not last
+sections, and whose third face is Henri asking for the reading again.
+One strand **closed by being applied** the next sitting:
+`git status` before `git add -A` ([[2026-08-26-0931]] →
+[[2026-08-26-1304]]).  **Least certain line**: [[2026-08-26-0822]]'s
+third-face refusal — the pipe strand's non-promotion rests on the
+claim that no mechanism in the tree could catch it, which is an
+argument about the session's console and not a measurement; one
+uncertain verdict, not two in a row.  Zero verdict words added.

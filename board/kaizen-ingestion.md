@@ -111,9 +111,10 @@ session reads ten, and what each reading produces is one line.
 | 1 | Wed 2026-08-26 | 24-1549 24-1758 25-0626 25-0639 25-0646 25-0703 25-0714 25-0721 25-0732 25-0744 |
 | 2 | Thu 2026-08-27 | 25-0753 25-0803 25-0824 25-0828 25-1404 25-1412 25-1424 25-1428 25-1436 25-1445 |
 | 3 | Fri 2026-08-28 | 25-1506 25-1522 25-1530 25-1540 26-0721 26-0728 26-0739 26-0743 26-0751 26-0801 |
-| 4 | Mon 2026-08-31 | 26-0812 26-0822 26-0847 26-0855 26-0905 26-0910 26-0926 26-0931 26-1304 26-1309 |
-| 5 | Tue 2026-09-01 | 26-1317 26-1323 26-1334 26-1342 26-1356 26-1405 26-1412 26-1421 26-1433 26-1437 |
-| 6… | Wed 2026-09-02 → | the ten oldest unread, whatever has arrived since |
+| 4 | Sat 2026-08-29 (was Mon 08-31; moved up at the 08-28-1830 kaizen's item 4) | 26-0812 26-0822 26-0847 26-0855 26-0905 26-0910 26-0926 26-0931 26-1304 26-1309 |
+| 5 | Mon 2026-08-31 | 26-1317 26-1323 26-1334 26-1342 26-1356 26-1405 26-1412 26-1421 26-1433 26-1437 |
+| 6 | Tue 2026-09-01 | 26-1500 26-1509 26-1524 26-1532 26-1535 26-1549 26-1602 26-1616 26-1633 26-1644 |
+| 7… | Wed 2026-09-02 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -233,3 +234,47 @@ the first one.
 Fri 08-28" because a session may not promote it, and the weekly three
 lines at random, disagreed with, have not happened once yet.  Both
 are his; neither is a session's to do for him.
+
+## 2026-08-29 — batch 4 read, on a Saturday, by a session that wrote none of it
+
+Batch 4 is in `doc/ingested.md`: ten lines, **zero promotions, each
+refusal with its reason** — the morning `green` swept its own suite,
+the outside seat arrived and closed the sandbox row by execution, and
+`self` closed; seven of ten are `rule` with the line named.  Read two
+days ahead of the table's Monday at the 2026-08-28-1830 kaizen's
+item 4; the batch is the ten oldest unread, so the row moved and the
+level did not — batch 5 is Monday's, batch 6 (`26-1500` → `26-1644`)
+is filled in above.
+
+Three strands stand at `recurs`.  The pipe-hides-the-line strand
+(`2026-08-25-0714`, `-0721`, `2026-08-26-0822`) reached three faces
+and is **not promoted**, on batch 2's reasoning for shell prose: the
+missing line is its own catcher within a minute, and no mechanism in
+the tree's remit reaches the session's console.  Two are at two faces
+and named as what to watch: a **placeholder time in a committed card**
+(`2026-08-25-1404` `14:xx`, `2026-08-26-1309` `13:xx`), which batch 2
+already said the card format should refuse and `test/test_board.py`
+still does not — its third face is one regex, and a mechanism is a
+card, so the third face lands the line here rather than a sentence in
+README; and the **board reading as a tool** (`2026-08-26-1304`,
+`-1309`), whose second face said the tool reads open items by phrase
+and not last sections, and whose third is Henri asking for the reading
+again — no tool exists (`tools/` has none).  Batch 1's reading≠applying
+strand has two more faces here (`-0822`, `-0926`), and both confirm its
+verdict: not a missing rule, and each stopped where a mechanism caught
+it.
+
+**The count**: 85 kaizens in `doc/kaizen/` today; 40 read; 45 unread
+before Monday's arrivals — at the level of ten, Monday through Friday
+of next week with nothing arriving, and 2026-08-28 alone added eight.
+No day has been missed yet; the lamp slice still waits for the first
+one.
+
+**Henri's half is still undone** — batch 1's self-shaped strand sent
+to "Henri, Fri 08-28", and the weekly three lines at random,
+disagreed with; `2026-08-28-0545` is the last kaizen to say so
+("still his and still undone") and nothing since records it done.
+Now four batches deep, 40 lines, and no line has yet been disagreed
+with by the one reader the ledger is for.  His; not a session's to do
+for him, and named here so the fifth batch does not arrive before the
+first three lines.
