@@ -170,8 +170,11 @@ canvas="${TEND_CANVAS:-${HOME:-/nonexistent}/.local/state/tend/canvas}"
 expand_path() { case "$1" in '~'|'~/'*) echo "${HOME:-/nonexistent}${1#\~}" ;; /*) echo "$1" ;; *) echo "$root/$1" ;; esac; }
 # the holds that name this node — and, where they say a state, this state — one path per line.
 # A hold is pin-shaped (Henri, 2026-08-29: "I'd like to name what I'm holding inside the file"):
-# `node NAME-OR-DIR`, `state DIR` (relative to the node), or one bare line `NAME [STATE]` whose first
-# word is a node of this tree; every other line is the words — who is holding it, and why.  A hold with
+# `node NAME-OR-DIR`, `state DIR` (relative to the node) or a bare path line (`/…`, `~…`, `./…`), or one
+# bare line `NAME [STATE]` whose first word is a node of this tree; every other line is the words — who is
+# holding it, and why.  A hold's state is matched against the state this launcher runs with — and the
+# resolver runs a node with NODE/state only, so a hold naming another state is honoured by nothing yet
+# (tools/panel.py says so on its row); an instance per (node, state) is card:hold.md's, unbuilt.  A hold with
 # no node line holds the node its filename names (`node.hold`), so the filename is otherwise a label.
 holds_for() {
     _me=$(readlink -f "$NODE"); _st=$(readlink -f "$STATE" 2>/dev/null || echo "$STATE")
@@ -184,6 +187,7 @@ holds_for() {
             case "$_k" in
                 node)  _n=$_v ;;
                 state) _s=$_v ;;
+                /*|'~'*|./*) _s=$_l ;;   # a bare path line is the state (Henri, 2026-08-29: "newline and state")
                 *) if [ -z "$_n" ] && [ -f "$(expand_path "$_k")/grant" ]; then
                        _n=$_k; _v=${_v#\"}; _v=${_v%\"}; [ -n "$_v" ] && _s=$_v
                    fi ;;
@@ -199,7 +203,7 @@ holds_for() {
     done
 }
 # the words of a hold: its lines that are not the node or the state
-hold_words() { grep -v '^ *#' "$1" | while IFS= read -r _l; do case "$_l" in ''|node\ *|state\ *) ;; *) [ -f "$(expand_path "${_l%% *}")/grant" ] || printf '%s ' "$_l" ;; esac; done | sed 's/ $//'; }
+hold_words() { grep -v '^ *#' "$1" | while IFS= read -r _l; do case "$_l" in ''|node\ *|state\ *|/*|'~'*|./*) ;; *) [ -f "$(expand_path "${_l%% *}")/grant" ] || printf '%s ' "$_l" ;; esac; done | sed 's/ $//'; }
 # the log's last line that is not warning noise — what a program said as it died
 last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
 stale="${TEND_WATCH_STALE:-60}"

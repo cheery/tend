@@ -425,3 +425,24 @@ def test_a_hold_written_by_the_hand_starts_the_node_and_its_death_flows_to_the_t
     assert len(events) == 1 and events[0].who == "dying" and "exited 3 — dying: error while loading" in events[0].text, events
     assert "DEAD, HELD — the hold is older than the death; touch it to restart" in panel.row_line(rows[0])
     assert panel.resolve_once() == "", "a death is not hammered: the hold is older, nothing starts"
+
+
+def test_a_hold_on_a_state_the_resolver_does_not_run_says_so_instead_of_promising(tmp_path):
+    """The critical reading of "state in the hold" (2026-08-29): the
+    resolver runs NODE/state only, so a hold naming another state is
+    honoured by nothing yet — the row says HELD, NOT HONOURED, bold, and
+    never "the resolver starts one at its next visit".  A bare path line
+    is the state, as in the launcher."""
+    node = dead_node(tmp_path, stopped="idle: nothing has pulled llm for 60s")
+    other = tmp_path / "other-state"; other.mkdir()
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm-other.hold").write_text(f"node {node}\n{other}\nthe other state\n")
+    h = panel.read_holds(canvas)[0]
+    assert h.state == str(other) and h.words == "the other state"
+    r = read_canvas(canvas)[0]
+    assert r.note and panel.wrong(r)
+    line = panel.row_line(r)
+    assert "HELD, NOT HONOURED — state" in line and "not honoured yet" in line and "next visit" not in line, line
+    (canvas / "llm.hold").write_text(f"node {node}\nthe default state\n")
+    rows = read_canvas(canvas)
+    assert [(r.held, r.note is None) for r in rows] == [("the other state", False), ("the default state", True)], rows

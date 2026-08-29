@@ -320,6 +320,35 @@ at the desk, and it is the first thing in this tree that would); a
 node's pull as a lock (day two); the canvas's own reach row (day
 three).
 
+## Day one, fourth pass — the state in the hold, read critically
+
+Henri: *"Is there any restriction why the .hold file could not contain
+the state as well?  newline and state dumped there … But please think
+critically and don't just obey."*  It could already (`state DIR`), and
+the state's *content* it must never hold (rule 5: the state is the
+runner's, written under keep; the hold is where the program cannot
+write).  What the question turned up: **a hold's state line was a
+promise nothing kept.**  The resolver runs `launch.sh NODE serve` with
+no state override, so `serve` runs `NODE/state` only, and `holds_for`
+matches a hold's state against the state it runs with — a hold naming
+any other state never matched, and the panel showed it as `HELD, NOT
+RUNNING — the resolver starts one at its next visit`, forever.  The
+second pass opened that by accepting `state` without making anything
+honour it.  And a second state of one node cannot run beside the first
+for any node that `bind`s a port; an instance per (node, state) is real
+only for a port-less node.
+
+Landed at his "do 1": a bare line that reads as a path (`/…`, `~…`,
+`./…`) after the node line is the state, no key — his shape, and
+unambiguous against words, which never start with a slash — in both
+readers; and the panel's row on a hold whose state is not `NODE/state`
+says **`HELD, NOT HONOURED — state X is not the state the resolver runs
+(NODE/state); not honoured yet`**, bold, instead of promising a visit.
+Not built, and named on this card as the want it waits on: **an
+instance** — the resolver serving each (node, state) a hold names,
+`serve` running with that state — when a port-less node wants two
+lives.  Until then the state line is a label the panel is honest about.
+
 ## Where it sits
 
 Placed last in the priority by the session that wrote it, 2026-08-29,

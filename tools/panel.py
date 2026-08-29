@@ -125,8 +125,8 @@ def read_state(state_dir=None):
     return State(pending, rings, last_ring, pulled, answered)
 
 
-Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held held_at broken",
-                 defaults=(None, None, None))
+Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held held_at broken note",
+                 defaults=(None, None, None, None))
 Event = namedtuple("Event", "epoch who text")
 
 CANVAS_DEFAULT = os.path.join(STATE_DEFAULT, "canvas")
@@ -235,6 +235,8 @@ def _read_hold(path):
                 node = val
             elif key == "state":
                 state = val
+            elif line.startswith(("/", "~", "./")):
+                state = line          # a bare path line is the state (Henri, 2026-08-29: "newline and state")
             elif node is None and _is_node(key):
                 node = key
                 if val:
@@ -335,7 +337,12 @@ def read_pin_state(name, node, state, canvas_dir=None):
         pass
     said = _last_said(os.path.join(state, "log")) if dead else ""
     held, held_at = read_hold(canvas_dir, name, node, state)
-    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at)
+    note = None
+    if held is not None and not _same(state, os.path.join(node, "state")):
+        # the resolver runs a node with NODE/state only (tools/resolve.sh → launch.sh NODE serve), so a
+        # hold on any other state is honoured by nothing yet — said here, not promised (2026-08-29)
+        note = f"state {state} is not the state the resolver runs ({os.path.join(node, 'state')}); not honoured yet"
+    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at, None, note)
 
 
 def read_canvas(canvas_dir=None):
@@ -523,7 +530,7 @@ def wrong(p):
     """Is this row something gone wrong — shown bold: a death, cut cords, a
     hold that holds nothing, or a held node with no runner up (the hold's
     promise is not kept, whatever the reason)."""
-    return bool(p.dead or p.cut or p.broken or (p.held is not None and not p.running))
+    return bool(p.dead or p.cut or p.broken or p.note or (p.held is not None and not p.running))
 
 
 def row_line(p):
@@ -534,6 +541,8 @@ def row_line(p):
         state = f"runner up, watcher silent {p.cut // 60} min — the cords are cut"
     elif p.running:
         state = "running"
+    elif p.note:
+        state = f"HELD, NOT HONOURED — {p.note}"
     elif p.held is not None:
         # held and not up is the hold not kept (card:hold.md): say which way
         if p.dead and p.held_at is not None and p.last_stop is not None and p.held_at <= p.last_stop:

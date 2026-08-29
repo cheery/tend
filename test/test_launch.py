@@ -684,3 +684,14 @@ def test_a_hold_names_its_node_inside_the_file_and_the_filename_is_a_label(tmp_p
     s = launch(ROOT / "node", "status", state=st)
     assert s.stdout.count("held:") == 3, s.stdout
     assert "held: this state exactly (" in s.stdout and "held: no node line: the filename names it (" in s.stdout, s.stdout
+
+
+def test_a_bare_path_line_in_a_hold_is_its_state(tmp_path):
+    """Henri, 2026-08-29: "newline and state dumped there".  A line that
+    reads as a path is the state, no key needed; it is matched against
+    the state the launcher runs with, and the words are the other lines."""
+    st = tmp_path / "st"; st.mkdir()
+    hold(st, "here", f"node node\n{st}\nthis state, on its own line\n")
+    hold(st, "there", f"node node\n{tmp_path}/elsewhere\nanother state\n")
+    s = launch(ROOT / "node", "status", state=st)
+    assert s.stdout.count("held:") == 1 and "held: this state, on its own line (" in s.stdout, s.stdout
