@@ -43,53 +43,90 @@
 
 ## What it is
 
-A **hold** is a file whose *presence* is a standing pull: while
-`<name>.hold` exists, something pulls the node — the resolver starts a
-runner for it when none is up, and the runner is not idle while the
-file is there.  Its *mtime* is the person saying so again (`touch`),
-and its content is the asked-by, the way a pull line carries its text
-and a card carries `asked`: a hold with no words is suspect.  Removing
-the file is the act that lets the node stop; idle applies again the
-moment it is gone.  `.pin` stays what it is — "show me a row" — and a
-hold is a different file, because presence-and-mtime is the whole
-mechanism and `touch`/`rm` is the act (Henri: "pin files should pin
-files, these files should be something else").
+Henri, 2026-08-29: *"the way the state network works... it's that
+canvas may pull nodes, and nodes may pull other nodes.  If node's
+process/processes is killed or node stops pulling with separate
+command, the pull stops."*  **A pull lasts exactly as long as its
+puller, and the canvas is the puller that does not die.**  Everything
+alive is on a canvas: a node runs because a chain of pulls reaches it
+from a canvas, and when the chain breaks — a puller dies, un-pulls, or
+the person removes the hold — the pull stops and idle takes the node
+as it does today.  Today's `pull` (append a line; idle counts from it)
+is the degenerate case: a lease that expires after `idle` seconds
+whatever the puller is doing, which is why the llm node goes cold
+between `lead.sh`'s turns.
 
-Four boundaries the tree already has, agreed on 2026-08-29, each of
+Two forms of one thing:
+
+* **The canvas's pull is a file.**  `<name>.hold` in a canvas
+  directory: presence is the pull, mtime is the person saying so again
+  (`touch`), the content is the asked-by (a hold with no words is
+  suspect), and `rm` is the act that lets the node stop.  A person has
+  no process to die with, so a file stands in.  `.pin` stays "show me a
+  row"; a hold is a different file because presence-and-mtime is the
+  whole mechanism (Henri: "pin files should pin files, these files
+  should be something else").
+* **A node's pull is a lock.**  A puller takes a shared `flock` on a
+  file in the pulled node's state (`$STATE/pulled`) and keeps the fd
+  open while it wants the node; un-pull closes it; killed, the kernel
+  closes it — the property `launch.sh` already leans on for
+  `run.lock`, no pid tracking.  The pulled runner's question is one
+  line: *is anyone pulling me?* — a hold exists, or an exclusive
+  non-blocking `flock` on `pulled` fails.  Under keep the pull is a
+  reach, named in the puller's grant beside its program (`pull OTHER`
+  — read of the other's state file is enough; `flock` needs no
+  write).  It does not cross machines, and not yet: the lease-with-a-
+  heartbeat form (the `watch` rule the runner has for its own cords)
+  waits for a second machine to ask.
+
+**Canvases** are where chains start, and there are several by design:
+a **system canvas** for what opens when the machine starts — never as
+root; every system user with processes of its own has its own — and a
+**user canvas** that opens when the person logs in.  "Opens" is the
+resolver visiting the canvas's holds; which canvas a resolver reads is
+a path, as the panel's is.  Both are shape, not build: day one is one
+canvas on one desk.
+
+Five boundaries the tree already has, agreed on 2026-08-29, each of
 which the design keeps:
 
 1. **A hold is a lifecycle grant, so it never extends a sitting.**
    `launch.sh`'s rule stands: a node may end its sitting early and can
-   never extend one.  A hold means *restart it when it stops*, not
+   never extend one.  A pull means *restart it when it stops*, not
    *never stop it*: the sitting cuts, the resolver starts a fresh one,
-   the gap is honest.  Otherwise a hold is the extension the grant
-   forbids, in a different dress.
-2. **The runner knows it is held, or idle fights the hold.**  `serve`
-   hands the runner the hold's path; the watch loop reads the file's
-   presence as the pulse — not idle while it exists — one `[ -f ]` per
-   tick in the loop that already ticks.  Without this a held llm node
-   is a reload loop at 80 s a turn on the GPU.  (Henri: "not sure but
-   it sounds right" — the first held run is its measurement.)
+   the gap is honest.
+2. **The runner knows it is pulled, or idle fights the pull.**  The
+   watch loop reads the hold's presence and the lock's state as the
+   pulse — not idle while either holds — one test per tick in the loop
+   that already ticks.  Without this a held llm node is a reload loop
+   at 80 s a turn on the GPU.  (Henri: "not sure but it sounds right"
+   — the first held run is its measurement.)
 3. **A crash is not hammered.**  After a clean stop (the sitting),
-   restart unconditionally; after a *death* (a non-zero exit, now a
-   line in the andon record), restart only if the hold is newer than
-   the death — the person re-asserts with a `touch`, having seen why.
-   The same mtime comparison `serve` already makes between the pull and
-   `stopped`.  This is item 9's crash-loop backoff, in the tree's own
-   grammar, and the andon half of it is the death notice.
-4. **Whose hand.**  The hold lives where the program cannot write it —
-   not `$STATE` (keep grants the program its state; a node that could
-   hold itself is the bounded party setting its own boundary, Rule 1)
-   — and, Henri, 2026-08-29: *"canvas should be in place where access
-   must be granted separately if it's to be touched."*  Today the
-   canvas is under `~/.local/state/tend`, which the fence binds
+   restart unconditionally; after a *death* (a non-zero exit, a line
+   in the andon record since card:canvas.md day two), restart only if
+   the hold is newer than the death — the person re-asserts with a
+   `touch`, having seen why.  The same mtime comparison `serve` makes
+   between the pull and `stopped`.  This is doc/os-status-2026-08-28.md
+   item 9's crash-loop backoff in the tree's grammar; the andon half is
+   the death notice.
+4. **Cycles are forbidden, at the door.**  A pulls B pulls A with no
+   canvas behind them is the bounded party setting its own boundary
+   (Rule 1).  Because a node's pulls are lines in its grant, the pull
+   graph is declared, and `launch.sh NODE check` refuses a grant whose
+   pulls reach back to the node — before anything runs.  And by
+   construction liveness enters only through a canvas: a node exists
+   because something pulled it, and the first pull is a hold; remove
+   the hold and the chain collapses from the root.  Henri: "the idea is
+   that everything alive would be on a canvas."
+5. **Whose hand.**  A hold lives where the program cannot write it —
+   never `$STATE` — and, Henri: *"canvas should be in place where
+   access must be granted separately if it's to be touched."*  Today
+   the canvas is under `~/.local/state/tend`, which the fence binds
    read-write for the andon and the clock, so a fenced session could
    touch a hold and the tree could not tell its hand from his.  The
    canvas moves, or is bound apart, so that writing it is a reach row
-   of its own — off by default — and a session's hold is a widening a
-   person granted, never a side effect of the andon's row.  Until that
-   row exists, the backstop is (1): a forged hold buys at most
-   restart-after-sitting, never a longer sitting.
+   of its own, off by default.  Until that row exists the backstop is
+   (1): a forged hold buys at most restart-after-sitting.
 
 ## What would make this card wrong
 
@@ -106,14 +143,14 @@ that; the day it is measured is the day a second machine holds a node.
 
 A way for a program to keep itself alive (the hold is never in
 `$STATE`, and never read from anywhere the program can write).  A
-sitting extension (rule 1 above).  A restart loop (rule 3).  A second
-list for the resolver — it keeps its own list of nodes and honours the
+sitting extension (rule 1 above).  A restart loop (rule 3).  A cycle (rule
+4).  A second list for the resolver — it keeps its own list of nodes and honours the
 holds it finds; "the resolver reads pins as its list" stays the
 decision card:canvas.md marked it, and a hold makes it unnecessary.  A
 process supervisor: no PID files of its own, no health checks, no
 "desired state" beyond a file being there — the runner's `run.lock`,
 `stopped` and `watch` are the state, as they are today.  And not
-anything a session can create by default (rule 4).
+anything a session can create by default (rule 5).
 
 ## Day one
 
@@ -126,7 +163,8 @@ first: a fixture hold and a program that would idle out in 0.4 s stays
 up past it and stops within a tick of the file's removal; a fixture
 death with a hold older than it is not restarted, and one newer is.
 The first measurement is his: the llm node held across an afternoon,
-pulled cold once.  Rule 4's separate reach row is day two, and is not
+pulled cold once.  A node's pull as a lock is day two, when `lead.sh` is the first node
+that wants to pull another; rule 5's separate reach row is day three, and is not
 a build before day one has been held once — its shape is
 card:silent-cord.md's, a row off by default with the sound on when it
 is off.
