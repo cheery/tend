@@ -96,6 +96,13 @@ between two workable cards is Henri's.
    session-program", on the event it waited for — a door where a
    model is admitted (the llm node's cords) — with `tools/compare.py`
    as its first instrument; placed last; the tiebreak is his.*
+9. **[hold](hold.md)** — a node that should be up is up only while
+   something happens to pull it: the llm node idles out 60 s after the
+   last pull and reloads for 80 s on the next, and nowhere on the
+   person's side says "keep this alive".  *Placed last by the session
+   that wrote it on 2026-08-29 at Henri's "Lets card it"; its day one is
+   a `<name>.hold` file beside the pin whose presence is a standing pull
+   and whose mtime re-asserts it after a death; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
