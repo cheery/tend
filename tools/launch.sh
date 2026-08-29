@@ -99,6 +99,22 @@
 # `pull` kept from 13:45 to 2026-08-29 (`died_at_once`: it caught the
 # failure that happened and no slower one, and cost every healthy pull
 # a second — the window Henri named as one "we will eventually revert").
+#
+# **The hold** (2026-08-29, card:hold.md day one — Henri: "the file would
+# mean that something pulls the node").  A pull is one line that means
+# "something wants this once", so a node's liveness was an accident of
+# pull traffic: the llm node idled out 60 s after `lead.sh`'s turn and
+# paid 80 s reloading on the next.  A hold is the canvas's standing pull:
+# `<name>.hold` in the canvas directory (TEND_CANVAS, else
+# ~/.local/state/tend/canvas — the panel's own resolution), on the
+# person's side, never under $STATE.  Presence is the pull: `run`'s
+# watch loop is not idle while the file exists, and `serve` starts a
+# runner for a held node with none up, pull or no pull.  It is a
+# lifecycle grant and never a sitting extension: the sitting cuts, the
+# resolver starts a fresh one, the gap is honest.  And a death is not
+# hammered: after a clean stop the hold restarts unconditionally; after
+# a non-zero exit only a hold *newer* than the death restarts — the
+# person re-asserts with a `touch`, having seen why on the panel.
 set -u
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # The tree this governs: TEND_TREE when installed (tools/install.sh), else
@@ -146,6 +162,7 @@ for e in $envs; do eval "export $e"; done
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
+hold="${TEND_CANVAS:-${HOME:-/nonexistent}/.local/state/tend/canvas}/$name.hold"   # the canvas's standing pull (card:hold.md); no HOME (the fence) is no hold
 # the log's last line that is not warning noise — what a program said as it died
 last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
 stale="${TEND_WATCH_STALE:-60}"
@@ -235,6 +252,7 @@ check)
     elif mkdir -p "$STATE" 2>/dev/null; then ok "state $STATE (created)"
     else bad "state $STATE cannot be created"; fi
     if silent=$(cut_for); then bad "$(cut_line "$silent")"; fi
+    [ -e "$hold" ] && ok "held — $hold: $(head -1 "$hold" 2>/dev/null)"
     if [ -n "$port" ]; then
         if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
@@ -284,7 +302,8 @@ run)
             if [ -n "$pulse" ]; then
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began
-                if [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
+                # a hold is a standing pull: not idle while the file exists (card:hold.md, rule 2 — the runner knows it is pulled, or idle fights the pull at 80 s a reload)
+                if [ ! -e "$hold" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
                     why="idle: nothing has pulled $name for ${IDLE}s"; break
                 fi
             fi
@@ -331,6 +350,7 @@ status)
     if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"
     elif silent=$(cut_for); then cut_line "$silent"
     else echo "$name: running"; fi
+    [ -e "$hold" ] && echo "held: $(head -1 "$hold" 2>/dev/null) ($hold)"
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
@@ -356,12 +376,25 @@ serve)
         fi
         exit 0
     fi
-    [ -f "$pullfile" ] || exit 0
-    if [ -f "$STATE/stopped" ] && [ ! "$pullfile" -nt "$STATE/stopped" ]; then exit 0; fi
+    want=""
+    if [ -f "$pullfile" ] && { [ ! -f "$STATE/stopped" ] || [ "$pullfile" -nt "$STATE/stopped" ]; }; then
+        want="had an unserved pull"
+    elif [ -e "$hold" ]; then
+        # the hold is a standing pull (card:hold.md).  After a clean stop — idle, the sitting,
+        # exit 0 — restart unconditionally; after a death, only if the hold is newer than it:
+        # the person re-asserts with a `touch`, having seen the death on the panel.  A crash
+        # is not hammered (rule 3; doc/os-status-2026-08-28.md item 9's backoff, in the tree's grammar)
+        case "$(head -1 "$STATE/stopped" 2>/dev/null)" in
+            "exited 0"*|"") want="is held" ;;
+            exited*) [ "$hold" -nt "$STATE/stopped" ] && want="is held, and the hold is newer than its death" ;;
+            *) want="is held" ;;
+        esac
+    fi
+    [ -n "$want" ] || exit 0
     flock -n "$lock" true 2>/dev/null || exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
-    echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
+    echo "launch: $name $want and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
 *) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, check, serve" >&2; exit 2 ;;
 esac

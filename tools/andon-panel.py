@@ -104,7 +104,7 @@ def read_state(state_dir=None):
     return State(pending, rings, last_ring, pulled, answered)
 
 
-Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said")
+Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held", defaults=(None,))
 Event = namedtuple("Event", "epoch who text")
 
 CANVAS_DEFAULT = os.path.join(STATE_DEFAULT, "canvas")
@@ -178,8 +178,23 @@ def _read_pin(path):
     return name, node, state
 
 
-def read_pin_state(name, node, state):
-    """One row: what the runner left in its state directory, read."""
+def read_hold(canvas_dir, name):
+    """The canvas's standing pull for a node (card:hold.md): `<name>.hold`
+    beside the pin — present is held, its first line is who asked; None
+    when nothing holds it.  A hold with no words is still a hold, and
+    suspect."""
+    if canvas_dir is None:
+        return None
+    try:
+        with open(os.path.join(canvas_dir, name + ".hold")) as f:
+            return f.readline().strip() or "(no words)"
+    except OSError:
+        return None
+
+
+def read_pin_state(name, node, state, canvas_dir=None):
+    """One row: what the runner left in its state directory, read — and
+    whether the canvas holds it."""
     import time
     running = _lock_held(os.path.join(state, "run.lock"))
     cut = None
@@ -210,7 +225,7 @@ def read_pin_state(name, node, state):
     except OSError:
         pass
     said = _last_said(os.path.join(state, "log")) if dead else ""
-    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said)
+    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, read_hold(canvas_dir, name))
 
 
 def read_canvas(canvas_dir=None):
@@ -228,7 +243,7 @@ def read_canvas(canvas_dir=None):
         except OSError:
             continue
         if got:
-            rows.append(read_pin_state(*got))
+            rows.append(read_pin_state(*got, canvas_dir=d))
     return rows
 
 
@@ -272,6 +287,8 @@ def row_line(p):
     else:
         state = "not running"
     bits = [p.name.ljust(10), state]
+    if p.held is not None:
+        bits.append("held")   # the canvas's standing pull: it is restarted when it stops (card:hold.md)
     if p.last_pull:
         bits.append(f"pulled {_hhmm(p.last_pull)}")
     if p.last_stop:

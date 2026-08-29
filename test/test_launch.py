@@ -25,9 +25,11 @@ LAUNCH = ROOT / "tools" / "launch.sh"
 
 def launch(node, *args, state, idle="0.5", fenced=False, timeout=30):
     # the andon record is pointed at scratch too: a runner that dies writes
-    # a line to it (the death notice), and a test never writes the person's
+    # a line to it (the death notice), and a test never writes the person's;
+    # and the canvas, so a test never reads the person's holds (card:hold.md)
     env = dict(os.environ, TEND_STATE_DIR=str(state), TEND_IDLE=idle,
-               TEND_ANDON_STATE=str(pathlib.Path(state) / "andon"))
+               TEND_ANDON_STATE=str(pathlib.Path(state) / "andon"),
+               TEND_CANVAS=str(pathlib.Path(state) / "canvas"))
     env.pop("TEND_FENCED", None)
     if fenced:
         env["TEND_FENCED"] = "1"
@@ -573,3 +575,93 @@ def test_a_clean_stop_writes_no_death_notice(tmp_path):
     st2 = tmp_path / "st2"
     r = launch(node, "run", state=st2)
     assert r.returncode == 0 and not (st2 / "andon" / "andon.log").exists()
+
+
+# ── the hold: the canvas's standing pull (card:hold.md, 2026-08-29) ──
+#
+# A pull is a line that means "something wants this once"; the llm node
+# idled out 60 s after each of lead.sh's turns and paid 80 s reloading
+# on the next.  `<name>.hold` in the canvas directory is the person's
+# "keep this alive": presence is the pull, mtime is the person saying
+# so again, rm lets the node stop.  Every fixture here builds its own
+# canvas under the scratch state (the launch helper's TEND_CANVAS).
+
+def hold(state, name, text="held by the fixture\n", at=None):
+    canvas = pathlib.Path(state) / "canvas"; canvas.mkdir(parents=True, exist_ok=True)
+    h = canvas / f"{name}.hold"; h.write_text(text)
+    if at is not None:
+        os.utime(h, (at, at))
+    return h
+
+
+@needs_syspy
+def test_a_held_program_is_not_idle_while_the_hold_stands_and_stops_a_tick_after_it_goes(tmp_path):
+    """Rule 2: the runner knows it is pulled.  A program whose pulse never
+    moves would be stopped for idleness in 0.4 s; held, it is still up
+    two seconds later; the hold removed, it stops within a tick, as idle
+    — a close, exit 0 — and never as a sitting extension."""
+    node = sitting_node(tmp_path, "pulse log\nprogram /bin/sleep 60\n")
+    st = tmp_path / "st"; st.mkdir()
+    h = hold(st, "busy")
+    env = dict(os.environ, TEND_STATE_DIR=str(st), TEND_IDLE="0.4", TEND_CANVAS=str(st / "canvas"),
+               TEND_ANDON_STATE=str(st / "andon")); env.pop("TEND_FENCED", None)
+    p = subprocess.Popen(["sh", str(LAUNCH), str(node), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        assert wait(lambda: (st / "watch").exists(), cap=8), "the runner never started watching"
+        time.sleep(2.5)
+        assert p.poll() is None and not (st / "stopped").exists(), "a held program idled out"
+        h.unlink()
+        assert wait(lambda: (st / "stopped").exists(), cap=4), "the hold removed, it did not stop"
+        assert (st / "stopped").read_text().startswith("idle:"), (st / "stopped").read_text()
+        assert p.wait(timeout=15) == 0
+    finally:
+        if p.poll() is None:
+            p.kill(); p.wait()
+
+
+@needs_syspy
+def test_serve_starts_a_held_node_with_no_pull_at_all_and_again_after_a_clean_stop(tmp_path):
+    """A hold is a standing pull: `serve` starts a runner for a held node
+    with no pull file and none up, and — the node having stopped by
+    itself, clean — starts it again on the next visit, unconditionally."""
+    st = tmp_path / "st"; st.mkdir()
+    hold(st, "node")
+    a = launch(ROOT / "node", "serve", state=st, idle="0.4")
+    assert a.returncode == 0 and "is held and no runner" in a.stderr, (a.returncode, a.stderr)
+    assert wait(lambda: (st / "stopped").exists(), cap=8), "the held node never ran and stopped"
+    first = (st / "stopped").stat().st_mtime_ns
+    b = launch(ROOT / "node", "serve", state=st, idle="0.4")
+    assert b.returncode == 0 and "is held and no runner" in b.stderr, (b.returncode, b.stderr)
+    assert wait(lambda: (st / "stopped").exists() and (st / "stopped").stat().st_mtime_ns > first, cap=8), \
+        "a clean stop under a hold was not restarted"
+
+
+@needs_syspy
+def test_a_held_death_is_restarted_only_by_a_hold_newer_than_it(tmp_path):
+    """Rule 3: a crash is not hammered.  The runner died (a non-zero exit
+    in `stopped`) after the hold was written: `serve` starts nothing.
+    The person touches the hold, having seen why: `serve` starts one."""
+    st = tmp_path / "st"; st.mkdir()
+    death = int(time.time()) - 60
+    (st / "stopped").write_text("exited 127: node stopped by itself\n")
+    os.utime(st / "stopped", (death, death))
+    h = hold(st, "node", at=death - 30)
+    a = launch(ROOT / "node", "serve", state=st)
+    assert a.returncode == 0 and a.stderr == "", (a.returncode, a.stderr)
+    time.sleep(0.3)
+    assert (st / "stopped").read_text().startswith("exited 127"), "a death older than its hold was restarted"
+    assert subprocess.run(["flock", "-n", str(st / "run.lock"), "true"]).returncode == 0
+    os.utime(h, (death + 30, death + 30))
+    b = launch(ROOT / "node", "serve", state=st, idle="0.4")
+    assert b.returncode == 0 and "the hold is newer than its death" in b.stderr, (b.returncode, b.stderr)
+    assert wait(lambda: (st / "stopped").exists() and not (st / "stopped").read_text().startswith("exited 127"), cap=8), \
+        "the hold re-asserted, the node was not restarted"
+
+
+def test_status_and_check_say_held(tmp_path):
+    st = tmp_path / "st"; st.mkdir()
+    hold(st, "node", "held by henri, the desk\n")
+    s = launch(ROOT / "node", "status", state=st)
+    assert "held: held by henri, the desk" in s.stdout, s.stdout
+    c = launch(ROOT / "node", "check", state=st)
+    assert "held — " in c.stdout and "held by henri" in c.stdout, c.stdout

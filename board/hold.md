@@ -1,6 +1,6 @@
 # hold — a node that should be up is up only while something happens to pull it
 
-    status   open
+    status   doing
     because  a node's liveness is an accident of pull traffic: the llm
              node stops 60 s after the last pull (`idle 60` in its grant)
              and pays 80 s reloading the model on the next one, and there
@@ -168,6 +168,54 @@ that wants to pull another; rule 5's separate reach row is day three, and is not
 a build before day one has been held once — its shape is
 card:silent-cord.md's, a row off by default with the sound on when it
 is off.
+
+## Day one landed — 2026-08-29, 13:20 sitting, at Henri's "do the hold"
+
+Built in `tools/launch.sh`, `tools/andon-panel.py`, and their tests;
+red first — the five new tests run against HEAD's launcher and panel
+before the change, and five failed.
+
+* **The hold's path** is the panel's own resolution: `TEND_CANVAS`,
+  else `~/.local/state/tend/canvas`, and `<name>.hold` in it, where
+  `name` is the node directory's basename (the pin's, too).  Every test
+  points `TEND_CANVAS` at scratch, so a test never reads the desk's
+  holds — a fixture builds the side it means.
+* **`run` (rule 2)**: the watch loop's idle test is `[ ! -e "$hold" ]
+  && …` — one `stat` per tick in the loop that already ticks.  Measured:
+  a `sleep 60` with a pulse that never moves, `TEND_IDLE=0.4`, held, is
+  up 2.5 s later; the hold removed, it stops within a tick, `stopped`
+  says `idle:`, exit 0.  The sitting check runs first and is untouched
+  (rule 1).
+* **`serve` (rule 3)**: a pull newer than the stop is served as before;
+  else a hold is a standing pull — after no stop or a clean one (`idle:`,
+  `sitting:`, `exited 0`) it starts a runner unconditionally; after a
+  death (`exited N`, N≠0, the same line the death notice reads) only
+  when the hold is newer than `stopped` — the same `-nt` the pull uses.
+  Measured both ways with a fixture death at T, a hold at T−30 (nothing
+  starts, `stopped` untouched, the lock free) and the hold touched to
+  T+30 (started, stderr says "the hold is newer than its death").  The
+  resolver needed no change: it already visits every grant and asks
+  `serve`.
+* **`status` says `held: <who> (<path>)`; `check` says `✓ held — …`.**
+  The panel's row carries a `held` bit beside `running`/`not running`/
+  `DEAD` (`Pin.held`, the hold's first line, `(no words)` for an empty
+  one — a hold with no words is suspect and still a hold).  The panel
+  reads it and never writes it.
+
+Nothing runs it until his `sudo tools/install.sh` — `launch.sh` is in
+the installed set and the tree's copy is the workbench.  **The first
+measurement is his**: `printf 'held by henri, the desk\n' >
+~/.local/state/tend/canvas/llm.hold`, the llm node held across an
+afternoon, pulled cold once; and whether rule 2's one `stat` a tick is
+enough to keep idle from fighting the pull ("not sure but it sounds
+right").  Not built, by the card's own order: a node's pull as a lock
+(day two, `lead.sh`), the cycle check at `check` (with day two's `pull
+OTHER` lines), and the canvas's own reach row (day three).  One thing
+the build noticed: a node that idles *itself* (the tally node, `--idle`
+in its program line, no `pulse`) is out of rule 2's reach — held, it
+stops on its own clock and the resolver restarts it at its next visit,
+which is correct and is a restart per command; the llm node, which the
+hold is for, has a pulse and is not that.
 
 ## Where it sits
 

@@ -250,3 +250,22 @@ def test_the_canvas_is_a_path_and_the_panel_reads_it_without_a_terminal(tmp_path
                        capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))
     assert r.returncode == 0, r.stderr
     assert "llm" in r.stdout and "exited 127" in r.stdout and "libsvml.so" in r.stdout, r.stdout
+
+
+# --- the hold: the canvas's standing pull, a bit on the row (card:hold.md, 2026-08-29) ---
+
+def test_a_held_pin_says_held_beside_its_state_and_an_unheld_one_does_not(tmp_path):
+    """`<name>.hold` beside the pin, on the person's side: the row says
+    `held` beside `running`/`not running`/`DEAD`, and carries who asked;
+    a pin with no hold has none.  The panel reads it and never writes it."""
+    node = dead_node(tmp_path, stopped="idle: nothing has pulled llm for 60s")
+    canvas = tmp_path / "canvas"; pin(canvas, "llm", node)
+    r = read_canvas(canvas)[0]
+    assert r.held is None and "held" not in andon_panel.row_line(r)
+    (canvas / "llm.hold").write_text("held by henri, the desk\n")
+    r = read_canvas(canvas)[0]
+    assert r.held == "held by henri, the desk"
+    line = andon_panel.row_line(r)
+    assert line.startswith("llm") and "not running  held" in line, line
+    (canvas / "llm.hold").write_text("")
+    assert read_canvas(canvas)[0].held == "(no words)"
