@@ -196,3 +196,61 @@ the model proposes, the person lands (`card:session-program.md`, brick
 day two, it answers §17:30's question (a death survives the next clean
 stop because the record keeps it), and it is the revert of §13:45's
 watch with a replacement rather than a hope.
+
+## 2026-08-29, 07:50 — the draft read against the tree: it lands as day two, with the record's line shape corrected
+
+Read by a session at the 2026-08-28-1830 kaizen's item 1, each claim
+of `proposals/compare/2026-08-28-1835-claude-opus-5.md` checked
+against the file it names, from inside the fence.  **It lands.**  Four
+things it got right from the `because` alone, two it could not have
+known, and the shape of the commit — his word lands it; a session
+builds it.
+
+**Right, by the tree's own lines.**  The record is where the draft
+said: `tools/andon.sh:71`, `$state/andon.log` under
+`~/.local/state/tend`, and the fence binds that directory writable
+(`tools/andon-panel.py:9`), so the runner's shell can append from
+either seat — the launcher's stop path runs *outside* keep (keep
+wraps only the program, `tools/launch.sh:265`), and it is the one
+place: `:305–306`, where `stopped` is written.  A zero exit writes
+nothing is exactly the launcher's own rule — its stops for idle and
+the sitting set `rc=0` (`:300`), so they are closes; the loader's 127
+and the leash's 124 are deaths.  And "`pull` does not write it (its
+one-second watch is the thing this replaces)" is `died_at_once`
+(`:138–147`, called at `:316` and `:354`): the revert is the function
+and its two calls.
+
+**Two corrections.**  (1) The draft's line is the record's *text*, not
+its line: `andon.sh:101` writes `<epoch> <YYYY-MM-DD HH:MM> <text>`,
+and `read_log` (`andon-panel.py:234`) drops any line whose first word
+is not digits — so the notice is `<epoch> <stamp> <name>: exited <rc>
+— <reason>`, and the draft's `at <HH:MM>` goes, the stamp carries it
+(`event_line` prints the time).  `TEND_ANDON_STATE` must be honoured
+as `andon.sh` honours it, or no test can point the record at a
+fixture.  (2) Once the record keeps a death, day one's read-time merge
+(`read_log` joining a pin's `stopped` into the timeline) would show
+the same death twice while it is still the last stop — the landing
+removes the merge, and `test_a_death_is_a_line_in_the_log_column`
+becomes a test of the record's line.  Smaller: the reason is the
+runner's *last* line (`last_said`, `:134`), not its first; and the
+panel labels record lines `andon` in the who-column, so a death is
+read as the pin's by its `<name>:` prefix or not at all — one `if`,
+a want, not owed.
+
+**The commit, as the kaizen named it, filled in.**  Red first, in
+`test/test_launch.py`: a grant whose program exits 127 leaves one line
+in a fixture record, and one whose program exits 0 or is stopped for
+idle leaves none.  Then `launch.sh`'s stop path appends the line;
+`died_at_once` and its two calls go; the panel's pin merge goes and
+its test reads the record; this card's day-two section.  `launch.sh`
+is in the protected set and the tree's copy is the workbench
+(`fence.sh`: the installed copies are in force), so the edit is a
+session's through the gate and nothing runs it until his `sudo
+tools/install.sh` — which is the same commit's `lander` line.  Sonnet
+5's `died` file is the same fact in the state directory and not on the
+timeline; it is not taken.
+
+**Not landed here**: the model proposes, the person lands
+(`card:session-program.md`, brick 3), and §18:45 said the draft is his
+to read.  His word — "land it" — and the commit above is one sitting's
+work.
