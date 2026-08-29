@@ -135,3 +135,29 @@ def test_the_hook_relays_a_ring_the_fence_could_not_sound(tmp_path):
     assert r.returncode == 0, r.stderr
     assert marker.exists() and marker.read_text().count("x") == 1
     assert "relayed" in (andon_state / "andon.log").read_text()
+
+
+# --- the tick: the resolver with no hand on it (card:hold.md, 2026-08-29 — Henri: "we do need some system-tick there") ---
+
+def test_a_tick_serves_like_a_look_and_leaves_its_stamp(tmp_path):
+    """`--tick N` is the same look, plus a stamp beside the canvas — the
+    one proof, on the person's side, that something runs the resolver
+    when nobody is at the desk.  The carrier (a systemd user timer on
+    Ubuntu, cron elsewhere) is not the tick; this is."""
+    (tmp_path / "st").mkdir(); pull(tmp_path)
+    r = resolve(tmp_path, "--tick", "30")
+    assert r.returncode == 0, r.stderr
+    assert wait(lambda: (tmp_path / "st" / "node.state").exists()), "the tick served the pull"
+    # conftest puts TEND_CANVAS at tmp/canvas; the stamp is beside the canvas, not in it
+    stamp = (tmp_path / "tick").read_text().split()
+    assert abs(int(stamp[0]) - time.time()) < 5 and stamp[1] == "30", stamp
+    assert not (tmp_path / "canvas" / "tick").exists()
+
+
+def test_a_tick_with_nothing_to_serve_still_stamps_and_defaults_to_a_minute(tmp_path):
+    (tmp_path / "st").mkdir()
+    r = resolve(tmp_path, "--tick")
+    assert r.returncode == 0 and r.stderr == "", r.stderr
+    assert (tmp_path / "tick").read_text().split()[1] == "60"
+    r = resolve(tmp_path, "--tick", "soon")
+    assert r.returncode == 2 and "SECONDS" in r.stderr

@@ -47,14 +47,40 @@ port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=1
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 ctxchars="${TEND_CTXCHARS:-5000}"
+kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}
+shift
+while [ $# -gt 0 ]; do
+    case $1 in
+        --kept) kept=1 ;;
+        --door) door=${2:-}; [ -n "$door" ] || { echo "lead: --door NAME" >&2; exit 2; }; shift ;;
+        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME]" >&2; exit 2 ;;
+    esac
+    shift
+done
 
 if [ -n "${TEND_FENCED:-}" ]; then
     echo "lead: inside the fence the node's port is unreachable (--unshare-net) — run tools/lead.sh $name outside the fence" >&2
     exit 1
 fi
 
+# A door (tools/door.sh, doors/README.md — 2026-08-29, Henri: "build
+# capability for both gemma and claude"): the same turn, its two asks
+# sent through a door instead of the node's port.  No health, no start —
+# the door's side is up or it is not — and never under keep: keep's
+# --connect is one loopback port and a door calls out.
+model=""; keyfile=""
+if [ -n "$door" ]; then
+    if [ -n "$kept" ]; then
+        echo "lead: a kept turn through a door is not built — keep's --connect is one loopback port, and a door calls out; the turn through $door runs on the person's side, unkept, until a leader's reach is a grant row (card:session-program.md)" >&2
+        exit 1
+    fi
+    d=$(sh "$here/door.sh" "$door") || exit $?
+    CHAT=$(printf '%s\n' "$d" | sed -n 1p); model=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
+    export TEND_DOOR="$door"
+fi
+
 andon_state="${TEND_ANDON_STATE:-$HOME/.local/state/tend}"
-if [ "${2:-}" = "--kept" ] || [ -n "${TEND_LEAD_KEPT:-}" ]; then
+if [ -n "$kept" ]; then
     # re-exec this turn under keep; the grants must exist before keep can name them
     py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3)
     cport=$(printf '%s' "$CHAT" | sed -n 's|^http://[^:/]*:\([0-9]*\)/.*|\1|p'); : "${cport:=$port}"
@@ -98,7 +124,7 @@ if [ "$(printf '%s' "$digest" | wc -c)" -gt "$ctxchars" ]; then
     digest=$(printf '%s' "$digest" | head -c "$ctxchars")
 fi
 
-if [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then
+if [ -z "$door" ] && [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then
     echo "lead: $name is not up — starting it (first start ~80s)…" >&2
     sh "$here/launch.sh" "$NODE" pull "lead warmup" >/dev/null 2>&1 || true
     _n=0; until curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; do
@@ -116,10 +142,19 @@ WHY: one line
 If you cannot decide, or need the person, answer instead with one line:
 ANDON: your question for the person
 $digest"
-body=$(jq -cn --arg s "$sys" --arg q "Pick." \
-    '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
-out=$(curl -sS -m 240 -H 'Content-Type: application/json' -d "$body" "$CHAT") || {
-    echo "lead: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; exit 1; }
+# the node's loader knob (chat_template_kwargs) stays on the node's side; a door gets the model it names
+body=$(jq -cn --arg s "$sys" --arg q "Pick." --arg m "$model" \
+    '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2}
+     + (if $m == "" then {chat_template_kwargs:{enable_thinking:false}} else {model:$m} end)')
+if [ -n "$door" ]; then
+    # the key goes to curl on stdin (-K -), never on the argument line
+    out=$(printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \
+          | curl -sS -m 240 -K - -H 'Content-Type: application/json' -d "$body" "$CHAT") || {
+        echo "lead: the $door door did not answer at $CHAT" >&2; exit 1; }
+else
+    out=$(curl -sS -m 240 -H 'Content-Type: application/json' -d "$body" "$CHAT") || {
+        echo "lead: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; exit 1; }
+fi
 reply=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null) || {
     echo "lead: the node's reply was not a completion:" >&2; printf '%s\n' "$out" | head -3 >&2; exit 1; }
 
@@ -164,6 +199,7 @@ fi
     printf '<!-- LEAD ACCOUNT — one turn of the tend %s node, %s.\n' "$name" "$now"
     printf '     The node'"'"'s own account of what it did; a person reads it (card:session-program.md, the lamp). -->\n\n'
     printf '# %s led one turn — %s\n\n' "$name" "$now"
+    [ -n "$door" ] && printf '    door     %s (%s)\n' "$door" "$model"
     printf '    read     the open board: %s\n' "$(cd "$board" && ls *.md | grep -v README.md | tr '\n' ' ')"
     printf '    picked   %s\n' "${card:-—}"
     printf '    task     %s\n' "${task:-—}"

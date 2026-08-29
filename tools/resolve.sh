@@ -7,6 +7,13 @@
 #     tools/resolve.sh --hook     the same, as a PostToolUse[Bash] hook: reads and
 #                                 drops the hook's stdin, never blocks, exit 0
 #     tools/resolve.sh --install  Henri's: put the hook line in .claude/settings.json
+#     tools/resolve.sh --tick [SECONDS]
+#                                 the same look, with no hand on it: a carrier (a systemd
+#                                 user timer on Ubuntu, `tools/install.sh --tick`; cron
+#                                 elsewhere) runs it every SECONDS (default 60), and the
+#                                 look leaves a stamp beside the canvas — `EPOCH SECONDS`
+#                                 — which the panel reads: a hold with no tick, or a
+#                                 stale one, is a hold nothing keeps (card:hold.md)
 #
 # **Why this is outside the fence** (board/resolver.md, board/keep.md — the
 # tree-row measurement, 2026-08-26): a runner a session starts inside its
@@ -49,7 +56,10 @@ case "${1:-}" in
     fi
     exit 0 ;;
 "") ;;
--h|--help) sed -n '4,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+--tick)
+    tick=${2:-60}
+    case $tick in ''|*[!0-9]*) echo "resolve: --tick SECONDS — a count of seconds, not \`$tick\`" >&2; exit 2 ;; esac ;;
+-h|--help) sed -n '4,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 *) echo "resolve: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
@@ -70,4 +80,14 @@ for grant in "$root"/*/grant; do
     node=$(dirname "$grant")
     sh "$here/launch.sh" "$node" serve || true
 done
+# The tick's stamp (card:hold.md, 2026-08-29): beside the canvas, never in
+# it (the canvas is pins and holds, one row each) and never in a node's
+# $STATE (rule 5: the person's side).  Written only by a tick — a visit
+# with a hand on it (the hook, the panel) proves nothing about the nights.
+if [ -n "${tick:-}" ]; then
+    canvas="${TEND_CANVAS:-${HOME:-/nonexistent}/.local/state/tend/canvas}"
+    stamp="${TEND_TICK:-$(dirname "$canvas")/tick}"
+    mkdir -p "$(dirname "$stamp")" 2>/dev/null \
+        && printf '%s %s\n' "$(date +%s)" "$tick" > "$stamp.new" && mv -f "$stamp.new" "$stamp"
+fi
 exit 0

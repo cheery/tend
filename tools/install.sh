@@ -18,6 +18,13 @@
 #     tools/install.sh --hook       the lander lamp (card:lander.md): as a UserPromptSubmit hook — while
 #                                   the prefix is behind HEAD, one line says by how much and which
 #                                   files, and logs it; dark when in force; never acts
+#     tools/install.sh --tick [SECONDS]
+#                                   the person's: the tick's carrier (card:hold.md) — a systemd user
+#                                   timer running the INSTALLED resolver (`resolve.sh --tick`) every
+#                                   SECONDS (default 30).  systemd is Ubuntu's implementation, not the
+#                                   dependency: the tick is the stamp the resolver leaves, and cron
+#                                   or a loop is the same carrier elsewhere; TEND_UNIT_DIR to write
+#                                   the units without enabling them
 #
 # **Where, and why there** (card:install.md, researched 2026-08-27).
 # `/usr/local/lib/tend`, owned by root.  Three reasons, each a
@@ -123,7 +130,9 @@ case "${1:-}" in
     "") ;;
     --check|--list|--hooks|--free|--bin|--hook) mode=${1#--} ;;
     --stage) mode=stage; stage_dir=${2:-}; [ -n "$stage_dir" ] || { echo "install: --stage DIR" >&2; exit 2; } ;;
-    -h|--help) sed -n '4,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --tick) mode=tick; tick_every=${2:-30}
+        case $tick_every in ''|*[!0-9]*) echo "install: --tick SECONDS — a count of seconds, not \`$tick_every\`" >&2; exit 2 ;; esac ;;
+    -h|--help) sed -n '4,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "install: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
 
@@ -166,6 +175,51 @@ if [ $mode = hooks ]; then
     echo "# Printed only.  The edit is the person's: tools/install.sh --hooks apply, from outside the fence."
     command -v jq >/dev/null 2>&1 && [ -f "$settings" ] \
         && jq -r --arg p "$prefix" --arg h "$lander" "$prog | $add"' | [.hooks[]?[]?.hooks[]?.command // empty] | .[]' "$settings" | sed 's/^/  /'
+    exit 0
+fi
+
+if [ $mode = tick ]; then
+    # The tick's carrier (card:hold.md, 2026-08-29 — Henri: "do not make it
+    # depend on systemd, but use systemd in implementation for ubuntu").  The
+    # tick itself is `resolve.sh --tick N` and the stamp it leaves; this
+    # writes the one carrier this machine has, and it runs the INSTALLED
+    # resolver only — a timer that ran the tree's copy would be a session's
+    # edit running on a schedule with nobody watching.
+    [ "${TEND_FENCED:-}" = 1 ] && { echo "install: --tick is the person's hand, from outside the fence — a session may not schedule its own resolver" >&2; exit 2; }
+    [ -f "$prefix/tools/resolve.sh" ] || { echo "install: nothing installed at $prefix — the tick runs the installed resolver, never the tree's; sudo tools/install.sh first" >&2; exit 1; }
+    udir=${TEND_UNIT_DIR:-$HOME/.config/systemd/user}
+    mkdir -p "$udir"
+    {
+        echo "[Unit]"
+        echo "Description=tend tick — the installed resolver every ${tick_every}s, for the holds on the canvas (card:hold.md)"
+        echo
+        echo "[Service]"
+        echo "Type=oneshot"
+        echo "Environment=TEND_TREE=$root"
+        echo "ExecStart=/bin/sh $prefix/tools/resolve.sh --tick $tick_every"
+    } > "$udir/tend-tick.service"
+    {
+        echo "[Unit]"
+        echo "Description=tend tick, every ${tick_every}s"
+        echo
+        echo "[Timer]"
+        echo "OnBootSec=30s"
+        echo "OnUnitActiveSec=${tick_every}s"
+        echo "AccuracySec=5s"
+        echo
+        echo "[Install]"
+        echo "WantedBy=timers.target"
+    } > "$udir/tend-tick.timer"
+    echo "install: tick — $udir/tend-tick.timer runs $prefix/tools/resolve.sh --tick $tick_every for $root"
+    if [ -z "${TEND_UNIT_DIR:-}" ] && command -v systemctl >/dev/null 2>&1; then
+        if systemctl --user daemon-reload && systemctl --user enable --now tend-tick.timer; then
+            echo "         enabled; the panel's tick line says when it last ran (tools/panel.py)"
+        else
+            echo "install: the units are written but systemctl --user could not enable the timer — enable it by hand, or use the cron line below" >&2
+        fi
+    fi
+    echo "         the same tick without systemd, as a cron line (crontab -e):"
+    echo "           * * * * * TEND_TREE=$root /bin/sh $prefix/tools/resolve.sh --tick 60"
     exit 0
 fi
 
@@ -316,6 +370,14 @@ if [ $mode = check ]; then
         if printf '%s\n' "$cmds" | grep -F "tools/install.sh --hook" | grep -qF "$prefix/tools/install.sh"; then say "✓" "the lander lamp is on a prompt hook (tools/install.sh --hook)"
         else say "·" "the lander lamp is on no hook — a vetted change waits in silence; tools/install.sh --hooks apply adds the line (card:lander.md)"; fi
     fi
+    # The tick is a want, not a restraint: absent is a note.  The stamp is the
+    # measurement, whatever carrier wrote it (card:hold.md).
+    tickstamp=${TEND_TICK:-${HOME:-/nonexistent}/.local/state/tend/tick}
+    if [ -r "$tickstamp" ] && read -r tat tevery < "$tickstamp" 2>/dev/null && [ -n "$tevery" ]; then
+        tage=$(( $(date +%s) - tat ))
+        if [ "$tage" -gt $(( tevery * 3 > 90 ? tevery * 3 : 90 )) ]; then say "✗" "the tick is stale — last $((tage / 60)) min ago, every ${tevery}s: the carrier has stopped (systemctl --user status tend-tick.timer)"; fail=1
+        else say "✓" "the tick runs — last ${tage}s ago, every ${tevery}s"; fi
+    else say "·" "no tick — nothing runs the resolver when nobody is at the desk; tools/install.sh --tick is the carrier (card:hold.md)"; fi
     if [ -f "$settings" ] && command -v jq >/dev/null 2>&1 && [ $fail -eq 0 ]; then
         deny_now=$(jq -r '.permissions.deny[]' "$settings")
         left=0; for f in $(set_list) node/run.sh; do printf '%s\n' "$deny_now" | grep -qxF "Edit(./$f)" && left=$((left + 1)); done

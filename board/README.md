@@ -59,7 +59,12 @@ between two workable cards is Henri's.
    the llm node answers under keep (`card:node-install.md`) — and the
    card carries the road from there (delivery, a minimal work loop, the
    node's own cords; ~2–4 sittings to gemma4 working the board next to
-   gemma4 cold, the conditioning measurement).
+   gemma4 cold, the conditioning measurement).  *On 2026-08-29 evening,
+   asked which model leads, Henri said "both": a door (`doors/`,
+   `tools/door.sh`, `lead.sh NODE --door NAME`) sends the same turn
+   through OpenRouter or Anthropic's chat wire, unkept, and the node
+   with no door is the loop as it was; a kept turn through a door is
+   not built and says so.*
 3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
@@ -108,7 +113,12 @@ between two workable cards is Henri's.
    panel shows holds as rows, and a hold not kept is loud; its third
    pass put the person's hand in the panel — hold, pin, unhold, and the
    resolver run on every write and on entry — and the hold-to-death flow
-   test found `serve` silent on a node with no state directory yet.*
+   test found `serve` silent on a node with no state directory yet.
+   The evening landed the tick — the resolver with no hand on it:
+   `resolve.sh --tick` leaves a stamp the panel reads (`NO TICK` /
+   `TICK STALE` under a hold), and `install.sh --tick` is Ubuntu's
+   carrier, a user timer running the installed copy; systemd is the
+   implementation, never the dependency (Henri's words).*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

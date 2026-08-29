@@ -314,11 +314,58 @@ read as "a runner is up", exit 0, silent.  A pull never met it because
 `pull` makes the directory first.  `serve` now makes `$STATE` once it
 has decided to start.
 
-Still not built, by the card's order: the resolver on a timer or at
-login (the "user canvas that opens" — nothing runs it when no one is
-at the desk, and it is the first thing in this tree that would); a
-node's pull as a lock (day two); the canvas's own reach row (day
-three).
+Still not built, by the card's order: a node's pull as a lock (day
+two); the canvas's own reach row (day three).  *The resolver on a timer
+— "the resolver on a timer or at login", the first thing in this tree
+that runs when no one is at the desk — landed 2026-08-29 evening as the
+tick, below.*
+
+## The tick — the resolver with no hand on it
+
+Henri, 2026-08-29 evening, asked which shape the unattended resolver
+should take: *"I don't want to depend on systemd, because I see this
+thing doesn't need it otherwise, but… we do need some system-tick
+there.  I'd propose do not make it depend on systemd, but use systemd
+in implementation for ubuntu."*  So the mechanism is the **tick**, and
+systemd is one carrier of it:
+
+- `tools/resolve.sh --tick [SECONDS]` is the same look the hook and the
+  panel make, plus a stamp beside the canvas
+  (`~/.local/state/tend/tick`: `EPOCH SECONDS`) — written by a tick
+  only, because a visit with a hand on it (the hook after every
+  command, the panel on entry and on every write) proves nothing about
+  the nights.  Beside the canvas, never in it (the canvas is pins and
+  holds, one row each), never in a node's `$STATE` (rule 5).
+- The panel reads the stamp and says so, under the canvas rows: `tick
+  last 12 s ago, every 30 s` dim when it runs; **`NO TICK`** bold under
+  a hold with no stamp — *a hold is kept only while a hand runs the
+  resolver; nothing runs it when nobody is here*; **`TICK STALE`** bold
+  when the stamp is older than three intervals (90 s floor), held or
+  not, because a carrier that stopped is an event.  A stale tick is a ✗
+  in `tools/install.sh --check` too; no tick at all is a `·` there — a
+  want, not a restraint.
+- `tools/install.sh --tick [SECONDS]` (default 30) is Ubuntu's carrier:
+  a systemd *user* timer, `tend-tick.timer`, running the **installed**
+  resolver — `/usr/local/lib/tend/tools/resolve.sh --tick 30` with
+  `TEND_TREE` at this tree — enabled with `systemctl --user enable
+  --now`.  Refused inside the fence and before an install: a timer that
+  ran the tree's copy would be a session's edit running on a schedule
+  with nobody watching.  It prints the cron line that is the same tick
+  without systemd; `TEND_UNIT_DIR` writes the units without enabling
+  them, which is how the test measures it.
+
+Red first: twelve tests failed against the previous commit's tools
+(the tick's stamp, the default minute, the non-number refused; the
+panel's line in all four states and without a terminal; the units
+naming the installed copy and the tree, and the two refusals).  Not
+measured yet: the timer on this desk overnight — his hand runs
+`tools/install.sh --tick` after the install, and the panel's line the
+next morning is the measurement.
+
+What rule 5 says about it, for the record: a session that can write
+`~/.config/systemd/user/` can schedule its own program with or without
+tend.  That is the fence's row (`$HOME` is not real inside it today),
+not this card's; named here so it is not mistaken for solved.
 
 ## Day one, fourth pass — the state in the hold, read critically
 

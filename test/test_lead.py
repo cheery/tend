@@ -27,12 +27,13 @@ NODE = ROOT / "llm"
 def _stub(reply):
     class H(http.server.BaseHTTPRequestHandler):
         seen = []
+        heads = []
         def log_message(self, *a): pass
         def do_GET(self):
             self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
         def do_POST(self):
             body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-            H.seen.append(body)
+            H.seen.append(body); H.heads.append({k.lower(): v for k, v in self.headers.items()})
             # the first ask is the lead's pick; a second (propose's) gets a draft
             content = reply if len(H.seen) == 1 else "DRAFT: some proposed lines."
             out = {"choices": [{"message": {"role": "assistant", "content": content}}]}
@@ -236,3 +237,85 @@ def test_a_pick_decorated_with_the_digests_own_fence_is_read_by_its_filename(boa
     assert "lead proposed lander.md" in (tmp_path / "state" / "lead.log").read_text()
     r, _ = lead("CARD: `unicorn.md` ===\nTASK: x\nWHY: y", board, tmp_path)
     assert "unicorn.md" in (tmp_path / "andon" / "andon.pending").read_text()
+
+
+# --- the door: where a model other than the node's is admitted (card:session-program.md, card:model-acceptance.md, 2026-08-29 —
+#     Henri: "build capability for both gemma and claude, also I'm thinking about subscribing to openrouter") ---
+
+def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openrouter", **extra):
+    """One turn through a door: the door names the stub's url, a model, and
+    a key file outside the tree; the stub records what arrived."""
+    H = _stub(reply)
+    srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    key = Path(key_path) if key_path else tmp_path / "keys" / "openrouter.key"
+    if not key_path:
+        key.parent.mkdir(); key.write_text("sk-test-0000\n"); key.chmod(key_mode)
+    d = tmp_path / "doors" / "openrouter"; d.mkdir(parents=True)
+    (d / "door").write_text(f"url  {base}/v1/chat/completions\nmodel  vendor/some-model\nkey  {key}\n"
+                            "admitted  the test, for the stub\n")
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path),
+           "TEND_DOOR_DIR": str(tmp_path / "doors"), "TEND_DOOR": door,
+           "TEND_PROPOSAL_DIR": str(tmp_path / "proposals"),
+           "TEND_ANDON_STATE": str(tmp_path / "andon"),
+           "TEND_BOARD_DIR": str(board),
+           "TEND_STATE_DIR": str(tmp_path / "state"), **extra}
+    try:
+        r = subprocess.run(["sh", str(LEAD), str(NODE)], capture_output=True, text=True, env=env, timeout=60)
+    finally:
+        srv.shutdown()
+    return r, H.seen, H.heads
+
+
+def test_a_door_carries_the_model_and_the_key_and_the_account_names_it(board, tmp_path):
+    r, seen, heads = door_turn("CARD: lander.md\nTASK: draft the lamp's one line\nWHY: day one", board, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(seen) == 2, "the pick and the draft both went through the door"
+    for body, head in zip(seen, heads):
+        assert body["model"] == "vendor/some-model"
+        assert head.get("authorization") == "Bearer sk-test-0000"
+        assert "chat_template_kwargs" not in body, "the node's own loader knob does not go out of a door"
+    acc = next((tmp_path / "proposals" / "lead").glob("*.md")).read_text()
+    assert "door     openrouter (vendor/some-model)" in acc, acc
+    assert "sk-test" not in acc, "the key is never in an account"
+    prop = next((tmp_path / "proposals").glob("*.md")).read_text()
+    assert "through the openrouter door" in prop and "sk-test" not in prop, prop
+
+
+def test_a_door_key_others_can_read_is_refused_before_anything_is_sent(board, tmp_path):
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, key_mode=0o644)
+    assert r.returncode == 2 and "readable by others" in r.stderr, r.stderr
+    assert seen == []
+
+
+def test_a_door_key_inside_the_tree_is_refused(board, tmp_path):
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, key_path=ROOT / "doors" / "no-such.key")
+    assert r.returncode == 2 and "inside the tree" in r.stderr, r.stderr
+    assert seen == []
+
+
+def test_a_kept_turn_through_a_door_is_refused_honestly(board, tmp_path):
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_LEAD_KEPT="1")
+    assert r.returncode == 1 and "not built" in r.stderr, r.stderr
+    assert seen == []
+
+
+def test_a_door_that_does_not_exist_is_refused(board, tmp_path):
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, door="nowhere")
+    assert r.returncode == 2 and "no door named nowhere" in r.stderr, r.stderr
+    assert seen == []
+
+
+def test_the_trees_own_doors_read_and_name_a_key_outside_the_tree():
+    """Every door checked into doors/ parses, names a key under the person's
+    home and not the tree, and says who admitted it (card:model-acceptance.md)."""
+    doors = sorted((ROOT / "doors").glob("*/door"))
+    assert doors, "doors/ carries at least one door"
+    for d in doors:
+        text = d.read_text()
+        fields = dict(line.split("  ", 1) for line in text.splitlines() if "  " in line and not line.startswith("#"))
+        assert fields["url"].startswith("https://"), d
+        assert fields["model"], d
+        assert fields["key"].startswith("~/"), f"{d}: the key lives under the person's home, never the tree"
+        assert "admitted" in fields, f"{d}: a door says who admitted the model"

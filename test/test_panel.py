@@ -446,3 +446,38 @@ def test_a_hold_on_a_state_the_resolver_does_not_run_says_so_instead_of_promisin
     (canvas / "llm.hold").write_text(f"node {node}\nthe default state\n")
     rows = read_canvas(canvas)
     assert [(r.held, r.note is None) for r in rows] == [("the other state", False), ("the default state", True)], rows
+
+
+# --- the tick line: a hold is kept only while something runs the resolver (card:hold.md, 2026-08-29) ---
+
+def test_the_tick_is_a_line_and_a_hold_with_no_tick_or_a_stale_one_is_loud(tmp_path):
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    assert panel.read_tick(canvas) is None
+    assert "no tick" in panel.tick_line(None, held=False) and not panel.tick_loud(None, held=False)
+    assert "NO TICK" in panel.tick_line(None, held=True) and panel.tick_loud(None, held=True)
+    (tmp_path / "tick").write_text(f"{int(time.time()) - 12} 30\n")
+    t = panel.read_tick(canvas)
+    assert t.every == 30 and 10 <= t.age < 20
+    assert "every 30 s" in panel.tick_line(t, held=True) and not panel.tick_loud(t, held=True)
+    (tmp_path / "tick").write_text(f"{int(time.time()) - 600} 30\n")
+    t = panel.read_tick(canvas)
+    assert "STALE" in panel.tick_line(t, held=True) and "10 min" in panel.tick_line(t, held=True)
+    assert panel.tick_loud(t, held=True) and panel.tick_loud(t, held=False), "a carrier that stopped is loud, held or not"
+    (tmp_path / "tick").write_text("garbage\n")
+    assert panel.read_tick(canvas) is None
+
+
+def test_the_panel_without_a_terminal_says_the_tick(tmp_path):
+    node = dead_node(tmp_path)
+    canvas = tmp_path / "srv"; pin(canvas, "llm", node)
+    (canvas / "llm.hold").write_text(f"node {node}\nheld by the test\n")
+    write(tmp_path)
+    env = dict(os.environ, TEND_ANDON_STATE=str(tmp_path), TEND_RESOLVE="/bin/true")
+    r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
+                       capture_output=True, text=True, env=env)
+    assert r.returncode == 0, r.stderr
+    assert "NO TICK" in r.stdout, r.stdout
+    (tmp_path / "tick").write_text(f"{int(time.time()) - 5} 30\n")
+    r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
+                       capture_output=True, text=True, env=env)
+    assert "NO TICK" not in r.stdout and "every 30 s" in r.stdout, r.stdout

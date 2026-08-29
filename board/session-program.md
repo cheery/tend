@@ -772,3 +772,39 @@ is a choice, and the card that judges a model is the one that just
 woke.  A Claude-led turn under keep is a build — keep's `--connect` is
 one loopback port, and a leader that calls out needs a reach the node
 does not — and it is not started until he says which model leads.
+
+## The door — both, 2026-08-29 evening
+
+Asked which model leads, Henri: *"I'd propose, build capability for
+both gemma and claude, also I'm thinking about subscribing to
+openrouter."*  Both is one shape, because the loop already speaks the
+OpenAI chat wire to the node's port (`/v1/chat/completions`, with
+`TEND_LLM_URL` as the override) and that is OpenRouter's wire and
+Anthropic's compatibility endpoint's too.  So a **door**: a directory
+under `doors/` with a `door` file in the grant's shape — `url`,
+`model`, `key` (a file under the person's home, mode 600, never in the
+tree), and `admitted` (who, when, the words; the place
+`card:model-acceptance.md` was woken for — a door is where a refusal
+has somewhere to sit).  `tools/door.sh NAME` reads and checks one;
+`tools/lead.sh NODE --door NAME` (or `TEND_DOOR`) runs the same turn
+through it — both asks, the pick and the draft — with `model` in the
+body and the key on curl's stdin (`-K -`), never on an argument line;
+the account says `door  openrouter (anthropic/claude-sonnet-5)` and the
+proposal's banner says *through the openrouter door*.  Two doors are
+checked in: `doors/openrouter/door` and `doors/anthropic/door`, their
+model names the doors' own vocabulary, checked by the first live turn
+(a wrong name is a 404, not a silent wrong model); the keys are his to
+put at `~/.config/tend/{openrouter,anthropic}.key`.
+
+What is honest about it: **a kept turn through a door is not built**
+and says so (`lead.sh NODE --kept --door X` exits 1: keep's
+`--connect` is one loopback port and a door calls out).  A door turn
+runs on the person's side, unkept, as every turn did before `--kept`
+existed; the boundary brick 3 is then propose.sh's code again, not the
+kernel's, until a leader's reach is a grant row.  The node with no door
+named is the loop as it was: gemma, local, under keep.  Red first: the
+door's model and key arriving, the key refused when others can read it
+or when it lives in the tree, the unknown door, the kept refusal, and
+every checked-in door parsing — all red against the previous commit.
+Not measured: a live turn through either door; that is the day one of
+the keys.

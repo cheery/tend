@@ -138,6 +138,57 @@ def _canvas_dir(d=None):
     return str(d) if d is not None else os.environ.get("TEND_CANVAS", CANVAS_DEFAULT)
 
 
+# --- the tick (card:hold.md, 2026-08-29 — Henri: "we do need some system-tick there") ---
+# A hold is kept only while something runs the resolver.  With a hand on
+# it — the hook after every command, the panel on entry and on every
+# write — that is the person's presence; with nobody at the desk it is a
+# tick: `tools/resolve.sh --tick N` run by a carrier (a systemd user timer
+# on Ubuntu, cron elsewhere), leaving `EPOCH N` beside the canvas.  The
+# panel reads the stamp and says so: no tick under a hold, or a tick that
+# has stopped, is a hold nothing keeps — bold, like every other row that
+# is a promise not kept.
+
+Tick = namedtuple("Tick", "at every age")
+
+
+def _tick_path(canvas=None):
+    return os.environ.get("TEND_TICK") or os.path.join(os.path.dirname(os.path.abspath(_canvas_dir(canvas))), "tick")
+
+
+def read_tick(canvas=None):
+    """The stamp, read: when the last tick was and how often one is due; None
+    when there is no stamp or it is not one."""
+    import time
+    try:
+        with open(_tick_path(canvas)) as f:
+            at, every = f.read().split()[:2]
+        at, every = int(at), int(every)
+    except (OSError, ValueError):
+        return None
+    return Tick(at, every, max(0, int(time.time()) - at))
+
+
+def tick_stale(t):
+    return t.age > max(90, 3 * t.every)
+
+
+def tick_loud(t, held):
+    """Loud when the promise is not kept: a hold with no tick at all, or a
+    carrier that has stopped (stale), held or not."""
+    return held if t is None else tick_stale(t)
+
+
+def tick_line(t, held):
+    if t is None:
+        if held:
+            return "NO TICK — a hold is kept only while a hand runs the resolver; nothing runs it when nobody is here (tools/install.sh --tick)"
+        return "no tick — nothing runs the resolver when nobody is here (tools/install.sh --tick)"
+    ago = f"{t.age} s" if t.age < 120 else f"{t.age // 60} min"
+    if tick_stale(t):
+        return f"TICK STALE — last {ago} ago, every {t.every} s — the carrier has stopped"
+    return f"tick  last {ago} ago, every {t.every} s"
+
+
 def _lock_held(path):
     """The runner's lock, tested the way `flock -n LOCK true` tests it — taken
     for an instant and let go.  A lock file that is not there is a node that
@@ -700,6 +751,10 @@ def _tui(stdscr, canvas=None):
                 put(row, 4, row_line(p), attr); row += 1
         else:
             put(row, 2, f"canvas {short} — nothing pinned", curses.A_DIM); row += 1
+        # the tick: is anything keeping the holds when nobody is here
+        held = any(p.held is not None for p in pins)
+        t = read_tick(canvas_dir)
+        put(row, 4, tick_line(t, held), curses.A_BOLD if tick_loud(t, held) else curses.A_DIM); row += 1
         row += 1
         if not st.pending:
             put(row, 2, "nothing pending — the floor is quiet."); row += 1
@@ -804,6 +859,7 @@ def main(argv):
         print(f"canvas {_canvas_dir(canvas)} — {_counts(pins)}")
         for p in pins:
             print("  " + row_line(p))
+        print("  " + tick_line(read_tick(canvas), any(p.held is not None for p in pins)))
         for e in read_log(None, pins)[-5:]:
             print("  " + event_line(e))
         return 0

@@ -337,3 +337,31 @@ def test_every_script_the_hooks_would_run_is_protected_before_apply():
     hooked = set("tools/" + m for m in re.findall(r"/tools/([\w-]+\.sh)", printed))
     assert hooked, printed
     assert hooked <= protected, f"--hooks would put an unprotected script on a hook: {hooked - protected}"
+
+
+# --- the tick's carrier (card:hold.md, 2026-08-29): systemd is the Ubuntu implementation, never the dependency ---
+
+def test_tick_writes_a_user_timer_that_runs_the_installed_resolver(tree, tmp_path, monkeypatch):
+    p = tmp_path / "p"
+    r = run(tree=tree, prefix=p, fenced="")
+    assert r.returncode == 0, r.stderr
+    units = tmp_path / "units"
+    monkeypatch.setenv("TEND_UNIT_DIR", str(units))
+    r = run("--tick", "30", tree=tree, prefix=p, fenced="")
+    assert r.returncode == 0, r.stderr + r.stdout
+    svc = (units / "tend-tick.service").read_text()
+    tmr = (units / "tend-tick.timer").read_text()
+    assert f"{p}/tools/resolve.sh --tick 30" in svc, "the carrier runs the installed copy, never the tree's"
+    assert f"TEND_TREE={tree}" in svc
+    assert "OnUnitActiveSec=30s" in tmr
+    assert "cron" in r.stdout, "the other carrier is named — the tick does not depend on systemd"
+
+
+def test_tick_is_refused_inside_the_fence_and_before_an_install(tree, tmp_path, monkeypatch):
+    monkeypatch.setenv("TEND_UNIT_DIR", str(tmp_path / "units"))
+    p = tmp_path / "p"
+    r = run("--tick", tree=tree, prefix=p, fenced="1")
+    assert r.returncode == 2 and "fence" in r.stderr
+    r = run("--tick", tree=tree, prefix=p, fenced="")
+    assert r.returncode == 1 and "install" in r.stderr, "the tick runs the installed resolver; nothing installed is nothing to tick"
+    assert not (tmp_path / "units").exists()
