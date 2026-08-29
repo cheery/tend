@@ -189,6 +189,14 @@ widenings awaiting a want; the `audio` row's fix stays `silent-cord`'s.
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
 
+**Defects go to [`fixme/`](../fixme/README.md)** with an F-number —
+`fixme/F000.md` open, `fixme/resolved/F000.md` closed with the gate
+that holds it named — since 2026-08-29 evening, at Henri's "we've
+reached a point where we need fixme/ -ledger".  A card is work to do;
+an F-number is something that is wrong.  A card cites one bare
+(`F000`), and `test/test_fixme.py` resolves the citation on either
+shelf.
+
 ## What the days taught
 
 **Every sitting ends with a kaizen — one per sitting, not per
