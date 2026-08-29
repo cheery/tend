@@ -6,8 +6,9 @@ rendering of tend's board: one directory, nine open cards, thirteen
 done, one shelved, seven tests, six days.  The board came to tend from
 `~/gestate`, where the method grew; the session that wrote this could
 not reach gestate's board from its seat (the `trees` reach row was off
-for the session), so what is said here about gestate is what tend's own
-README records having taken from it, and nothing more.  The mechanism
+for the session) and said so, and Henri pasted gestate's
+`board/README.md` into the conversation at 20:2x — §"Against gestate's
+board", at the foot, is read from that paste and nothing else.  The mechanism
 is `test/test_board.py`; the practice is `board/README.md`; where this
 sheet and those disagree, they win.  Henri's to correct.*
 
@@ -280,3 +281,100 @@ Then step 4 of the author's section: the first cards are yours.
 *What travels is the shape and the test, and the reasons in the
 docstrings.  What does not travel is tend's cards: they are about
 tend's problems.  Yours will be about yours.*
+
+---
+
+## Against gestate's board
+
+*Read 2026-08-29, 20:2x, from Henri's paste of `~/gestate/board/README.md`
+— the parent this board was cut from on 2026-08-24.  What tend kept,
+what it dropped, and what gestate has that tend's board does not.  An
+author lifting the module should read this section as the menu of what
+a fuller board carries, and take what their project's failures ask
+for.*
+
+**Kept, verbatim or nearly:** the card as a file and the filename as
+id; `because` as a problem never a fix, with the same `Duration =
+Float` specimen; `card:<name>.md` (gestate adopted it 2026-08-18; tend
+took it 2026-08-27 the day two moves broke the summaries); the three
+shelves and the rule that a move never renames; priority not order,
+the tiebreak the person's; a new card arriving unplaced and last; the
+suite holding shape and refusing wisdom; the README as the first read.
+Tend's board is gestate's board with everything that is not a
+mechanism cut away — which was the point, and the README says so.
+
+**Dropped, and why:**
+
+- *The journal.*  Gestate's rule is "the paragraphs belong to the
+  journal, not to the card" — a card says what to do, the journal says
+  what happened, and a 900-line card is the failure.  Tend has no
+  journal; **the card is the journal**, each pass a dated section, and
+  the kaizens carry the sitting-level story.  Tend's cards are long by
+  design.  Which is right depends on who reads: a stranger wants the
+  A3 front; a session picking up a card wants the arc in one file.
+  Tend chose the session.
+- *The roadmap and the vision.*  Gestate says a card's `because` should
+  trace to `vision.md` or the card is drift.  Tend has `spec/os.md`, a
+  property sheet in Henri's own words, and the cards cite it
+  (`spec/os.md, property 5 and 6`) but nothing checks the tracing.
+  This is the real gap.
+- *`fixme.md` and F-numbers.*  Gestate separates a defect (something
+  wrong, numbered) from a card (work to do).  Tend has one shape for
+  both; a defect is a `because`.  Fine at nine cards; it will not be
+  at ninety.
+- *"Who writes what."*  Gestate: Henri creates cards and edits none;
+  the session edits everything inside a card; two writers never touch
+  one file.  Tend inverted it in practice — Henri says "lets card it"
+  and the session writes the card, with his words in `asked` — and the
+  two-writers rule is kept by the same fact (the session is the only
+  writer of a card file; Henri's words arrive in conversation).  Tend's
+  README does not say this out loud, and should.
+
+**What gestate has that tend's board lacks, and an author should
+consider taking:**
+
+1. **Question it into existence.**  "Question me until you're
+   convinced that the need is real" — seven moves (go and look first;
+   measure the claim against this tree; offer readings each with what
+   would kill it; check it does not already exist; ask what day one
+   is; take the `because` in their words and mark what is yours; say
+   where it lands), not a gate on the author, not a licence to stall.
+   Tend does this without the rule — the `hold` card was questioned
+   before "Lets card it" — and the day it does not, a fix will land in
+   a `because`.  The rule costs nothing to carry.
+2. **The postcondition before anything is built** — one sentence from
+   the `because`, naming no function; if it cannot be written without
+   naming a function the change is not user-facing.  Tend's nearest
+   thing is "read the card's `because` against the build before day
+   one landed" (kaizen 1337), which is the same rule applied late.
+3. **The A3 front**: the header, the ask, the questions and what is
+   left fit one sheet, *opening with the nouns* — what this is, what it
+   is not, when it runs — before what went wrong.  Tend's cards open
+   with the problem and put the nouns wherever they fall.  A stranger
+   reading tend's `hold` card would want this.
+4. **Sediment or debt.**  When `later/` is read, ask of each card: is
+   it waiting on an event, or on me?  A card waiting on a decision
+   nobody dares take is not shelved, it is blocked on a decision, and
+   it gets dearer every day.  Tend's `later/` has one card and the
+   question has not come up; it will.
+5. **A session may mint a card for its own broken workflow** — the
+   seam it keeps forgetting, the instrument it cannot trust — and
+   should write it long, *"so that next time you can fix them"*; and
+   may not mint one to park work it was given or to propose a feature.
+   Tend's `flake` card is exactly the first kind, and the rule that
+   licenses it is only in gestate.
+6. **`§"…"` citations checked.**  Gestate's `test_citations.py` holds
+   that a quoted section heading is still in the file it names.  Tend
+   checks `card:` only.
+7. **"What does not go here."**  Defects, the argument, what happened,
+   the standing backlog — each has its place and the board is none of
+   them.  Tend's board absorbs all four, which is workable at its size
+   and is a decision, not an accident: named here so it stays one.
+
+**What tend has that gestate's board does not:** the `asked` field
+carrying the words verbatim as a rule of the block; the italic
+placed-by line on every priority entry; the finished-card paragraphs
+in the README (gestate points at the journal); "What the days taught"
+as the kaizens' promoted residue with receipts (gestate has "what the
+first full day taught", once); and the board on the gate from day one
+in both, but tend's with `mutate.sh` proving the refusal still fires.
