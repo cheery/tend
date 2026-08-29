@@ -266,6 +266,66 @@ def test_a_held_pin_says_held_beside_its_state_and_an_unheld_one_does_not(tmp_pa
     r = read_canvas(canvas)[0]
     assert r.held == "held by henri, the desk"
     line = andon_panel.row_line(r)
-    assert line.startswith("llm") and "not running  held" in line, line
+    assert line.startswith("llm") and "HELD, NOT RUNNING" in line and "held — held by henri, the desk" in line, line
+    assert andon_panel.wrong(r), "a held node with no runner up is the hold not kept: bold"
     (canvas / "llm.hold").write_text("")
     assert read_canvas(canvas)[0].held == "(no words)"
+
+
+def test_a_hold_is_a_row_whether_or_not_its_node_is_pinned(tmp_path):
+    """Henri, 2026-08-29: "we could improve the andon-panel to show
+    holds".  A held node is on the canvas: a hold with no pin is a row,
+    named by its node directory (the death notice's name), with its
+    words; a hold and a pin for one node and state are one row; and a
+    hold that names another state of the same node is its own row."""
+    node = dead_node(tmp_path, stopped="idle: nothing has pulled llm for 60s")
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "some-llm.hold").write_text(f"node {node}\nheld by henri, the desk\n")
+    rows = read_canvas(canvas)
+    assert [r.name for r in rows] == ["llm"] and rows[0].held == "held by henri, the desk", rows
+    assert "HELD, NOT RUNNING" in andon_panel.row_line(rows[0]) and "held — held by henri, the desk" in andon_panel.row_line(rows[0])
+    pin(canvas, "llm", node)
+    rows = read_canvas(canvas)
+    assert len(rows) == 1 and rows[0].held == "held by henri, the desk", rows
+    other = tmp_path / "other-state"; other.mkdir()
+    (canvas / "llm-other.hold").write_text(f"node {node}\nstate {other}\nthe other state\n")
+    rows = read_canvas(canvas)
+    assert [(r.name, r.held) for r in rows] == [("llm", "held by henri, the desk"), ("llm", "the other state")], rows
+    assert andon_panel._counts(rows) == "2 on it, 2 held"
+
+
+def test_a_bare_hold_line_names_a_node_of_the_tree_and_its_state(tmp_path):
+    """`llm "state"` on one line (Henri's own example): the first word a
+    node of this tree, the rest — quotes off — its state, relative to
+    the node; the filename is a label."""
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "mine.hold").write_text('llm "state"\nheld by henri\n')
+    h = andon_panel.read_holds(canvas)[0]
+    assert h.label == "mine" and h.node == os.path.join(andon_panel.ROOT, "llm")
+    assert h.state == os.path.join(andon_panel.ROOT, "llm", "state") and h.words == "held by henri"
+
+
+def test_a_hold_that_holds_nothing_is_a_broken_row_and_a_held_death_says_which_way(tmp_path):
+    """Henri, 2026-08-29: "make sure the error becomes visible on the andon
+    panel".  A hold whose node is not a node, or whose state is not
+    there, is a BROKEN row, bold, saying why; a held node that died with
+    the hold older than the death says "touch it"; one with the hold
+    newer says the resolver will restart it."""
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "ghost.hold").write_text(f"node {tmp_path}/nowhere\nheld by henri\n")
+    node = dead_node(tmp_path)   # exited 127 at 13:27
+    (canvas / "gone.hold").write_text(f"node {node}\nstate {tmp_path}/no-such-state\nheld too\n")
+    rows = read_canvas(canvas)
+    assert [r.name for r in rows] == ["ghost", "gone"], rows
+    assert all(r.broken and andon_panel.wrong(r) for r in rows)
+    assert "BROKEN hold — no node at" in andon_panel.row_line(rows[0]) and "(held by henri)" in andon_panel.row_line(rows[0])
+    assert "BROKEN hold — state" in andon_panel.row_line(rows[1]) and "is not there" in andon_panel.row_line(rows[1])
+    assert andon_panel._counts(rows) == "2 on it, 2 held, 2 BROKEN"
+    (canvas / "ghost.hold").unlink(); (canvas / "gone.hold").unlink()
+    h = canvas / "llm.hold"; h.write_text(f"node {node}\nheld by henri\n")
+    os.utime(h, (1787912843 - 60, 1787912843 - 60))       # older than the 13:27 death
+    r = read_canvas(canvas)[0]
+    assert r.dead and "DEAD, HELD — the hold is older than the death; touch it to restart" in andon_panel.row_line(r)
+    os.utime(h, (1787912843 + 60, 1787912843 + 60))       # touched, having seen why
+    r = read_canvas(canvas)[0]
+    assert "DEAD, HELD — the resolver restarts it at its next visit" in andon_panel.row_line(r)

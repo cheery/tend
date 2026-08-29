@@ -104,7 +104,8 @@ def read_state(state_dir=None):
     return State(pending, rings, last_ring, pulled, answered)
 
 
-Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held", defaults=(None,))
+Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held held_at broken",
+                 defaults=(None, None, None))
 Event = namedtuple("Event", "epoch who text")
 
 CANVAS_DEFAULT = os.path.join(STATE_DEFAULT, "canvas")
@@ -178,18 +179,105 @@ def _read_pin(path):
     return name, node, state
 
 
-def read_hold(canvas_dir, name):
-    """The canvas's standing pull for a node (card:hold.md): `<name>.hold`
-    beside the pin — present is held, its first line is who asked; None
-    when nothing holds it.  A hold with no words is still a hold, and
-    suspect."""
-    if canvas_dir is None:
-        return None
+Hold = namedtuple("Hold", "label node state words mtime path named")
+ROOT = os.environ.get("TEND_TREE") or os.path.dirname(HERE)
+
+
+def _node_path(word):
+    """A path as a hold or a pin writes it: `~` is the person's home, a
+    bare name is a node of this tree (tools/launch.sh's expand_path)."""
+    word = os.path.expanduser(word)
+    return word if os.path.isabs(word) else os.path.join(ROOT, word)
+
+
+def _is_node(word):
+    return os.path.isfile(os.path.join(_node_path(word), "grant"))
+
+
+def _read_hold(path):
+    """A hold, read (card:hold.md; Henri, 2026-08-29: "I'd like to name
+    what I'm holding inside the file").  Pin-shaped: `node NAME-OR-DIR`,
+    `state DIR` (relative to the node), or one bare line `NAME [STATE]`
+    whose first word is a node of this tree; every other line is the
+    words — who is holding it, and why.  No node line: the filename's
+    stem is the node (`node.hold`), so the filename is otherwise a label."""
+    label = os.path.basename(path)[:-len(".hold")]
+    node = state = None; words = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split(None, 1)
+            key, val = (parts[0], parts[1] if len(parts) == 2 else "")
+            if key == "node":
+                node = val
+            elif key == "state":
+                state = val
+            elif node is None and _is_node(key):
+                node = key
+                if val:
+                    state = val.strip('"')
+            else:
+                words.append(line)
+    named = node is not None   # a hold with no node line holds the node its filename names
+    node = _node_path(node or label)
+    if state is not None:
+        state = os.path.expanduser(state)
+        if not os.path.isabs(state):
+            state = os.path.join(node, state)
+    return Hold(label, node, state, " ".join(words) or "(no words)", int(os.stat(path).st_mtime), path, named)
+
+
+def read_holds(canvas_dir=None):
+    """Every `*.hold` in the canvas, in name order; a missing canvas is none."""
+    d = _canvas_dir(canvas_dir)
+    holds = []
     try:
-        with open(os.path.join(canvas_dir, name + ".hold")) as f:
-            return f.readline().strip() or "(no words)"
+        names = sorted(n for n in os.listdir(d) if n.endswith(".hold"))
     except OSError:
-        return None
+        return holds
+    for n in names:
+        try:
+            holds.append(_read_hold(os.path.join(d, n)))
+        except OSError:
+            continue
+    return holds
+
+
+def _same(a, b):
+    try:
+        return os.path.realpath(a) == os.path.realpath(b)
+    except OSError:
+        return a == b
+
+
+def read_hold(canvas_dir, name, node=None, state=None):
+    """What holds this node with this state (card:hold.md): the words of
+    every hold that names it — a hold that names no state holds the node
+    with whatever state it runs — and the newest hold's mtime (the one
+    `serve` measures a death against), or (None, None) when nothing does."""
+    if canvas_dir is None:
+        return None, None
+    # a hold with no state line holds the node with its default state, node/state — the
+    # pin's own rule; tools/launch.sh reads the same hold as "whatever state I run with",
+    # which differs only when the launcher is given TEND_STATE_DIR (the tests' seat)
+    got = [h for h in read_holds(canvas_dir)
+           if (_same(h.node, node) if h.named else h.label == name)
+           and (state is None or _same(h.state or os.path.join(node, "state"), state))]
+    if not got:
+        return None, None
+    return "; ".join(h.words for h in got), max(h.mtime for h in got)
+
+
+def hold_fault(h):
+    """Why a hold holds nothing: its node is not a node (no grant beside
+    it), or the state it names is not there.  None when it is whole."""
+    if not os.path.isfile(os.path.join(h.node, "grant")):
+        return f"no node at {h.node} (no grant beside it)"
+    if h.state is not None and not os.path.isdir(h.state):
+        return f"state {h.state} is not there"
+    return None
 
 
 def read_pin_state(name, node, state, canvas_dir=None):
@@ -225,12 +313,16 @@ def read_pin_state(name, node, state, canvas_dir=None):
     except OSError:
         pass
     said = _last_said(os.path.join(state, "log")) if dead else ""
-    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, read_hold(canvas_dir, name))
+    held, held_at = read_hold(canvas_dir, name, node, state)
+    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at)
 
 
 def read_canvas(canvas_dir=None):
-    """The canvas, read: one row per `<name>.pin`, in name order.  A missing
-    canvas is no rows — nothing is held."""
+    """The canvas, read: one row per `<name>.pin`, in name order, and then
+    one per node a `*.hold` holds that no pin shows (card:hold.md — a
+    held node is on the canvas whether or not it is pinned; its row is
+    named by the node directory, the name the runner's death notice
+    uses).  A missing canvas is no rows — nothing is held."""
     d = _canvas_dir(canvas_dir)
     rows = []
     try:
@@ -244,6 +336,19 @@ def read_canvas(canvas_dir=None):
             continue
         if got:
             rows.append(read_pin_state(*got, canvas_dir=d))
+    for h in read_holds(d):
+        state = h.state or os.path.join(h.node, "state")
+        if h.named and any(_same(r.node, h.node) and _same(r.state, state) for r in rows):
+            continue
+        if not h.named and any(r.name == h.label for r in rows):
+            continue
+        fault = hold_fault(h)
+        if fault:
+            # a hold that holds nothing is not silence: a row that says so (Henri, 2026-08-29:
+            # "make sure the error becomes visible on the andon panel")
+            rows.append(Pin(h.label, h.node, state, False, None, None, None, "", False, "", h.words, h.mtime, fault))
+            continue
+        rows.append(read_pin_state(os.path.basename(h.node.rstrip("/")), h.node, state, canvas_dir=d))
     return rows
 
 
@@ -276,19 +381,42 @@ def read_log(state_dir=None, pins=()):
     return events
 
 
+def _counts(rows):
+    held = sum(1 for r in rows if r.held is not None)
+    broken = sum(1 for r in rows if r.broken)
+    return f"{len(rows)} on it, {held} held" + (f", {broken} BROKEN" if broken else "")
+
+
+def wrong(p):
+    """Is this row something gone wrong — shown bold: a death, cut cords, a
+    hold that holds nothing, or a held node with no runner up (the hold's
+    promise is not kept, whatever the reason)."""
+    return bool(p.dead or p.cut or p.broken or (p.held is not None and not p.running))
+
+
 def row_line(p):
     """A pin's row, as one line."""
+    if p.broken:
+        return f"{p.name.ljust(10)}BROKEN hold — {p.broken}  ({p.held})"
     if p.cut:
         state = f"runner up, watcher silent {p.cut // 60} min — the cords are cut"
     elif p.running:
         state = "running"
+    elif p.held is not None:
+        # held and not up is the hold not kept (card:hold.md): say which way
+        if p.dead and p.held_at is not None and p.last_stop is not None and p.held_at <= p.last_stop:
+            state = "DEAD, HELD — the hold is older than the death; touch it to restart"
+        elif p.dead:
+            state = "DEAD, HELD — the resolver restarts it at its next visit"
+        else:
+            state = "HELD, NOT RUNNING — no runner up; the resolver starts one at its next visit"
     elif p.dead:
         state = "DEAD"
     else:
         state = "not running"
     bits = [p.name.ljust(10), state]
     if p.held is not None:
-        bits.append("held")   # the canvas's standing pull: it is restarted when it stops (card:hold.md)
+        bits.append(f"held — {p.held}")   # the canvas's standing pull: it is restarted when it stops (card:hold.md)
     if p.last_pull:
         bits.append(f"pulled {_hhmm(p.last_pull)}")
     if p.last_stop:
@@ -410,9 +538,9 @@ def _tui(stdscr, canvas=None):
         # the canvas: what the person is holding, one row per pin
         short = canvas_dir.replace(os.path.expanduser("~"), "~", 1)
         if pins:
-            put(row, 2, f"canvas {short} — {len(pins)} pinned", curses.A_BOLD); row += 1
+            put(row, 2, f"canvas {short} — {_counts(pins)}", curses.A_BOLD); row += 1
             for p in pins:
-                attr = curses.A_BOLD if (p.dead or p.cut) else 0
+                attr = curses.A_BOLD if wrong(p) else 0
                 put(row, 4, row_line(p), attr); row += 1
         else:
             put(row, 2, f"canvas {short} — nothing pinned", curses.A_DIM); row += 1
@@ -484,7 +612,7 @@ def main(argv):
         print(f"andon-panel: {n} pending"
               + (f", pulled since {_hhmm(st.last_ring)}" if st.pulled else "")
               + " — run in a terminal for the live panel.")
-        print(f"canvas {_canvas_dir(canvas)} — {len(pins)} pinned")
+        print(f"canvas {_canvas_dir(canvas)} — {_counts(pins)}")
         for p in pins:
             print("  " + row_line(p))
         for e in read_log(None, pins)[-5:]:

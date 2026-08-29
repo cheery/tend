@@ -217,6 +217,60 @@ stops on its own clock and the resolver restarts it at its next visit,
 which is correct and is a restart per command; the llm node, which the
 hold is for, has a pulse and is not that.
 
+## Day one, second pass — the same sitting, at Henri's review
+
+Henri held `node` (the llm node "is a bit heavy") and asked three things.
+
+**"I'd like to name what I'm holding inside the file."**  Day one keyed
+the hold on its filename — `<name>.hold` "beside the pin" taken as the
+pin's *name* and not the pin's *shape*, which was an oversight, not a
+decision: a hold means "node+state is being pulled", so the content
+should say which, the filename should be a label, and two holds of one
+node with different states should be possible.  Now a hold is
+pin-shaped: `node NAME-OR-DIR`, `state DIR` (relative to the node), or
+one bare line `llm "state"` — his own example — whose first word is a
+node of this tree and the rest, quotes off, its state; every other
+line is the words, who is holding it and why.  A hold with no `node`
+line holds the node its filename names, so his `node.hold` ("held by
+henri, the desk") reads as it did.  `launch.sh` finds its holds by
+content (`holds_for`, a scan of the canvas — one per tick in `run`'s
+loop, the canvas being a handful of files), and rule 3 measures a
+death against the *newest* hold that names the node.  One asymmetry,
+written where it lives: a hold with no state line is, to the launcher,
+"whatever state I run with", and to the panel, the node's default
+`node/state` — they differ only under `TEND_STATE_DIR`, the tests'
+seat.  Found on the way: `check` clobbered `$root` in its own loop
+(`for root in $sysread …`), so a bare node name resolved against the
+wrong tree; renamed.
+
+**"We could improve the andon-panel to show holds."**  A held node is
+on the canvas whether or not it is pinned: `read_canvas` adds a row per
+hold whose node and state no pin shows, named by the node directory
+(the name the death notice uses), with the hold's words — `held — held
+by henri, the desk`; the header counts `N on it, M held`.
+
+**"The canvas has a broken hold right now … make sure the error
+becomes visible on the andon panel."**  What his panel showed was
+`node  held  not running` — a hold standing with no runner up, the
+hold's promise not kept, and the row read as calm.  Two things now:
+a held node with no runner is a **bold** row that says which way —
+`HELD, NOT RUNNING — no runner up; the resolver starts one at its next
+visit`; `DEAD, HELD — the hold is older than the death; touch it to
+restart` (rule 3, seen from the person's side); `DEAD, HELD — the
+resolver restarts it at its next visit` — and a hold that holds
+nothing is a **`BROKEN hold`** row of its own: no node at the path it
+names (no grant beside it), or a state that is not there, with the
+hold's words after it, and the header says `…, K BROKEN`.  `wrong(p)`
+is the one rule for bold: a death, cut cords, a broken hold, a held
+node not up.  On his canvas right now the row reads `node  HELD, NOT
+RUNNING — …`: the tally node idles itself on its own 30 s and the
+resolver restarts it once per command, which is the restart-per-command
+the first pass named; the row is correct, and it is loud.
+
+Red first again: both passes' tests were run against the launcher and
+panel of the commit before them.  Nothing runs the launcher's half
+until his `sudo tools/install.sh`; the panel runs from the tree.
+
 ## Where it sits
 
 Placed last in the priority by the session that wrote it, 2026-08-29,

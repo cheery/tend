@@ -665,3 +665,22 @@ def test_status_and_check_say_held(tmp_path):
     assert "held: held by henri, the desk" in s.stdout, s.stdout
     c = launch(ROOT / "node", "check", state=st)
     assert "held — " in c.stdout and "held by henri" in c.stdout, c.stdout
+
+
+def test_a_hold_names_its_node_inside_the_file_and_the_filename_is_a_label(tmp_path):
+    """Henri, 2026-08-29: "I'd like to name what I'm holding inside the
+    file".  A hold is pin-shaped: `node NAME`, `state DIR`, and the words;
+    a hold that names another node, or this node with another state, is
+    not this node's; and one with no node line holds the node its
+    filename names, so `node.hold` still works."""
+    st = tmp_path / "st"; st.mkdir()
+    hold(st, "some-node", "node node\nheld by henri, for the afternoon\n")
+    hold(st, "other", "node llm\nheld by henri\n")
+    hold(st, "elsewhere", f"node node\nstate {tmp_path}/not-this-state\nheld by a fixture\n")
+    s = launch(ROOT / "node", "status", state=st)
+    assert s.stdout.count("held:") == 1 and "held: held by henri, for the afternoon (" in s.stdout, s.stdout
+    hold(st, "here", f"node node\nstate {st}\nthis state exactly\n")
+    hold(st, "node", "no node line: the filename names it\n")
+    s = launch(ROOT / "node", "status", state=st)
+    assert s.stdout.count("held:") == 3, s.stdout
+    assert "held: this state exactly (" in s.stdout and "held: no node line: the filename names it (" in s.stdout, s.stdout

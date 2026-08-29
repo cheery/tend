@@ -102,7 +102,10 @@ between two workable cards is Henri's.
    person's side says "keep this alive".  *Placed last by the session
    that wrote it on 2026-08-29 at Henri's "Lets card it"; its day one is
    a `<name>.hold` file beside the pin whose presence is a standing pull
-   and whose mtime re-asserts it after a death; the tiebreak is his.*
+   and whose mtime re-asserts it after a death; the tiebreak is his.
+   Day one landed the same day at his "do the hold", and its second
+   pass at his review — the hold names its node inside the file, the
+   panel shows holds as rows, and a hold not kept is loud.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

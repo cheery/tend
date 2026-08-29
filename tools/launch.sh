@@ -105,9 +105,11 @@
 # "something wants this once", so a node's liveness was an accident of
 # pull traffic: the llm node idled out 60 s after `lead.sh`'s turn and
 # paid 80 s reloading on the next.  A hold is the canvas's standing pull:
-# `<name>.hold` in the canvas directory (TEND_CANVAS, else
+# a `*.hold` file in the canvas directory (TEND_CANVAS, else
 # ~/.local/state/tend/canvas — the panel's own resolution), on the
-# person's side, never under $STATE.  Presence is the pull: `run`'s
+# person's side, never under $STATE, pin-shaped: `node NAME`, `state
+# DIR`, and the words; a hold with no node line holds the node its
+# filename names.  Presence is the pull: `run`'s
 # watch loop is not idle while the file exists, and `serve` starts a
 # runner for a held node with none up, pull or no pull.  It is a
 # lifecycle grant and never a sitting extension: the sitting cuts, the
@@ -162,7 +164,42 @@ for e in $envs; do eval "export $e"; done
 case "$pullfile" in "") pullfile="$STATE/pull" ;; /*) ;; *) pullfile="$STATE/$pullfile" ;; esac
 case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
-hold="${TEND_CANVAS:-${HOME:-/nonexistent}/.local/state/tend/canvas}/$name.hold"   # the canvas's standing pull (card:hold.md); no HOME (the fence) is no hold
+# the canvas (card:hold.md): the panel's own resolution; no HOME (the fence) is no canvas and no hold
+canvas="${TEND_CANVAS:-${HOME:-/nonexistent}/.local/state/tend/canvas}"
+# a path as a hold writes it: `~` is the person's home, a bare name is a node of this tree
+expand_path() { case "$1" in '~'|'~/'*) echo "${HOME:-/nonexistent}${1#\~}" ;; /*) echo "$1" ;; *) echo "$root/$1" ;; esac; }
+# the holds that name this node — and, where they say a state, this state — one path per line.
+# A hold is pin-shaped (Henri, 2026-08-29: "I'd like to name what I'm holding inside the file"):
+# `node NAME-OR-DIR`, `state DIR` (relative to the node), or one bare line `NAME [STATE]` whose first
+# word is a node of this tree; every other line is the words — who is holding it, and why.  A hold with
+# no node line holds the node its filename names (`node.hold`), so the filename is otherwise a label.
+holds_for() {
+    _me=$(readlink -f "$NODE"); _st=$(readlink -f "$STATE" 2>/dev/null || echo "$STATE")
+    for _h in "$canvas"/*.hold; do
+        [ -f "$_h" ] || continue
+        _n=""; _s=""
+        while IFS= read -r _l || [ -n "$_l" ]; do
+            case "$_l" in ''|'#'*) continue ;; esac
+            _k=${_l%% *}; _v=${_l#* }; [ "$_v" = "$_l" ] && _v=""
+            case "$_k" in
+                node)  _n=$_v ;;
+                state) _s=$_v ;;
+                *) if [ -z "$_n" ] && [ -f "$(expand_path "$_k")/grant" ]; then
+                       _n=$_k; _v=${_v#\"}; _v=${_v%\"}; [ -n "$_v" ] && _s=$_v
+                   fi ;;
+            esac
+        done < "$_h"
+        if [ -n "$_n" ]; then [ "$(readlink -f "$(expand_path "$_n")" 2>/dev/null)" = "$_me" ] || continue
+        else [ "$(basename "$_h" .hold)" = "$name" ] || continue; fi   # no node line: the filename names it
+        if [ -n "$_s" ]; then
+            case "$_s" in '~'*|/*) _s=$(expand_path "$_s") ;; *) _s="$_me/$_s" ;; esac
+            [ "$(readlink -f "$_s" 2>/dev/null || echo "$_s")" = "$_st" ] || continue
+        fi
+        echo "$_h"
+    done
+}
+# the words of a hold: its lines that are not the node or the state
+hold_words() { grep -v '^ *#' "$1" | while IFS= read -r _l; do case "$_l" in ''|node\ *|state\ *) ;; *) [ -f "$(expand_path "${_l%% *}")/grant" ] || printf '%s ' "$_l" ;; esac; done | sed 's/ $//'; }
 # the log's last line that is not warning noise — what a program said as it died
 last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
 stale="${TEND_WATCH_STALE:-60}"
@@ -220,7 +257,7 @@ check)
             outside=""
             for lib in $(printf '%s\n' "$deps" | awk '$3 ~ /^\// { print $3 }'); do
                 real=$(readlink -f "$lib" 2>/dev/null) || real=$lib; inside=0
-                for root in $sysread $grantread; do case "$real" in "$root"/*) inside=1; break ;; esac; done
+                for _root in $sysread $grantread; do case "$real" in "$_root"/*) inside=1; break ;; esac; done
                 [ $inside -eq 1 ] && continue
                 dir=$(dirname "$real"); case " $outside " in *" $dir "*) ;; *) outside="$outside $dir" ;; esac
             done
@@ -252,7 +289,7 @@ check)
     elif mkdir -p "$STATE" 2>/dev/null; then ok "state $STATE (created)"
     else bad "state $STATE cannot be created"; fi
     if silent=$(cut_for); then bad "$(cut_line "$silent")"; fi
-    [ -e "$hold" ] && ok "held — $hold: $(head -1 "$hold" 2>/dev/null)"
+    for h in $(holds_for); do ok "held — $h: $(hold_words "$h")"; done
     if [ -n "$port" ]; then
         if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
@@ -303,7 +340,7 @@ run)
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began
                 # a hold is a standing pull: not idle while the file exists (card:hold.md, rule 2 — the runner knows it is pulled, or idle fights the pull at 80 s a reload)
-                if [ ! -e "$hold" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
+                if [ -z "$(holds_for)" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
                     why="idle: nothing has pulled $name for ${IDLE}s"; break
                 fi
             fi
@@ -350,7 +387,7 @@ status)
     if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"
     elif silent=$(cut_for); then cut_line "$silent"
     else echo "$name: running"; fi
-    [ -e "$hold" ] && echo "held: $(head -1 "$hold" 2>/dev/null) ($hold)"
+    for h in $(holds_for); do echo "held: $(hold_words "$h") ($h)"; done
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
@@ -379,14 +416,14 @@ serve)
     want=""
     if [ -f "$pullfile" ] && { [ ! -f "$STATE/stopped" ] || [ "$pullfile" -nt "$STATE/stopped" ]; }; then
         want="had an unserved pull"
-    elif [ -e "$hold" ]; then
+    elif holds=$(holds_for) && [ -n "$holds" ]; then
         # the hold is a standing pull (card:hold.md).  After a clean stop — idle, the sitting,
-        # exit 0 — restart unconditionally; after a death, only if the hold is newer than it:
+        # exit 0 — restart unconditionally; after a death, only if a hold is newer than it:
         # the person re-asserts with a `touch`, having seen the death on the panel.  A crash
         # is not hammered (rule 3; doc/os-status-2026-08-28.md item 9's backoff, in the tree's grammar)
         case "$(head -1 "$STATE/stopped" 2>/dev/null)" in
             "exited 0"*|"") want="is held" ;;
-            exited*) [ "$hold" -nt "$STATE/stopped" ] && want="is held, and the hold is newer than its death" ;;
+            exited*) for h in $holds; do [ "$h" -nt "$STATE/stopped" ] && want="is held, and the hold is newer than its death"; done ;;
             *) want="is held" ;;
         esac
     fi
