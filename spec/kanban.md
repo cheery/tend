@@ -45,17 +45,25 @@ someone else's words has no someone.  Each is a reason the board would
 not work *here*.  **It is implemented only if the session agrees** —
 later, with the reason answered, or never.
 
-**3. If it agrees, the install is yours** — the directory, the README's
-first priority list, the test on the gate.  The gate is enforcement,
-and a session that installs its own gate can lift it.  And one thing
-this project learned on its first day (`board/README.md`, first
-paragraph): **a gate is turned on after the tree is clean, never as a
-way of announcing that it should be.**  Write the first cards, make the
-test pass, *then* put the test on the hook.
+**3. If it agrees, the session installs it** — the directory, the
+README's first priority list, the test on the gate.  Not you.  Henri,
+2026-08-29, correcting this sheet's first draft, which had made the
+install the author's because the test is a gate: *"the session
+installs the board.  It is session's work, and session is good at
+doing it."*  The same correction he made to `spec/kaizen.md` the same
+evening — a session that agreed to a practice installs and keeps it,
+and six days of this tree are the proof.  One thing this project
+learned on its first day still governs the order (`board/README.md`,
+first paragraph): **a gate is turned on after the tree is clean, never
+as a way of announcing that it should be.**  The session writes the
+first cards, makes the test pass, *then* puts the test on the hook.
 
-**4. Then fill it yourself, first.**  The first cards are the person's:
-the problems you have, in your words.  A session placing a card it
-wrote is the normal case later; the board's first shape is yours.
+**4. The first cards are your problems, in your words** — and the
+session writes them.  Say what is wrong, as you have it; the session
+asks for the `because` if it is not obvious rather than guessing one,
+and puts your words in `asked`.  A session placing a card it wrote is
+the normal case from the first card on; what is yours is the problem
+and the priority.
 
 ---
 
@@ -276,7 +284,8 @@ Three things and a line.
 4. **One line in `CLAUDE.md`**: *please read board/README.md before you
    begin.*  That line is the whole pickup mechanism.
 
-Then step 4 of the author's section: the first cards are yours.
+Then step 4 of the author's section: the first cards are your
+problems, and the session writes them.
 
 *What travels is the shape and the test, and the reasons in the
 docstrings.  What does not travel is tend's cards: they are about
