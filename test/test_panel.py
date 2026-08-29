@@ -1,4 +1,4 @@
-"""tools/andon-panel.py — the andon's person-side half (card:andon-panel.md).
+"""tools/panel.py — the person's panel; the andon's person-side half (card:andon-panel.md), then the canvas and the hand.
 
 The panel runs outside the fence and only *reads* the record a session
 writes (andon.pending, andon.log), so the cord reaches the person
@@ -11,10 +11,10 @@ import importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-_spec = importlib.util.spec_from_file_location("andon_panel", ROOT / "tools" / "andon-panel.py")
-andon_panel = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(andon_panel)
-read_state = andon_panel.read_state
+_spec = importlib.util.spec_from_file_location("panel", ROOT / "tools" / "panel.py")
+panel = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(panel)
+read_state = panel.read_state
 
 
 def write(d, pending="", log=""):
@@ -85,7 +85,7 @@ def test_the_panel_plays_a_real_tone_not_the_terminal_bell(tmp_path):
     # the tone is a valid wav
     import wave
     wav = tmp_path / "t.wav"
-    andon_panel._write_tone(str(wav))
+    panel._write_tone(str(wav))
     with wave.open(str(wav)) as w:
         assert w.getnframes() > 1000 and w.getframerate() == 22050
 
@@ -94,7 +94,7 @@ def test_the_panel_plays_a_real_tone_not_the_terminal_bell(tmp_path):
     fake = tmp_path / "player.sh"
     fake.write_text('#!/bin/sh\necho "$1" > "%s"\n' % marker)
     fake.chmod(0o755)
-    assert andon_panel._play_alert(player=str(fake)) is True
+    assert panel._play_alert(player=str(fake)) is True
     assert marker.exists() and marker.read_text().strip().endswith(".wav")
 
 
@@ -114,8 +114,8 @@ import pytest
 import subprocess
 import time
 
-read_canvas = andon_panel.read_canvas
-read_log = andon_panel.read_log
+read_canvas = panel.read_canvas
+read_log = panel.read_log
 
 LOADER = "llama-server: error while loading shared libraries: libsvml.so: cannot open shared object file: No such file or directory"
 
@@ -229,7 +229,7 @@ def test_a_running_pin_reads_the_lock_and_a_silent_watcher_is_the_cords_cut(tmp_
         os.utime(st / "watch", (old, old))
         r = read_canvas(canvas)[0]
         assert r.running and r.cut and r.cut >= 170, "a held lock with a stale heartbeat: the cords are cut"
-        assert "cords are cut" in andon_panel.row_line(r) and "3 min" in andon_panel.row_line(r)
+        assert "cords are cut" in panel.row_line(r) and "3 min" in panel.row_line(r)
     finally:
         p.kill(); p.wait()
 
@@ -248,7 +248,7 @@ def test_the_canvas_is_a_path_and_the_panel_reads_it_without_a_terminal(tmp_path
     canvas = tmp_path / "srv"; pin(canvas, "llm", node)
     # the runner wrote its death into the record as it died (day two)
     write(tmp_path, pending="", log="1787912843 2026-08-28 13:27 llm: exited 127 — " + LOADER + "\n")
-    r = subprocess.run(["python3", str(ROOT / "tools" / "andon-panel.py"), "--canvas", str(canvas)],
+    r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
                        capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))
     assert r.returncode == 0, r.stderr
     assert "llm" in r.stdout and "exited 127" in r.stdout and "libsvml.so" in r.stdout, r.stdout
@@ -263,13 +263,13 @@ def test_a_held_pin_says_held_beside_its_state_and_an_unheld_one_does_not(tmp_pa
     node = dead_node(tmp_path, stopped="idle: nothing has pulled llm for 60s")
     canvas = tmp_path / "canvas"; pin(canvas, "llm", node)
     r = read_canvas(canvas)[0]
-    assert r.held is None and "held" not in andon_panel.row_line(r)
+    assert r.held is None and "held" not in panel.row_line(r)
     (canvas / "llm.hold").write_text("held by henri, the desk\n")
     r = read_canvas(canvas)[0]
     assert r.held == "held by henri, the desk"
-    line = andon_panel.row_line(r)
+    line = panel.row_line(r)
     assert line.startswith("llm") and "HELD, NOT RUNNING" in line and "held — held by henri, the desk" in line, line
-    assert andon_panel.wrong(r), "a held node with no runner up is the hold not kept: bold"
+    assert panel.wrong(r), "a held node with no runner up is the hold not kept: bold"
     (canvas / "llm.hold").write_text("")
     assert read_canvas(canvas)[0].held == "(no words)"
 
@@ -285,7 +285,7 @@ def test_a_hold_is_a_row_whether_or_not_its_node_is_pinned(tmp_path):
     (canvas / "some-llm.hold").write_text(f"node {node}\nheld by henri, the desk\n")
     rows = read_canvas(canvas)
     assert [r.name for r in rows] == ["llm"] and rows[0].held == "held by henri, the desk", rows
-    assert "HELD, NOT RUNNING" in andon_panel.row_line(rows[0]) and "held — held by henri, the desk" in andon_panel.row_line(rows[0])
+    assert "HELD, NOT RUNNING" in panel.row_line(rows[0]) and "held — held by henri, the desk" in panel.row_line(rows[0])
     pin(canvas, "llm", node)
     rows = read_canvas(canvas)
     assert len(rows) == 1 and rows[0].held == "held by henri, the desk", rows
@@ -293,7 +293,7 @@ def test_a_hold_is_a_row_whether_or_not_its_node_is_pinned(tmp_path):
     (canvas / "llm-other.hold").write_text(f"node {node}\nstate {other}\nthe other state\n")
     rows = read_canvas(canvas)
     assert [(r.name, r.held) for r in rows] == [("llm", "held by henri, the desk"), ("llm", "the other state")], rows
-    assert andon_panel._counts(rows) == "2 on it, 2 held"
+    assert panel._counts(rows) == "2 on it, 2 held"
 
 
 def test_a_bare_hold_line_names_a_node_of_the_tree_and_its_state(tmp_path):
@@ -302,9 +302,9 @@ def test_a_bare_hold_line_names_a_node_of_the_tree_and_its_state(tmp_path):
     the node; the filename is a label."""
     canvas = tmp_path / "canvas"; canvas.mkdir()
     (canvas / "mine.hold").write_text('llm "state"\nheld by henri\n')
-    h = andon_panel.read_holds(canvas)[0]
-    assert h.label == "mine" and h.node == os.path.join(andon_panel.ROOT, "llm")
-    assert h.state == os.path.join(andon_panel.ROOT, "llm", "state") and h.words == "held by henri"
+    h = panel.read_holds(canvas)[0]
+    assert h.label == "mine" and h.node == os.path.join(panel.ROOT, "llm")
+    assert h.state == os.path.join(panel.ROOT, "llm", "state") and h.words == "held by henri"
 
 
 def test_a_hold_that_holds_nothing_is_a_broken_row_and_a_held_death_says_which_way(tmp_path):
@@ -319,18 +319,18 @@ def test_a_hold_that_holds_nothing_is_a_broken_row_and_a_held_death_says_which_w
     (canvas / "gone.hold").write_text(f"node {node}\nstate {tmp_path}/no-such-state\nheld too\n")
     rows = read_canvas(canvas)
     assert [r.name for r in rows] == ["ghost", "gone"], rows
-    assert all(r.broken and andon_panel.wrong(r) for r in rows)
-    assert "BROKEN hold — no node at" in andon_panel.row_line(rows[0]) and "(held by henri)" in andon_panel.row_line(rows[0])
-    assert "BROKEN hold — state" in andon_panel.row_line(rows[1]) and "is not there" in andon_panel.row_line(rows[1])
-    assert andon_panel._counts(rows) == "2 on it, 2 held, 2 BROKEN"
+    assert all(r.broken and panel.wrong(r) for r in rows)
+    assert "BROKEN hold — no node at" in panel.row_line(rows[0]) and "(held by henri)" in panel.row_line(rows[0])
+    assert "BROKEN hold — state" in panel.row_line(rows[1]) and "is not there" in panel.row_line(rows[1])
+    assert panel._counts(rows) == "2 on it, 2 held, 2 BROKEN"
     (canvas / "ghost.hold").unlink(); (canvas / "gone.hold").unlink()
     h = canvas / "llm.hold"; h.write_text(f"node {node}\nheld by henri\n")
     os.utime(h, (1787912843 - 60, 1787912843 - 60))       # older than the 13:27 death
     r = read_canvas(canvas)[0]
-    assert r.dead and "DEAD, HELD — the hold is older than the death; touch it to restart" in andon_panel.row_line(r)
+    assert r.dead and "DEAD, HELD — the hold is older than the death; touch it to restart" in panel.row_line(r)
     os.utime(h, (1787912843 + 60, 1787912843 + 60))       # touched, having seen why
     r = read_canvas(canvas)[0]
-    assert "DEAD, HELD — the resolver restarts it at its next visit" in andon_panel.row_line(r)
+    assert "DEAD, HELD — the resolver restarts it at its next visit" in panel.row_line(r)
 
 
 # --- the person's hand: the panel writes the canvas and runs the resolver (card:hold.md, 2026-08-29) ---
@@ -360,18 +360,18 @@ def test_the_hand_writes_pin_shaped_files_and_runs_the_resolver_once_per_write(t
     monkeypatch.setenv("TEND_RESOLVE", str(script))
     node = dead_node(tmp_path)
     canvas = tmp_path / "canvas"
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "mine", str(node), "held by henri, the desk"])
+    rc = panel.main(["x", "--canvas", str(canvas), "hold", "mine", str(node), "held by henri, the desk"])
     assert rc == 0 and visits(log) == 1
     assert (canvas / "mine.hold").read_text() == f"node {node}\nheld by henri, the desk\n"
     out = capsys.readouterr().out
     assert "held: " in out and "resolver: launch: stub started nothing" in out, out
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "pin", "llm", str(node), "--state", str(tmp_path / "s")])
+    rc = panel.main(["x", "--canvas", str(canvas), "pin", "llm", str(node), "--state", str(tmp_path / "s")])
     assert rc == 0 and visits(log) == 2
     assert (canvas / "llm.pin").read_text() == f"node {node}\nstate {tmp_path / 's'}\n"
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "quiet", str(node)])
+    rc = panel.main(["x", "--canvas", str(canvas), "hold", "quiet", str(node)])
     assert rc == 0 and visits(log) == 3
     assert (canvas / "quiet.hold").read_text().splitlines()[1].startswith("held by "), "a hold from the panel is never wordless"
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "unhold", "mine"])
+    rc = panel.main(["x", "--canvas", str(canvas), "unhold", "mine"])
     assert rc == 0 and not (canvas / "mine.hold").exists() and visits(log) == 4
     assert "removed: " in capsys.readouterr().out
 
@@ -380,12 +380,12 @@ def test_the_hand_refuses_what_is_not_a_node_and_does_not_resolve(tmp_path, monk
     script, log = stub_resolver(tmp_path)
     monkeypatch.setenv("TEND_RESOLVE", str(script))
     canvas = tmp_path / "canvas"
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "ghost", str(tmp_path / "nowhere")])
+    rc = panel.main(["x", "--canvas", str(canvas), "hold", "ghost", str(tmp_path / "nowhere")])
     assert rc == 2 and "no node at" in capsys.readouterr().err
     assert not canvas.exists() and visits(log) == 0
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "unhold", "never"])
+    rc = panel.main(["x", "--canvas", str(canvas), "unhold", "never"])
     assert rc == 2 and "no hold named never" in capsys.readouterr().err and visits(log) == 0
-    rc = andon_panel.main(["x", "--canvas", str(canvas), "hold", "../up", str(dead_node(tmp_path))])
+    rc = panel.main(["x", "--canvas", str(canvas), "hold", "../up", str(dead_node(tmp_path))])
     assert rc == 2 and "not a name" in capsys.readouterr().err and visits(log) == 0
 
 
@@ -393,7 +393,7 @@ def test_entering_the_panel_runs_the_resolver(tmp_path, monkeypatch, capsys):
     script, log = stub_resolver(tmp_path)
     monkeypatch.setenv("TEND_RESOLVE", str(script))
     monkeypatch.setenv("TEND_ANDON_STATE", str(tmp_path))
-    assert andon_panel.main(["x", "--canvas", str(tmp_path / "canvas")]) == 0
+    assert panel.main(["x", "--canvas", str(tmp_path / "canvas")]) == 0
     assert visits(log) == 1
     assert "resolver: launch: stub started nothing" in capsys.readouterr().out
 
@@ -408,11 +408,11 @@ def test_a_hold_written_by_the_hand_starts_the_node_and_its_death_flows_to_the_t
     tree = tmp_path / "tree"; node = tree / "dying"; node.mkdir(parents=True)
     (node / "grant").write_text("program /bin/sh -c 'echo \"dying: error while loading shared libraries: libx.so\" >&2; exit 3'\n")
     canvas = pathlib.Path(os.environ["TEND_CANVAS"])          # conftest's: the launcher reads the same one
-    monkeypatch.setenv("TEND_RESOLVE", os.path.join(andon_panel.HERE, "resolve.sh"))
+    monkeypatch.setenv("TEND_RESOLVE", os.path.join(panel.HERE, "resolve.sh"))
     monkeypatch.setenv("TEND_TREE", str(tree))
     monkeypatch.setenv("TEND_ANDON_STATE", str(tmp_path))
     monkeypatch.delenv("TEND_FENCED", raising=False)
-    lines = andon_panel.hand("hold", ["dying", str(node), "held by the fixture"], str(canvas))
+    lines = panel.hand("hold", ["dying", str(node), "held by the fixture"], str(canvas))
     assert any("is held and no runner — started one" in l for l in lines), lines
     record = tmp_path / "andon.log"
     t = time.monotonic()
@@ -423,5 +423,5 @@ def test_a_hold_written_by_the_hand_starts_the_node_and_its_death_flows_to_the_t
     assert [r.name for r in rows] == ["dying"] and rows[0].dead and rows[0].held == "held by the fixture", rows
     events = read_log(tmp_path, rows)
     assert len(events) == 1 and events[0].who == "dying" and "exited 3 — dying: error while loading" in events[0].text, events
-    assert "DEAD, HELD — the hold is older than the death; touch it to restart" in andon_panel.row_line(rows[0])
-    assert andon_panel.resolve_once() == "", "a death is not hammered: the hold is older, nothing starts"
+    assert "DEAD, HELD — the hold is older than the death; touch it to restart" in panel.row_line(rows[0])
+    assert panel.resolve_once() == "", "a death is not hammered: the hold is older, nothing starts"

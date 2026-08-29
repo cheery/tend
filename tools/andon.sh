@@ -57,7 +57,7 @@
 # `relayed`.  It is run by `tools/resolve.sh --hook`, on the person's
 # side after every command, never as a daemon; it carries nothing but
 # the fact that the record has a ring in it, and it is refused inside
-# the fence like `answered`.  The panel (tools/andon-panel.py) hears the
+# the fence like `answered`.  The panel (tools/panel.py) hears the
 # same failed ring while it is open; relay is for when it is not.
 #
 # **What a session can do with this, honestly**: ask and ring — which

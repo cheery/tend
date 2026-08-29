@@ -92,7 +92,7 @@
 # looks.  A non-zero exit now appends one line to the andon record on
 # the person's side — `<epoch> <stamp> <name>: exited <rc> — <what it
 # last said>` in `${TEND_ANDON_STATE:-~/.local/state/tend}/andon.log`,
-# the file tools/andon-panel.py reads — from this stop path and nowhere
+# the file tools/panel.py reads — from this stop path and nowhere
 # else: the record's shape is tools/andon.sh's, `pull` does not write
 # it, the panel does not, and a zero exit (idle, the sitting, a program
 # that finished) writes nothing.  It replaces the one-second watch

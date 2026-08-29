@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 #: asked-by: Henri, 2026-08-28 — "open the interface card and build the TUI first.  I think we need it next." (card:andon-panel.md)
-"""tools/andon-panel.py — the andon's person-side half: watch the record, announce a pull.
+"""tools/panel.py — the person's panel: the canvas, the andon record, and the person's hand on both.
 
-    tools/andon-panel.py [--canvas DIR]   a TUI over the andon record and a canvas (needs a terminal)
-    tools/andon-panel.py hold LABEL NODE [--state DIR] [WORDS...]   write LABEL.hold on the canvas, then resolve
-    tools/andon-panel.py pin NAME NODE [--state DIR]                write NAME.pin, then resolve
-    tools/andon-panel.py unhold LABEL | unpin NAME                  remove it, then resolve
+(tools/panel.py until 2026-08-29 — Henri: "the andon-panel.py is growing into a panel.py".
+It began as the andon's person-side half, card:andon-panel.md; the canvas and the hand grew on it.)
+
+    tools/panel.py [--canvas DIR]   a TUI over the andon record and a canvas (needs a terminal)
+    tools/panel.py hold LABEL NODE [--state DIR] [WORDS...]   write LABEL.hold on the canvas, then resolve
+    tools/panel.py pin NAME NODE [--state DIR]                write NAME.pin, then resolve
+    tools/panel.py unhold LABEL | unpin NAME                  remove it, then resolve
 
 The panel runs OUTSIDE the fence and only reads what a session writes —
 `andon.pending` (the questions) and `andon.log` (every ask, ring and

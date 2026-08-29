@@ -43,7 +43,7 @@
              ones are *held*, and where
              tools/launch.sh — the state a runner leaves: `run.lock`,
              `stopped` (mtime the last stop, its line the reason), `log`,
-             `watch`, `run.pid`; tools/andon-panel.py — `read_state`, the
+             `watch`, `run.pid`; tools/panel.py — `read_state`, the
              tone on a new ring
              ~/.local/state/tend — where the andon record lives on the
              person's side and passes through the fence; a canvas
@@ -99,7 +99,7 @@ person's).  And not the whole view built before one row is red first.
 
 The canvas directory and the panel reading it: `~/.local/state/tend/
 canvas/` as the default canvas (a path to name another), `llm.pin` in
-it by Henri's hand, and `tools/andon-panel.py` showing one row per pin
+it by Henri's hand, and `tools/panel.py` showing one row per pin
 from `run.lock` / `stopped` / `watch`, with a non-zero stop appearing in
 the log column beside the andon lines.  Red first with a fixture pin
 naming a node whose `stopped` says `exited 127` and whose log's last line
@@ -122,7 +122,7 @@ minute as the fixture: a pin naming a node whose `stopped` says `exited
 127: llm stopped by itself` and whose log's last real line is the
 loader's (`libsvml.so: cannot open shared object file`).
 
-**What is there.**  `tools/andon-panel.py [--canvas DIR]` — the panel
+**What is there.**  `tools/panel.py [--canvas DIR]` — the panel
 grown, not a second tool.  A canvas is a directory of `<name>.pin`
 files (`--canvas DIR`, `TEND_CANVAS`, else `~/.local/state/tend/canvas`),
 a pin a line or two: `node PATH`, and `state PATH` only when the state
@@ -209,7 +209,7 @@ builds it.
 **Right, by the tree's own lines.**  The record is where the draft
 said: `tools/andon.sh:71`, `$state/andon.log` under
 `~/.local/state/tend`, and the fence binds that directory writable
-(`tools/andon-panel.py:9`), so the runner's shell can append from
+(`tools/panel.py:9`), so the runner's shell can append from
 either seat — the launcher's stop path runs *outside* keep (keep
 wraps only the program, `tools/launch.sh:265`), and it is the one
 place: `:305–306`, where `stopped` is written.  A zero exit writes

@@ -161,7 +161,7 @@ progress in the launcher's idea of idle.
 
 `andon-panel` finished 2026-08-28, the day it was opened, on Henri's
 "Move andon-panel to done" (`done/andon-panel.md`): the andon's
-person-side half, `tools/andon-panel.py`, a TUI outside the fence that
+person-side half, `tools/andon-panel.py` (renamed `tools/panel.py` on 2026-08-29 as the canvas and the hand grew on it), a TUI outside the fence that
 watches the record a fenced session writes with no reach row and plays
 the andon's own two-note tone through a real player — rung from inside
 the fence at 11:03, heard in the next room ("yes, I heard it").  Its

@@ -171,7 +171,7 @@ is off.
 
 ## Day one landed — 2026-08-29, 13:20 sitting, at Henri's "do the hold"
 
-Built in `tools/launch.sh`, `tools/andon-panel.py`, and their tests;
+Built in `tools/launch.sh`, `tools/panel.py`, and their tests;
 red first — the five new tests run against HEAD's launcher and panel
 before the change, and five failed.
 
@@ -282,7 +282,7 @@ the resolver."*  And, first: *"how do I run the resolver on the
 canvas?"* — the answer being `tools/resolve.sh` once, by hand, since
 nothing but a hook ran it.
 
-**Built.**  `tools/andon-panel.py hold LABEL NODE [--state DIR]
+**Built.**  `tools/panel.py hold LABEL NODE [--state DIR]
 [WORDS...]`, `pin NAME NODE [--state DIR]`, `unhold LABEL`, `unpin
 NAME` — from a shell, and in the TUI as `[h] [p] [u]` with one typed
 line — write the canvas and nothing else, then run the resolver once

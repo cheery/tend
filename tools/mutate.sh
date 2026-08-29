@@ -228,11 +228,15 @@ test/test_keep.py	keep: --bind alone leaves the network unhandled	sed -i 's/^   
 test/test_launch.py	launch: an unknown grant word is accepted	sed -i 's/^        \*) echo "launch: \$name\/grant: unknown word/        *) : # echo "launch: $name\/grant: unknown word/' tools/launch.sh
 test/test_launch.py	launch: run does not take the lock	sed -i 's/^    flock -w 2 9 || {/    : || {/' tools/launch.sh
 test/test_launch.py	launch: a missing grant is not refused	sed -i 's/^\[ -f "\$NODE\/grant" \] || {/[ -f "$NODE\/grant" ] || true \&\& true || {/' tools/launch.sh
-test/test_launch.py	launch: serve starts even when the pull is older than the last stop	sed -i 's/^    if \[ -f "\$STATE\/stopped" \] \&\& \[ ! "\$pullfile" -nt "\$STATE\/stopped" \]; then exit 0; fi/:/' tools/launch.sh
+test/test_launch.py	launch: serve starts even when the pull is older than the last stop	sed -i 's/^    if \[ -f "\$pullfile" \] \&\& { \[ ! -f "\$STATE\/stopped" \] || \[ "\$pullfile" -nt "\$STATE\/stopped" \]; }; then/    if [ -f "$pullfile" ]; then/' tools/launch.sh
+# tools/launch.sh, the hold — card:hold.md day one, 2026-08-29
+test/test_launch.py	launch: a hold never restarts anything from serve	sed -i 's/^    elif holds=\$(holds_for) \&\& \[ -n "\$holds" \]; then/    elif false; then/' tools/launch.sh
+test/test_launch.py	launch: a death is hammered — a hold older than it restarts too	sed -i 's/\[ "\$h" -nt "\$STATE\/stopped" \] \&\& want=/true \&\& want=/' tools/launch.sh
+test/test_launch.py	launch: run idles out under a hold	sed -i 's/if \[ -z "\$(holds_for)" \] \&\& \[ \$(( now - last ))/if [ $(( now - last ))/' tools/launch.sh
 # tools/launch.sh, the death notice — card:canvas.md day two, 2026-08-29
 test/test_launch.py	launch: a death writes no notice	sed -i 's/^    if \[ "\$rc" -ne 0 \]; then/    if false; then/' tools/launch.sh
 test/test_launch.py	launch: every stop writes a notice, a clean one too	sed -i 's/^    if \[ "\$rc" -ne 0 \]; then/    if true; then/' tools/launch.sh
-test/test_andon_panel.py	panel: a death's who-column is andon, never the pin's	sed -i 's/who if who in names else "andon"/"andon"/' tools/andon-panel.py
+test/test_panel.py	panel: a death's who-column is andon, never the pin's	sed -i 's/who if who in names else "andon"/"andon"/' tools/panel.py
 ROWS
 }
 
