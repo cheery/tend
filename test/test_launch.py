@@ -11,6 +11,7 @@ at a scratch directory with TEND_STATE_DIR and run as a person's shell
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -23,7 +24,10 @@ LAUNCH = ROOT / "tools" / "launch.sh"
 
 
 def launch(node, *args, state, idle="0.5", fenced=False, timeout=30):
-    env = dict(os.environ, TEND_STATE_DIR=str(state), TEND_IDLE=idle)
+    # the andon record is pointed at scratch too: a runner that dies writes
+    # a line to it (the death notice), and a test never writes the person's
+    env = dict(os.environ, TEND_STATE_DIR=str(state), TEND_IDLE=idle,
+               TEND_ANDON_STATE=str(pathlib.Path(state) / "andon"))
     env.pop("TEND_FENCED", None)
     if fenced:
         env["TEND_FENCED"] = "1"
@@ -524,18 +528,48 @@ def test_a_program_that_ignores_term_does_not_hang_the_runner(tmp_path):
     assert "did not stop" in (st / "log").read_text()
 
 
+DEATH = re.compile(r"^\d+ \d{4}-\d\d-\d\d \d\d:\d\d (\S+): exited (\d+)( — (.*))?$")
+
+
 @needs_syspy
-def test_a_pull_whose_runner_dies_at_once_says_so_and_why(tmp_path):
-    """Henri, 2026-08-28 13:27: `pull` said "started llm" and the runner
-    had died a second later at the loader (libsvml.so), with nothing on
-    the terminal — "it should not crash silently".  A pull that starts a
-    runner watches it for a moment: if it stops at once and not by
-    itself cleanly, the pull says the reason and the log's last error
-    line, and exits 1."""
+def test_a_runner_that_dies_writes_one_line_to_the_andon_record(tmp_path):
+    """The death notice (card:canvas.md, day two — Opus 5's draft, 2026-08-28
+    18:35, landed at Henri's "land it" 2026-08-29).  Henri, 2026-08-28
+    13:27: `pull` said "started llm" and the runner had died a second
+    later at the loader, with nothing on the person's side.  Now the
+    runner's own stop path appends one line to the andon record — the
+    file the panel reads, in the record's own shape — so the death and a
+    cord pull land on one timeline, whether or not anyone was watching.
+    The runner appends; `pull` no longer watches for a second (the window
+    Henri named as one "we will eventually revert")."""
     node = tmp_path / "dead"; node.mkdir()
     (node / "grant").write_text("program /bin/sh -c 'echo \"prog: error while loading shared libraries: libx.so\" >&2; exit 127'\n")
     st = tmp_path / "st"
     r = launch(node, "pull", "hello", state=st)
-    assert r.returncode == 1, (r.returncode, r.stderr)
-    assert "exited 127" in r.stderr and "libx.so" in r.stderr, r.stderr
-    assert "started" not in r.stderr.split("exited 127")[0], "it does not claim a start it cannot stand behind"
+    assert r.returncode == 0 and "started dead" in r.stderr, (r.returncode, r.stderr)
+    record = st / "andon" / "andon.log"
+    assert wait(lambda: record.exists()), "the runner's stop wrote no death notice"
+    assert wait(lambda: (st / "stopped").exists())
+    lines = record.read_text().splitlines()
+    assert len(lines) == 1, lines
+    m = DEATH.match(lines[0])
+    assert m, lines[0]
+    assert m.group(1) == "dead" and m.group(2) == "127", lines[0]
+    assert "libx.so" in m.group(4), "the reason is what the program last said"
+
+
+@needs_syspy
+def test_a_clean_stop_writes_no_death_notice(tmp_path):
+    """A zero exit writes nothing, and the launcher's own stops — idle, the
+    sitting — are closes (rc 0): the record is for deaths that were not
+    asked for; a clean stop is already in `stopped` for the row."""
+    st = tmp_path / "st"
+    r = launch(ROOT / "node", "run", state=st, idle="0.4")
+    assert r.returncode == 0, r.stderr
+    assert (st / "stopped").exists()
+    assert not (st / "andon" / "andon.log").exists()
+    node = tmp_path / "quiet"; node.mkdir()
+    (node / "grant").write_text("program /bin/sh -c 'exit 0'\n")
+    st2 = tmp_path / "st2"
+    r = launch(node, "run", state=st2)
+    assert r.returncode == 0 and not (st2 / "andon" / "andon.log").exists()

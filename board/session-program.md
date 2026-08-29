@@ -537,6 +537,14 @@ the 13:27 log shows is enough.  `launch.sh` changed again: his `sudo
 tools/install.sh`, then pull from a shell with the oneAPI env, then the
 kept turn.
 
+*2026-08-29 — the watch reverted, with its replacement.*  Henri's
+"we will eventually revert" came due at his "land it": the runner's own
+stop path now writes a death notice into the andon record on the
+person's side (`card:canvas.md` day two, `tools/launch.sh`), so a
+runner that dies at the loader is a line on the person's timeline
+whether or not `pull` was watching, and `died_at_once` and its two
+calls are gone — a pull says "started" and returns at once again.
+
 ### 2026-08-28, 13:48–13:58 — the first live led turns, read the next sitting
 
 Between the 13:45 fix and the kaizen, Henri ran the kept turn three

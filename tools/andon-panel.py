@@ -32,8 +32,9 @@ looks at is a path — `--canvas DIR`, TEND_CANVAS, else
 the runner leaves (`run.lock` held = running; `stopped`, its mtime the
 last stop and its line the reason; `watch`, a stale heartbeat under a
 held lock = the cords are cut, the same rule `tools/launch.sh status`
-reads) and puts a runner's non-zero stop in the log column beside the
-andon's own lines, one timeline.  It shows; it never rings for a death
+reads) and shows the death notice a runner writes into the record as it
+dies (tools/launch.sh, card:canvas.md day two) in the log column beside
+the andon's own lines, one timeline.  It shows; it never rings for a death
 (the panel's rule: not a second andon), and it never pins — a pin is the
 person's act.
 """
@@ -232,11 +233,18 @@ def read_canvas(canvas_dir=None):
 
 
 def read_log(state_dir=None, pins=()):
-    """One timeline: every line of the andon record (ask, ring, answered) and
-    every pinned runner's non-zero stop, in time order.  A clean stop —
-    idle, the sitting, exit 0 — is the row's last stop and not an event
-    here: the log column is for what went wrong."""
+    """One timeline: every line of the andon record — ask, ring, answered,
+    and a pinned runner's death notice — in time order.  A death is a
+    line the runner's own stop path wrote as it died (tools/launch.sh,
+    `<name>: exited <rc> — <reason>`; card:canvas.md day two), so it is
+    on the timeline whenever it happened and survives the next clean
+    stop; the who-column is the pin's name, read off the prefix.  Day
+    one merged the pin's `stopped` in here at view time and lost it at
+    the next clean stop (§17:30); the record keeps it, so the merge is
+    gone.  A clean stop — idle, the sitting, exit 0 — is the row's last
+    stop and not an event here: the log column is for what went wrong."""
     d = _state_dir(state_dir)
+    names = {p.name for p in pins}
     events = []
     try:
         with open(os.path.join(d, "andon.log")) as f:
@@ -244,13 +252,11 @@ def read_log(state_dir=None, pins=()):
                 parts = line.rstrip("\n").split(maxsplit=3)
                 if len(parts) < 4 or not parts[0].isdigit():
                     continue
-                events.append(Event(int(parts[0]), "andon", parts[3]))
+                text = parts[3]
+                who = text.split(":", 1)[0] if ":" in text else ""
+                events.append(Event(int(parts[0]), who if who in names else "andon", text))
     except OSError:
         pass
-    for p in pins:
-        if p.dead and p.last_stop is not None:
-            text = p.stop_reason + (" — " + p.said if p.said else "")
-            events.append(Event(p.last_stop, p.name, text))
     events.sort(key=lambda e: e.epoch)
     return events
 

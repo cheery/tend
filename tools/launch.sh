@@ -83,6 +83,22 @@
 # `wait` returns and the lock frees.  And the stop itself no longer
 # trusts TERM: after TEND_KILL_WAIT (default 10 s) it escalates to KILL,
 # says so in the log, and still closes as a sitting, exit 0.
+#
+# **The death notice** (2026-08-29, card:canvas.md day two — drafted by
+# Opus 5 from the card's `because`, proposals/compare/2026-08-28-1835-
+# claude-opus-5.md, landed at Henri's "land it").  2026-08-28, 13:27:
+# `pull` said "started llm" and the runner died a second later at the
+# loader, and the fact lived in `$STATE/stopped` and nowhere the person
+# looks.  A non-zero exit now appends one line to the andon record on
+# the person's side — `<epoch> <stamp> <name>: exited <rc> — <what it
+# last said>` in `${TEND_ANDON_STATE:-~/.local/state/tend}/andon.log`,
+# the file tools/andon-panel.py reads — from this stop path and nowhere
+# else: the record's shape is tools/andon.sh's, `pull` does not write
+# it, the panel does not, and a zero exit (idle, the sitting, a program
+# that finished) writes nothing.  It replaces the one-second watch
+# `pull` kept from 13:45 to 2026-08-29 (`died_at_once`: it caught the
+# failure that happened and no slower one, and cost every healthy pull
+# a second — the window Henri named as one "we will eventually revert").
 set -u
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # The tree this governs: TEND_TREE when installed (tools/install.sh), else
@@ -132,20 +148,6 @@ case "$pulse" in ""|/*) ;; *) pulse="$STATE/$pulse" ;; esac
 lock="$STATE/run.lock"
 # the log's last line that is not warning noise — what a program said as it died
 last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
-# a runner that was just started and died at once, not cleanly: say why, exit 1 — a start that is
-# claimed and a runner that is gone a second later is a silent crash (Henri, 2026-08-28 13:27:
-# "it should not crash silently"; pull said "started llm", llama-server had died at the loader)
-died_at_once() {
-    _n=0; while [ "$_n" -lt 10 ]; do   # one second: the loader failure shows in less (13:27: pull :22, stop :23)
-        flock -n "$lock" true 2>/dev/null && break; sleep 0.1; _n=$((_n + 1)); done
-    flock -n "$lock" true 2>/dev/null || return 1     # still running
-    case "$(head -1 "$STATE/stopped" 2>/dev/null)" in
-        "exited 0:"*|"") return 1 ;;
-        *) echo "launch: $name stopped at once — $(head -1 "$STATE/stopped"); it said: $(last_said)" >&2
-           echo "launch: (tools/launch.sh $name check says what it needs; the runner's loader path is the shell's that pulls)" >&2
-           return 0 ;;
-    esac
-}
 stale="${TEND_WATCH_STALE:-60}"
 # seconds the watcher has been silent while a runner holds the lock — empty when the cords are fine
 cut_for() {
@@ -304,6 +306,15 @@ run)
     fi
     [ -n "$why" ] || why="exited $rc: $name stopped by itself"
     echo "$why" > "$STATE/stopped"   # its mtime is the last stop (serve, status); its line is why
+    if [ "$rc" -ne 0 ]; then
+        # the death notice (card:canvas.md, day two): one line in the andon record on the person's
+        # side, the record's own shape (tools/andon.sh `note`), so a death and a cord pull are one
+        # timeline.  The runner appends; nobody else; a clean stop writes nothing; a record that
+        # cannot be written never fails the stop
+        _a="${TEND_ANDON_STATE:-$HOME/.local/state/tend}"; _t=$(date +%s); _said=$(last_said)
+        { mkdir -p "$_a" && printf '%s %s %s: exited %s%s\n' "$_t" "$(date -d "@$_t" '+%Y-%m-%d %H:%M')" \
+            "$name" "$rc" "${_said:+ — $_said}" >> "$_a/andon.log"; } 2>/dev/null || true
+    fi
     exit "$rc" ;;
 pull)
     [ -d "$STATE" ] || mkdir -p "$STATE" 2>/dev/null || true
@@ -313,7 +324,6 @@ pull)
     elif flock -n "$lock" true 2>/dev/null; then
         setsid -f sh "$0" "$NODE" run >/dev/null 2>&1 </dev/null
         n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
-        died_at_once && exit 1
         echo "launch: started $name (idle ${IDLE}s); it stops by itself when pulls stop" >&2
     fi
     exit 0 ;;
@@ -351,7 +361,6 @@ serve)
     flock -n "$lock" true 2>/dev/null || exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
-    died_at_once && exit 1
     echo "launch: $name had an unserved pull and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
 *) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, check, serve" >&2; exit 2 ;;

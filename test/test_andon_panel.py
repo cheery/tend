@@ -159,18 +159,39 @@ def test_a_pinned_node_that_died_at_the_loader_is_a_row_that_says_so(tmp_path):
 
 def test_a_death_is_a_line_in_the_log_column_beside_the_andon_lines(tmp_path):
     """One timeline: a ring, an ask, an answer and a runner's non-zero stop
-    are the same kind of line, in time order."""
+    are the same kind of line, in time order.  Day two (card:canvas.md,
+    2026-08-29): the death is a line the runner's own stop path wrote
+    into the record — `<epoch> <stamp> <name>: exited <rc> — <reason>` —
+    not a merge the panel makes at view time; the who-column is the
+    pin's name, read off the line's `<name>:` prefix, so it is bold the
+    way a cut is."""
     node = dead_node(tmp_path, at=1787912843)
     canvas = tmp_path / "canvas"; pin(canvas, "llm", node)
     write(tmp_path,
           pending="",
           log="1787912000 2026-08-28 13:13 ask a question before\n"
+              "1787912843 2026-08-28 13:27 llm: exited 127 — " + LOADER + "\n"
               "1787914724 2026-08-28 13:58 ask llm (lead): a question after\n")
     events = read_log(tmp_path, read_canvas(canvas))
     kinds = [(e.epoch, e.who) for e in events]
     assert kinds == [(1787912000, "andon"), (1787912843, "llm"), (1787914724, "andon")], kinds
     death = events[1]
     assert "exited 127" in death.text and "libsvml.so" in death.text
+    assert [e for e in events if e.who == "llm"] == [death], "the death is on the timeline once, from the record"
+
+
+def test_a_death_survives_the_next_clean_stop(tmp_path):
+    """§17:30's open question, answered by the record: the row shows the
+    *last* stop (idle, this afternoon), and the 13:27 death is still a
+    line on the timeline because the runner wrote it when it died, and
+    `stopped` being rewritten since does not take it back."""
+    node = dead_node(tmp_path, stopped="idle: nothing has pulled llm for 60s", at=1787916000)
+    canvas = tmp_path / "canvas"; pin(canvas, "llm", node)
+    write(tmp_path, log="1787912843 2026-08-28 13:27 llm: exited 127 — " + LOADER + "\n")
+    rows = read_canvas(canvas)
+    assert rows[0].stop_reason.startswith("idle:") and not rows[0].dead
+    events = read_log(tmp_path, rows)
+    assert [(e.epoch, e.who) for e in events] == [(1787912843, "llm")], events
 
 
 def test_a_clean_stop_is_not_a_line_in_the_log_column(tmp_path):
@@ -223,7 +244,8 @@ def test_a_pin_may_name_a_state_directory_that_is_not_the_nodes_default(tmp_path
 def test_the_canvas_is_a_path_and_the_panel_reads_it_without_a_terminal(tmp_path):
     node = dead_node(tmp_path)
     canvas = tmp_path / "srv"; pin(canvas, "llm", node)
-    write(tmp_path, pending="", log="")
+    # the runner wrote its death into the record as it died (day two)
+    write(tmp_path, pending="", log="1787912843 2026-08-28 13:27 llm: exited 127 — " + LOADER + "\n")
     r = subprocess.run(["python3", str(ROOT / "tools" / "andon-panel.py"), "--canvas", str(canvas)],
                        capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))
     assert r.returncode == 0, r.stderr

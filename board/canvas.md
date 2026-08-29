@@ -254,3 +254,48 @@ timeline; it is not taken.
 (`card:session-program.md`, brick 3), and §18:45 said the draft is his
 to read.  His word — "land it" — and the commit above is one sitting's
 work.
+
+## 2026-08-29, 08:20 — day two built: the runner writes its death into the record, and the watch is reverted
+
+Henri: *"I saw that I had something to review, but I didn't do it
+yesterday.  Hmm.. lets 'land it'"*.  Landed as §07:50 spelled it, red
+first.
+
+**What is there.**  `tools/launch.sh`'s stop path — the one place
+`stopped` is written — appends one line to the andon record when the
+exit is non-zero: `<epoch> <YYYY-MM-DD HH:MM> <name>: exited <rc> —
+<what it last said>`, the record's own shape (`andon.sh`'s `note`),
+in `${TEND_ANDON_STATE:-~/.local/state/tend}/andon.log`, the file the
+panel reads.  The runner appends and nobody else; a zero exit and the
+launcher's own stops (idle, the sitting: `rc=0`) write nothing; a
+record that cannot be written never fails the stop.  `died_at_once`
+and its two calls (`pull`, `serve`) are gone — the §13:45 watch
+reverted, with its replacement in the same commit.  `andon-panel.py`'s
+`read_log` reads the death off the record like any other line and
+takes the who-column from the `<name>:` prefix when the name is a pin's,
+so a death is bold the way a cut is; day one's view-time merge of the
+pin's `stopped` is removed — with the record keeping the death it would
+have shown the same death twice while it was still the last stop.
+
+**Red first.**  `test_launch.py`: a grant whose program dies at the
+loader with 127 — `pull` returns 0 saying "started" and the record has
+exactly one line, the name, the code, and `libx.so` in the reason (red
+today: `pull` exited 1 through the watch); a clean run and an idle stop
+leave no record at all.  `test_andon_panel.py`: the death on the
+timeline once, from the record, as `llm` between two andon lines; and
+§17:30's open question as a test — **a death survives the next clean
+stop**: the row says `idle:` and the timeline still has 13:27.  The
+one panel test that had an empty record and expected the merge now
+writes the line the runner would have (a fixture builds the side it
+means).  Every test in the fixture points the record at scratch
+(`TEND_ANDON_STATE`), never at the person's.
+
+**What it does not do.**  It does not ring (the panel's rule) and it
+does not pin.  The reason is the program's last real line, one line,
+not truncated to a row's width — the panel's column wraps or cuts it,
+not the record.  Sonnet 5's `died` file is not taken.  And nothing
+runs it until his `sudo tools/install.sh`: `launch.sh` is in the
+installed set, the tree's copy is the workbench, and the lander lamp
+says the installed set is behind HEAD until then.  **The card's first
+measurement is his**: the next 13:27, on the panel, without `pull`
+having watched.
