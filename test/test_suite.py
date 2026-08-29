@@ -10,6 +10,7 @@ over a passing one it returns zero and says the gates hold.
 
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -44,6 +45,10 @@ def _run(tmp_path, body, *args, env=None):
     (tmp_path / "tools").mkdir(exist_ok=True)
     (tmp_path / "tools" / "suite.py").write_text(SUITE.read_text(encoding="utf-8"))
     (tmp_path / "test").mkdir(exist_ok=True)
+    # two bodies of one length written in one second are one file to pytest's
+    # assertion-rewrite cache (mtime + size): test_yes ran test_no's bytecode
+    # until this — the 2026-08-26 fixture rule, a seam with nothing on either side
+    shutil.rmtree(tmp_path / "test" / "__pycache__", ignore_errors=True)
     (tmp_path / "test" / "test_one.py").write_text(body)
     e = dict(os.environ, TEND_FAILED_LOG=str(tmp_path / "failed.log"))
     e.pop("TEND_SUITE_WHERE", None)      # the seat is the test's to name, never the gate's inherited one

@@ -27,6 +27,16 @@ def _the_canvas_is_the_fixtures_own(monkeypatch, tmp_path):
 
 
 @pytest.fixture(autouse=True)
+def _the_failure_ledger_is_the_fixtures_own(monkeypatch, tmp_path):
+    """card:flake.md, the evening it landed: test_precommit.py's scratch tree
+    runs the suite over a test that must fail, and five lines of
+    `test_one.py::test_no` reached the person's ~/.local/state/tend/failed.log
+    before the commit was an hour old — a fixture's failure counted as the
+    machine's.  The same rule as the canvas: every test's ledger is its own."""
+    monkeypatch.setenv("TEND_FAILED_LOG", str(tmp_path / "failed.log"))
+
+
+@pytest.fixture(autouse=True)
 def _git_is_the_fixtures_own(monkeypatch):
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
     monkeypatch.setenv("GIT_CONFIG_SYSTEM", os.devnull)

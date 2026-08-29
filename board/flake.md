@@ -58,6 +58,20 @@ it and the seat; a passing suite leaves nothing; the second failure of
 the same test says "seen before"; a test that fails on every other run
 shakes to "2 of 4".
 
+*Day one landed at 19:38 (`4bc50d9`), and paid the fixture rule twice
+within the hour.*  The gate's own run over it left five lines of
+`test_one.py::test_no` in the person's live ledger — `test_precommit.py`'s
+scratch tree runs the suite over a test that must fail, and nothing gave
+it a ledger of its own; `conftest.py` now does, as it gives the canvas
+(2026-08-29 afternoon) and git.  And the ledger tests' own helper
+rewrote one file with two bodies of equal length in one second, and
+pytest's assertion-rewrite cache (mtime + size) ran `test_no`'s
+bytecode under `test_yes`'s name — the seam with nothing on either side,
+2026-08-26's rule verbatim; the helper clears `__pycache__` first.  Both
+were found by running, not by reading; the second is itself a flake of
+the kind this card is for, caught on the first run only because the
+bodies happened to collide.
+
 ## Rules
 
 1. **Never a silent retry.**  The suite runs once and reports once; the
