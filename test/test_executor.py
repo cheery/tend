@@ -72,10 +72,10 @@ def test_the_manifest_is_one_line_per_tool_under_a_kilobyte_and_named_what_the_t
     r = bare("--manifest")
     assert r.returncode == 0, r.stderr
     m = json.loads(r.stdout)
-    assert [t["function"]["name"] for t in m] == ["read", "ls"], "pi's read, the shell's ls — never read_file/list_board"
+    assert [t["function"]["name"] for t in m] == ["read", "ls", "grep"], "pi's read, the shell's ls and grep — never read_file/list_board"
     for t in m:
         assert "\n" not in t["function"]["description"] and len(t["function"]["description"]) < 120, "one line per tool"
-        assert len(t["function"]["parameters"]["required"]) == 1
+        assert t["function"]["parameters"]["required"] and all(v == {"type": "string"} for v in t["function"]["parameters"]["properties"].values())
     assert len(r.stdout.strip().encode()) < 1024, f"the manifest is {len(r.stdout.encode())} bytes — the cap is 1 KB"
     assert [t["function"]["name"] for t in json.loads(bare("--manifest", "read").stdout)] == ["read"]
     r = bare("--manifest", "bash")
@@ -97,6 +97,30 @@ def test_read_and_ls_say_what_they_did_in_one_line(tmp_path):
     r = bare("write", "board/x.md", tree=t)
     assert r.returncode == 2 and "read PATH" in r.stderr
     assert bare("read", tree=t).returncode == 2
+    # the arguments as the wire sends them: one JSON object, the parameters by name — or the one parameter however named
+    assert said(bare("read", '{"path": "board/x.md"}', tree=t))["c"] == "read board/x.md → 21 chars"
+    assert said(bare("ls", '{"directory": "board/"}', tree=t))["c"] == "ls board/ → 2 entries"
+
+
+def test_grep_says_path_line_and_text_and_is_refused_by_keep_like_the_others(tmp_path):
+    """The first tooled turn wanted it (2026-08-30 15:07, qwen through the
+    openrouter door: "Hmm, I can't grep").  A regex over a file or a
+    directory walked, `path:line: text`, the paths as the call gave
+    them; a bad pattern is a result; a top the kernel refuses is the
+    same refusal as read's — the walk does not swallow it."""
+    t = a_tree(tmp_path)
+    r = said(bare("grep", "card", "board/", tree=t))
+    assert r == {"c": "grep card board/ → 3 lines in 1 file", "result": "board/x.md:1: card x\nboard/x.md:2: card x\nboard/x.md:3: card x"}
+    assert said(bare("grep", "the board", "board/README.md", tree=t)) == {"c": "grep the board board/README.md → 1 line in 1 file", "result": "board/README.md:1: # the board"}
+    assert said(bare("grep", "nothing here", "board", tree=t)) == {"c": "grep nothing here board → 0 lines in 0 files", "result": "no match"}
+    assert said(bare("grep", "[", "board/", tree=t))["c"].startswith("grep [ board/ → bad pattern: ")
+    assert said(bare("grep", '{"pattern": "x", "path": "board/x.md"}', tree=t))["c"] == "grep x board/x.md → 3 lines in 1 file"
+    r = said(bare("grep", "card", "board/", tree=t, TEND_GREPLINES="2"))
+    assert r["c"] == "grep card board/ → 2 lines in 1 file, cut at 2" and r["result"].endswith("[… cut at 2 lines]")
+    assert said(kept("grep", "card", "board/", tree=t))["c"] == "grep card board/ → 3 lines in 1 file"
+    assert said(kept("grep", "allow", "llm/", tree=t))["c"] == "grep allow llm/ → refused by keep"
+    assert said(kept("grep", "allow", ".", tree=t))["c"] == "grep allow . → refused by keep", "the tree root is not a part; the walk's first refusal is the call's"
+    assert bare("grep", "onlyone", tree=t).returncode == 2
 
 
 def test_under_keep_a_path_outside_the_parts_is_refused_by_the_kernel_and_the_refusal_is_the_result(tmp_path):

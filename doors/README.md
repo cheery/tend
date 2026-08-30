@@ -13,8 +13,8 @@ offers — id, context, price per M tokens — and `--use ID` sets the
 door's `model` line to an id it lists (2026-08-30, Henri: "I'd need a
 way to browse through all 500 models there are").
 
-`tools  read ls` on a door file admits the mind to the two tools
-(`tools/executor.py`, one process under keep per call, run by the
+`tools  read ls grep` on a door file admits the mind to the tools it names
+(`tools/executor.py` — `read`, `ls`, `grep` — one process under keep per call, run by the
 courier `tools/deliver.sh`), and `calls  N` caps the calls a turn (8
 unsaid); `tools/door.sh NAME --tools` reads the two.  Absent, a turn
 carries no tools.  Every call is a `C:` line on the record

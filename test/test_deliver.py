@@ -396,6 +396,18 @@ def test_a_call_past_the_cap_is_not_run_and_a_mind_that_keeps_calling_is_stopped
     assert "1 calls" in BODIES[n0]["messages"][0]["content"]
 
 
+def test_grep_rides_the_same_wire_with_its_two_arguments(tmp_path, stub):
+    st = tmp_path / "s"; st.mkdir(); t = a_tree(tmp_path)
+    door = a_tooled_door(tmp_path, stub, tools="read ls grep")
+    SCRIPT["find"] = [("calls", [("grep", {"pattern": "card", "path": "board/"})]), ("say", "three")]
+    n0 = len(BODIES)
+    r = deliver(NODE, "find", state=st, stub=stub, TEND_TREE=str(t), **door)
+    assert r.returncode == 0, r.stderr
+    assert [x["function"]["name"] for x in BODIES[n0]["tools"]] == ["read", "ls", "grep"]
+    assert BODIES[n0 + 1]["messages"][3] == {"role": "tool", "tool_call_id": "call_0_0", "content": "board/x.md:1: card x\nboard/x.md:2: card x\nboard/x.md:3: card x"}
+    assert record(st)[2:] == ["C: grep card board/ → 3 lines in 1 file", "A: three"]
+
+
 def test_a_nodes_grant_names_the_tools_the_same_way(tmp_path, stub):
     """The local node takes the same wire: a `tools` line in its grant, the
     call run under keep, the ask still a pull line, the loader knob still

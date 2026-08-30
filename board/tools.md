@@ -258,3 +258,43 @@ is Henri's to write, as the model line was (`tools  read ls` on
 `doors/openrouter/door`), and the first tooled turn is his hand outside
 the fence; and `compare.py`'s paired measurement, the prediction above,
 is the next sitting's.  Day two (`propose`) waits on day one holding.
+
+**The first tooled turn, 2026-08-30 15:07** — Henri's hand, `tools  read
+ls` on the openrouter door, `panel.py talk --door openrouter llm "what
+is on the board right now?"`, qwen3.8-flash.  Eight calls: `ls board/`,
+six reads, `ls board/later/`; the record has Q, V, eight `C:` lines, T,
+A, in that order.  What held: the leash did the counting — the model's
+own count of its calls was wrong twice ("4 calls left… 3 left… 1 left")
+and the courier's eight was exact; every act was on the screen before
+the answer; and the answer cited lines the digest cannot carry (hold's
+tick and `TICK STALE`, flake's 8 of 10, canvas's "a bit mystified") —
+the prediction's shape, one turn of the ten.  **Three findings**, read
+off the record with Henri ("I think that recommendation holds"):
+
+1. **The read cap starved it.**  Five of six reads say `12.0k chars,
+   cut`: `TEND_READCHARS=12000` is gemma's number (an 8 k context) and
+   this door has 262 k, so the model spent five calls on half-cards and
+   two errors in its answer came from the halves ("`cords` waits until
+   08-31", the `later/` count — stale README prose read past the cut).
+   The fix is a `readchars` word on the door and on the grant — a cap
+   is a gate and the number is his — not a larger default for everyone.
+   Not built; a sitting that starts with it.
+2. **It wanted `grep`** — "Hmm, I can't grep", in the thinking, at the
+   point where it had eight files to search and three calls left.  A
+   third tool wanted by a turn and not designed ahead of one, which is
+   the reach table's rule for tools.  **Built the same sitting** at
+   Henri's "write especially grep on the card, and maybe implement it
+   as well": `grep(pattern, path)` in `tools/executor.py` — a regex
+   over a file or a directory walked, `path:line: text` back, capped at
+   `TEND_GREPLINES` (200), a bad pattern a result, and refused by keep
+   exactly as `read` is: the walk does not swallow the kernel's refusal
+   (the first version did, and said "0 lines" for `llm/` — caught by
+   running it under keep before the test was written).  The manifest is
+   677 bytes with three tools; the courier now hands the executor the
+   arguments as the wire sent them, one JSON object, so a two-parameter
+   tool needed no courier change of its own.  A door admits it by name:
+   `tools  read ls grep`.
+3. **The thinking came through unasked and was printed whole.**
+   `TEND_THINK` was off; qwen reasons anyway and the wire returned it;
+   `talk` prints whatever `T:` holds.  That is `card:private.md`'s first
+   half, unbuilt, now with a specimen.

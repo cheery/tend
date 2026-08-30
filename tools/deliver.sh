@@ -186,8 +186,10 @@ round_calls() {
 ncalls=0
 run_call() {
     _name=$1; _arg=$2
+    # the line's words are the arguments' values, as the executor prints them; a bare argument is itself
+    _shown=$(printf '%s' "$_arg" | jq -R -r 'try (fromjson | if type == "object" then [.[] | tostring] | join(" ") else tostring end) catch .' 2>/dev/null || printf '%s' "$_arg")
     if [ "$ncalls" -ge "$calls_cap" ]; then
-        _c="$_name $_arg → out of calls ($calls_cap a turn)"
+        _c="$_name $_shown → out of calls ($calls_cap a turn)"
         printf '%s' "out of calls: $calls_cap a turn — answer with what you have" > "$rfile"
         return 0
     fi
@@ -199,7 +201,7 @@ run_call() {
     else
         # keep would not run it, or the executor did not answer: never run unkept; the line says what was said
         _said=$(grep -v 'DeprecationWarning\|^ *class ' "$_err" 2>/dev/null | tail -1)
-        _c="$_name $_arg → not run: ${_said:-the executor said nothing}"; printf '%s' "not run: ${_said:-the executor said nothing}" > "$rfile"
+        _c="$_name $_shown → not run: ${_said:-the executor said nothing}"; printf '%s' "not run: ${_said:-the executor said nothing}" > "$rfile"
     fi
     rm -f "$_err"
 }
@@ -229,7 +231,7 @@ answer_line() {
         tmsgs='[]'; ci=0
         while [ "$ci" -lt "$n" ]; do
             cid=$(printf '%s' "$calls" | jq -r ".[$ci].id"); cname=$(printf '%s' "$calls" | jq -r ".[$ci].name")
-            carg=$(printf '%s' "$calls" | jq -r ".[$ci].args | (try fromjson catch {}) | (.path // .dir // (to_entries | .[0].value?) // \"\") | tostring")
+            carg=$(printf '%s' "$calls" | jq -r ".[$ci].args | (try fromjson catch {}) | tojson")   # the arguments as sent; the executor names them
             run_call "$cname" "$carg"
             printf 'C: %s\n' "$_c" >> "$tcalls"
             crec="$crec$(stamp) C: $_c
