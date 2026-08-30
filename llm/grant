@@ -2,6 +2,10 @@
 # (board/work-environment-ai.md, 2026-08-26: measured before this file existed).  The model is data the
 # person brings into llm/model/ (gitignored); $MODEL is the first *.gguf there.
 allow model
+# the mind, named (2026-08-30, Henri: "I'd want the bigger mind"): until this line $MODEL was the first *.gguf by
+# name, which was MiniCPM5-1B — a morning's talk answered by a 1B model that sorted before gemma.  Named here, the
+# pick is written, and `launch.sh llm check` is red when the file is not
+model model/gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf
 # the SYCL build's runtime on the work laptop (2026-08-28) — readable where it is, no refusal where it is not
 allow-try /opt/intel/oneapi
 # the GPU, proposed 2026-08-28 from inside a fence that has neither: the run under keep died with "can not

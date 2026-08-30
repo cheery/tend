@@ -457,6 +457,27 @@ and the test reads the first half off disk while deliver is still
 running — the streaming measured, not assumed — and a token with a
 newline, a tab or a backslash lands as itself; one row.
 
+**A door, the same hour** — Henri: "I'd want the bigger mind.  Also, I
+now have the openrouter available for use."  The bigger mind is the
+launcher's: a `model` line in the grant names the file (`llm/grant`
+names gemma4 now; until then `$MODEL` was the first `*.gguf` by name,
+which was MiniCPM5-1B — card:model-acceptance.md's `because`, met by
+`ls` order), and `check` is red when the file is not there.  The door
+is deliver's: `TEND_DOOR=NAME` sends the turn through `doors/NAME`
+(`tools/door.sh`: url, model, the key on curl's stdin), streamed as
+before, thinking in OpenRouter's own words (`reasoning`), and the
+exchange carries a `V:` line naming the door and its model — the
+record says who answered.  Through a door the ask is **not a pull**: a
+pull starts the local node, and the door is another mind.  On the
+panel: `[d]` cycles the mind — the node, then each door — the title
+says which, the answer is labelled with the door, and `talk --door
+NAME` from a shell is the same.  One conversation, one record, whichever
+mind answered each turn.  Held by `test_launch.py` (the model named,
+`check` red on a missing file, the llm grant names one),
+`test_deliver.py` (the door's model and key, never a pull, the V line,
+the door's own thinking spelling, a silent door named), `test_panel.py`
+(via read back, the flag, the env, the cycle); four rows.
+
 **What it is not.**  Not a second record — the pull file and `replies`
 were already the node's, and `tools/deliver.sh` without a question still
 delivers a session's pulls the same way.  Not a chat client to the port

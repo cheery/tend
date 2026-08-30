@@ -36,6 +36,10 @@
 #                       cache the program will not create for itself (the GPU driver's, 2026-08-28)
 #     env NAME=VALUE    exported to the program before keep execs it; $NODE, $STATE and $MODEL expand — for a
 #                       runtime's cache under $STATE, which keep already lets it write (2026-08-28)
+#     model FILE        the model, relative to NODE: $MODEL is this file (2026-08-30, Henri: "I'd want the
+#                       bigger mind" — until then $MODEL was the first *.gguf by name, and the mind that
+#                       answered a morning of talk was a 1B model that sorted first: card:model-acceptance.md's
+#                       because, met by ls order).  Absent, the first *.gguf under NODE/model, as before
 #
 # **Why a file and not a launcher per program** (2026-08-26): the first
 # node's grant was three flags in `node/run.sh`, and the second node's
@@ -47,8 +51,8 @@
 # read-only to a session inside the fence, its pull file the one write
 # (`tools/sandbox.sh`), so a session can pull and read and cannot run.
 #
-#     $MODEL   the first *.gguf under NODE/model, if any — a model is data the
-#              person brings; its name is never in the tree
+#     $MODEL   the grant's `model` line, else the first *.gguf under NODE/model, if
+#              any — a model is data the person brings; the file is never in the tree
 #     $STATE   NODE/state, or TEND_STATE_DIR (tests point it at a scratch dir)
 #
 # **The sitting** (2026-08-27, board/session-program.md — day one: one
@@ -147,10 +151,12 @@ while IFS= read -r line || [ -n "$line" ]; do
         program)     program=$val ;;
         status)      status_cmd=$val ;;
         make)        case "$val" in /*) ;; *) val="$STATE/$val" ;; esac; makes="$makes $val" ;;
+        model)       case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; MODEL=$val ;;
         env)         case "$val" in [A-Za-z_]*=*) envs="$envs $val" ;; *) echo "launch: $name/grant: env wants NAME=VALUE, got \`$val\`" >&2; exit 2 ;; esac ;;
         *) echo "launch: $name/grant: unknown word \`$key\`" >&2; exit 2 ;;
     esac
 done < "$NODE/grant"
+export MODEL
 IDLE="${TEND_IDLE:-${TEND_NODE_IDLE:-${idle_grant:-30}}}"; export IDLE
 SITTING="${TEND_SITTING:-$sitting_grant}"; sitting_s=""
 case "$SITTING" in
@@ -279,7 +285,8 @@ check)
     for e in $envs; do nm=$(printf '%s' "$e" | cut -d= -f1); v=$(printenv "$nm"); ok "env $nm=$v"; done
     for m in $makes; do if [ -d "$m" ]; then ok "make $m"; else printf '  · %s\n' "make $m is made by run"; fi; done
     case "$program $status_cmd" in
-        *'$MODEL'*) if [ -n "$MODEL" ]; then ok "model $MODEL"
+        *'$MODEL'*) if [ -n "$MODEL" ] && [ -e "$MODEL" ]; then ok "model $MODEL"
+                    elif [ -n "$MODEL" ]; then bad "model $MODEL is not there — the grant names it, and the model is data the person brings (never in the tree)"
                     else bad "no *.gguf under $NODE/model — the program line uses \$MODEL, and the model is data the person brings (never in the tree)"; fi ;;
     esac
     # Inside the fence the state directory is read-only to a session by

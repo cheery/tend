@@ -21,6 +21,7 @@ NODE = ROOT / "llm"
 
 
 BODIES = []   # every request the stub answered, for the tests that read what was sent
+HEADS = []    # the Authorization header of each, or None
 
 
 PAUSE = 0.4   # between the two halves of a streamed answer: long enough for a reader to see the first
@@ -38,11 +39,13 @@ class _Stub(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         import time
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        BODIES.append(body)
+        BODIES.append(body); HEADS.append(self.headers.get("Authorization"))
         asked = body["messages"][-1]["content"]
         deltas = []
         if body.get("chat_template_kwargs", {}).get("enable_thinking"):
-            deltas.append({"reasoning_content": f"think<{asked}>"})
+            deltas.append({"reasoning_content": f"think<{asked}>"})     # llama-server's spelling
+        elif body.get("reasoning", {}).get("enabled"):
+            deltas.append({"reasoning": f"think<{asked}>"})             # OpenRouter's
         deltas += [{"content": "echo<"}, {"content": f"{asked}>"}]
         self.send_response(200); self.send_header("Content-Type", "text/event-stream"); self.end_headers()
         for i, d in enumerate(deltas):
@@ -190,3 +193,49 @@ def test_a_reply_with_newlines_and_backslashes_survives_the_stream(tmp_path, stu
     assert r.returncode == 0, r.stderr
     ex = (st / "replies").read_text()
     assert "A: echo<a\\b\tc>" in ex, ex
+
+
+def a_door(tmp_path, stub, name="openrouter"):
+    """A door at the stub: url, a model name, a key file outside the tree
+    with mode 600 (tools/door.sh refuses anything else)."""
+    key = tmp_path / "keys" / f"{name}.key"; key.parent.mkdir(exist_ok=True)
+    key.write_text("sk-test-0000\n"); key.chmod(0o600)
+    d = tmp_path / "doors" / name; d.mkdir(parents=True)
+    (d / "door").write_text(f"url  {stub['TEND_LLM_URL']}\nmodel  vendor/some-model\nkey  {key}\nadmitted  the test\n")
+    return {"TEND_DOOR_DIR": str(tmp_path / "doors"), "TEND_DOOR": name, "HOME": str(tmp_path)}
+
+
+def test_a_door_carries_the_turn_with_its_model_and_key_and_is_never_a_pull(tmp_path, stub):
+    """Henri, 2026-08-30: "I now have the openrouter available for use."
+    Through a door the request names the door's model and carries its key
+    (on stdin to curl, never the argument line); no chat_template_kwargs,
+    which is the node's loader knob; the ask is not a pull line — a pull
+    would start the local node — and the record's V line says who
+    answered.  Thinking through a door is OpenRouter's `reasoning`, read
+    back from its own spelling."""
+    st = tmp_path / "s"; st.mkdir()
+    door = a_door(tmp_path, stub)
+    # the stub is the "door": point the node's url elsewhere so a turn that ignored the door would fail
+    r = deliver(NODE, "through", state=st, stub={"TEND_LLM_URL": "http://127.0.0.1:9/x", "TEND_LLM_HEALTH": "http://127.0.0.1:9/h"}, **door)
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["model"] == "vendor/some-model" and "chat_template_kwargs" not in BODIES[-1]
+    assert HEADS[-1] == "Bearer sk-test-0000"
+    assert not (st / "pull").exists(), "a door turn is not a pull"
+    lines = [l.split(" ", 2)[2] for l in (st / "replies").read_text().splitlines() if l]
+    assert lines == ["Q: through", "V: openrouter vendor/some-model", "A: echo<through>"]
+    assert "  via: openrouter (vendor/some-model)" in r.stdout
+    r = deliver(NODE, "deep", state=st, stub=stub, TEND_THINK="1", **door)
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["reasoning"] == {"enabled": True} and "chat_template_kwargs" not in BODIES[-1]
+    assert "T: think<deep>" in (st / "replies").read_text()
+    assert "sk-test" not in (st / "replies").read_text()
+
+
+def test_a_door_that_does_not_answer_says_the_doors_name(tmp_path, stub):
+    st = tmp_path / "s"; st.mkdir()
+    door = a_door(tmp_path, stub)
+    (tmp_path / "doors" / "openrouter" / "door").write_text(
+        f"url  http://127.0.0.1:9/nothing\nmodel  vendor/x\nkey  {tmp_path}/keys/openrouter.key\n")
+    r = deliver(NODE, "hello", state=st, stub=stub, **door)
+    assert r.returncode == 1 and "the openrouter door did not answer" in r.stderr, r.stderr
+    assert not (st / "replies").exists()

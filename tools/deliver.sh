@@ -39,6 +39,15 @@
 # $STATE/turn.answer, the live files the panel's talk screen reads while
 # a turn is in flight; when the stream ends they are the whole reply,
 # the record is written from them, and they are removed.
+# TEND_DOOR=NAME sends the turn through a door (tools/door.sh, doors/)
+# instead of the node's port (2026-08-30 — Henri: "I now have the
+# openrouter available for use"): the door's url, model and key, the key
+# on curl's stdin and never its argument line, as lead.sh does.  Through
+# a door the ask is not a pull — a pull starts the local node, and the
+# door is another mind — and the exchange carries a `V:` line naming the
+# door and its model, so the record says who answered.  Thinking through
+# a door is OpenRouter's `reasoning` parameter, and the reasoning comes
+# back as `delta.reasoning`; both spellings are read.
 # TEND_HISTORY is the conversation so far — a JSON array of prior
 # messages, prepended to the ask so the model answers in the
 # conversation and not cold (tools/panel.py's talk, 2026-08-30 — Henri:
@@ -57,6 +66,11 @@ port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=1
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
+door=$(printenv TEND_DOOR || true); dmodel=""; keyfile=""
+if [ -n "$door" ]; then
+    d=$(sh "$here/door.sh" "$door") || exit $?
+    CHAT=$(printf '%s\n' "$d" | sed -n 1p); dmodel=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
+fi
 think=$(printenv TEND_THINK || true)
 if [ -n "$think" ]; then think=true; else think=false; fi
 tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"   # the turn in flight, as it arrives
@@ -77,15 +91,23 @@ stamp() { date '+%Y-%m-%d %H:%M'; }
 # loudly when the node did not answer, or answered with no completion.
 ask() {
     _q=$1
-    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" \
-        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,stream:true,chat_template_kwargs:{enable_thinking:$t}}')
+    # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words
+    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
+        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,stream:true}
+         + (if $m == "" then {chat_template_kwargs:{enable_thinking:$t}}
+            else {model:$m} + (if $t then {reasoning:{enabled:true}} else {} end) end)')
     : > "$tthink"; : > "$tans"
     _raw="$STATE/.turn.raw"; _rcf="$STATE/.turn.rc"
-    { curl -sSN -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"; echo $? > "$_rcf"; } \
+    { if [ -n "$keyfile" ]; then
+          # the key goes to curl on stdin (-K -), never on the argument line (tools/door.sh)
+          printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \
+            | curl -sSN -m 600 -K - -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"
+      else curl -sSN -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"; fi
+      echo $? > "$_rcf"; } \
       | tee "$_raw" | sed -u 's/^data: //' | grep --line-buffered '^{' \
       | jq --unbuffered -r '.choices[0].delta // {}
             | def esc: gsub("\\\\"; "\\\\") | gsub("\n"; "\\n") | gsub("\t"; "\\t") | gsub("\r"; "\\r");
-              ((.reasoning_content // "") | select(length > 0) | "T" + esc),
+              ((.reasoning_content // .reasoning // "") | select(length > 0) | "T" + esc),
               ((.content // "") | select(length > 0) | "A" + esc)' 2>/dev/null \
       | while IFS= read -r _line; do
             _text=${_line#?}
@@ -96,7 +118,9 @@ ask() {
         done
     _rc=$(cat "$_rcf" 2>/dev/null || echo 1); rm -f "$_rcf"
     if [ "$_rc" != 0 ]; then
-        echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; rm -f "$_raw"; return 1; fi
+        if [ -n "$door" ]; then echo "deliver: the $door door did not answer at $CHAT" >&2
+        else echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; fi
+        rm -f "$_raw"; return 1; fi
     if [ ! -s "$tans" ] && [ ! -s "$tthink" ]; then
         echo "deliver: the node's reply was not a completion:" >&2; head -3 "$_raw" >&2; rm -f "$_raw"; return 1; fi
     rm -f "$_raw"
@@ -113,9 +137,11 @@ answer_line() {
     if [ -z "$_a" ]; then _a=$thought; thought=""; fi
     rm -f "$tans" "$tthink"
     { printf '%s Q: %s\n' "$(stamp)" "$_words"
+      [ -z "$door" ] || printf '%s V: %s %s\n' "$(stamp)" "$door" "$dmodel"
       [ -z "$thought" ] || printf '%s T: %s\n' "$(stamp)" "$thought"
       printf '%s A: %s\n\n' "$(stamp)" "$_a"; } >> "$replies"
     printf '  Q: %s\n' "$_words"
+    [ -z "$door" ] || printf '  via: %s (%s)\n' "$door" "$dmodel"
     [ -z "$thought" ] || printf '  T: %s\n' "$thought"
     printf '  A: %s\n' "$_a"
 }
@@ -131,7 +157,7 @@ wait_ready() {
 
 # inside the fence the delivery is the runner's side to make
 if [ -n "${TEND_FENCED:-}" ]; then
-    if [ -n "$q" ]; then sh "$here/launch.sh" "$NODE" pull "$q"; fi
+    if [ -n "$q" ] && [ -z "$door" ]; then sh "$here/launch.sh" "$NODE" pull "$q"; fi
     echo "deliver: inside the fence — the ask is recorded; the runner's side delivers it (run tools/deliver.sh $name outside the fence)" >&2
     exit 0
 fi
@@ -139,6 +165,12 @@ fi
 total=$( [ -f "$pull" ] && grep -c . "$pull" || echo 0 )
 done_n=$( [ -f "$marker" ] && cat "$marker" || echo -1 )
 
+if [ -n "$q" ] && [ -n "$door" ]; then
+    # through a door the ask is not a pull: a pull starts the local node, and the door is another
+    # mind.  The exchange is the record, and its V line says who answered
+    answer_line "$(date +%s) $q" || exit 1
+    exit 0
+fi
 if [ -n "$q" ]; then
     # pull records the words and starts the node; then answer just this one
     [ -n "${TEND_NO_START:-}" ] || sh "$here/launch.sh" "$NODE" pull "$q" >/dev/null 2>&1 || true

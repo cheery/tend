@@ -497,6 +497,7 @@ REPLIES = """2026-08-30 06:10 Q: what is jidoka
 It means the machine stops itself.
 
 2026-08-30 06:12 Q: and kanban
+2026-08-30 06:12 V: openrouter vendor/big
 2026-08-30 06:12 T: the user asks about kanban.
 It is a pull signal.
 2026-08-30 06:12 A: a card.
@@ -511,6 +512,7 @@ def test_the_replies_record_reads_back_as_exchanges(tmp_path):
         ("what is jidoka", "stop the line.\nIt means the machine stops itself."), ("and kanban", "a card.")]
     assert ex[0].stamp == "2026-08-30 06:10"
     assert ex[0].thinking == "" and ex[1].thinking == "the user asks about kanban.\nIt is a pull signal."
+    assert ex[0].via == "" and ex[1].via == "openrouter vendor/big"
     assert panel.read_replies(str(tmp_path / "none")) == []
     assert panel.history(ex, turns=1) == [{"role": "user", "content": "and kanban"},
                                           {"role": "assistant", "content": "a card."}]
@@ -520,6 +522,7 @@ def test_the_replies_record_reads_back_as_exchanges(tmp_path):
 class _Model(http.server.BaseHTTPRequestHandler):
     """A model at a port: echoes the last message, keeps every request."""
     bodies = []
+    heads = []
 
     def log_message(self, *a): pass
 
@@ -534,6 +537,7 @@ class _Model(http.server.BaseHTTPRequestHandler):
         if body.get("chat_template_kwargs", {}).get("enable_thinking"):
             deltas.append({"reasoning_content": "think<" + asked + ">"})
         deltas += [{"content": "echo<"}, {"content": asked + ">"}]
+        _Model.heads.append(self.headers.get("Authorization"))
         self.send_response(200); self.send_header("Content-Type", "text/event-stream"); self.end_headers()
         for d in deltas:
             self.wfile.write(("data: " + json.dumps({"choices": [{"delta": d}]}) + "\n\n").encode()); self.wfile.flush()
@@ -550,7 +554,8 @@ def model(monkeypatch):
     monkeypatch.setenv("TEND_NO_START", "1")   # the model is the stub; deliver must not start llama-server
     monkeypatch.delenv("TEND_FENCED", raising=False)
     monkeypatch.delenv("TEND_THINK", raising=False)
-    _Model.bodies.clear()
+    monkeypatch.delenv("TEND_DOOR", raising=False)
+    _Model.bodies.clear(); _Model.heads.clear()
     yield _Model.bodies
     srv.shutdown()
 
@@ -643,6 +648,37 @@ def test_talk_can_ask_the_model_to_think_and_shows_the_thinking_beside_the_answe
     assert rc == 0 and out.out.strip() == "echo<from a shell>" and "(thinking) think<from a shell>" in out.err
 
 
+def test_talk_can_go_through_a_door_and_the_exchange_says_so(tmp_path, model, capsys, monkeypatch):
+    """Henri, 2026-08-30: "I now have the openrouter available for use."
+    `door="openrouter"` (the [d] cycle, `--door`, TEND_DOOR) sends the
+    turn through the door: its model and key on the request, no pull
+    line, the exchange's `via` naming it; "" is the node itself."""
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {node}\n")
+    key = tmp_path / "keys" / "openrouter.key"; key.parent.mkdir(); key.write_text("sk-test-0000\n"); key.chmod(0o600)
+    d = tmp_path / "doors" / "openrouter"; d.mkdir(parents=True)
+    (d / "door").write_text(f"url  {os.environ['TEND_LLM_URL']}\nmodel  vendor/big\nkey  {key}\nadmitted  the test\n")
+    monkeypatch.setenv("TEND_DOOR_DIR", str(tmp_path / "doors"))
+    assert panel.doors() == ["openrouter"]
+    pull_before = (node / "state" / "pull").read_text()   # the fixture's own wordless line
+    assert panel.talk("llm", "hello", str(canvas), door="openrouter") == "echo<hello>"
+    assert model[-1]["model"] == "vendor/big" and _Model.heads[-1] == "Bearer sk-test-0000"
+    assert (node / "state" / "pull").read_text() == pull_before, "a door turn is not a pull"
+    ex = panel.read_replies(str(node / "state"))
+    assert ex[-1].via == "openrouter vendor/big" and ex[-1].answer == "echo<hello>"
+    assert panel.talk("llm", "and you", str(canvas), door="") == "echo<and you>"
+    assert "model" not in model[-1] and _Model.heads[-1] is None
+    assert panel.read_replies(str(node / "state"))[-1].via == ""
+    assert model[-1]["messages"][:2] == [{"role": "user", "content": "hello"}, {"role": "assistant", "content": "echo<hello>"}], "one conversation, whichever mind"
+    monkeypatch.setenv("TEND_DOOR", "openrouter")
+    assert panel.talk("llm", "env", str(canvas)) == "echo<env>" and model[-1]["model"] == "vendor/big"
+    monkeypatch.delenv("TEND_DOOR")
+    rc = panel.main(["x", "--canvas", str(canvas), "talk", "--door", "openrouter", "llm", "shell"])
+    assert rc == 0 and capsys.readouterr().out.strip() == "echo<shell>" and model[-1]["model"] == "vendor/big"
+    with pytest.raises(ValueError, match="no door named ghost"):
+        panel.talk("llm", "x", str(canvas), door="ghost")
+
+
 def test_the_panels_keys_offer_talk_and_unpin():
     """The curses loop is not driven here; what is held is that the hand
     the keys offer includes the two Henri asked for, and the bar says so."""
@@ -652,6 +688,7 @@ def test_the_panels_keys_offer_talk_and_unpin():
     talk_src = inspect.getsource(panel._talk_screen)
     assert "[k] think" in talk_src and 'c == ord("k")' in talk_src and "think = not think" in talk_src
     assert "read_turn(row.state)" in talk_src, "the turn in flight is shown as it arrives"
+    assert "[d] door" in talk_src and 'c == ord("d")' in talk_src and "doors()" in talk_src
 
 
 def test_the_turn_in_flight_is_read_from_the_live_files(tmp_path):

@@ -715,3 +715,28 @@ def test_a_program_busy_in_bursts_is_busy_over_the_idle_window(tmp_path):
     took = time.time() - t0
     assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + (st / "log").read_text()
     assert took > 5, f"it was stopped at idle, {took:.1f}s"
+
+
+def test_the_grant_names_its_model_and_check_is_red_when_the_file_is_not_there(tmp_path):
+    """Henri, 2026-08-30: "I'd want the bigger mind."  Until the `model`
+    word, $MODEL was the first *.gguf by name — and the mind that answered
+    a morning's talk was the 1B model that sorted first.  Named in the
+    grant, the pick is written; absent, the first by name, as before;
+    named and not there, `check` says so."""
+    n = tmp_path / "n"; (n / "model").mkdir(parents=True)
+    (n / "model" / "a-small.gguf").write_text(""); (n / "model" / "b-big.gguf").write_text("")
+    (n / "grant").write_text("allow model\nprogram cat $MODEL\n")
+    r = launch(n, "check", state=tmp_path / "st")   # `check` says which file $MODEL is; `grant` prints the line unexpanded
+    assert r.returncode == 0 and f"✓ model {n}/model/a-small.gguf" in r.stdout, r.stdout
+    (n / "grant").write_text("allow model\nmodel model/b-big.gguf\nprogram cat $MODEL\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ model {n}/model/b-big.gguf" in r.stdout and "a-small" not in r.stdout, r.stdout
+    (n / "grant").write_text("allow model\nmodel model/c-gone.gguf\nprogram cat $MODEL\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and f"✗ model {n}/model/c-gone.gguf is not there" in r.stdout, r.stdout
+
+
+def test_the_llm_nodes_grant_names_its_mind():
+    """The pick is in the grant, not in ls order (card:model-acceptance.md)."""
+    words = [l.split()[0] for l in (ROOT / "llm" / "grant").read_text().splitlines() if l.strip() and not l.startswith("#")]
+    assert "model" in words

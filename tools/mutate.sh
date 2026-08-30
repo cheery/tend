@@ -256,6 +256,11 @@ test/test_deliver.py	deliver: the thinking is not kept in replies	sed -i 's/^   
 test/test_panel.py	panel: talk asks for thinking and drops it	sed -i 's/^    if think is True:/    if False:/' tools/panel.py
 # streaming — 2026-08-30, Henri: "so that I can see where it's going in its work"
 test/test_deliver.py	deliver: the answer is not written as it arrives	sed -i 's/^                A\*) printf .%b. "\$_text" >> "\$tans" ;;$/                A*) ;;/' tools/deliver.sh
+# the mind named, and a door — 2026-08-30, Henri: "I'd want the bigger mind. Also, I now have the openrouter available"
+test/test_launch.py	launch: the grant's model line is read and ignored	sed -i 's/^        model)       case "\$val" in \/\*) ;; \*) val="\$NODE\/\$val" ;; esac; MODEL=\$val ;;$/        model) ;;/' tools/launch.sh
+test/test_deliver.py	deliver: a door turn is recorded without the door's name	sed -i 's/^      \[ -z "\$door" \] || printf .%s V: %s %s.n. "\$(stamp)" "\$door" "\$dmodel"$/      :/' tools/deliver.sh
+test/test_deliver.py	deliver: a door turn is a pull, and would start the local node	sed -i 's/^if \[ -n "\$q" \] \&\& \[ -n "\$door" \]; then$/if false; then/' tools/deliver.sh
+test/test_panel.py	panel: talk names a door and sends the turn to the node	sed -i 's/^    if door is not None:$/    if False:/' tools/panel.py
 ROWS
 }
 
