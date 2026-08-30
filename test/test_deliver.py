@@ -20,6 +20,9 @@ DELIVER = ROOT / "tools" / "deliver.sh"
 NODE = ROOT / "llm"
 
 
+BODIES = []   # every request the stub answered, for the tests that read what was sent
+
+
 class _Stub(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
 
@@ -28,6 +31,7 @@ class _Stub(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        BODIES.append(body)
         asked = body["messages"][-1]["content"]
         out = {"choices": [{"message": {"role": "assistant", "content": f"echo<{asked}>"}}]}
         self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
@@ -95,3 +99,19 @@ def test_inside_the_fence_it_records_and_does_not_deliver(tmp_path, stub):
     assert r.returncode == 0 and "the runner's side delivers it" in r.stderr
     assert "a fenced ask" in (st / "pull").read_text()
     assert not (st / "replies").exists()
+
+
+def test_the_conversation_rides_along_as_history(tmp_path, stub):
+    """tools/panel.py's talk, 2026-08-30: TEND_HISTORY is the exchanges so
+    far, prepended to the ask; unset is cold, as a pull line always was;
+    not an array is refused before anything is asked."""
+    st = tmp_path / "s"; st.mkdir()
+    hist = [{"role": "user", "content": "one"}, {"role": "assistant", "content": "echo<one>"}]
+    r = deliver(NODE, "two", state=st, stub=stub, TEND_NO_START="1", TEND_HISTORY=json.dumps(hist))
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["messages"] == hist + [{"role": "user", "content": "two"}]
+    r = deliver(NODE, "cold", state=st, stub=stub, TEND_NO_START="1")
+    assert r.returncode == 0 and BODIES[-1]["messages"] == [{"role": "user", "content": "cold"}]
+    n = len(BODIES)
+    r = deliver(NODE, "three", state=st, stub=stub, TEND_NO_START="1", TEND_HISTORY="not json")
+    assert r.returncode == 2 and "TEND_HISTORY" in r.stderr and len(BODIES) == n

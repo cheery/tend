@@ -246,6 +246,10 @@ test/test_launch.py	launch: run idles out under a hold	sed -i 's/if \[ -z "\$(ho
 test/test_launch.py	launch: a death writes no notice	sed -i 's/^    if \[ "\$rc" -ne 0 \]; then/    if false; then/' tools/launch.sh
 test/test_launch.py	launch: every stop writes a notice, a clean one too	sed -i 's/^    if \[ "\$rc" -ne 0 \]; then/    if true; then/' tools/launch.sh
 test/test_panel.py	panel: a death's who-column is andon, never the pin's	sed -i 's/who if who in names else "andon"/"andon"/' tools/panel.py
+# tools/panel.py talk and tools/deliver.sh history — 2026-08-30, Henri: "so that I can truly talk with the model"
+test/test_panel.py	panel: a turn carries no history — the model answers cold every time	sed -i 's/env\["TEND_HISTORY"\] = json.dumps(history(read_replies(row.state)))/env["TEND_HISTORY"] = "[]"/' tools/panel.py
+test/test_deliver.py	deliver: the history is dropped before the ask	sed -i 's/messages:(\$h + \[{role:"user",content:\$q}\])/messages:[{role:"user",content:\$q}]/' tools/deliver.sh
+test/test_panel.py	panel: unpin is not a verb of the hand	sed -i 's/elif verb in ("unhold", "unpin"):/elif verb == "unhold":/' tools/panel.py
 ROWS
 }
 

@@ -396,6 +396,49 @@ instance** — the resolver serving each (node, state) a hold names,
 `serve` running with that state — when a port-less node wants two
 lives.  Until then the state line is a label the panel is honest about.
 
+## Talk — 2026-08-30, at Henri's "I'd like if the .hold node could deploy some sort of user interface"
+
+Henri, 2026-08-30 morning: *"I'd like if the .hold node could deploy
+some sort of user interface for node in the tools/panel.py, maybe text
+input with prompt, so that I can truly talk with the model, also would
+like a way to unpin nodes."*  Until this the held node was up and the
+person talked to `:18080` by hand, or through `tools/deliver.sh` one
+question at a time, each cold.
+
+**What landed.**  `[t]` on the panel (or `tools/panel.py talk NAME
+WORDS...` from a shell) is one turn with the node the canvas names —
+the one row, or the row named.  The words go through `tools/deliver.sh`,
+the carrier a pull's words already take: the ask is a line in the
+node's pull file, the reply an entry in its `replies`, and the panel
+keeps no transcript of its own — it reads that record back as the
+conversation, newest at the bottom.  The exchanges so far ride along
+as history (`TEND_HISTORY` on deliver.sh, the last eight), so the
+model answers in the conversation and not cold — "truly talk".  A turn
+runs in the background and the screen keeps time (`… asking llm (42
+s)`), because a held node that idled out loads for a minute before its
+first reply; Esc leaves the screen and the reply still lands in
+`replies`.  A turn with no reply is loud, in deliver's own words — the
+node down and not starting, or the fence, where deliver records the ask
+and delivers nothing.  And `[x] unpin`, beside `[u] unhold`: the hand's
+fourth verb, on a key.
+
+**What it is not.**  Not a second record — the pull file and `replies`
+were already the node's, and `tools/deliver.sh` without a question still
+delivers a session's pulls the same way.  Not a chat client to the port
+— the panel never speaks HTTP; deliver.sh does, on the person's side,
+as before.  Not a transcript across nodes: each node's `replies` is its
+own conversation, and the history is read from the state the row names.
+
+**Held by:** `test/test_panel.py` — the record read back as exchanges;
+a turn is a pull line and a `replies` entry and the next turn carries
+the ones before; a name not on the canvas is refused and nothing is
+sent; no reply is deliver's words, not a blank; unpin removes and
+resolves once; the keys offer both.  `test/test_deliver.py` — the
+history is prepended, unset is cold, not-an-array is refused before
+the ask.  Three rows in `tools/mutate.sh`.  The curses screen itself is
+driven by no test, as the panel's never was; what is tested is
+everything it calls.
+
 ## Where it sits
 
 Placed last in the priority by the session that wrote it, 2026-08-29,

@@ -9,6 +9,7 @@ It began as the andon's person-side half, card:andon-panel.md; the canvas and th
     tools/panel.py hold LABEL NODE [--state DIR] [WORDS...]   write LABEL.hold on the canvas, then resolve
     tools/panel.py pin NAME NODE [--state DIR]                write NAME.pin, then resolve
     tools/panel.py unhold LABEL | unpin NAME                  remove it, then resolve
+    tools/panel.py talk NAME WORDS...                         one turn with the node NAME names on the canvas; the reply printed
 
 The panel runs OUTSIDE the fence and only reads what a session writes —
 `andon.pending` (the questions) and `andon.log` (every ask, ring and
@@ -58,6 +59,23 @@ here is a node started here and a death is a line on this timeline
 before the person looks away.  The panel writes the canvas and calls the
 resolver; it does not start a program itself — the resolver is the one
 thing that does, on the person's side, as before.
+
+**Talking to a node** (2026-08-30 — Henri: "I'd like if the .hold node
+could deploy some sort of user interface for node in the tools/panel.py,
+maybe text input with prompt, so that I can truly talk with the model").
+`[t]` on a row, or `talk NAME WORDS...` from a shell, is one turn with
+the node the canvas names: the words go through `tools/deliver.sh` —
+the carrier a pull's words already take — so the ask is a line in the
+node's pull file and the reply an entry in its `replies`, the record the
+node keeps; the panel keeps no transcript of its own and reads that one
+back as the conversation.  The exchanges so far ride along as history
+(`TEND_HISTORY`, the last TALK_TURNS), so the model answers in the
+conversation and not cold.  A turn runs in the background and the
+screen keeps time — a cold node loads for a minute — and a turn in
+flight lands in the record whether or not anyone stays to watch.  The
+panel is outside the fence, so it reaches the port; inside, deliver.sh
+records the ask and says the runner's side delivers it, and the talk
+says that back.
 """
 import os
 import re
@@ -571,6 +589,201 @@ def hand(verb, args, canvas_dir=None):
 VERBS = ("hold", "pin", "unhold", "unpin")
 
 
+# --- talk (2026-08-30 — Henri: "so that I can truly talk with the model") ---
+Exchange = namedtuple("Exchange", "stamp question answer")
+_Q = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) Q: (.*)$")
+_A = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) A: (.*)$")
+TALK_TURNS = 8   # exchanges that ride along as history — the node's context is small (llm/grant)
+
+
+def read_replies(state):
+    """The node's `replies`, read back as exchanges, oldest first.
+    tools/deliver.sh writes one as a Q line, an A line — an answer may
+    run on for lines — and a blank; no file is no exchanges."""
+    out = []
+    try:
+        with open(os.path.join(state, "replies")) as f:
+            lines = f.read().splitlines()
+    except OSError:
+        return out
+    q = None; a = None
+    for line in lines:
+        m = _Q.match(line)
+        if m:
+            if q is not None:
+                out.append(Exchange(q[0], q[1], "\n".join(a or []).strip()))
+            q = (m.group(1), m.group(2)); a = None
+            continue
+        m = _A.match(line)
+        if m and q is not None and a is None:
+            a = [m.group(2)]
+            continue
+        if a is not None:
+            a.append(line)
+    if q is not None:
+        out.append(Exchange(q[0], q[1], "\n".join(a or []).strip()))
+    return out
+
+
+def history(exchanges, turns=TALK_TURNS):
+    """The last `turns` exchanges as the messages deliver.sh prepends."""
+    msgs = []
+    for e in exchanges[-turns:] if turns > 0 else []:
+        msgs.append({"role": "user", "content": e.question})
+        msgs.append({"role": "assistant", "content": e.answer})
+    return msgs
+
+
+def find_row(name, canvas_dir=None):
+    """The row NAME names on the canvas — a pin's name, or a hold's node."""
+    rows = read_canvas(canvas_dir)
+    for r in rows:
+        if r.name == name:
+            return r
+    have = ", ".join(r.name for r in rows) or "none"
+    raise ValueError(f"nothing named {name} on {_canvas_dir(canvas_dir)} — the rows are: {have}")
+
+
+def talk(name, words, canvas_dir=None, timeout=600):
+    """One turn with the node NAME names on the canvas: the words go
+    through tools/deliver.sh — a pull line, the model asked, the reply in
+    `replies` — with the conversation so far as history.  Returns the
+    answer; raises ValueError with deliver's own words when no reply
+    landed (the node is down and would not start; inside the fence, where
+    the ask is recorded and nothing delivers)."""
+    import json
+    words = " ".join(words.split())
+    if not words:
+        raise ValueError("nothing to say")
+    row = find_row(name, canvas_dir)
+    before = len(read_replies(row.state))
+    env = dict(os.environ)
+    env["TEND_STATE_DIR"] = row.state
+    env["TEND_HISTORY"] = json.dumps(history(read_replies(row.state)))
+    try:
+        p = subprocess.run(["sh", os.path.join(HERE, "deliver.sh"), row.node, words],
+                           env=env, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise ValueError(f"no reply from {name} in {timeout} s — the ask is in the pull file; the reply lands in replies if it comes")
+    after = read_replies(row.state)
+    if len(after) > before and after[-1].question == words:
+        return after[-1].answer
+    said = (p.stderr or p.stdout).strip().splitlines()
+    raise ValueError(said[-1] if said else f"deliver exited {p.returncode} and wrote no reply")
+
+
+def _start_turn(name, words, canvas_dir):
+    """A turn in the background, so the screen keeps time while the model
+    thinks.  The box says when it is done and what went wrong; the reply
+    itself is in the record."""
+    import threading, time
+    box = {"words": words, "since": time.time(), "done": False, "error": None}
+
+    def run():
+        try:
+            talk(name, words, canvas_dir)
+        except Exception as e:   # a refusal or deliver's words — shown on the screen, never raised into curses
+            box["error"] = str(e)
+        box["done"] = True
+
+    threading.Thread(target=run, daemon=True).start()
+    return box
+
+
+def _wrap(text, width):
+    import textwrap
+    out = []
+    for para in text.splitlines() or [""]:
+        out += textwrap.wrap(para, max(10, width)) or [""]
+    return out
+
+
+def _ask_line(stdscr, prompt):
+    """One line typed at the bottom of the screen; empty is a change of mind."""
+    import curses
+    h, w = stdscr.getmaxyx()
+    try:
+        stdscr.addstr(h - 1, 0, (" " + prompt + " ").ljust(w - 1), curses.A_REVERSE)
+        stdscr.refresh()
+        curses.echo(); curses.curs_set(1); stdscr.timeout(-1)
+        got = stdscr.getstr(h - 1, len(prompt) + 2, max(1, w - len(prompt) - 4)).decode(errors="replace").strip()
+    except (curses.error, KeyboardInterrupt):
+        got = ""
+    finally:
+        curses.noecho(); curses.curs_set(0); stdscr.timeout(1000)
+    return got
+
+
+def _talk_screen(stdscr, name, canvas_dir):
+    """The conversation with one node: its exchanges from `replies`, the
+    newest at the bottom, and a line to type.  Returns a notice for the
+    panel, or nothing."""
+    import curses, time
+    turn = None   # the turn in flight
+    last = ""     # the last refusal, shown until the next turn
+    while True:
+        try:
+            row = find_row(name, canvas_dir)
+        except ValueError as e:
+            return f"refused: {e}"
+        h, w = stdscr.getmaxyx()
+        stdscr.erase()
+        if row.running:
+            state = "running"
+        elif row.dead:
+            state = "DEAD — a turn pulls it up again; the first reply waits for the load"
+        else:
+            state = "not running — a turn pulls it up; the first reply waits for the load"
+        try:
+            stdscr.addstr(0, 0, f" talk — {name}  {state} ".ljust(w - 1), curses.A_REVERSE)
+        except curses.error:
+            pass
+        lines = []
+        for e in read_replies(row.state)[-TALK_TURNS:]:
+            lines += [(l, curses.A_BOLD) for l in _wrap(f"{e.stamp}  you: {e.question}", w - 4)]
+            lines += [(l, 0) for l in _wrap(f"{name}: {e.answer}", w - 4)]
+            lines.append(("", 0))
+        if turn is not None and turn["done"]:
+            if turn["error"]:
+                last = "refused: " + turn["error"]
+            turn = None
+        if turn is not None:
+            lines += [(l, curses.A_BOLD) for l in _wrap("you: " + turn["words"], w - 4)]
+            lines.append((f"… asking {name}  ({int(time.time() - turn['since'])} s)", curses.A_DIM))
+        if last:
+            lines.append((last, curses.A_BOLD))
+        room = h - 3
+        y = 1
+        for text, attr in (lines[-room:] if room > 0 else []):
+            try:
+                stdscr.addstr(y, 2, text[:max(0, w - 3)], attr)
+            except curses.error:
+                pass
+            y += 1
+        bar = (" a line and Enter asks; an empty line or Esc goes back " if turn is None
+               else " waiting for the reply — Esc goes back; the reply still lands in replies ")
+        try:
+            stdscr.addstr(h - 1, 0, bar.ljust(w - 1), curses.A_REVERSE)
+        except curses.error:
+            pass
+        stdscr.refresh()
+        if turn is not None:
+            stdscr.timeout(500)
+            try:
+                c = stdscr.getch()
+            except KeyboardInterrupt:
+                c = 27
+            if c in (27, ord("q")):
+                stdscr.timeout(1000)
+                return f"talk {name}: a turn is in flight; its reply lands in {row.state}/replies"
+            continue
+        words = _ask_line(stdscr, f"{name} <")
+        if not words:
+            return ""
+        last = ""
+        turn = _start_turn(name, words, canvas_dir)
+
+
 def _counts(rows):
     held = sum(1 for r in rows if r.held is not None)
     broken = sum(1 for r in rows if r.broken)
@@ -701,17 +914,7 @@ def _tui(stdscr, canvas=None):
                 pass
 
     def ask(prompt):
-        """One line typed at the bottom; empty is a change of mind."""
-        try:
-            stdscr.addstr(h - 1, 0, (" " + prompt + " ").ljust(w - 1), curses.A_REVERSE)
-            stdscr.refresh()
-            curses.echo(); curses.curs_set(1); stdscr.timeout(-1)
-            got = stdscr.getstr(h - 1, len(prompt) + 2, max(1, w - len(prompt) - 4)).decode(errors="replace").strip()
-        except (curses.error, KeyboardInterrupt):
-            got = ""
-        finally:
-            curses.noecho(); curses.curs_set(0); stdscr.timeout(1000)
-        return got
+        return _ask_line(stdscr, prompt)
 
     notice = ""   # what the hand last did, shown until the next keystroke
 
@@ -779,7 +982,7 @@ def _tui(stdscr, canvas=None):
             put(h - 2, 2, notice, curses.A_BOLD)
         try:
             stdscr.addstr(h - 1, 0,
-                          " [h] hold  [p] pin  [u] unhold  [a] answer all  [r] resolve  [q] quit ".ljust(w - 1),
+                          " [h] hold  [p] pin  [u] unhold  [x] unpin  [t] talk  [a] answer all  [r] resolve  [q] quit ".ljust(w - 1),
                           curses.A_REVERSE)
         except curses.error:
             pass
@@ -795,11 +998,18 @@ def _tui(stdscr, canvas=None):
             curses.endwin()
             answer()
             stdscr.clear()
-        elif c in (ord("h"), ord("p"), ord("u")):
+        elif c == ord("t"):
+            # talk: the one row, or the row named; the screen is the conversation
+            name = pins[0].name if len(pins) == 1 else ask("talk NAME:")
+            if name:
+                notice = _talk_screen(stdscr, name, canvas_dir)
+            stdscr.clear()
+        elif c in (ord("h"), ord("p"), ord("u"), ord("x")):
             # the person's hand: one typed line, the verb's own words, then the resolver
             verb, prompt = {ord("h"): ("hold", "hold LABEL NODE [--state DIR] [WORDS...]:"),
                             ord("p"): ("pin", "pin NAME NODE [--state DIR]:"),
-                            ord("u"): ("unhold", "unhold LABEL:")}[c]
+                            ord("u"): ("unhold", "unhold LABEL:"),
+                            ord("x"): ("unpin", "unpin NAME:")}[c]
             line = ask(prompt)
             if line:
                 try:
@@ -827,6 +1037,16 @@ def main(argv):
             canvas = args.pop(0)
         elif a.startswith("--canvas="):
             canvas = a[len("--canvas="):]
+        elif a == "talk":
+            if len(args) < 2:
+                sys.stderr.write("andon-panel: talk NAME WORDS...\n")
+                return 2
+            try:
+                print(talk(args[0], " ".join(args[1:]), canvas))
+                return 0
+            except ValueError as e:
+                sys.stderr.write(f"andon-panel: {e}\n")
+                return 2
         elif a in VERBS:
             # the person's hand, from a shell: write the canvas, then resolve
             try:

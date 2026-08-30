@@ -481,3 +481,136 @@ def test_the_panel_without_a_terminal_says_the_tick(tmp_path):
     r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
                        capture_output=True, text=True, env=env)
     assert "NO TICK" not in r.stdout and "every 30 s" in r.stdout, r.stdout
+
+
+# --- talk and unpin (2026-08-30 — Henri: "I'd like if the .hold node could deploy some sort of
+# user interface for node in the tools/panel.py, maybe text input with prompt, so that I can
+# truly talk with the model, also would like a way to unpin nodes") ---
+import http.server
+import inspect
+import json
+import socket
+import threading
+
+REPLIES = """2026-08-30 06:10 Q: what is jidoka
+2026-08-30 06:10 A: stop the line.
+It means the machine stops itself.
+
+2026-08-30 06:12 Q: and kanban
+2026-08-30 06:12 A: a card.
+
+"""
+
+
+def test_the_replies_record_reads_back_as_exchanges(tmp_path):
+    (tmp_path / "replies").write_text(REPLIES)
+    ex = panel.read_replies(str(tmp_path))
+    assert [(e.question, e.answer) for e in ex] == [
+        ("what is jidoka", "stop the line.\nIt means the machine stops itself."), ("and kanban", "a card.")]
+    assert ex[0].stamp == "2026-08-30 06:10"
+    assert panel.read_replies(str(tmp_path / "none")) == []
+    assert panel.history(ex, turns=1) == [{"role": "user", "content": "and kanban"},
+                                          {"role": "assistant", "content": "a card."}]
+    assert panel.history(ex, turns=0) == []
+
+
+class _Model(http.server.BaseHTTPRequestHandler):
+    """A model at a port: echoes the last message, keeps every request."""
+    bodies = []
+
+    def log_message(self, *a): pass
+
+    def do_GET(self):
+        self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
+
+    def do_POST(self):
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        _Model.bodies.append(body)
+        out = {"choices": [{"message": {"role": "assistant", "content": "echo<" + body["messages"][-1]["content"] + ">"}}]}
+        self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+        self.wfile.write(json.dumps(out).encode())
+
+
+@pytest.fixture
+def model(monkeypatch):
+    srv = http.server.HTTPServer(("127.0.0.1", 0), _Model)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    monkeypatch.setenv("TEND_LLM_URL", base + "/v1/chat/completions")
+    monkeypatch.setenv("TEND_LLM_HEALTH", base + "/health")
+    monkeypatch.setenv("TEND_NO_START", "1")   # the model is the stub; deliver must not start llama-server
+    monkeypatch.delenv("TEND_FENCED", raising=False)
+    _Model.bodies.clear()
+    yield _Model.bodies
+    srv.shutdown()
+
+
+def test_talk_carries_a_line_to_the_named_node_with_the_conversation_as_history(tmp_path, model, capsys):
+    """One turn is one pull line and one `replies` entry — the node's own
+    record, which the panel reads back as the conversation; the next turn
+    carries the exchanges so far, so the model answers in the conversation."""
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {node}\n")
+    assert panel.talk("llm", "what is jidoka", str(canvas)) == "echo<what is jidoka>"
+    assert model[-1]["messages"] == [{"role": "user", "content": "what is jidoka"}]
+    assert panel.talk("llm", "and   kanban", str(canvas)) == "echo<and kanban>"
+    assert model[-1]["messages"] == [{"role": "user", "content": "what is jidoka"},
+                                     {"role": "assistant", "content": "echo<what is jidoka>"},
+                                     {"role": "user", "content": "and kanban"}]
+    ex = panel.read_replies(str(node / "state"))
+    assert [(e.question, e.answer) for e in ex] == [("what is jidoka", "echo<what is jidoka>"), ("and kanban", "echo<and kanban>")]
+    assert "what is jidoka" in (node / "state" / "pull").read_text(), "the ask is a pull line"
+    # from a shell, the same turn
+    rc = panel.main(["x", "--canvas", str(canvas), "talk", "llm", "a", "third"])
+    assert rc == 0 and capsys.readouterr().out.strip() == "echo<a third>"
+    assert len(model) == 3 and len(model[-1]["messages"]) == 5
+
+
+def test_talk_refuses_a_name_not_on_the_canvas_and_sends_nothing(tmp_path, model, capsys):
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {dead_node(tmp_path)}\n")
+    with pytest.raises(ValueError, match="nothing named ghost"):
+        panel.talk("ghost", "hello", str(canvas))
+    rc = panel.main(["x", "--canvas", str(canvas), "talk", "ghost", "hello"])
+    assert rc == 2 and "nothing named ghost" in capsys.readouterr().err
+    with pytest.raises(ValueError, match="nothing to say"):
+        panel.talk("llm", "   ", str(canvas))
+    assert panel.main(["x", "--canvas", str(canvas), "talk", "llm"]) == 2
+    assert model == []
+
+
+def test_talk_says_delivers_words_when_no_reply_lands(tmp_path, monkeypatch):
+    """The node is down and would not start (TEND_NO_START, a closed port):
+    deliver says so, and the talk raises its words rather than an empty
+    answer — a turn with no reply is loud, not blank."""
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {node}\n")
+    s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]; s.close()
+    monkeypatch.setenv("TEND_LLM_URL", f"http://127.0.0.1:{port}/v1/chat/completions")
+    monkeypatch.setenv("TEND_LLM_HEALTH", f"http://127.0.0.1:{port}/health")
+    monkeypatch.setenv("TEND_NO_START", "1")
+    monkeypatch.delenv("TEND_FENCED", raising=False)
+    with pytest.raises(ValueError, match="did not answer"):
+        panel.talk("llm", "hello", str(canvas))
+    assert panel.read_replies(str(node / "state")) == []
+
+
+def test_the_hand_unpins(tmp_path, monkeypatch, capsys):
+    script, log = stub_resolver(tmp_path)
+    monkeypatch.setenv("TEND_RESOLVE", str(script))
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"
+    assert panel.main(["x", "--canvas", str(canvas), "pin", "llm", str(node)]) == 0
+    assert (canvas / "llm.pin").exists()
+    assert panel.main(["x", "--canvas", str(canvas), "unpin", "llm"]) == 0
+    assert not (canvas / "llm.pin").exists() and visits(log) == 2
+    assert "removed: " in capsys.readouterr().out
+    assert panel.main(["x", "--canvas", str(canvas), "unpin", "llm"]) == 2
+    assert "no pin named llm" in capsys.readouterr().err and visits(log) == 2
+
+
+def test_the_panels_keys_offer_talk_and_unpin():
+    """The curses loop is not driven here; what is held is that the hand
+    the keys offer includes the two Henri asked for, and the bar says so."""
+    src = inspect.getsource(panel._tui)
+    assert "[x] unpin" in src and "[t] talk" in src
+    assert 'ord("x"): ("unpin"' in src and "_talk_screen(" in src

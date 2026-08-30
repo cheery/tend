@@ -24,6 +24,11 @@
 # Env: TEND_LLM_URL / TEND_LLM_HEALTH override the port (tests point them
 # at a stub); TEND_NO_START skips starting the node; TEND_MAXTOK caps the
 # answer (default 300); TEND_STATE_DIR points state at a scratch dir.
+# TEND_HISTORY is the conversation so far — a JSON array of prior
+# messages, prepended to the ask so the model answers in the
+# conversation and not cold (tools/panel.py's talk, 2026-08-30 — Henri:
+# "so that I can truly talk with the model"); empty or unset is cold, as
+# a pull line always was.
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -37,6 +42,10 @@ port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=1
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-300}"
+hist=$(printenv TEND_HISTORY || true)
+[ -n "$hist" ] || hist='[]'
+printf '%s' "$hist" | jq -e 'type == "array"' >/dev/null 2>&1 || {
+    echo "deliver: TEND_HISTORY is not a JSON array of messages" >&2; exit 2; }
 mkdir -p "$STATE" 2>/dev/null || true
 
 stamp() { date '+%Y-%m-%d %H:%M'; }
@@ -44,8 +53,8 @@ stamp() { date '+%Y-%m-%d %H:%M'; }
 # ask the model one question; print the answer text, or fail loudly
 ask() {
     _q=$1
-    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" \
-        '{messages:[{role:"user",content:$q}],max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
+    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" \
+        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
     _out=$(curl -sS -m 180 -H 'Content-Type: application/json' -d "$_body" "$CHAT") || {
         echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; return 1; }
     printf '%s' "$_out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null || {
