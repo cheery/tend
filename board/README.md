@@ -126,6 +126,14 @@ between two workable cards is Henri's.
     one is the failure ledger the suite writes and reads back, and the
     shake — one test N times with every core burning; the tiebreak is
     his.*
+11. **[trees](trees.md)** — the other tree a session may read is a
+    constant in `tools/sandbox.sh` naming a directory on another
+    machine; on this laptop it binds nothing and nothing says so, and
+    the person has no way to point a session at a directory.  *Placed
+    last by the session that wrote it on 2026-08-30 at Henri's "open
+    the card for reaching other trees, or directories"; day one is the
+    path on the hook line, set by the reach key, read-only, with what
+    of it is bound his to pick; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
