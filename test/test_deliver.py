@@ -325,6 +325,7 @@ def test_a_door_with_a_tools_line_carries_the_manifest_and_the_seat_and_every_ca
     seat = reqs[0]["messages"][0]
     assert seat["role"] == "system" and len(seat["content"].split()) < 150, seat
     assert "read ls" in seat["content"] and "3 calls" in seat["content"] and str(t) in seat["content"]
+    assert "Read the tree whenever the answer may be in it" in seat["content"], "the short-words rule is not a budget on reading (Henri, 2026-08-30)"
     assert "card" not in seat["content"].lower() and "kaizen" not in seat["content"], "the seat, not the tree"
     assert reqs[0]["messages"][1:] == [{"role": "user", "content": "look"}]
     a1, t1 = reqs[1]["messages"][2], reqs[1]["messages"][3]
