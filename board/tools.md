@@ -282,7 +282,20 @@ off the record with Henri ("I think that recommendation holds"):
    `calls` on the door file and the grant, `TEND_READCHARS` overriding
    as `TEND_CALLS` does; unsaid, the executor's own 12000, so the
    number lives in one place; a word that is not a number is refused
-   before any ask.  The line on the live door is his to write.
+   before any ask.  The line on the live door is his to write —
+   measured the same evening: the largest card is 48k (`session-program`),
+   the largest file under the parts 51k, so `readchars  60000` reads
+   every card whole with a third to spare on the 262k door.  **And
+   the cut is an end, not a door** (Henri, at the close: "propose some
+   mechanism that allows the session to read more"): `read` takes only
+   a path, the mark says `[… cut at N chars]`, and the third turn's "I
+   have now" was half that.  Next: `read(path, line)` — start at line
+   N under the same cap, lines because `grep` answers in them and pi's
+   `read` is offset in lines — and a cut mark that says how to go on,
+   `[… cut at 12000 chars, at line 231 of 612; read(path, line=231)
+   continues]`.  A continuation costs a call the leash counts and the
+   record shows; a cap is a gate, not a wall.  Same sitting as the
+   executor taking `.` as the parts (finding 2 of the second turn).
 2. **It wanted `grep`** — "Hmm, I can't grep", in the thinking, at the
    point where it had eight files to search and three calls left.  A
    third tool wanted by a turn and not designed ahead of one, which is
