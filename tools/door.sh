@@ -7,6 +7,8 @@
 #     tools/door.sh NAME --models [PATTERN] what the door's side lists: id, context, price per M tokens in
 #                                           and out, by id; PATTERN keeps the ids that contain it
 #     tools/door.sh NAME --use ID           set the door's model line to ID — only an id the door lists
+#     tools/door.sh NAME --tools            two lines: the door's `tools` word (empty when it has none) and
+#                                           its `calls` cap (empty when unsaid) — card:tools.md, day one
 #
 # **Browsing and picking** (2026-08-30 — Henri, after a door turn the
 # record's V: line showed was Sonnet where he meant qwen: "It's just the
@@ -30,6 +32,9 @@
 #                                                  person's home — never in the tree
 #     admitted  who, when, the words               card:model-acceptance.md: a door is where a
 #                                                  refusal has somewhere to sit
+#     tools     read ls                            what the mind may call (tools/executor.py's
+#                                                  names); absent, the request carries no tools
+#     calls     8                                  calls a turn; 8 when unsaid
 #
 # The node is the default door and needs none of this: `lead.sh NODE` with
 # no door speaks to the node's port as it always did.  A door is named by
@@ -48,7 +53,7 @@ root=$(CDPATH= cd -- "$here/.." && pwd)
 doors="${TEND_DOOR_DIR:-$root/doors}"
 [ $# -ge 1 ] || { echo "door: usage: tools/door.sh NAME [--models [PATTERN] | --use ID]" >&2; exit 2; }
 name=$1; verb=${2:-}; arg=${3:-}   # `mode` below is the key file's
-case $verb in ""|--models|--use) ;; *) echo "door: unknown argument \`$verb\` — tools/door.sh NAME [--models [PATTERN] | --use ID]" >&2; exit 2 ;; esac
+case $verb in ""|--models|--use|--tools) ;; *) echo "door: unknown argument \`$verb\` — tools/door.sh NAME [--models [PATTERN] | --use ID | --tools]" >&2; exit 2 ;; esac
 case $name in ''|*/*|.*) echo "door: not a door's name: \`$name\`" >&2; exit 2 ;; esac
 f="$doors/$name/door"
 [ -f "$f" ] || { echo "door: no door named $name in $doors" >&2; exit 2; }
@@ -69,6 +74,7 @@ case $mode in
     *) echo "door: $name's key $key is readable by others (mode $mode) — chmod 600 it" >&2; exit 2 ;;
 esac
 [ -n "$verb" ] || { printf '%s\n%s\n%s\n' "$url" "$model" "$key"; exit 0; }
+[ "$verb" != --tools ] || { printf '%s\n%s\n' "$(field tools)" "$(field calls)"; exit 0; }
 
 # The door's side, listed: one line per model — id, context, $/M in, $/M out — by id.
 base=${url%/chat/completions}

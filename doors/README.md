@@ -13,6 +13,13 @@ offers — id, context, price per M tokens — and `--use ID` sets the
 door's `model` line to an id it lists (2026-08-30, Henri: "I'd need a
 way to browse through all 500 models there are").
 
+`tools  read ls` on a door file admits the mind to the two tools
+(`tools/executor.py`, one process under keep per call, run by the
+courier `tools/deliver.sh`), and `calls  N` caps the calls a turn (8
+unsaid); `tools/door.sh NAME --tools` reads the two.  Absent, a turn
+carries no tools.  Every call is a `C:` line on the record
+(card:tools.md, day one, 2026-08-30).
+
 `tools/lead.sh NODE --door NAME` and `TEND_DOOR=NAME tools/propose.sh …`
 run the same turn through the door instead of the node's port, on the
 person's side; the account and the proposal say which door.  A kept

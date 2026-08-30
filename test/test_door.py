@@ -105,3 +105,14 @@ def test_a_side_that_does_not_answer_and_an_unknown_argument_are_refused(tmp_pat
     assert r.returncode == 1 and "did not answer" in r.stderr
     r = run(tmp_path, "openrouter", "--browse")
     assert r.returncode == 2 and "unknown argument" in r.stderr
+
+
+def test_tools_prints_the_doors_tools_word_and_its_calls_cap_or_empty_lines(tmp_path, door):
+    """card:tools.md: who gets tools is the door's word — `tools  read ls`
+    and `calls  N` on the door file; absent, two empty lines, and the
+    three-line read is as before."""
+    r = run(tmp_path, "openrouter", "--tools")
+    assert r.returncode == 0 and r.stdout == "\n\n" and _Side.heads == [], r.stderr
+    door.write_text(door.read_text() + "tools  read ls\ncalls  4\n")
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n"
+    assert len(run(tmp_path, "openrouter").stdout.splitlines()) == 3, "the three-line read is as before"

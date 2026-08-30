@@ -53,6 +53,24 @@
 # conversation and not cold (tools/panel.py's talk, 2026-08-30 — Henri:
 # "so that I can truly talk with the model"); empty or unset is cold, as
 # a pull line always was.
+# **Tools** (2026-08-30 — Henri: "would it be time for tools?"; card:tools.md,
+# day one): a `tools` line in the door file, or in the node's grant, names
+# what the mind may call (`tools  read ls`), and `calls N` caps the calls a
+# turn (8 when unsaid; TEND_CALLS overrides).  With one, the request
+# carries the executor's manifest (tools/executor.py --manifest, one line
+# per tool) and a system line about the seat — under 150 words, nothing
+# about the tree; the tree is read on demand.  A `tool_calls` delta ends
+# a round: this runs each call through tools/executor.py under keep —
+# read on the tree's parts (tools/sandbox.sh's tree_parts), no net, no
+# write — appends the assistant's calls and the `tool` results to the
+# turn's messages and asks again, until a round has no calls.  A path
+# outside the parts is refused by the kernel and the refusal is what the
+# model gets.  Every call is a `C:` line — in `replies` between the Q
+# and the A, and in $STATE/turn.calls as it happens, which the talk
+# screen shows: the person watches the mind act.  Past the cap a call is
+# not run and its result says so; a mind that keeps calling after that
+# is stopped one round later and the record says why.  Absent a `tools`
+# line, the request carries none, as before.
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -67,13 +85,22 @@ CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
 door=$(printenv TEND_DOOR || true); dmodel=""; keyfile=""
+tools_word=""; calls_cap=""
 if [ -n "$door" ]; then
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); dmodel=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
+    t=$(sh "$here/door.sh" "$door" --tools) || exit $?
+    tools_word=$(printf '%s\n' "$t" | sed -n 1p); calls_cap=$(printf '%s\n' "$t" | sed -n 2p)
+else
+    tools_word=$(sed -n 's/^tools  *//p' "$NODE/grant" 2>/dev/null | head -1)
+    calls_cap=$(sed -n 's/^calls  *//p' "$NODE/grant" 2>/dev/null | head -1)
 fi
+calls_cap="${TEND_CALLS:-${calls_cap:-8}}"
+case $calls_cap in ''|*[!0-9]*) echo "deliver: calls wants a number, got \`$calls_cap\`" >&2; exit 2 ;; esac
 think=$(printenv TEND_THINK || true)
 if [ -n "$think" ]; then think=true; else think=false; fi
-tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"   # the turn in flight, as it arrives
+tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"; tcalls="$STATE/turn.calls"   # the turn in flight, as it arrives
+rfile="$STATE/.turn.result"   # one call's result, whole — a variable would drop its last newline
 tab=$(printf '\t')
 hist=$(printenv TEND_HISTORY || true)
 [ -n "$hist" ] || hist='[]'
@@ -81,23 +108,42 @@ printf '%s' "$hist" | jq -e 'type == "array"' >/dev/null 2>&1 || {
     echo "deliver: TEND_HISTORY is not a JSON array of messages" >&2; exit 2; }
 mkdir -p "$STATE" 2>/dev/null || true
 
+# the tools, when the door or the grant names them: the manifest is the executor's own, the grant
+# for each call is built here (Rule 1: from outside the thing bounded) from the fence's tree_parts,
+# and the system line says the seat and nothing about the tree
+py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "deliver: no python3 for keep" >&2; exit 127; }
+tree="${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}"
+manifest='[]'; keepflags=""; sysmsgs='[]'
+if [ -n "$tools_word" ]; then
+    manifest=$("$py" "$here/executor.py" --manifest $tools_word) || exit 2
+    for p in $(sed -n 's/^tree_parts="\(.*\)"/\1/p' "$here/sandbox.sh"); do
+        [ -e "$tree/$p" ] && keepflags="$keepflags --allow $tree/$p"
+    done
+    keepflags="--allow $here$keepflags --no-net --write /dev/null"   # the executor's own directory (the tree's tools/, or the installed set), then the parts
+    seat="You are answering a person who works on the tend tree at $tree. You have the tools $tools_word over the tree's documents — board/, tools/, spec/, doc/ and the root files — read-only; a path outside them is refused by keep. At most $calls_cap calls this turn; every call is shown to the person as it happens. If you need to know how the tree works, read board/README.md."
+    sysmsgs=$(jq -cn --arg s "$seat" '[{role:"system",content:$s}]')
+fi
+
 stamp() { date '+%Y-%m-%d %H:%M'; }
 
-# ask the model one question, streamed.  The server's SSE lines are one
-# JSON each; jq turns every delta into `T<text>` or `A<text>` with the
-# text's backslashes, newlines and tabs escaped so a line is a line, and
-# the loop appends each to its live file with printf %b, which undoes
+# ask the model once, streamed, with the turn's messages so far ($1, a JSON
+# array after the history).  The server's SSE lines are one JSON each; jq
+# turns every delta into `T<text>`, `A<text>` or `K<tool_calls json>` with
+# the text's backslashes, newlines and tabs escaped so a line is a line,
+# and the loop appends each to its file with printf %b, which undoes
 # exactly that.  Nothing is printed; the files are the reply.  Fails
 # loudly when the node did not answer, or answered with no completion.
 ask() {
-    _q=$1
+    _conv=$1
     # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words
-    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
-        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,stream:true}
+    _body=$(jq -cn --argjson c "$_conv" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
+                   --argjson s "$sysmsgs" --argjson tools "$manifest" \
+        '{messages:($s + $h + $c),max_tokens:$n,temperature:0.2,stream:true}
+         + (if ($tools | length) > 0 then {tools:$tools} else {} end)
          + (if $m == "" then {chat_template_kwargs:{enable_thinking:$t}}
             else {model:$m} + (if $t then {reasoning:{enabled:true}} else {} end) end)')
-    : > "$tthink"; : > "$tans"
-    _raw="$STATE/.turn.raw"; _rcf="$STATE/.turn.rc"
+    _raw="$STATE/.turn.raw"; _rcf="$STATE/.turn.rc"; _tc="$STATE/.turn.tc"; : > "$_tc"
+    _had=$(cat "$tans" "$tthink" 2>/dev/null | wc -c)
     { if [ -n "$keyfile" ]; then
           # the key goes to curl on stdin (-K -), never on the argument line (tools/door.sh)
           printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \
@@ -108,12 +154,14 @@ ask() {
       | jq --unbuffered -r '.choices[0].delta // {}
             | def esc: gsub("\\\\"; "\\\\") | gsub("\n"; "\\n") | gsub("\t"; "\\t") | gsub("\r"; "\\r");
               ((.reasoning_content // .reasoning // "") | select(length > 0) | "T" + esc),
-              ((.content // "") | select(length > 0) | "A" + esc)' 2>/dev/null \
+              ((.content // "") | select(length > 0) | "A" + esc),
+              ((.tool_calls // []) | select(length > 0) | "K" + (tojson | esc))' 2>/dev/null \
       | while IFS= read -r _line; do
             _text=${_line#?}
             case $_line in
                 T*) printf '%b' "$_text" >> "$tthink" ;;
                 A*) printf '%b' "$_text" >> "$tans" ;;
+                K*) printf '%b\n' "$_text" >> "$_tc" ;;
             esac
         done
     _rc=$(cat "$_rcf" 2>/dev/null || echo 1); rm -f "$_rcf"
@@ -121,27 +169,89 @@ ask() {
         if [ -n "$door" ]; then echo "deliver: the $door door did not answer at $CHAT" >&2
         else echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; fi
         rm -f "$_raw"; return 1; fi
-    if [ ! -s "$tans" ] && [ ! -s "$tthink" ]; then
+    if [ "$(cat "$tans" "$tthink" 2>/dev/null | wc -c)" -eq "$_had" ] && [ ! -s "$_tc" ]; then
         echo "deliver: the node's reply was not a completion:" >&2; head -3 "$_raw" >&2; rm -f "$_raw"; return 1; fi
     rm -f "$_raw"
 }
 
-# answer one pull line "<epoch> <words>"; nothing if it carries no words
+# the round's calls, assembled from the deltas: one object per index — id, name, the arguments whole
+round_calls() {
+    jq -cs '[.[][]] | group_by(.index) | map({
+        id: ((map(.id // empty) | first) // ""),
+        name: ((map(.function.name // empty) | first) // ""),
+        args: ((map(.function.arguments // "") | add) // "")})' "$STATE/.turn.tc" 2>/dev/null || echo '[]'
+}
+
+# one call, run under keep — or not run, past the cap — its C line in _c and its result, whole, in $rfile
+ncalls=0
+run_call() {
+    _name=$1; _arg=$2
+    if [ "$ncalls" -ge "$calls_cap" ]; then
+        _c="$_name $_arg → out of calls ($calls_cap a turn)"
+        printf '%s' "out of calls: $calls_cap a turn — answer with what you have" > "$rfile"
+        return 0
+    fi
+    ncalls=$((ncalls + 1))
+    _err="$STATE/.turn.err"
+    if _out=$(TEND_TREE="$tree" "$py" "$here/keep.py" $keepflags -- "$py" -B "$here/executor.py" "$_name" "$_arg" 2>"$_err") \
+       && printf '%s' "$_out" | jq -e '.c' >/dev/null 2>&1; then
+        _c=$(printf '%s' "$_out" | jq -r '.c'); printf '%s' "$_out" | jq -j '.result' > "$rfile"
+    else
+        # keep would not run it, or the executor did not answer: never run unkept; the line says what was said
+        _said=$(grep -v 'DeprecationWarning\|^ *class ' "$_err" 2>/dev/null | tail -1)
+        _c="$_name $_arg → not run: ${_said:-the executor said nothing}"; printf '%s' "not run: ${_said:-the executor said nothing}" > "$rfile"
+    fi
+    rm -f "$_err"
+}
+
+# answer one pull line "<epoch> <words>"; nothing if it carries no words.
+# A turn is one or more rounds: a round that ends in calls runs them and asks again
 answer_line() {
     _line=$1
     _words=$(printf '%s' "$_line" | cut -s -d' ' -f2-)
     [ -n "$_words" ] || return 0
-    ask "$_words" || return 1
+    : > "$tthink"; : > "$tans"; : > "$tcalls"
+    conv=$(jq -cn --arg q "$_words" '[{role:"user",content:$q}]')
+    ncalls=0; rounds=0; crec=""; stopped=""
+    while :; do
+        ask "$conv" || return 1
+        rounds=$((rounds + 1))
+        calls=$(round_calls)
+        n=$(printf '%s' "$calls" | jq 'length')
+        [ "$n" -gt 0 ] || break
+        if [ "$rounds" -gt $((calls_cap + 1)) ]; then
+            stopped="(stopped: the model kept calling after it was told it was out of calls, $calls_cap a turn)"
+            break
+        fi
+        # the assistant's message with its calls, then one tool message per call
+        amsg=$(printf '%s' "$calls" | jq -c --arg a "$(cat "$tans")" \
+            '{role:"assistant",content:$a,tool_calls:map({id:.id,type:"function",function:{name:.name,arguments:.args}})}')
+        tmsgs='[]'; ci=0
+        while [ "$ci" -lt "$n" ]; do
+            cid=$(printf '%s' "$calls" | jq -r ".[$ci].id"); cname=$(printf '%s' "$calls" | jq -r ".[$ci].name")
+            carg=$(printf '%s' "$calls" | jq -r ".[$ci].args | (try fromjson catch {}) | (.path // .dir // (to_entries | .[0].value?) // \"\") | tostring")
+            run_call "$cname" "$carg"
+            printf 'C: %s\n' "$_c" >> "$tcalls"
+            crec="$crec$(stamp) C: $_c
+"
+            tmsgs=$(printf '%s' "$tmsgs" | jq -c --arg id "$cid" --rawfile r "$rfile" '. + [{role:"tool",tool_call_id:$id,content:$r}]')
+            ci=$((ci + 1))
+        done
+        conv=$(printf '%s' "$conv" | jq -c --argjson a "$amsg" --argjson t "$tmsgs" '. + [$a] + $t')
+    done
     _a=$(cat "$tans"); thought=$(cat "$tthink")
     # an answer with no content is a model that put its whole reply in the reasoning, and that is the answer
     if [ -z "$_a" ]; then _a=$thought; thought=""; fi
-    rm -f "$tans" "$tthink"
+    [ -z "$stopped" ] || _a="$_a${_a:+ }$stopped"
+    rm -f "$tans" "$tthink" "$tcalls" "$rfile"
     { printf '%s Q: %s\n' "$(stamp)" "$_words"
       [ -z "$door" ] || printf '%s V: %s %s\n' "$(stamp)" "$door" "$dmodel"
+      [ -z "$crec" ] || printf '%s' "$crec"
       [ -z "$thought" ] || printf '%s T: %s\n' "$(stamp)" "$thought"
       printf '%s A: %s\n\n' "$(stamp)" "$_a"; } >> "$replies"
     printf '  Q: %s\n' "$_words"
     [ -z "$door" ] || printf '  via: %s (%s)\n' "$door" "$dmodel"
+    [ -z "$crec" ] || printf '%s' "$crec" | sed 's/^[0-9-]* [0-9:]* C: /  C: /'
     [ -z "$thought" ] || printf '  T: %s\n' "$thought"
     printf '  A: %s\n' "$_a"
 }

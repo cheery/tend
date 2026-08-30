@@ -34,6 +34,9 @@
 #     status CMD...     what says what it did (optional; run read-only under the grant)
 #     make PATH         a directory made before the program runs, under $STATE unless absolute — for a
 #                       cache the program will not create for itself (the GPU driver's, 2026-08-28)
+#     tools NAMES       what a mind at this node may call, and `calls N` the calls a turn — the courier's
+#                       words (tools/deliver.sh, card:tools.md), read there; the runner carries them and
+#                       does nothing with them
 #     env NAME=VALUE    exported to the program before keep execs it; $NODE, $STATE and $MODEL expand — for a
 #                       runtime's cache under $STATE, which keep already lets it write (2026-08-28)
 #     model FILE        the model, relative to NODE: $MODEL is this file (2026-08-30, Henri: "I'd want the
@@ -153,6 +156,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         make)        case "$val" in /*) ;; *) val="$STATE/$val" ;; esac; makes="$makes $val" ;;
         model)       case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; MODEL=$val ;;
         env)         case "$val" in [A-Za-z_]*=*) envs="$envs $val" ;; *) echo "launch: $name/grant: env wants NAME=VALUE, got \`$val\`" >&2; exit 2 ;; esac ;;
+        tools|calls) ;;   # the courier's words (tools/deliver.sh); the runner carries them
         *) echo "launch: $name/grant: unknown word \`$key\`" >&2; exit 2 ;;
     esac
 done < "$NODE/grant"

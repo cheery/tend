@@ -697,3 +697,26 @@ def test_the_turn_in_flight_is_read_from_the_live_files(tmp_path):
     assert panel.read_turn(str(tmp_path)) == ("so far", "")
     (tmp_path / "turn.answer").write_text("echo<")
     assert panel.read_turn(str(tmp_path)) == ("so far", "echo<")
+
+
+def test_the_calls_a_mind_made_are_read_back_on_the_exchange_and_from_the_live_file(tmp_path):
+    """card:tools.md day one: a C line per call between the Q and the A,
+    read back on the exchange and shown on the talk screen; the live
+    `turn.calls` while the turn is in flight; never history."""
+    st = tmp_path / "st"; st.mkdir()
+    (st / "replies").write_text(
+        "2026-08-30 14:40 Q: look\n2026-08-30 14:40 V: openrouter vendor/x\n"
+        "2026-08-30 14:40 C: ls board/ → 2 entries\n2026-08-30 14:40 C: read board/x.md → 21 chars\n"
+        "2026-08-30 14:41 T: so\n2026-08-30 14:41 A: found\n\n"
+        "2026-08-30 14:42 Q: plain\n2026-08-30 14:42 A: echo\n\n")
+    ex = panel.read_replies(str(st))
+    assert ex[0].calls == ["ls board/ → 2 entries", "read board/x.md → 21 chars"]
+    assert (ex[0].thinking, ex[0].answer, ex[0].via) == ("so", "found", "openrouter vendor/x")
+    assert ex[1].calls == [] and ex[1].answer == "echo"
+    assert panel.history(ex) == [{"role": "user", "content": "look"}, {"role": "assistant", "content": "found"},
+                                 {"role": "user", "content": "plain"}, {"role": "assistant", "content": "echo"}], "the calls are never history"
+    assert panel.read_calls(str(st)) == []
+    (st / "turn.calls").write_text("C: ls board/ → 2 entries\n")
+    assert panel.read_calls(str(st)) == ["ls board/ → 2 entries"]
+    src = inspect.getsource(panel._talk_screen)
+    assert "read_calls(row.state)" in src and "[call]" in src and "'acting'" in src, "the calls are shown as the turn runs"

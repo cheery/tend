@@ -141,7 +141,12 @@ between two workable cards is Henri's.
     reach would be a session with no fence.  *Placed last by the
     session that wrote it on 2026-08-30 at Henri's "ok. write a tools
     card."; day one is two read-only tools under keep with every call
-    a line on the record; the tiebreak is his.*
+    a line on the record; the tiebreak is his.  Day one landed the
+    same afternoon at his pick from a round of three: `tools/executor.py`
+    one process under keep per call, `deliver.sh` the courier, the `C:`
+    line on the record and on the talk screen, the injection red
+    measured; the door's `tools` line is his to write, and the
+    `compare.py` measurement is owed.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

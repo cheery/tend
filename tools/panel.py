@@ -86,7 +86,11 @@ work"): deliver.sh writes each token as it arrives to `turn.thinking`
 and `turn.answer` beside the node's record, and the talk screen shows
 them under the question while the turn is in flight — the thinking
 dim, the answer as it grows — so the person watches the model work
-rather than a timer.  **A door** (2026-08-30 — Henri: "I now have the
+rather than a timer.  **The calls** (2026-08-30, card:tools.md day
+one): a mind with tools acts, and every act is a `C:` line — in the
+record between the Q and the A, and in `turn.calls` as it happens —
+shown as `[call] read board/lander.md → 8.7k chars`, on the exchange
+and while the turn is in flight; the calls are never history.  **A door** (2026-08-30 — Henri: "I now have the
 openrouter available for use"): `[d]` on the talk screen cycles the
 turn's mind — the node, then each door under `doors/` — and `--door
 NAME` from a shell, or TEND_DOOR, is the same; the turn goes through
@@ -607,18 +611,20 @@ VERBS = ("hold", "pin", "unhold", "unpin")
 
 
 # --- talk (2026-08-30 — Henri: "so that I can truly talk with the model") ---
-Exchange = namedtuple("Exchange", "stamp question answer thinking via")
+Exchange = namedtuple("Exchange", "stamp question answer thinking via calls")
 _Q = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) Q: (.*)$")
 _A = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) A: (.*)$")
 _T = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) T: (.*)$")
 _V = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) V: (.*)$")
+_C = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) C: (.*)$")
 TALK_TURNS = 8   # exchanges that ride along as history — the node's context is small (llm/grant)
 
 
 def read_replies(state):
     """The node's `replies`, read back as exchanges, oldest first.
     tools/deliver.sh writes one as a Q line, a V line when a door
-    answered (`door model`), a T line when the model was asked to think,
+    answered (`door model`), a C line per call the mind made (the act
+    and what it got), a T line when the model was asked to think,
     an A line — the thinking and the answer may run on for lines — and a
     blank; no file is no exchanges."""
     out = []
@@ -627,17 +633,17 @@ def read_replies(state):
             lines = f.read().splitlines()
     except OSError:
         return out
-    q = None; a = None; t = None; v = ""
+    q = None; a = None; t = None; v = ""; c = []
 
     def flush():
-        out.append(Exchange(q[0], q[1], "\n".join(a or []).strip(), "\n".join(t or []).strip(), v))
+        out.append(Exchange(q[0], q[1], "\n".join(a or []).strip(), "\n".join(t or []).strip(), v, list(c)))
 
     for line in lines:
         m = _Q.match(line)
         if m:
             if q is not None:
                 flush()
-            q = (m.group(1), m.group(2)); a = None; t = None; v = ""
+            q = (m.group(1), m.group(2)); a = None; t = None; v = ""; c = []
             continue
         if q is not None and a is None:
             m = _A.match(line)
@@ -651,6 +657,10 @@ def read_replies(state):
             m = _V.match(line)
             if m and t is None:
                 v = m.group(2)
+                continue
+            m = _C.match(line)
+            if m and t is None:
+                c.append(m.group(2))
                 continue
         if a is not None:
             a.append(line)
@@ -681,6 +691,16 @@ def read_turn(state):
         except OSError:
             out.append("")
     return tuple(out)
+
+
+def read_calls(state):
+    """The calls the turn in flight has made so far — deliver.sh's
+    `turn.calls`, one `C: ` line per call; nothing when there is none."""
+    try:
+        with open(os.path.join(state, "turn.calls")) as f:
+            return [l[3:] if l.startswith("C: ") else l for l in f.read().splitlines() if l]
+    except OSError:
+        return []
 
 
 def doors():
@@ -820,6 +840,8 @@ def _talk_screen(stdscr, name, canvas_dir):
         lines = []
         for e in read_replies(row.state)[-TALK_TURNS:]:
             lines += [(l, curses.A_BOLD) for l in _wrap(f"{e.stamp}  you: {e.question}", w - 4)]
+            for c in e.calls:
+                lines += [(l, curses.A_DIM) for l in _wrap(f"[call] {c}", w - 4)]
             if e.thinking:
                 lines += [(l, curses.A_DIM) for l in _wrap(f"(thinking) {e.thinking}", w - 4)]
             lines += [(l, 0) for l in _wrap(f"{e.via.split(' ')[0] if e.via else name}: {e.answer}", w - 4)]
@@ -831,12 +853,15 @@ def _talk_screen(stdscr, name, canvas_dir):
         if turn is not None:
             lines += [(l, curses.A_BOLD) for l in _wrap("you: " + turn["words"], w - 4)]
             thinking_so_far, answer_so_far = read_turn(row.state)
+            calls_so_far = read_calls(row.state)
+            for c in calls_so_far:
+                lines += [(l, curses.A_DIM) for l in _wrap(f"[call] {c}", w - 4)]
             if thinking_so_far:
                 lines += [(l, curses.A_DIM) for l in _wrap("(thinking) " + thinking_so_far, w - 4)]
             who = turn["door"] or name
             if answer_so_far:
                 lines += [(l, 0) for l in _wrap(f"{who}: {answer_so_far}", w - 4)]
-            lines.append((f"… {who} is {'answering' if answer_so_far else 'thinking' if thinking_so_far else 'starting'}  ({int(time.time() - turn['since'])} s)", curses.A_DIM))
+            lines.append((f"… {who} is {'answering' if answer_so_far else 'thinking' if thinking_so_far else 'acting' if calls_so_far else 'starting'}  ({int(time.time() - turn['since'])} s)", curses.A_DIM))
         if last:
             lines.append((last, curses.A_BOLD))
         room = h - 3
@@ -1153,6 +1178,8 @@ def main(argv):
             try:
                 answer_text = talk(args[0], " ".join(args[1:]), canvas, think=think, door=door)
                 ex = read_replies(find_row(args[0], canvas).state)
+                for c in (ex[-1].calls if ex else []):
+                    sys.stderr.write("(call) " + c + "\n")
                 if ex and ex[-1].thinking:
                     # the thinking beside the answer, on stderr: a pipe gets the answer alone
                     sys.stderr.write("(thinking) " + ex[-1].thinking + "\n")
