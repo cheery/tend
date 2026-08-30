@@ -13,7 +13,9 @@ tree, or read-only inside it, on purpose.
 
 - `tools/reach-allow.sh net,audio,…` — **set the fence's reach bound.**
   Writes `TEND_REACH_ALLOW` on the hook's line: the rows a session may
-  ask for.
+  ask for.  Takes only a row the fence can be asked for (`--rows` lists
+  them, and marks which are allowed); any other name is refused before
+  the file is touched.
 - `tools/hook-installer.sh` — **install the per-command fence.**  Edits
   `.claude/settings.json`; hook config is enforcement, so the edit is
   the person's.
