@@ -114,7 +114,8 @@ session reads ten, and what each reading produces is one line.
 | 4 | Sat 2026-08-29 (was Mon 08-31; moved up at the 08-28-1830 kaizen's item 4) | 26-0812 26-0822 26-0847 26-0855 26-0905 26-0910 26-0926 26-0931 26-1304 26-1309 |
 | 5 | Mon 2026-08-31 | 26-1317 26-1323 26-1334 26-1342 26-1356 26-1405 26-1412 26-1421 26-1433 26-1437 |
 | 6 | Tue 2026-09-01 | 26-1500 26-1509 26-1524 26-1532 26-1535 26-1549 26-1602 26-1616 26-1633 26-1644 |
-| 7… | Wed 2026-09-02 → | the ten oldest unread, whatever has arrived since |
+| 7 | Wed 2026-09-02 | 26-1653 26-1712 26-1719 27-0538 27-0551 27-0710 27-0748 27-1535 27-1602 27-1650 |
+| 8… | Thu 2026-09-03 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -278,3 +279,33 @@ Now four batches deep, 40 lines, and no line has yet been disagreed
 with by the one reader the ledger is for.  His; not a session's to do
 for him, and named here so the fifth batch does not arrive before the
 first three lines.
+
+## 2026-08-30 — batch 5 read, on a Saturday, at Henri's "do kaizen ingestion next"
+
+Batch 5 is in `doc/ingested.md`: ten lines, six `rule`, and **the
+ledger's first promotion to a memory** — `2026-08-26-1323`'s "Do the
+question first next time", Henri's words, which that kaizen recorded
+as written to memory and which the memory directory did not hold: the
+write had died in the fenced home, as the same kaizen says two
+sentences earlier.  The promotion is the write, done with the tool
+that runs outside the fence.  Read two days ahead of the table's
+Monday, by a session that wrote none of it; batch 7 is filled in
+above.
+
+One strand new at two faces, the one to watch next: **a count read
+off a format nothing parses** (`2026-08-26-1342`, `-1433`) — its
+third face is a `tools/` reader for `git log` by author and path, or
+the reason written why not.  Batch 4's two watched strands — the
+placeholder time and the board reading — had no face in this batch.
+Three lessons closed by being applied within the afternoon they were
+written, which is the count that says the method was working that
+day.
+
+**The count**: 93 kaizens in `doc/kaizen/` today; 50 read; 43 unread
+before Monday's arrivals — at the level of ten, Monday through Friday
+of next week with nothing arriving.  No day has been missed yet; the
+lamp slice still waits for the first one.
+
+**Henri's half is still undone** — five batches, 50 lines, and
+`2026-08-29-0734` item 4 is the last to say so; nothing since records
+three lines disagreed with, nor the self-shaped strand read.  His.

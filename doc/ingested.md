@@ -167,3 +167,55 @@ third-face refusal — the pipe strand's non-promotion rests on the
 claim that no mechanism in the tree could catch it, which is an
 argument about the session's console and not a measurement; one
 uncertain verdict, not two in a row.  Zero verdict words added.
+
+## Batch 5 — read 2026-08-30, the next ten (2026-08-26-1317 → 2026-08-26-1437)
+
+*Read on Saturday, two days ahead of the table's Monday, at Henri's
+"do kaizen ingestion next"; the batch is the ten oldest unread, so the
+row moved and the level held.  Read by a session that wrote none of
+them.  The afternoon of 2026-08-26: the resolver carded and built in
+four sittings, and `keep`'s session half measured row by row — state,
+trees, tree.*
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-26-1317 | a slice under `tools/` or `node/` lands with its mutation rows in the same commit — skipped twice in one day by the same session; and a question in the message is served before the work in it | `rule` for the rows — board/done/green.md:564 says "a slice lands with its rows, the same commit" and calls it not yet a rule; the two sittings after ([[2026-08-26-1334]] "kept once", [[2026-08-26-1437]] "four rows") kept it, so it is the tree's practice with the card as its home.  The question-first half is `promoted` at [[2026-08-26-1323]] below, where Henri confirmed it.  The third item — a program's restrictions ride the *pull* — became card:resolver.md the next sitting and is `done/` |
+| 2026-08-26-1323 | Henri: "Do the question first next time"; and a memory written through the fenced shell died in the empty home, two "no such file" lines above a green suite | `promoted` — a memory, `question-first`, in the tree's memory directory: *a question in the message is served before the work in it* — Henri's words, 2026-08-26, cited to [[2026-08-26-1317]] and this.  The kaizen says the memory was written that sitting; the memory directory today holds one file and it is not this one, so the failed write it describes was never remade — the promotion is the write, done with the tool that runs outside the fence, which is the kaizen's own rule for memory files.  The local-model news is card:session-program.md, `open` there since 2026-08-26 |
+| 2026-08-26-1334 | the measurement was the design — nothing detached survives a fenced command, so no daemon; a helper defined and not used left the grant pasted three times; the launcher became the pull path with no protection | `rule` — test/test_keep.py:353 `test_the_launchers_grant_appears_once` is the test the kaizen asked for; node/run.sh joined the protected set by Henri's hand the next sitting ([[2026-08-26-1342]], tools/sandbox.sh:120).  The measurement-first half is board/done/resolver.md's day one.  Closed by being applied, both |
+| 2026-08-26-1342 | a line-based count over a record that spans lines gave "2978 commands" for a sitting of 53, and it was read past; the want carried a reason across Henri's hand for the first time | `recurs` — the **count-from-an-unparsed-format** strand, first face here, second at [[2026-08-26-1433]] below; its countermeasure for the leash ledger became tools/ledger.py the next sitting ([[2026-08-26-1356]]).  The want-carries-the-reason half is `rule`, tools/kaizen.sh `want` and board/README.md §"What the days taught" ("a session never judges whether it owes another: it says so") |
+| 2026-08-26-1356 | the ledger's second read made the parser a tool before the reading; a mutation row survived because it broke nothing, and the harness cannot tell that from a blind detector; a fence patch verified by `sh -n` is verified by logic | `rule` — tools/ledger.py exists with tests; a survivor is read, never counted, is board/done/green.md:221–233's standing practice; the fence-by-execution half is batch 2's promotion (README §"What the days taught": proposed, not declared), and its next face is [[2026-08-26-1405]] where the unfenced run refused |
+| 2026-08-26-1405 | the same miss twice in one patch — the test's probe moved and not the check's — because the test file was grepped and not the script; "PARENT WRITABLE" printed from inside a tmpfs home | `once` for the grep-every-path rule: it was applied sixteen minutes later ([[2026-08-26-1412]]) and the trees row cost one hand instead of two ([[2026-08-26-1421]]) — closed by being applied, and no fence patch since has needed it (the tree's copies are the workbench since install day two).  The wrong-seat half is `rule`: tools/sandbox.sh:323 "the escape, graded from outside", and README's route for a claim a seat cannot run |
+| 2026-08-26-1412 | the trees row read by purpose: eleven ledger records and the cards' citations named board, tools, spec, doc, journal, the root documents, the twin's settings, and never the source or `.git`; the audit's run under it was read from its imports, not run | `rule` — tools/sandbox.sh:82–91 is that measurement as `tree_parts`, and the not-run half was run nine minutes later by Henri ([[2026-08-26-1421]]).  `open — card:trees.md` for what the measurement fixed as a literal: the path.  Opened this morning; the row binds nothing on this laptop and says `on` |
+| 2026-08-26-1421 | one hand, no round-trip; the purpose run before it was trusted; "nothing this hour" | `once` — a sitting that applied the two lessons before it and paid nothing.  Its two tomorrows both landed: the tree row's write-side question ([[2026-08-26-1433]]) and the README's "7" by Henri's hand ([[2026-08-26-1437]]) |
+| 2026-08-26-1433 | the tree row measured by what the purpose *writes*; two passes counted commit prose and `sed` expressions as paths and were read past; the ledger cannot tell a write in the tree from the same relative path in a scratch copy | `recurs` — the count-from-an-unparsed-format strand at its **second face** [[2026-08-26-1342]], on a second format the same afternoon; the kaizen's own rule is "a tool on the next ask", and `grep -rln 'name-only' tools/` finds none — no next ask has come, so the strand waits at two.  The scratch-copy limit is named on board/done/keep.md:449, `once`.  `.venv` read-only and node/state read-only with the pull file writable both landed (tools/sandbox.sh) |
+| 2026-08-26-1437 | the resolver moved outside the fence on a one-line change in the node; a starter forgot the launcher's idle a second time in one day — the property belongs to the launcher, not its callers; a test moved rather than replaced | `rule` — tools/launch.sh:154 reads `TEND_NODE_IDLE` itself, the kaizen's third tomorrow, so no starter carries it; the resolver is board/done/resolver.md and tools/resolve.sh.  The test-named-for-the-rule half is `once`; the row covered it and the launcher has since been rewritten under keep |
+
+**What batch 5 showed.**  Six `rule`, two `once`, one `open`, and
+**one promotion — to a memory, the first in the ledger's five
+batches** ([[2026-08-26-1323]]: *a question in the message is served
+before the work in it*), which is also the batch's one repair: the
+kaizen recorded the memory as written and the write had died in the
+fenced home two sentences earlier in the same file.  A recorded
+lesson whose recording failed is the card's `because` at its
+plainest, and the ledger is what noticed — the memory directory was
+read before the verdict was written.  One strand new at two faces:
+**a count read off a format nothing parses** ([[2026-08-26-1342]] the
+leash ledger, [[2026-08-26-1433]] `git log --name-only`), both read
+past on the first pass, both with the same countermeasure — the parser
+is a tool on the next ask — and the second's next ask has not come;
+its third face is a `tools/` script or the reason written why not.
+Three lessons **closed by being applied** within the same afternoon:
+the grep-every-path rule ([[2026-08-26-1405]] → [[2026-08-26-1412]],
+[[2026-08-26-1421]]), the launcher's idle as its own property
+([[2026-08-26-1437]] → tools/launch.sh), and the grant-appears-once
+test ([[2026-08-26-1334]] → test/test_keep.py).  The afternoon's shape
+is the method working at its cheapest: four sittings, each applying
+the one before it, and the round-trips through Henri's hand fell from
+two to one to none.  The two strands batch 4 named as the ones to
+watch have no face here: no placeholder time (`grep -rn '[0-9]:xx'
+board/` finds only the card's own citation) and no board reading.
+**Least certain line**: [[2026-08-26-1317]]'s `rule` for
+rows-with-the-slice — green.md itself says "not yet a rule", and the
+verdict rests on two sittings' keeping it, which is practice and not
+a mechanism; one uncertain verdict, not two in a row.  Zero verdict
+words added.
