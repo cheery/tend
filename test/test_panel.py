@@ -497,6 +497,8 @@ REPLIES = """2026-08-30 06:10 Q: what is jidoka
 It means the machine stops itself.
 
 2026-08-30 06:12 Q: and kanban
+2026-08-30 06:12 T: the user asks about kanban.
+It is a pull signal.
 2026-08-30 06:12 A: a card.
 
 """
@@ -508,6 +510,7 @@ def test_the_replies_record_reads_back_as_exchanges(tmp_path):
     assert [(e.question, e.answer) for e in ex] == [
         ("what is jidoka", "stop the line.\nIt means the machine stops itself."), ("and kanban", "a card.")]
     assert ex[0].stamp == "2026-08-30 06:10"
+    assert ex[0].thinking == "" and ex[1].thinking == "the user asks about kanban.\nIt is a pull signal."
     assert panel.read_replies(str(tmp_path / "none")) == []
     assert panel.history(ex, turns=1) == [{"role": "user", "content": "and kanban"},
                                           {"role": "assistant", "content": "a card."}]
@@ -526,7 +529,11 @@ class _Model(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         _Model.bodies.append(body)
-        out = {"choices": [{"message": {"role": "assistant", "content": "echo<" + body["messages"][-1]["content"] + ">"}}]}
+        asked = body["messages"][-1]["content"]
+        msg = {"role": "assistant", "content": "echo<" + asked + ">"}
+        if body.get("chat_template_kwargs", {}).get("enable_thinking"):
+            msg["reasoning_content"] = "think<" + asked + ">"
+        out = {"choices": [{"message": msg}]}
         self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
         self.wfile.write(json.dumps(out).encode())
 
@@ -540,6 +547,7 @@ def model(monkeypatch):
     monkeypatch.setenv("TEND_LLM_HEALTH", base + "/health")
     monkeypatch.setenv("TEND_NO_START", "1")   # the model is the stub; deliver must not start llama-server
     monkeypatch.delenv("TEND_FENCED", raising=False)
+    monkeypatch.delenv("TEND_THINK", raising=False)
     _Model.bodies.clear()
     yield _Model.bodies
     srv.shutdown()
@@ -608,9 +616,36 @@ def test_the_hand_unpins(tmp_path, monkeypatch, capsys):
     assert "no pin named llm" in capsys.readouterr().err and visits(log) == 2
 
 
+def test_talk_can_ask_the_model_to_think_and_shows_the_thinking_beside_the_answer(tmp_path, model, capsys, monkeypatch):
+    """`think=True` (the [k] toggle, `--think`, TEND_THINK) asks for the
+    template's thinking; the reasoning is a T line in the record, read
+    back on the exchange, never sent as history; off, none is asked for."""
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {node}\n")
+    assert panel.talk("llm", "why", str(canvas), think=True) == "echo<why>"
+    assert model[-1]["chat_template_kwargs"] == {"enable_thinking": True}
+    ex = panel.read_replies(str(node / "state"))
+    assert ex[-1].thinking == "think<why>" and ex[-1].answer == "echo<why>"
+    assert panel.talk("llm", "and", str(canvas)) == "echo<and>"
+    assert model[-1]["chat_template_kwargs"] == {"enable_thinking": False}
+    assert model[-1]["messages"] == [{"role": "user", "content": "why"}, {"role": "assistant", "content": "echo<why>"},
+                                     {"role": "user", "content": "and"}], "the thinking is never history"
+    assert panel.read_replies(str(node / "state"))[-1].thinking == ""
+    # the environment's word, and the shell's flag
+    monkeypatch.setenv("TEND_THINK", "1")
+    assert panel.talk("llm", "env", str(canvas)) == "echo<env>" and model[-1]["chat_template_kwargs"]["enable_thinking"]
+    assert panel.talk("llm", "quiet", str(canvas), think=False) == "echo<quiet>" and not model[-1]["chat_template_kwargs"]["enable_thinking"]
+    monkeypatch.delenv("TEND_THINK")
+    rc = panel.main(["x", "--canvas", str(canvas), "talk", "--think", "llm", "from", "a", "shell"])
+    out = capsys.readouterr()
+    assert rc == 0 and out.out.strip() == "echo<from a shell>" and "(thinking) think<from a shell>" in out.err
+
+
 def test_the_panels_keys_offer_talk_and_unpin():
     """The curses loop is not driven here; what is held is that the hand
     the keys offer includes the two Henri asked for, and the bar says so."""
     src = inspect.getsource(panel._tui)
     assert "[x] unpin" in src and "[t] talk" in src
     assert 'ord("x"): ("unpin"' in src and "_talk_screen(" in src
+    talk_src = inspect.getsource(panel._talk_screen)
+    assert "[k] think" in talk_src and 'c == ord("k")' in talk_src and "think = not think" in talk_src

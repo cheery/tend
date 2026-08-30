@@ -422,6 +422,26 @@ node down and not starting, or the fence, where deliver records the ask
 and delivers nothing.  And `[x] unpin`, beside `[u] unhold`: the hand's
 fourth verb, on a key.
 
+**Thinking, the same morning** — Henri: "can I enable thinking for the
+model somehow?", then "lift the token cap, and implement the TEND_THINK
+on deliver.sh, also wire it avaiable from the panel."  Every carrier
+had sent `enable_thinking: false` since brick 1.  `TEND_THINK` on
+`deliver.sh` sends `true`; the server returns the reasoning apart from
+the answer and deliver keeps it as a `T:` line between the Q and the A
+— read back on the exchange, shown dim under the question on the talk
+screen, and never fed back as history.  The cap, 300 until then, is
+2000 by default (a model that thinks spends its cap on the thinking
+first) and `TEND_MAXTOK` still sets it; curl's wait went 180 s → 600 s
+for the same reason.  On the panel: `[k]` toggles it on the talk
+screen (the title says `think on`), `talk --think` from a shell prints
+the thinking on stderr beside the answer on stdout, and `TEND_THINK`
+in the panel's environment is the standing word.  Whether a model has
+a thinking mode is its chat template's to say — MiniCPM5 and Qwen3
+do; gemma4's is unmeasured — and one that does not ignores the switch.
+Held by `test_deliver.py` (asked for, kept as T, off by default, the
+cap) and `test_panel.py` (the T line read back, never history, the
+flag and the toggle), three more rows.
+
 **What it is not.**  Not a second record — the pull file and `replies`
 were already the node's, and `tools/deliver.sh` without a question still
 delivers a session's pulls the same way.  Not a chat client to the port

@@ -23,7 +23,16 @@
 #
 # Env: TEND_LLM_URL / TEND_LLM_HEALTH override the port (tests point them
 # at a stub); TEND_NO_START skips starting the node; TEND_MAXTOK caps the
-# answer (default 300); TEND_STATE_DIR points state at a scratch dir.
+# answer (default 2000 — 300 until 2026-08-30, when thinking arrived and
+# Henri said "lift the token cap": a model that thinks spends its cap on
+# the thinking first); TEND_STATE_DIR points state at a scratch dir.
+# TEND_THINK, non-empty, turns the chat template's thinking mode on
+# (`enable_thinking`, off until 2026-08-30 — Henri: "can I enable
+# thinking for the model somehow?"): the model reasons before it answers,
+# the server returns the reasoning apart from the answer, and it is kept
+# in `replies` as a `T:` line between the Q and the A — read, never fed
+# back as history.  Whether a model has a thinking mode is its chat
+# template's to say; one that does not ignores the switch.
 # TEND_HISTORY is the conversation so far — a JSON array of prior
 # messages, prepended to the ask so the model answers in the
 # conversation and not cold (tools/panel.py's talk, 2026-08-30 — Henri:
@@ -41,7 +50,11 @@ pull="$STATE/pull"; replies="$STATE/replies"; marker="$STATE/delivered"
 port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=18080}"
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
-maxtok="${TEND_MAXTOK:-300}"
+maxtok="${TEND_MAXTOK:-2000}"
+think=$(printenv TEND_THINK || true)
+if [ -n "$think" ]; then think=true; else think=false; fi
+thoughtf="$STATE/.thought"   # what the model thought before its last answer, when it was asked to —
+                             # a file, because ask() runs in a $(...) and a variable set there is lost
 hist=$(printenv TEND_HISTORY || true)
 [ -n "$hist" ] || hist='[]'
 printf '%s' "$hist" | jq -e 'type == "array"' >/dev/null 2>&1 || {
@@ -50,15 +63,20 @@ mkdir -p "$STATE" 2>/dev/null || true
 
 stamp() { date '+%Y-%m-%d %H:%M'; }
 
-# ask the model one question; print the answer text, or fail loudly
+# ask the model one question; print the answer text, or fail loudly.
+# The thinking, if any, is left in $thoughtf: an answer with no content is
+# a model that put its whole reply in the reasoning, and that is the answer.
 ask() {
     _q=$1
-    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" \
-        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:false}}')
-    _out=$(curl -sS -m 180 -H 'Content-Type: application/json' -d "$_body" "$CHAT") || {
+    _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" \
+        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:$t}}')
+    _out=$(curl -sS -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT") || {
         echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; return 1; }
-    printf '%s' "$_out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null || {
+    printf '%s' "$_out" | jq -e '.choices[0].message' >/dev/null 2>&1 || {
         echo "deliver: the node's reply was not a completion:" >&2; printf '%s\n' "$_out" | head -3 >&2; return 1; }
+    _c=$(printf '%s' "$_out" | jq -r '.choices[0].message.content // ""')
+    _r=$(printf '%s' "$_out" | jq -r '.choices[0].message.reasoning_content // ""')
+    if [ -n "$_c" ]; then printf '%s' "$_r" > "$thoughtf"; printf '%s' "$_c"; else : > "$thoughtf"; printf '%s' "$_r"; fi
 }
 
 # answer one pull line "<epoch> <words>"; nothing if it carries no words
@@ -67,9 +85,13 @@ answer_line() {
     _words=$(printf '%s' "$_line" | cut -s -d' ' -f2-)
     [ -n "$_words" ] || return 0
     _a=$(ask "$_words") || return 1
+    thought=$(cat "$thoughtf" 2>/dev/null || true); rm -f "$thoughtf"
     { printf '%s Q: %s\n' "$(stamp)" "$_words"
+      [ -z "$thought" ] || printf '%s T: %s\n' "$(stamp)" "$thought"
       printf '%s A: %s\n\n' "$(stamp)" "$_a"; } >> "$replies"
-    printf '  Q: %s\n  A: %s\n' "$_words" "$_a"
+    printf '  Q: %s\n' "$_words"
+    [ -z "$thought" ] || printf '  T: %s\n' "$thought"
+    printf '  A: %s\n' "$_a"
 }
 
 wait_ready() {

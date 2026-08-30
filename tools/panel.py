@@ -9,7 +9,7 @@ It began as the andon's person-side half, card:andon-panel.md; the canvas and th
     tools/panel.py hold LABEL NODE [--state DIR] [WORDS...]   write LABEL.hold on the canvas, then resolve
     tools/panel.py pin NAME NODE [--state DIR]                write NAME.pin, then resolve
     tools/panel.py unhold LABEL | unpin NAME                  remove it, then resolve
-    tools/panel.py talk NAME WORDS...                         one turn with the node NAME names on the canvas; the reply printed
+    tools/panel.py talk [--think] NAME WORDS...               one turn with the node NAME names on the canvas; the reply printed
 
 The panel runs OUTSIDE the fence and only reads what a session writes —
 `andon.pending` (the questions) and `andon.log` (every ask, ring and
@@ -75,7 +75,12 @@ screen keeps time — a cold node loads for a minute — and a turn in
 flight lands in the record whether or not anyone stays to watch.  The
 panel is outside the fence, so it reaches the port; inside, deliver.sh
 records the ask and says the runner's side delivers it, and the talk
-says that back.
+says that back.  **Thinking** (2026-08-30 — Henri: "can I enable
+thinking for the model somehow?"): `[k]` on the talk screen, `--think`
+from a shell, or TEND_THINK in the panel's environment, asks the model
+to reason before it answers (deliver.sh's TEND_THINK); the reasoning is
+a `T:` line in `replies`, shown dim under the question and never fed
+back as history.
 """
 import os
 import re
@@ -590,38 +595,51 @@ VERBS = ("hold", "pin", "unhold", "unpin")
 
 
 # --- talk (2026-08-30 — Henri: "so that I can truly talk with the model") ---
-Exchange = namedtuple("Exchange", "stamp question answer")
+Exchange = namedtuple("Exchange", "stamp question answer thinking")
 _Q = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) Q: (.*)$")
 _A = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) A: (.*)$")
+_T = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) T: (.*)$")
 TALK_TURNS = 8   # exchanges that ride along as history — the node's context is small (llm/grant)
 
 
 def read_replies(state):
     """The node's `replies`, read back as exchanges, oldest first.
-    tools/deliver.sh writes one as a Q line, an A line — an answer may
-    run on for lines — and a blank; no file is no exchanges."""
+    tools/deliver.sh writes one as a Q line, a T line when the model was
+    asked to think, an A line — the thinking and the answer may run on
+    for lines — and a blank; no file is no exchanges."""
     out = []
     try:
         with open(os.path.join(state, "replies")) as f:
             lines = f.read().splitlines()
     except OSError:
         return out
-    q = None; a = None
+    q = None; a = None; t = None
+
+    def flush():
+        out.append(Exchange(q[0], q[1], "\n".join(a or []).strip(), "\n".join(t or []).strip()))
+
     for line in lines:
         m = _Q.match(line)
         if m:
             if q is not None:
-                out.append(Exchange(q[0], q[1], "\n".join(a or []).strip()))
-            q = (m.group(1), m.group(2)); a = None
+                flush()
+            q = (m.group(1), m.group(2)); a = None; t = None
             continue
-        m = _A.match(line)
-        if m and q is not None and a is None:
-            a = [m.group(2)]
-            continue
+        if q is not None and a is None:
+            m = _A.match(line)
+            if m:
+                a = [m.group(2)]
+                continue
+            m = _T.match(line)
+            if m and t is None:
+                t = [m.group(2)]
+                continue
         if a is not None:
             a.append(line)
+        elif t is not None:
+            t.append(line)
     if q is not None:
-        out.append(Exchange(q[0], q[1], "\n".join(a or []).strip()))
+        flush()
     return out
 
 
@@ -644,13 +662,15 @@ def find_row(name, canvas_dir=None):
     raise ValueError(f"nothing named {name} on {_canvas_dir(canvas_dir)} — the rows are: {have}")
 
 
-def talk(name, words, canvas_dir=None, timeout=600):
+def talk(name, words, canvas_dir=None, timeout=900, think=None):
     """One turn with the node NAME names on the canvas: the words go
     through tools/deliver.sh — a pull line, the model asked, the reply in
-    `replies` — with the conversation so far as history.  Returns the
-    answer; raises ValueError with deliver's own words when no reply
-    landed (the node is down and would not start; inside the fence, where
-    the ask is recorded and nothing delivers)."""
+    `replies` — with the conversation so far as history.  `think` True
+    asks the model to reason first (deliver.sh's TEND_THINK), False asks
+    it not to, None leaves the environment's word.  Returns the answer;
+    raises ValueError with deliver's own words when no reply landed (the
+    node is down and would not start; inside the fence, where the ask is
+    recorded and nothing delivers)."""
     import json
     words = " ".join(words.split())
     if not words:
@@ -660,6 +680,10 @@ def talk(name, words, canvas_dir=None, timeout=600):
     env = dict(os.environ)
     env["TEND_STATE_DIR"] = row.state
     env["TEND_HISTORY"] = json.dumps(history(read_replies(row.state)))
+    if think is True:
+        env["TEND_THINK"] = "1"
+    elif think is False:
+        env.pop("TEND_THINK", None)
     try:
         p = subprocess.run(["sh", os.path.join(HERE, "deliver.sh"), row.node, words],
                            env=env, capture_output=True, text=True, timeout=timeout)
@@ -672,7 +696,7 @@ def talk(name, words, canvas_dir=None, timeout=600):
     raise ValueError(said[-1] if said else f"deliver exited {p.returncode} and wrote no reply")
 
 
-def _start_turn(name, words, canvas_dir):
+def _start_turn(name, words, canvas_dir, think=None):
     """A turn in the background, so the screen keeps time while the model
     thinks.  The box says when it is done and what went wrong; the reply
     itself is in the record."""
@@ -681,7 +705,7 @@ def _start_turn(name, words, canvas_dir):
 
     def run():
         try:
-            talk(name, words, canvas_dir)
+            talk(name, words, canvas_dir, think=think)
         except Exception as e:   # a refusal or deliver's words — shown on the screen, never raised into curses
             box["error"] = str(e)
         box["done"] = True
@@ -721,6 +745,7 @@ def _talk_screen(stdscr, name, canvas_dir):
     import curses, time
     turn = None   # the turn in flight
     last = ""     # the last refusal, shown until the next turn
+    think = bool(os.environ.get("TEND_THINK"))   # the environment's word, until [k] says otherwise
     while True:
         try:
             row = find_row(name, canvas_dir)
@@ -735,12 +760,14 @@ def _talk_screen(stdscr, name, canvas_dir):
         else:
             state = "not running — a turn pulls it up; the first reply waits for the load"
         try:
-            stdscr.addstr(0, 0, f" talk — {name}  {state} ".ljust(w - 1), curses.A_REVERSE)
+            stdscr.addstr(0, 0, f" talk — {name}  {state}  think {'on' if think else 'off'} ".ljust(w - 1), curses.A_REVERSE)
         except curses.error:
             pass
         lines = []
         for e in read_replies(row.state)[-TALK_TURNS:]:
             lines += [(l, curses.A_BOLD) for l in _wrap(f"{e.stamp}  you: {e.question}", w - 4)]
+            if e.thinking:
+                lines += [(l, curses.A_DIM) for l in _wrap(f"(thinking) {e.thinking}", w - 4)]
             lines += [(l, 0) for l in _wrap(f"{name}: {e.answer}", w - 4)]
             lines.append(("", 0))
         if turn is not None and turn["done"]:
@@ -760,7 +787,7 @@ def _talk_screen(stdscr, name, canvas_dir):
             except curses.error:
                 pass
             y += 1
-        bar = (" a line and Enter asks; an empty line or Esc goes back " if turn is None
+        bar = (" [Enter] a line to ask  [k] think on/off  [Esc] back " if turn is None
                else " waiting for the reply — Esc goes back; the reply still lands in replies ")
         try:
             stdscr.addstr(h - 1, 0, bar.ljust(w - 1), curses.A_REVERSE)
@@ -777,11 +804,21 @@ def _talk_screen(stdscr, name, canvas_dir):
                 stdscr.timeout(1000)
                 return f"talk {name}: a turn is in flight; its reply lands in {row.state}/replies"
             continue
-        words = _ask_line(stdscr, f"{name} <")
-        if not words:
+        stdscr.timeout(1000)
+        try:
+            c = stdscr.getch()
+        except KeyboardInterrupt:
+            c = 27
+        if c in (27, ord("q")):
             return ""
-        last = ""
-        turn = _start_turn(name, words, canvas_dir)
+        if c == ord("k"):
+            think = not think
+            continue
+        if c in (10, 13, curses.KEY_ENTER):
+            words = _ask_line(stdscr, f"{name} <")
+            if words:
+                last = ""
+                turn = _start_turn(name, words, canvas_dir, think)
 
 
 def _counts(rows):
@@ -1038,11 +1075,19 @@ def main(argv):
         elif a.startswith("--canvas="):
             canvas = a[len("--canvas="):]
         elif a == "talk":
+            think = None
+            if args and args[0] == "--think":
+                think = True; args = args[1:]
             if len(args) < 2:
-                sys.stderr.write("andon-panel: talk NAME WORDS...\n")
+                sys.stderr.write("andon-panel: talk [--think] NAME WORDS...\n")
                 return 2
             try:
-                print(talk(args[0], " ".join(args[1:]), canvas))
+                answer_text = talk(args[0], " ".join(args[1:]), canvas, think=think)
+                ex = read_replies(find_row(args[0], canvas).state)
+                if ex and ex[-1].thinking:
+                    # the thinking beside the answer, on stderr: a pipe gets the answer alone
+                    sys.stderr.write("(thinking) " + ex[-1].thinking + "\n")
+                print(answer_text)
                 return 0
             except ValueError as e:
                 sys.stderr.write(f"andon-panel: {e}\n")

@@ -33,7 +33,10 @@ class _Stub(http.server.BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         BODIES.append(body)
         asked = body["messages"][-1]["content"]
-        out = {"choices": [{"message": {"role": "assistant", "content": f"echo<{asked}>"}}]}
+        msg = {"role": "assistant", "content": f"echo<{asked}>"}
+        if body.get("chat_template_kwargs", {}).get("enable_thinking"):
+            msg["reasoning_content"] = f"think<{asked}>"   # what llama-server returns apart from the answer
+        out = {"choices": [{"message": msg}]}
         self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
         self.wfile.write(json.dumps(out).encode())
 
@@ -115,3 +118,23 @@ def test_the_conversation_rides_along_as_history(tmp_path, stub):
     n = len(BODIES)
     r = deliver(NODE, "three", state=st, stub=stub, TEND_NO_START="1", TEND_HISTORY="not json")
     assert r.returncode == 2 and "TEND_HISTORY" in r.stderr and len(BODIES) == n
+
+
+def test_thinking_is_asked_for_with_tend_think_and_kept_as_a_t_line(tmp_path, stub):
+    """Henri, 2026-08-30: "can I enable thinking for the model somehow?" —
+    TEND_THINK turns the template's thinking on; the reasoning comes back
+    apart from the answer and is a `T:` line between the Q and the A;
+    off, the request says so and no T line is written.  The cap is 2000
+    by default ("lift the token cap") and TEND_MAXTOK still sets it."""
+    st = tmp_path / "s"; st.mkdir()
+    r = deliver(NODE, "two", state=st, stub=stub, TEND_NO_START="1", TEND_THINK="1")
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["chat_template_kwargs"] == {"enable_thinking": True}
+    assert BODIES[-1]["max_tokens"] == 2000
+    lines = (st / "replies").read_text().splitlines()
+    assert [l.split(" ", 2)[2] for l in lines if l] == ["Q: two", "T: think<two>", "A: echo<two>"]
+    assert "  T: think<two>" in r.stdout and "  A: echo<two>" in r.stdout
+    r = deliver(NODE, "cold", state=st, stub=stub, TEND_NO_START="1", TEND_MAXTOK="50")
+    assert r.returncode == 0 and BODIES[-1]["chat_template_kwargs"] == {"enable_thinking": False}
+    assert BODIES[-1]["max_tokens"] == 50
+    assert "T:" not in (st / "replies").read_text().split("Q: cold", 1)[1]

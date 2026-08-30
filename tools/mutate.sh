@@ -250,6 +250,10 @@ test/test_panel.py	panel: a death's who-column is andon, never the pin's	sed -i 
 test/test_panel.py	panel: a turn carries no history — the model answers cold every time	sed -i 's/env\["TEND_HISTORY"\] = json.dumps(history(read_replies(row.state)))/env["TEND_HISTORY"] = "[]"/' tools/panel.py
 test/test_deliver.py	deliver: the history is dropped before the ask	sed -i 's/messages:(\$h + \[{role:"user",content:\$q}\])/messages:[{role:"user",content:\$q}]/' tools/deliver.sh
 test/test_panel.py	panel: unpin is not a verb of the hand	sed -i 's/elif verb in ("unhold", "unpin"):/elif verb == "unhold":/' tools/panel.py
+# thinking — 2026-08-30, Henri: "can I enable thinking for the model somehow?"
+test/test_deliver.py	deliver: TEND_THINK never reaches the request	sed -i 's/enable_thinking:\$t/enable_thinking:false/' tools/deliver.sh
+test/test_deliver.py	deliver: the thinking is not kept in replies	sed -i 's/^      \[ -z "\$thought" \] || printf .%s T: %s.n. "\$(stamp)" "\$thought"$/      :/' tools/deliver.sh
+test/test_panel.py	panel: talk asks for thinking and drops it	sed -i 's/^    if think is True:/    if False:/' tools/panel.py
 ROWS
 }
 
