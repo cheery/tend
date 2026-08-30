@@ -134,6 +134,14 @@ between two workable cards is Henri's.
     the card for reaching other trees, or directories"; day one is the
     path on the hook line, set by the reach key, read-only, with what
     of it is bound his to pick; the tiebreak is his.*
+12. **[tools](tools.md)** — a mind at the door can say and cannot do,
+    and the tree has no shape for what it may do: the three acts a
+    model has (read a tree file, propose, pull the andon) are run by a
+    fixed loop it never calls, and a tool executor with the person's
+    reach would be a session with no fence.  *Placed last by the
+    session that wrote it on 2026-08-30 at Henri's "ok. write a tools
+    card."; day one is two read-only tools under keep with every call
+    a line on the record; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
