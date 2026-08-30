@@ -356,7 +356,12 @@ run)
             # llama-server on a loaded box).  Half a core-*second* summed since the last time it
             # was busy, or since the window last slid: a program burning 30 % of a core is busy
             # at the second second, and one that only housekeeps never sums to it.
-            ticks=$(awk '{ print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null || echo "$base_ticks")
+            # No stat, or a zombie: the program is gone or going, and idleness is never judged on it
+            # (F001, 2026-08-30 — a program that exited during the sleep was reaped there, the read
+            # failed, the fallback said "no progress", and two ticks on it was recorded as idle, its exit
+            # masked to 0 and its death notice never written; on the llm node that is a crash between two
+            # ticks shown as "idle" and no line on the panel).  The watch ends; `wait` says what it was.
+            ticks=$(awk '$3 == "Z" { exit 3 } { print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null) || break
             # the instrument (F000, kaizen 1934): what this rule read, one line a tick — the clock, the
             # tick, ticks since the window's base, the window's age and how long since it last found the
             # program busy, both in ticks — so a stop at idle can be read back, not guessed at

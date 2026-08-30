@@ -404,19 +404,55 @@ def test_a_program_that_is_busy_and_silent_is_not_idle(tmp_path):
     then compiled its GPU kernels for 45 s with no log line — busy on a
     core, silent on its pulse — and the launcher stopped it for idleness
     mid-compile.  A pulse is one sign of activity; CPU progress is the
-    other, and it needs no new word: a program burning a core is not idle."""
+    other, and it needs no new word: a program burning a core is not idle.
+
+    F001 (2026-08-30): under eight burners this loop gets ~28 ticks a
+    second, and at `idle 2` the rule wants 50 in two ticks — a margin
+    under one tick, so the fixture says `idle 4` now, as the burst one
+    does; the other half of F001, the exit between two ticks, has its
+    own gate below."""
     n = tmp_path / "n"; n.mkdir()
-    (n / "grant").write_text("pulse beat\nidle 2\nprogram /usr/bin/python3 -c 'exec(\"import time\\nt=time.time()+8\\nwhile time.time()<t: pass\")'\n")
+    (n / "grant").write_text("pulse beat\nidle 4\nprogram /usr/bin/python3 -c 'exec(\"import time\\nt=time.time()+8\\nwhile time.time()<t: pass\")'\n")
     st = tmp_path / "st"
     t0 = time.time()
-    r = launch(n, "run", state=st, idle="2", timeout=60)
+    r = launch(n, "run", state=st, idle="4", timeout=60)
     took = time.time() - t0
-    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + (st / "log").read_text()
-    assert took > 6, f"it was stopped at idle, {took:.1f}s"
-    (n / "grant").write_text("pulse beat\nidle 2\nprogram sleep 30\n")
+    ticks = (st / "ticks").read_text() if (st / "ticks").exists() else "(no ticks file)"
+    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + "ticks:\n" + ticks
+    assert took > 6, f"it was stopped at idle, {took:.1f}s\nticks:\n{ticks}"
+    (n / "grant").write_text("pulse beat\nidle 4\nprogram sleep 30\n")
     t0 = time.time()
-    r = launch(n, "run", state=tmp_path / "st2", idle="2", timeout=60)
+    r = launch(n, "run", state=tmp_path / "st2", idle="4", timeout=60)
     assert "idle" in (tmp_path / "st2" / "stopped").read_text() and time.time() - t0 < 10, "silent and asleep is idle"
+
+
+@needs_syspy
+def test_a_program_that_exits_between_two_ticks_is_recorded_as_its_exit_and_not_as_idle(tmp_path):
+    """F001 (2026-08-29, 8 of 10 under the shake; 5 of 10 after F000's
+    clock fix; read from $STATE/ticks 2026-08-30 09:20: the CPU column
+    *fell* on the last tick, to the window's base — the fallback).  A
+    program that exits during the watch's `sleep 1` is reaped there; the
+    next tick cannot read /proc/PID/stat, the fallback reads as no
+    progress, and IDLE ticks after the last busy one the stop is written
+    as `idle`, the exit code masked to 0 and the death notice — the line
+    the panel reads — never written.  On the llm node that is a crash
+    between two ticks shown as idle, with nothing on the person's side.
+
+    The fixture exits 3 at 1.5 s with `idle 2`: alive at tick 1, gone at
+    tick 2.  The old launcher says idle and exits 0; this one ends the
+    watch on the unreadable stat and lets `wait` say `exited 3`."""
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("pulse beat\nidle 2\nprogram /bin/sh -c 'sleep 1.5; echo \"prog: gave up\" >&2; exit 3'\n")
+    st = tmp_path / "st"
+    r = launch(n, "run", state=st, idle="2", timeout=60)
+    stopped = (st / "stopped").read_text()
+    ticks = (st / "ticks").read_text() if (st / "ticks").exists() else "(no ticks file)"
+    assert stopped.startswith("exited 3"), stopped + "ticks:\n" + ticks
+    assert r.returncode == 3, (r.returncode, r.stderr)
+    record = st / "andon" / "andon.log"
+    assert record.exists(), "no death notice for a program that died between two ticks"
+    line = record.read_text().splitlines()[-1]
+    assert "n: exited 3" in line and "gave up" in line, line
 
 
 def test_env_is_a_grant_word_and_the_program_sees_it_with_state_expanded(tmp_path):
