@@ -147,6 +147,15 @@ between two workable cards is Henri's.
     line on the record and on the talk screen, the injection red
     measured; the door's `tools` line is his to write, and the
     `compare.py` measurement is owed.*
+13. **[private](private.md)** — a mind's thinking is on display, and it
+    has no place of its own to write: the talk screen shows the
+    reasoning text as the turn runs, and everything a session or a
+    door mind writes is the record, the tree or a proposal, public by
+    construction.  *Placed last by the session that wrote it on
+    2026-08-30 at Henri's "also make a card:private.md"; his rule:
+    "private is private" — thinking shown as a state, a private place
+    keyed by the tree, readable on ask and out of sight by default,
+    and acts never private; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
