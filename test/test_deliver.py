@@ -76,6 +76,9 @@ class _Stub(http.server.BaseHTTPRequestHandler):
                 deltas.append({"tool_calls": [{"index": i, "id": f"call_{rounds}_{i}", "type": "function", "function": {"name": name, "arguments": ""}}]})
                 deltas.append({"tool_calls": [{"index": i, "function": {"arguments": args[:5]}}]})
                 deltas.append({"tool_calls": [{"index": i, "function": {"arguments": args[5:]}}]})
+        elif kind == "error":   # the door's side refusing: a status and a JSON body, as OpenRouter's is
+            self.send_response(what["code"]); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(json.dumps({"error": {"message": what["message"], "code": what["code"]}}).encode()); return
         else:
             deltas += [{"content": what[:3]}, {"content": what[3:]}]
         self._stream(deltas)
@@ -340,6 +343,22 @@ def test_a_door_with_a_tools_line_carries_the_manifest_and_the_seat_and_every_ca
     assert r.returncode == 0, r.stderr
     assert "tools" not in BODIES[-1] and BODIES[-1]["messages"][0]["role"] == "user", "no tools line, no tools, no seat"
     assert record(st)[-2:] == ["V: plain vendor/some-model", "A: echo<plain>"]
+
+
+def test_a_doors_refusal_is_one_line_with_its_code_and_its_words_never_the_raw_body(tmp_path, stub):
+    """kaizen 1624, the third thing for tomorrow: a 429 from the door came
+    through as the raw JSON body under "not a completion".  A door's
+    error body — OpenRouter's {"error":{"code":429,"message":…}} — is one
+    line on stderr, the code and the words; the turn is not answered and
+    nothing of it is recorded; the body itself is not shown.  The node's
+    own not-a-completion (no error object) reads as before."""
+    st = tmp_path / "s"; st.mkdir()
+    door = a_door(tmp_path, stub)
+    SCRIPT["busy"] = [("error", {"code": 429, "message": "rate-limited upstream"})]
+    r = deliver(NODE, "busy", state=st, stub=stub, **door)
+    assert r.returncode != 0
+    assert r.stderr.strip() == "deliver: the openrouter door refused: 429 rate-limited upstream", r.stderr
+    assert "{" not in r.stderr and "busy" not in ((st / "replies").read_text() if (st / "replies").exists() else "")
 
 
 def test_readchars_on_the_door_caps_what_one_read_returns_and_tend_readchars_overrides(tmp_path, stub):

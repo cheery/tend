@@ -176,7 +176,12 @@ ask() {
         else echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; fi
         rm -f "$_raw"; return 1; fi
     if [ "$(cat "$tans" "$tthink" 2>/dev/null | wc -c)" -eq "$_had" ] && [ ! -s "$_tc" ]; then
-        echo "deliver: the node's reply was not a completion:" >&2; head -3 "$_raw" >&2; rm -f "$_raw"; return 1; fi
+        # a door's refusal is one line — its code and its words — never the raw body
+        # (kaizen 1624: a 429 came through as three lines of JSON under "not a completion")
+        _e=$(grep -m1 '^{' "$_raw" 2>/dev/null | jq -r 'select(.error) | .error | if type == "object" then "\(.code // .status // .type // "error") \(.message // .msg // tostring)" else tostring end' 2>/dev/null)
+        if [ -n "$_e" ] && [ -n "$door" ]; then echo "deliver: the $door door refused: $_e" >&2
+        else echo "deliver: the node's reply was not a completion:" >&2; head -3 "$_raw" >&2; fi
+        rm -f "$_raw"; return 1; fi
     rm -f "$_raw"
 }
 
