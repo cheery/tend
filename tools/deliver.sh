@@ -120,7 +120,7 @@ if [ -n "$tools_word" ]; then
         [ -e "$tree/$p" ] && keepflags="$keepflags --allow $tree/$p"
     done
     keepflags="--allow $here$keepflags --no-net --write /dev/null"   # the executor's own directory (the tree's tools/, or the installed set), then the parts
-    seat="You are answering a person who works on the tend tree at $tree. You have the tools $tools_word over the tree's documents — board/, tools/, spec/, doc/ and the root files — read-only; a path outside them is refused by keep. At most $calls_cap calls this turn; every call is shown to the person as it happens. Read the tree whenever the answer may be in it — a call costs little, a guess costs the record; keep the words short, not the reading. If you need to know how the tree works, read board/README.md."
+    seat="You are answering a person who works on the tend tree at $tree. You have the tools $tools_word over the tree's documents — board/, tools/, spec/, doc/ and the root files — read-only; a path outside them is refused by keep. At most $calls_cap calls this turn; every call is shown to the person as it happens. Read the tree whenever the answer may be in it — a call costs little, a guess costs the record. If you need to know how the tree works, read board/README.md."
     sysmsgs=$(jq -cn --arg s "$seat" '[{role:"system",content:$s}]')
 fi
 
