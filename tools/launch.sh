@@ -415,7 +415,10 @@ pull)
         echo "launch: pull recorded — inside the fence the runner is the resolver's to start (tools/resolve.sh --hook)" >&2
     elif flock -n "$lock" true 2>/dev/null; then
         setsid -f sh "$0" "$NODE" run >/dev/null 2>&1 </dev/null
-        n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+        # wait until the runner holds the lock — or has already come and gone: a
+        # runner that dies at the loader takes and drops the lock inside one poll,
+        # and its `stopped` (newer than this pull) is the only trace (F005)
+        n=0; while flock -n "$lock" true 2>/dev/null && ! [ "$STATE/stopped" -nt "$pullfile" ] && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
         echo "launch: started $name (idle ${IDLE}s); it stops by itself when pulls stop" >&2
     fi
     exit 0 ;;
