@@ -56,7 +56,10 @@
 # **Tools** (2026-08-30 — Henri: "would it be time for tools?"; card:tools.md,
 # day one): a `tools` line in the door file, or in the node's grant, names
 # what the mind may call (`tools  read ls`), and `calls N` caps the calls a
-# turn (8 when unsaid; TEND_CALLS overrides).  With one, the request
+# turn (8 when unsaid; TEND_CALLS overrides); `readchars N` is what one read
+# returns before the cut (the executor's 12000 unsaid; TEND_READCHARS overrides
+# — the first tooled turn spent five of six reads on halves of cards at gemma's
+# number on a 262k door).  With one, the request
 # carries the executor's manifest (tools/executor.py --manifest, one line
 # per tool) and a system line about the seat — under 150 words, nothing
 # about the tree; the tree is read on demand.  A `tool_calls` delta ends
@@ -85,18 +88,21 @@ CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
 door=$(printenv TEND_DOOR || true); dmodel=""; keyfile=""
-tools_word=""; calls_cap=""
+tools_word=""; calls_cap=""; readchars=""
 if [ -n "$door" ]; then
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); dmodel=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
     t=$(sh "$here/door.sh" "$door" --tools) || exit $?
-    tools_word=$(printf '%s\n' "$t" | sed -n 1p); calls_cap=$(printf '%s\n' "$t" | sed -n 2p)
+    tools_word=$(printf '%s\n' "$t" | sed -n 1p); calls_cap=$(printf '%s\n' "$t" | sed -n 2p); readchars=$(printf '%s\n' "$t" | sed -n 3p)
 else
     tools_word=$(sed -n 's/^tools  *//p' "$NODE/grant" 2>/dev/null | head -1)
     calls_cap=$(sed -n 's/^calls  *//p' "$NODE/grant" 2>/dev/null | head -1)
+    readchars=$(sed -n 's/^readchars  *//p' "$NODE/grant" 2>/dev/null | head -1)
 fi
 calls_cap="${TEND_CALLS:-${calls_cap:-8}}"
 case $calls_cap in ''|*[!0-9]*) echo "deliver: calls wants a number, got \`$calls_cap\`" >&2; exit 2 ;; esac
+readchars="${TEND_READCHARS:-$readchars}"   # empty is the executor's own default, so the number lives in one place
+case $readchars in *[!0-9]*) echo "deliver: readchars wants a number, got \`$readchars\`" >&2; exit 2 ;; esac
 think=$(printenv TEND_THINK || true)
 if [ -n "$think" ]; then think=true; else think=false; fi
 tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"; tcalls="$STATE/turn.calls"   # the turn in flight, as it arrives
@@ -195,7 +201,7 @@ run_call() {
     fi
     ncalls=$((ncalls + 1))
     _err="$STATE/.turn.err"
-    if _out=$(TEND_TREE="$tree" "$py" "$here/keep.py" $keepflags -- "$py" -B "$here/executor.py" "$_name" "$_arg" 2>"$_err") \
+    if _out=$(TEND_TREE="$tree" TEND_READCHARS="$readchars" "$py" "$here/keep.py" $keepflags -- "$py" -B "$here/executor.py" "$_name" "$_arg" 2>"$_err") \
        && printf '%s' "$_out" | jq -e '.c' >/dev/null 2>&1; then
         _c=$(printf '%s' "$_out" | jq -r '.c'); printf '%s' "$_out" | jq -j '.result' > "$rfile"
     else

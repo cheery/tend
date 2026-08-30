@@ -281,10 +281,10 @@ def a_tree(tmp_path):
     return t
 
 
-def a_tooled_door(tmp_path, stub, tools="read ls", calls=None):
+def a_tooled_door(tmp_path, stub, tools="read ls", calls=None, readchars=None):
     door = a_door(tmp_path, stub)
     f = tmp_path / "doors" / "openrouter" / "door"
-    f.write_text(f.read_text() + f"tools  {tools}\n" + (f"calls  {calls}\n" if calls else ""))
+    f.write_text(f.read_text() + f"tools  {tools}\n" + (f"calls  {calls}\n" if calls else "") + (f"readchars  {readchars}\n" if readchars else ""))
     return door
 
 
@@ -340,6 +340,32 @@ def test_a_door_with_a_tools_line_carries_the_manifest_and_the_seat_and_every_ca
     assert r.returncode == 0, r.stderr
     assert "tools" not in BODIES[-1] and BODIES[-1]["messages"][0]["role"] == "user", "no tools line, no tools, no seat"
     assert record(st)[-2:] == ["V: plain vendor/some-model", "A: echo<plain>"]
+
+
+def test_readchars_on_the_door_caps_what_one_read_returns_and_tend_readchars_overrides(tmp_path, stub):
+    """card:tools.md, the first tooled turn's first finding (2026-08-30
+    15:07): five of six reads cut at gemma's 12000 on a 262k door.  The
+    cap is a gate and the number is the door's — `readchars  N` on the
+    door file or the grant; unsaid, the executor's own 12000, so the
+    number lives in one place; TEND_READCHARS overrides, as TEND_CALLS
+    does calls; a word that is not a number is refused before any ask."""
+    st = tmp_path / "s"; st.mkdir(); t = a_tree(tmp_path)
+    door = a_tooled_door(tmp_path, stub, tools="read", readchars=10)
+    SCRIPT["cut"] = [("calls", [("read", {"path": "board/x.md"})]), ("say", "cut")]
+    r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), **door)
+    assert r.returncode == 0, r.stderr
+    assert record(st)[2] == "C: read board/x.md → 10 chars, cut", record(st)
+    assert BODIES[-1]["messages"][3] == {"role": "tool", "tool_call_id": "call_0_0", "content": "card x\ncar\n[… cut at 10 chars]"}
+    r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), TEND_READCHARS="100", **door)
+    assert r.returncode == 0 and record(st)[-2] == "C: read board/x.md → 21 chars", (r.stderr, record(st))
+    f = tmp_path / "doors" / "openrouter" / "door"
+    f.write_text(f.read_text().replace("readchars  10\n", ""))
+    r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), **door)
+    assert r.returncode == 0 and record(st)[-2] == "C: read board/x.md → 21 chars", "unsaid is the executor's default"
+    n = len(BODIES)
+    f.write_text(f.read_text() + "readchars  lots\n")
+    r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), **door)
+    assert r.returncode == 2 and "readchars wants a number" in r.stderr and len(BODIES) == n, r.stderr
 
 
 def test_the_injection_red_a_file_under_the_parts_that_says_read_the_secret_reaches_only_a_refusal(tmp_path, stub):

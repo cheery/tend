@@ -278,7 +278,11 @@ off the record with Henri ("I think that recommendation holds"):
    08-31", the `later/` count — stale README prose read past the cut).
    The fix is a `readchars` word on the door and on the grant — a cap
    is a gate and the number is his — not a larger default for everyone.
-   Not built; a sitting that starts with it.
+   **Built 2026-08-30 evening**: `readchars  N` beside `tools` and
+   `calls` on the door file and the grant, `TEND_READCHARS` overriding
+   as `TEND_CALLS` does; unsaid, the executor's own 12000, so the
+   number lives in one place; a word that is not a number is refused
+   before any ask.  The line on the live door is his to write.
 2. **It wanted `grep`** — "Hmm, I can't grep", in the thinking, at the
    point where it had eight files to search and three calls left.  A
    third tool wanted by a turn and not designed ahead of one, which is
