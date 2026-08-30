@@ -52,3 +52,21 @@ budget on reading the same afternoon. The board now has Henri's sentence
 tightened, the guard back in one clause, and a pointer here instead of
 the story. What burned was the wording; what came back was the part
 that had been earned.
+
+
+## One line cut, two defects found — 2026-08-30
+
+Claude: Henri came back from his break and asked for one clause out
+of the seat line. The cut took a minute. The commit was refused: a
+test in launch.sh had timed out at exactly thirty seconds — a pull
+whose runner dies at once polls half a minute for a lock nobody holds
+(F005). Fixed, committed again with a pathspec so the three commits
+would stay apart — and refused again, after the whole suite had
+passed: "invalid object … for tools/suite.py". The file was not in
+the commit and had not changed. It took the hour: git hands a
+pathspec commit's hook an absolute temporary index, and a scratch
+test's `git add -A` had been writing into it (F006). Both were there
+before today; the afternoon just happened to land on the wrong side
+of a 50 ms window, and the second only shows on a commit form nobody
+had used. Readchars, the thing the sitting was for, is a patch file
+in the scratchpad, waiting on four suites.

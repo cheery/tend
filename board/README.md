@@ -161,6 +161,15 @@ between two workable cards is Henri's.
     "private is private" — thinking shown as a state, a private place
     keyed by the tree, readable on ask and out of sight by default,
     and acts never private; the tiebreak is his.*
+14. **[simpleqa](simpleqa.md)** — the tree can measure whether tools
+    make a mind cite the tree, and not whether they make it stop
+    guessing when the answer is not there; one turn ("I do not know"
+    on fingers) is the whole evidence.  *Placed last by the session
+    that wrote it on 2026-08-30 at Henri's "this would make a great
+    card, make it so"; day one is SimpleQA's questions, whose answers
+    are not in the tree, through the door in three arms — bare, seat,
+    bland — on a 150-question sample with the paper's grader, the
+    prediction written before the run; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

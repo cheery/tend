@@ -27,3 +27,6 @@ llm/bin/
 
 # the llm node's drafts (tools/propose.sh) — proposals a person reviews and lands by hand; never tree content until then
 proposals/
+
+# benchmark data the person copies in from outside the fence (card:simpleqa.md, ~/simple-evals); never tree content
+bench/
