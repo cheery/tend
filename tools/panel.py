@@ -80,7 +80,13 @@ thinking for the model somehow?"): `[k]` on the talk screen, `--think`
 from a shell, or TEND_THINK in the panel's environment, asks the model
 to reason before it answers (deliver.sh's TEND_THINK); the reasoning is
 a `T:` line in `replies`, shown dim under the question and never fed
-back as history.
+back as history.  **Streaming** (2026-08-30 — Henri: "I'd like the
+model to stream it's output, so that I can see where it's going in its
+work"): deliver.sh writes each token as it arrives to `turn.thinking`
+and `turn.answer` beside the node's record, and the talk screen shows
+them under the question while the turn is in flight — the thinking
+dim, the answer as it grows — so the person watches the model work
+rather than a timer.
 """
 import os
 import re
@@ -652,6 +658,19 @@ def history(exchanges, turns=TALK_TURNS):
     return msgs
 
 
+def read_turn(state):
+    """The turn in flight, as far as it has come: what deliver.sh has
+    written so far to the two live files; nothing when there is none."""
+    out = []
+    for n in ("turn.thinking", "turn.answer"):
+        try:
+            with open(os.path.join(state, n)) as f:
+                out.append(f.read())
+        except OSError:
+            out.append("")
+    return tuple(out)
+
+
 def find_row(name, canvas_dir=None):
     """The row NAME names on the canvas — a pin's name, or a hold's node."""
     rows = read_canvas(canvas_dir)
@@ -776,7 +795,12 @@ def _talk_screen(stdscr, name, canvas_dir):
             turn = None
         if turn is not None:
             lines += [(l, curses.A_BOLD) for l in _wrap("you: " + turn["words"], w - 4)]
-            lines.append((f"… asking {name}  ({int(time.time() - turn['since'])} s)", curses.A_DIM))
+            thinking_so_far, answer_so_far = read_turn(row.state)
+            if thinking_so_far:
+                lines += [(l, curses.A_DIM) for l in _wrap("(thinking) " + thinking_so_far, w - 4)]
+            if answer_so_far:
+                lines += [(l, 0) for l in _wrap(f"{name}: {answer_so_far}", w - 4)]
+            lines.append((f"… {name} is {'answering' if answer_so_far else 'thinking' if thinking_so_far else 'starting'}  ({int(time.time() - turn['since'])} s)", curses.A_DIM))
         if last:
             lines.append((last, curses.A_BOLD))
         room = h - 3

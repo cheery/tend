@@ -23,22 +23,33 @@ NODE = ROOT / "llm"
 BODIES = []   # every request the stub answered, for the tests that read what was sent
 
 
+PAUSE = 0.4   # between the two halves of a streamed answer: long enough for a reader to see the first
+
+
 class _Stub(http.server.BaseHTTPRequestHandler):
+    """A model at a port that streams, as llama-server does: one SSE line per
+    delta, the reasoning first when thinking was asked for, the answer in
+    two halves with a pause between, then [DONE]."""
     def log_message(self, *a): pass
 
     def do_GET(self):
         self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
 
     def do_POST(self):
+        import time
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         BODIES.append(body)
         asked = body["messages"][-1]["content"]
-        msg = {"role": "assistant", "content": f"echo<{asked}>"}
+        deltas = []
         if body.get("chat_template_kwargs", {}).get("enable_thinking"):
-            msg["reasoning_content"] = f"think<{asked}>"   # what llama-server returns apart from the answer
-        out = {"choices": [{"message": msg}]}
-        self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
-        self.wfile.write(json.dumps(out).encode())
+            deltas.append({"reasoning_content": f"think<{asked}>"})
+        deltas += [{"content": "echo<"}, {"content": f"{asked}>"}]
+        self.send_response(200); self.send_header("Content-Type", "text/event-stream"); self.end_headers()
+        for i, d in enumerate(deltas):
+            if i == len(deltas) - 1:
+                time.sleep(PAUSE)
+            self.wfile.write(("data: " + json.dumps({"choices": [{"delta": d}]}) + "\n\n").encode()); self.wfile.flush()
+        self.wfile.write(b"data: [DONE]\n\n")
 
 
 @pytest.fixture
@@ -138,3 +149,44 @@ def test_thinking_is_asked_for_with_tend_think_and_kept_as_a_t_line(tmp_path, st
     assert r.returncode == 0 and BODIES[-1]["chat_template_kwargs"] == {"enable_thinking": False}
     assert BODIES[-1]["max_tokens"] == 50
     assert "T:" not in (st / "replies").read_text().split("Q: cold", 1)[1]
+
+
+def test_the_reply_is_written_as_it_arrives_and_the_live_files_go_when_it_is_whole(tmp_path, stub):
+    """Henri, 2026-08-30: "I'd like the model to stream it's output, so
+    that I can see where it's going in its work."  The stub sends the
+    answer in two halves with a pause between; while deliver is still
+    running, turn.answer holds the first half — that is the streaming,
+    measured — and when it is done the record has the whole and the live
+    files are gone."""
+    import time
+    st = tmp_path / "s"; st.mkdir()
+    env = {"PATH": "/usr/bin:/bin", "TEND_STATE_DIR": str(st), **stub, "TEND_NO_START": "1", "TEND_THINK": "1"}
+    p = subprocess.Popen(["sh", str(DELIVER), str(NODE), "half"], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    seen = None
+    t = time.monotonic()
+    while time.monotonic() - t < 10 and p.poll() is None:
+        try:
+            a = (st / "turn.answer").read_text()
+        except OSError:
+            a = ""
+        if a.startswith("echo<") and not a.endswith(">"):
+            seen = ((st / "turn.thinking").read_text(), a)
+            break
+        time.sleep(0.02)
+    out, err = p.communicate(timeout=30)
+    assert p.returncode == 0, err
+    assert seen == ("think<half>", "echo<"), "the first half was never on disk while the turn was in flight"
+    lines = [l.split(" ", 2)[2] for l in (st / "replies").read_text().splitlines() if l]
+    assert lines == ["Q: half", "T: think<half>", "A: echo<half>"]
+    assert not (st / "turn.answer").exists() and not (st / "turn.thinking").exists()
+    assert "  A: echo<half>" in out
+
+
+def test_a_reply_with_newlines_and_backslashes_survives_the_stream(tmp_path, stub):
+    """The stream is one line per delta; a token with a newline, a tab or a
+    backslash in it must land in the record as itself."""
+    st = tmp_path / "s"; st.mkdir()
+    r = deliver(NODE, "a\\b\tc", state=st, stub=stub, TEND_NO_START="1")
+    assert r.returncode == 0, r.stderr
+    ex = (st / "replies").read_text()
+    assert "A: echo<a\\b\tc>" in ex, ex

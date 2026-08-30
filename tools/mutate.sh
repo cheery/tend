@@ -254,6 +254,8 @@ test/test_panel.py	panel: unpin is not a verb of the hand	sed -i 's/elif verb in
 test/test_deliver.py	deliver: TEND_THINK never reaches the request	sed -i 's/enable_thinking:\$t/enable_thinking:false/' tools/deliver.sh
 test/test_deliver.py	deliver: the thinking is not kept in replies	sed -i 's/^      \[ -z "\$thought" \] || printf .%s T: %s.n. "\$(stamp)" "\$thought"$/      :/' tools/deliver.sh
 test/test_panel.py	panel: talk asks for thinking and drops it	sed -i 's/^    if think is True:/    if False:/' tools/panel.py
+# streaming — 2026-08-30, Henri: "so that I can see where it's going in its work"
+test/test_deliver.py	deliver: the answer is not written as it arrives	sed -i 's/^                A\*) printf .%b. "\$_text" >> "\$tans" ;;$/                A*) ;;/' tools/deliver.sh
 ROWS
 }
 

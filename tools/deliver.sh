@@ -33,6 +33,12 @@
 # in `replies` as a `T:` line between the Q and the A — read, never fed
 # back as history.  Whether a model has a thinking mode is its chat
 # template's to say; one that does not ignores the switch.
+# The reply is streamed (2026-08-30 — Henri: "I'd like the model to
+# stream it's output, so that I can see where it's going in its work"):
+# each token is written as it arrives to $STATE/turn.thinking and
+# $STATE/turn.answer, the live files the panel's talk screen reads while
+# a turn is in flight; when the stream ends they are the whole reply,
+# the record is written from them, and they are removed.
 # TEND_HISTORY is the conversation so far — a JSON array of prior
 # messages, prepended to the ask so the model answers in the
 # conversation and not cold (tools/panel.py's talk, 2026-08-30 — Henri:
@@ -53,8 +59,8 @@ HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
 think=$(printenv TEND_THINK || true)
 if [ -n "$think" ]; then think=true; else think=false; fi
-thoughtf="$STATE/.thought"   # what the model thought before its last answer, when it was asked to —
-                             # a file, because ask() runs in a $(...) and a variable set there is lost
+tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"   # the turn in flight, as it arrives
+tab=$(printf '\t')
 hist=$(printenv TEND_HISTORY || true)
 [ -n "$hist" ] || hist='[]'
 printf '%s' "$hist" | jq -e 'type == "array"' >/dev/null 2>&1 || {
@@ -63,20 +69,37 @@ mkdir -p "$STATE" 2>/dev/null || true
 
 stamp() { date '+%Y-%m-%d %H:%M'; }
 
-# ask the model one question; print the answer text, or fail loudly.
-# The thinking, if any, is left in $thoughtf: an answer with no content is
-# a model that put its whole reply in the reasoning, and that is the answer.
+# ask the model one question, streamed.  The server's SSE lines are one
+# JSON each; jq turns every delta into `T<text>` or `A<text>` with the
+# text's backslashes, newlines and tabs escaped so a line is a line, and
+# the loop appends each to its live file with printf %b, which undoes
+# exactly that.  Nothing is printed; the files are the reply.  Fails
+# loudly when the node did not answer, or answered with no completion.
 ask() {
     _q=$1
     _body=$(jq -cn --arg q "$_q" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" \
-        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,chat_template_kwargs:{enable_thinking:$t}}')
-    _out=$(curl -sS -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT") || {
-        echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; return 1; }
-    printf '%s' "$_out" | jq -e '.choices[0].message' >/dev/null 2>&1 || {
-        echo "deliver: the node's reply was not a completion:" >&2; printf '%s\n' "$_out" | head -3 >&2; return 1; }
-    _c=$(printf '%s' "$_out" | jq -r '.choices[0].message.content // ""')
-    _r=$(printf '%s' "$_out" | jq -r '.choices[0].message.reasoning_content // ""')
-    if [ -n "$_c" ]; then printf '%s' "$_r" > "$thoughtf"; printf '%s' "$_c"; else : > "$thoughtf"; printf '%s' "$_r"; fi
+        '{messages:($h + [{role:"user",content:$q}]),max_tokens:$n,temperature:0.2,stream:true,chat_template_kwargs:{enable_thinking:$t}}')
+    : > "$tthink"; : > "$tans"
+    _raw="$STATE/.turn.raw"; _rcf="$STATE/.turn.rc"
+    { curl -sSN -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"; echo $? > "$_rcf"; } \
+      | tee "$_raw" | sed -u 's/^data: //' | grep --line-buffered '^{' \
+      | jq --unbuffered -r '.choices[0].delta // {}
+            | def esc: gsub("\\\\"; "\\\\") | gsub("\n"; "\\n") | gsub("\t"; "\\t") | gsub("\r"; "\\r");
+              ((.reasoning_content // "") | select(length > 0) | "T" + esc),
+              ((.content // "") | select(length > 0) | "A" + esc)' 2>/dev/null \
+      | while IFS= read -r _line; do
+            _text=${_line#?}
+            case $_line in
+                T*) printf '%b' "$_text" >> "$tthink" ;;
+                A*) printf '%b' "$_text" >> "$tans" ;;
+            esac
+        done
+    _rc=$(cat "$_rcf" 2>/dev/null || echo 1); rm -f "$_rcf"
+    if [ "$_rc" != 0 ]; then
+        echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; rm -f "$_raw"; return 1; fi
+    if [ ! -s "$tans" ] && [ ! -s "$tthink" ]; then
+        echo "deliver: the node's reply was not a completion:" >&2; head -3 "$_raw" >&2; rm -f "$_raw"; return 1; fi
+    rm -f "$_raw"
 }
 
 # answer one pull line "<epoch> <words>"; nothing if it carries no words
@@ -84,8 +107,11 @@ answer_line() {
     _line=$1
     _words=$(printf '%s' "$_line" | cut -s -d' ' -f2-)
     [ -n "$_words" ] || return 0
-    _a=$(ask "$_words") || return 1
-    thought=$(cat "$thoughtf" 2>/dev/null || true); rm -f "$thoughtf"
+    ask "$_words" || return 1
+    _a=$(cat "$tans"); thought=$(cat "$tthink")
+    # an answer with no content is a model that put its whole reply in the reasoning, and that is the answer
+    if [ -z "$_a" ]; then _a=$thought; thought=""; fi
+    rm -f "$tans" "$tthink"
     { printf '%s Q: %s\n' "$(stamp)" "$_words"
       [ -z "$thought" ] || printf '%s T: %s\n' "$(stamp)" "$thought"
       printf '%s A: %s\n\n' "$(stamp)" "$_a"; } >> "$replies"

@@ -530,12 +530,14 @@ class _Model(http.server.BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         _Model.bodies.append(body)
         asked = body["messages"][-1]["content"]
-        msg = {"role": "assistant", "content": "echo<" + asked + ">"}
+        deltas = []
         if body.get("chat_template_kwargs", {}).get("enable_thinking"):
-            msg["reasoning_content"] = "think<" + asked + ">"
-        out = {"choices": [{"message": msg}]}
-        self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
-        self.wfile.write(json.dumps(out).encode())
+            deltas.append({"reasoning_content": "think<" + asked + ">"})
+        deltas += [{"content": "echo<"}, {"content": asked + ">"}]
+        self.send_response(200); self.send_header("Content-Type", "text/event-stream"); self.end_headers()
+        for d in deltas:
+            self.wfile.write(("data: " + json.dumps({"choices": [{"delta": d}]}) + "\n\n").encode()); self.wfile.flush()
+        self.wfile.write(b"data: [DONE]\n\n")
 
 
 @pytest.fixture
@@ -649,3 +651,12 @@ def test_the_panels_keys_offer_talk_and_unpin():
     assert 'ord("x"): ("unpin"' in src and "_talk_screen(" in src
     talk_src = inspect.getsource(panel._talk_screen)
     assert "[k] think" in talk_src and 'c == ord("k")' in talk_src and "think = not think" in talk_src
+    assert "read_turn(row.state)" in talk_src, "the turn in flight is shown as it arrives"
+
+
+def test_the_turn_in_flight_is_read_from_the_live_files(tmp_path):
+    assert panel.read_turn(str(tmp_path)) == ("", "")
+    (tmp_path / "turn.thinking").write_text("so far")
+    assert panel.read_turn(str(tmp_path)) == ("so far", "")
+    (tmp_path / "turn.answer").write_text("echo<")
+    assert panel.read_turn(str(tmp_path)) == ("so far", "echo<")

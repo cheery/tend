@@ -442,6 +442,21 @@ Held by `test_deliver.py` (asked for, kept as T, off by default, the
 cap) and `test_panel.py` (the T line read back, never history, the
 flag and the toggle), three more rows.
 
+**Streaming, the same hour** — Henri: "I'd like the model to stream
+it's output, so that I can see where it's going in its work."
+`deliver.sh` asks with `stream: true` and reads the server's SSE as it
+comes: jq turns each delta into one escaped line, `T…` or `A…`, and the
+loop appends it with `printf %b` to `turn.thinking` or `turn.answer`
+beside the record — the live files.  The talk screen reads them every
+half second while a turn is in flight and shows the thinking dim and
+the answer as it grows, with "llm is thinking / answering (12 s)" in
+place of the bare timer.  When the stream ends the two files are the
+whole reply, the record is written from them and they are removed.
+Held by `test_deliver.py`: the stub streams in two halves with a pause,
+and the test reads the first half off disk while deliver is still
+running — the streaming measured, not assumed — and a token with a
+newline, a tab or a backslash lands as itself; one row.
+
 **What it is not.**  Not a second record — the pull file and `replies`
 were already the node's, and `tools/deliver.sh` without a question still
 delivers a session's pulls the same way.  Not a chat client to the port
