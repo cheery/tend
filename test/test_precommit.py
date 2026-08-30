@@ -7,8 +7,10 @@ a hook that is not checked by a test is a rule with no gate — the exact
 wish `card:gates.md` was opened about.
 """
 
+import os
 import pathlib
 import subprocess
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOK = ROOT / "tools" / "pre-commit.sh"
@@ -102,6 +104,35 @@ def _scratch(tmp_path):
     run = lambda: subprocess.run(["sh", "tools/pre-commit.sh"], cwd=tmp_path,
                                  capture_output=True, text=True)
     return git, run
+
+
+def test_a_fixtures_git_add_never_reaches_the_index_git_handed_the_hook(tmp_path):
+    """F006, 2026-08-30: `git commit -- paths` hands its hook an absolute
+    `GIT_INDEX_FILE` (a temporary `next-index-N.lock`; a plain commit
+    hands the relative `.git/index`, harmless in another directory), and
+    every `git add` in the suite inherited it — the scratch `git add -A`
+    above put its stub `tools/suite.py`, a blob only the scratch
+    repository's object store holds, into the tree's temporary index, and
+    the commit died on "invalid object … for 'tools/suite.py'" after the
+    gates had passed.  `test/conftest.py`'s git fixture now drops the
+    variable.  Measured the way git does it: a pytest run over a scratch
+    test that adds in its own repository, with `GIT_INDEX_FILE` set to a
+    stray absolute path the way the hook sees it; the stray must never
+    come to exist."""
+    (tmp_path / "test").mkdir()
+    (tmp_path / "test" / "conftest.py").write_text((ROOT / "test" / "conftest.py").read_text(encoding="utf-8"))
+    (tmp_path / "test" / "test_stray.py").write_text(
+        "import subprocess\n"
+        "def test_add(tmp_path):\n"
+        "    subprocess.run(['git', 'init', '-q', str(tmp_path)], check=True)\n"
+        "    (tmp_path / 'f').write_text('hi\\n')\n"
+        "    subprocess.run(['git', 'add', 'f'], cwd=tmp_path, check=True)\n")
+    stray = tmp_path / "next-index-1.lock"
+    env = dict(os.environ, GIT_INDEX_FILE=str(stray))
+    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "test/test_stray.py"],
+                       cwd=tmp_path, env=env, capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert not stray.exists(), "the fixture's git add wrote the index git handed the hook"
 
 
 def test_a_staged_file_deleted_from_the_tree_is_refused(tmp_path):

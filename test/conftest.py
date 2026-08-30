@@ -16,6 +16,15 @@ desk's canvas is a standing pull, and the day it landed the gate caught
 environment and starting the real node into a scratch state.  So every
 test runs with TEND_CANVAS at a scratch directory of its own; a test
 that means a hold writes one there.
+
+And for the index (F006, 2026-08-30): git hands its pre-commit hook a
+`GIT_INDEX_FILE`, and for a commit with a pathspec that is an absolute
+temporary index; every `git add` in the suite inherited it, and
+`test_precommit.py`'s scratch tree put its stub `tools/suite.py` — a
+blob only the scratch repository holds — into the tree's own commit,
+which died on "invalid object" after the gates had passed.  So the git
+fixture drops every variable that would point a fixture's git at a
+repository it did not build.
 """
 import os
 import pytest
@@ -43,3 +52,5 @@ def _git_is_the_fixtures_own(monkeypatch):
     for who in ("AUTHOR", "COMMITTER"):
         monkeypatch.setenv(f"GIT_{who}_NAME", "t")
         monkeypatch.setenv(f"GIT_{who}_EMAIL", "t@t")
+    for var in ("GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"):
+        monkeypatch.delenv(var, raising=False)   # F006: a fixture's git never reaches the index git handed the hook
