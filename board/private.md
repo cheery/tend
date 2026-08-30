@@ -56,6 +56,35 @@ not move:
   person cannot see is still a turn that did not happen on this
   tree's terms.  The line between the two is the whole card.
 
+## Two rooms, not one — the scratchpad
+
+Henri, 2026-08-30 afternoon, watching the tools sitting work out of the
+harness's scratch directory (patch scripts, commit messages, two copies
+of the README, the kaizen's draft): *"That reminds me that a session
+also needs a scratchpad that is also private to it."*  It is a second
+room, and it differs from the private place above in both its
+lifetime and its reader:
+
+- **The scratchpad** is working space.  It is the session's own for
+  the session's length and then it is gone; nothing reads it, not the
+  person, not the record, not the next session.  The harness gives a
+  hosted session one (a directory per session, outside the tree);
+  nothing tend runs has one — the executor's grant is `--write
+  /dev/null`, and a node's state directory is the runner's, not the
+  mind's.
+- **The private place** is notes.  Keyed by the tree, outliving the
+  session, readable by the person on ask.
+
+A mind's grant names both: `write $SCRATCH` — a directory made for the
+turn or the sitting and removed after it, the way the fence gives a
+session an empty `/tmp` — beside the private place, and neither is
+the record.  Day one below is the private place; the scratchpad is
+the smaller build and may come first, since a grant word and a
+`mktemp -d` are all it is.  What must not blur: a scratchpad is not
+where a note goes to survive (it will not), and the private place is
+not where a working file goes to be forgotten (it will be read on
+ask).
+
 ## Day one — proposed, not declared
 
 - **The thinking box**: `tools/panel.py talk` shows *thinking… (N s)*
