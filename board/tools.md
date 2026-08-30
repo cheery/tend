@@ -298,3 +298,36 @@ off the record with Henri ("I think that recommendation holds"):
    `TEND_THINK` was off; qwen reasons anyway and the wire returned it;
    `talk` prints whatever `T:` holds.  That is `card:private.md`'s first
    half, unbuilt, now with a specimen.
+
+**The second tooled turn, 2026-08-30 ~15:40** — Henri's hand again,
+`tools  read ls grep` on the door, qwen3.8-flash: "how many fingers do
+I have, do you know?"  Four calls: `grep finger .` → refused by keep,
+`grep thumb|knuckle .` → refused by keep, `grep (?i)finger|thumb|hand
+board` → 173 lines in 26 files, `grep … doc` → 0 lines; then "No — and
+the tree doesn't say."  Henri: "I got very good news.  The model DOES
+condition!"  Three findings:
+
+1. **It conditioned.**  The calls established an absence and the
+   answer refused to guess a number into the record — the card's own
+   rule ("a guess costs the record") in the model's mouth, on a
+   question whose answer is not in the tree.  That is the other side
+   of the prediction above: a digest turn cannot establish an absence
+   at all, it can only not mention.
+2. **Two calls spent on the root.**  `grep … .` was refused twice:
+   the tree root is not a part, and the seat line had said so since
+   day one (`board/, tools/, spec/, doc/ and the root files`) — a mind
+   trained on trees reaches for `.` regardless.  Two of the eight
+   calls paid for it.  Not built, an option: the executor could take
+   `.` as the parts, walking each; the refusal would then be the fence's
+   answer to a real reach outside, not to the model's habit.
+3. **The thinking, whole and unasked, again** — `card:private.md`'s
+   second specimen.
+
+**The third, 16:54** — the door's model changed to qwen3.8-max, "Did
+you read the board/README.md?"  One call, `read board/README.md →
+12.0k chars, cut`; the README is 22k, so the model answered "I have
+now" about a file it had half of, and finding 1 of the first turn
+stood a third time on a 262k door — `readchars` is the next thing
+built.  The thinking came through again (third specimen), and the
+answer quoted the day's rule back in the paragraph's words, read
+minutes before Henri replaced it (`journal.md`, the first entry).
