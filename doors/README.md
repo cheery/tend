@@ -8,6 +8,11 @@ file under the person's home, mode 600, never in the tree), and
 (card:model-acceptance.md: a door is where a refusal has somewhere to
 sit).
 
+`tools/door.sh NAME --models [PATTERN]` lists what the door's side
+offers — id, context, price per M tokens — and `--use ID` sets the
+door's `model` line to an id it lists (2026-08-30, Henri: "I'd need a
+way to browse through all 500 models there are").
+
 `tools/lead.sh NODE --door NAME` and `TEND_DOOR=NAME tools/propose.sh …`
 run the same turn through the door instead of the node's port, on the
 person's side; the account and the proposal say which door.  A kept

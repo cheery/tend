@@ -261,6 +261,7 @@ test/test_launch.py	launch: the grant's model line is read and ignored	sed -i 's
 test/test_deliver.py	deliver: a door turn is recorded without the door's name	sed -i 's/^      \[ -z "\$door" \] || printf .%s V: %s %s.n. "\$(stamp)" "\$door" "\$dmodel"$/      :/' tools/deliver.sh
 test/test_deliver.py	deliver: a door turn is a pull, and would start the local node	sed -i 's/^if \[ -n "\$q" \] \&\& \[ -n "\$door" \]; then$/if false; then/' tools/deliver.sh
 test/test_panel.py	panel: talk names a door and sends the turn to the node	sed -i 's/^    if door is not None:$/    if False:/' tools/panel.py
+test/test_door.py	door: --use takes an id the door does not list	sed -i 's/^listed() { .*/listed() { true; }/' tools/door.sh
 ROWS
 }
 
