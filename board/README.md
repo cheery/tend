@@ -11,6 +11,17 @@ been pointed at that is not its own.  It was red on the first run, and
 state: *a gate is turned on after the tree is clean, never as a way of
 announcing that it should be.*
 
+2026-08-30: "The word that carries no load is noise. Write when removing
+it would cost something." — the form is Qwen's, proposed by the session
+that was so verbose about mundane things; the rule is Henri's. He prefers
+good communication skills: tell a lot if you have a lot to tell,
+otherwise keep things in one sentence.  This is about the words, not
+the looking: read the tree whenever the answer may be in it — a guess
+costs more than a call.  (Qwen read the rule as a budget on reading
+the same afternoon, and the seat line in `tools/deliver.sh` says this
+sentence to a door mind; Henri: "I want them to read the tree when
+there's a need.")
+
 ## What a card is
 
 A card is a file, and the filename is its id.  It opens with a block of
