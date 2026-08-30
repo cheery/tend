@@ -69,7 +69,8 @@ executor's grant, and nothing else.
   outside the parts is refused by keep, not by the executor's own
   care — the same two ways `.claude/` is kept.
 - **`deliver.sh` is the courier**: the request carries the `tools`
-  array (the executor prints its own manifest — one place); a
+  array (the executor prints its own manifest — one place, one line
+  per tool, §"Short prompts"); a
   `tool_calls` delta ends the stream, the courier runs each call
   through the executor, appends the `tool` messages and asks again;
   at most N calls a turn (a grant word, `calls 8`), then the model
@@ -95,6 +96,62 @@ measured from outside like the fence.
 into the gitignored `proposals/` and nowhere else, which is the same
 gate brick 3 built.  Never a shell, never `git`, never the pull file:
 a model that wants the node started asks the person through the andon.
+
+## Short prompts — the manifest is a line per tool, and the long text is the tree
+
+Henri, 2026-08-30, on Zechner's pi post (mariozechner.at,
+2025-11-30): *"Did you note the very short prompts and tool prompts?
+I'd like those to be short in this project as well."*  The post's
+numbers: a system prompt under 1000 tokens that opens "You are an
+expert coding assistant"; four tools whose descriptions are a line
+each (`read`: file contents, text or images, 2000 lines by default;
+`bash`: a command, optional timeout); and the tax of the other way —
+Playwright's MCP is 13.7k tokens of schema, Chrome DevTools' 18k,
+"7–9% of context" for tools mostly unused in a session.  His
+alternative is a CLI tool with a README the model reads *when it
+reaches for it* — "pays the token cost only when necessary" — and his
+finding is that models "inherently understand what a coding agent
+is", so the prompt's job is to name the seat, not to teach.
+
+The tree's own numbers, measured the same day: `tools/lead.sh`'s
+system prompt is **98 words** before the board digest (the digest is
+capped at 5000 chars, `TEND_CTXCHARS`), and `tools/deliver.sh` — the
+talk — sends **no system prompt at all**: the history and the ask.
+The 06:57 conversation in the `because` was on that bare wire.  So
+the tree is already on the short side of the post; the rule is to
+stay there when the tools arrive, which is the moment every harness
+grows.
+
+**The rule, day one:**
+
+- **One line per tool.**  The manifest the executor prints is a
+  name, its parameters, and one sentence — `read_file(path): a file
+  under the tree's parts, by path` — and the whole `tools` array for
+  the two day-one tools is under 1 KB.  A tool whose description
+  wants a paragraph is a tool the model has not been trained on, and
+  the paragraph is the sign to pick a shape it has (`read`, `ls`).
+- **The system prompt for a tooled turn is under 150 words**, and it
+  says the seat, not the tree: who is asking, what the tools reach
+  (the parts, read-only), how many calls a turn, and that the record
+  shows every call.  Nothing about the method, the board's rules, or
+  what a card is.
+- **The long text is the tree, read on demand.**  `board/README.md`
+  is the README of the post; a model that needs to know what a card
+  is reads it with the tool, on the turn it needs it, and pays then
+  — which is the whole argument for the tools over the digest.  The
+  courier never prepends a document; the model asks for one.
+- **A cap is a gate, not a habit.**  `test/test_deliver.py` (or the
+  executor's own test) counts the manifest's bytes and the prompt's
+  words and is red past the cap, the way `TEND_CTXCHARS` already
+  bounds the digest.  The numbers are day one's and Henri's to move;
+  a session that wants a longer prompt raises the cap in the test, in
+  a commit that says why, and never by adding a sentence.
+
+What this does not mean: a short prompt is not a cold one.  The
+history rides as it does today (`TEND_HISTORY`); shortness is about
+what the courier *adds behind the person's back* — the post's real
+lesson, "exactly controlling what goes into the model's context" —
+and the C: line is how the person sees what was added.
 
 ## What it must not become
 
