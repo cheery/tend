@@ -219,3 +219,50 @@ rows-with-the-slice — green.md itself says "not yet a rule", and the
 verdict rests on two sittings' keeping it, which is practice and not
 a mechanism; one uncertain verdict, not two in a row.  Zero verdict
 words added.
+
+## Batch 6 — read 2026-08-30, the next ten (2026-08-26-1500 → 2026-08-26-1644)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-26-1500 | a `sandbox.sh` patch handed without its key (`fence.sh --protect`); two guesses at a seat the session cannot see before asking for the log; `!` in a session is the session's seat, not the person's shell | `once` for the key — the install (`done/install.md`, 08-27 evening) ended the patch-handoff: the tree's copies are the workbench and the protected set is installed by his `sudo tools/install.sh`, so there is no key to hand any more.  The guess-before-the-log half is `recurs` — the read-before-fix strand, at [[2026-08-30-0902]] ("both entries' guesses wrong") and promoted there to the F-entry rule.  The `!` fact is `once`: the harness's own guidance says it now; the tree records it nowhere and has not needed to |
+| 2026-08-26-1509 | the flake counted (1 in 10) before it was reasoned, and the leash ledger gave the mechanism without a second look at Henri's seat; a script asserted before it wrote, twice, and a patch was read for its length — "grep the hunk you meant to add" | `rule` for the count-first half — `card:flake.md` (the failure ledger and the shake, 08-29) and `tools/mutate.sh` for "red against the old file, in a fresh copy".  The grep-the-hunk half is `recurs` — [[2026-08-26-1616]] (a `sed` anchor on an old line ending), [[2026-08-26-1633]] (the tests not grepped for the file's name), [[2026-08-30-0902]] item 3, and **the sitting that read this batch**, where a card's anchor was not grepped and the patch refused once — a fifth face, and the countermeasure in every one of them was the same assert.  What recurs is not corruption but the turn; see the batch's paragraph |
+| 2026-08-26-1524 | a cause named on a card as *measured* was an inference; an inference from an instrument is bounded by what the instrument can see — the leash ledger could not see the probe's cost; 75 ms from Henri's hand corrected "~10 s from cold" within the hour | `rule` — [[2026-08-30-0902]] item 2 is the same lesson as a rule with a mechanism: an F-entry's `suspected` line is for the kaizen and the reading comes before the fix; the leash's clock stamps before its probe since that afternoon (tools/leash.sh).  The ten seconds themselves: `open` — relocated to "before the leash's clock" (`done/resolver.md`), visible to the ledger since, and no occurrence has been recorded; a wait, not a miss, and nobody's to chase |
+| 2026-08-26-1532 | the last bind handed in the order the card required (hook, race, bind), and the patch read for its five hunks before the commit — the 15:09 countermeasure applied once; a bwrap test only Henri's seat can run, named as his | `once` — closed by being applied.  The name-what-you-cannot-run half is README §"What the days taught" already (`rule`, promoted by batch 2) |
+| 2026-08-26-1535 | three fence patches in a day, one round-trip lost, the last two clean because the list-every-line rule ran before each; the demonstration from the seat the bind is for, refusal by refusal, then served | `once` — the fence-patch route itself is gone since install day two; what it taught (the rule runs before the patch, not after the refusal) is the 14:05 lesson's third keeping, and it stopped needing a kaizen after this one |
+| 2026-08-26-1549 | the question answered before anything was built — the 13:17 rule kept; the wait for an install used to build the grant the install would need (`keep --bind`) | `rule` — question-first is a memory (batch 5's promotion, `question-first`) and the tree's practice since; the wait-used half is `once` |
+| 2026-08-26-1602 | a model URL from memory, handed as a command — the fence has no net, so the session cannot check a URL and must not hand one as checked; a name and a place, or a checked line | `recurs` — [[2026-08-26-1616]] cites it the same afternoon ("the rule is written; this is its first citation"), and no face since.  For the one thing that kept being a name from memory — a model's id — the mechanism arrived 08-30: `tools/door.sh --models` lists what the door offers and `--use` refuses an id it does not list.  For URLs the rule stands as prose, and has held |
+| 2026-08-26-1616 | the measurement wrote the abstraction — the grant file's fields are exactly what two nodes needed and nothing designed ahead; a `sed` anchor matched an old line ending and the launcher never joined the protected set, caught by `--protected \| grep` and not by a test | `rule` — the grant vocabulary is `tools/launch.sh`'s header, and it has grown only by a node's need since (`allow-try`, `make`, `env`, `model`, and `tools`/`calls` on the day this was read).  The anchor half is the grep-the-hunk strand [[2026-08-26-1509]], `recurs` |
+| 2026-08-26-1633 | a patch changed what a file *is* and the tests reaching into it were not grepped — Henri's suite went red; a live timing loop raced four times where one look at the mtimes would have been first | `rule` for the first half by dissolution — the workbench is the tree since install day two, the suite runs here before any commit and `tools/suite.py` is the gate, so there is no handoff for a stale test to slip through.  The race-a-timing-loop half `recurs` — [[2026-08-30-0902]] ("`ps` at one instant is not a reading"), now a memory (`background-task-done`) |
+| 2026-08-26-1644 | a card names a problem, not the fix; the cords half of the frame got its own card, `session-program`, leaning on the three it completes | `once` — the opening, and everything it named as absent has since been built or carded: the limit and the lamp on the node (`done/node-install.md`), the andon (`done/cords.md`, `card:silent-cord.md`), the door, and the tools on the day this was read |
+
+**What batch 6 showed.**  Four `rule`, four `once`, three `recurs`,
+one `open`, and **one promotion — to a memory, the second in the
+ledger** (the first was batch 5's question-first).  The batch is the
+afternoon the grant beside the program landed, and its ten kaizens
+are one strand seen from five angles: **a patch is read for what it
+contains before anything downstream of it is trusted** —
+[[2026-08-26-1509]] (assert before write, twice), [[2026-08-26-1616]]
+(a `sed` anchor on a line that had changed), [[2026-08-26-1633]] (the
+tests not grepped for the file's name), [[2026-08-30-0902]] item 3,
+and the sitting that read this batch, where the card's anchor was not
+grepped and the patch refused once.  Every face has the same
+countermeasure and it has been applied every time — an assert on the
+anchor's count — so what recurs is not damage but a turn, and one
+thing the assert did not cover: a patch script that writes one file
+and then refuses on the next leaves the tree half-patched (this
+sitting: `tools/panel.py` written, `test/test_deliver.py` refused).
+The promotion is that one sentence — **check every anchor before
+writing the first file** — as a memory, because it is a fact about how
+this session works and not about the tree; the tree's rule (the 15:09
+line, "grep the hunk you meant to add") stands in `board/README.md`'s
+kaizen paragraph already through 0902's item 3.  The other strand,
+**a seat the session cannot see, guessed at before its log is read**
+([[2026-08-26-1500]], [[2026-08-26-1524]]), closed four days later by
+a mechanism, not a resolve: the F-entry rule and the leash's clock
+moved before its probe.  Two lessons closed by being applied within
+the afternoon ([[2026-08-26-1532]], [[2026-08-26-1535]]); one arrived
+at its mechanism four days on ([[2026-08-26-1602]] → `door.sh
+--models`).  **Least certain line**: [[2026-08-26-1633]]'s `rule` by
+dissolution — a route that no longer exists cannot be violated, which
+is not the same as a lesson learned; one uncertain verdict, not two
+in a row.  Zero verdict words added.

@@ -306,6 +306,25 @@ before Monday's arrivals — at the level of ten, Monday through Friday
 of next week with nothing arriving.  No day has been missed yet; the
 lamp slice still waits for the first one.
 
+**Batch 6, read 2026-08-30 afternoon** — the second batch of that day,
+carried from Tuesday's slot by three sittings (0523 item 4, 0730 item
+4, 0902 item 4) and read with time in hand after tools day one.  Ten
+kaizens of 2026-08-26 15:00–16:44, the afternoon the grant beside the
+program landed: four `rule`, four `once`, three `recurs`, one `open`,
+and the ledger's second promotion to a memory (check every anchor
+before writing the first file — five faces of one strand, the last
+one the reading sitting's own).  **The count**: 96 kaizens in
+`doc/kaizen/` at the reading; 60 read; 36 unread — at ten a day,
+four days.  No day has been missed; a day with two batches is the
+first surplus.
+
 **Henri's half is still undone** — five batches, 50 lines, and
 `2026-08-29-0734` item 4 is the last to say so; nothing since records
 three lines disagreed with, nor the self-shaped strand read.  His.
+
+**Henri's half, handed at batch 6** — three lines drawn at random
+from the sixty by the session that read the batch
+(`python3 -c 'import random; …'` over the ledger's rows, seed the
+date), named in that sitting's report for his disagreement; the
+ledger records nothing until he answers.  The self-shaped strand
+(batch 1) is still his.
