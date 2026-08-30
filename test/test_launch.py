@@ -23,7 +23,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LAUNCH = ROOT / "tools" / "launch.sh"
 
 
-def launch(node, *args, state, idle="0.5", fenced=False, timeout=30):
+def launch(node, *args, state, idle="0.5", fenced=False, timeout=30, path=None):
     # the andon record is pointed at scratch too: a runner that dies writes
     # a line to it (the death notice), and a test never writes the person's;
     # and the canvas, so a test never reads the person's holds (card:hold.md)
@@ -33,6 +33,8 @@ def launch(node, *args, state, idle="0.5", fenced=False, timeout=30):
     env.pop("TEND_FENCED", None)
     if fenced:
         env["TEND_FENCED"] = "1"
+    if path:   # a directory first on PATH — a fixture's shim of a command the launcher calls (F000: `date`)
+        env["PATH"] = f"{path}:{env.get('PATH', '/usr/bin:/bin')}"
     return subprocess.run(["sh", str(LAUNCH), str(node), *args], env=env,
                           capture_output=True, text=True, timeout=timeout)
 
@@ -703,18 +705,62 @@ def test_a_program_busy_in_bursts_is_busy_over_the_idle_window(tmp_path):
     than that for two seconds running — contention, or honest bursts —
     was stopped as idle.  Busy-ness is now half a core-second summed over
     the idle window: 0.3 s of burning per second is 30 % of a core, under
-    the old rule idle within `idle 2`, under this one 60 ticks in two
-    seconds — busy.  Silent on its pulse throughout."""
+    the old rule idle within any window, under this one 60 ticks in two
+    seconds — busy.  Silent on its pulse throughout.
+
+    F000 (2026-08-30): this fixture burned 0.3 s of *wall* time a cycle and
+    ran at `idle 2` — under eight burners it got 10 ticks a second, which
+    the rule rightly reads as idle, and at no load a tick of the launcher's
+    integer clock was half its window (the clock is F000's own, gated by
+    the test below).  It now burns 0.3 s of CPU a cycle, so its 30 % is 30 %
+    on any box, and says `idle 4`, so no tick is half the window."""
     n = tmp_path / "n"; n.mkdir()
-    prog = ("exec(\"import time\\nend=time.time()+7\\nwhile time.time()<end:\\n"
-            "  t=time.time()+0.3\\n  while time.time()<t: pass\\n  time.sleep(0.7)\")")
-    (n / "grant").write_text(f"pulse beat\nidle 2\nprogram /usr/bin/python3 -c '{prog}'\n")
+    prog = ("exec(\"import time\\nend=time.time()+9\\nwhile time.time()<end:\\n"
+            "  t=time.process_time()+0.3\\n  while time.process_time()<t: pass\\n  time.sleep(0.7)\")")
+    (n / "grant").write_text(f"pulse beat\nidle 4\nprogram /usr/bin/python3 -c '{prog}'\n")
     st = tmp_path / "st"
     t0 = time.time()
-    r = launch(n, "run", state=st, idle="2", timeout=60)
+    r = launch(n, "run", state=st, idle="4", timeout=60)
     took = time.time() - t0
-    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + (st / "log").read_text()
-    assert took > 5, f"it was stopped at idle, {took:.1f}s"
+    ticks = (st / "ticks").read_text() if (st / "ticks").exists() else "(no ticks file)"
+    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + "ticks:\n" + ticks
+    assert took > 7, f"it was stopped at idle, {took:.1f}s\nticks:\n{ticks}"
+
+
+def test_the_idle_window_is_counted_in_ticks_of_the_watch_not_on_a_clock_that_can_skip(tmp_path):
+    """F000 (2026-08-29 20:40, 20:48; 2026-08-30 07:29 — three gate runs
+    refused on unrelated commits; 3 of 20 by hand at no load).  The busy
+    rule's window was measured on `date +%s`, which truncates: a tick that
+    straddles two second boundaries reads as two, and at `idle 2` that is
+    half the window gone — a program found busy on one tick was stopped as
+    idle on the next.  The window is now counted in ticks of the watch
+    loop, each a `sleep 1` or longer, so it is never shorter than declared.
+
+    The fixture builds the defect's side deterministically: a `date` on
+    PATH that skips 3 s on every read.  The program sleeps a second, then
+    burns; on the old rule the first tick reads as 3 s of silence and it
+    is stopped before it has burned at all; on this one the third tick
+    finds ~2 s of burning.  Load-proof: by tick 3 a full burn has at least
+    half a core-second at a quarter of a core."""
+    n = tmp_path / "n"; n.mkdir(); shim = tmp_path / "bin"; shim.mkdir()
+    (shim / "date").write_text(
+        "#!/bin/sh\n# a clock that skips: every read 3 s past the last, whatever the wall says (F000)\n"
+        f"c={shim}/count; n=$(cat \"$c\" 2>/dev/null || echo 0); n=$((n + 1)); echo \"$n\" > \"$c\"\n"
+        "case \"$1\" in +%s) echo $(( $(/bin/date +%s) + 3 * n )) ;; *) exec /bin/date \"$@\" ;; esac\n")
+    (shim / "date").chmod(0o755)
+    prog = "exec(\"import time\\ntime.sleep(1)\\ne=time.time()+5\\nwhile time.time()<e: pass\")"
+    (n / "grant").write_text(f"pulse beat\nidle 3\nprogram /usr/bin/python3 -c '{prog}'\n")
+    st = tmp_path / "st"
+    t0 = time.time()
+    launch(n, "run", state=st, idle="3", timeout=60, path=shim)
+    took = time.time() - t0
+    ticks = (st / "ticks").read_text()
+    assert "idle" not in (st / "stopped").read_text(), (st / "stopped").read_text() + "ticks:\n" + ticks
+    assert took > 4, f"stopped at {took:.1f}s\nticks:\n{ticks}"
+    # the instrument: one line a tick, and the last column is the window in ticks — never past the grant's
+    rows = [l.split() for l in ticks.splitlines()]
+    assert len(rows) >= 4 and all(len(r) == 7 for r in rows), ticks
+    assert max(int(r[6]) for r in rows) <= 3, ticks   # read before the tick's own update: it reaches IDLE on the tick that resets it
 
 
 def test_the_grant_names_its_model_and_check_is_red_when_the_file_is_not_there(tmp_path):

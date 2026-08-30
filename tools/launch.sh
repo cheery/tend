@@ -322,11 +322,17 @@ run)
     # moment (card:resolver.md 15:12)
     exec 9>>"$lock"
     flock -w 2 9 || { echo "launch: a runner already holds $lock — pull $name instead." >&2; exit 75; }
-    rm -f "$STATE/stopped"
+    rm -f "$STATE/stopped" "$STATE/ticks"
     for m in $makes; do mkdir -p "$m"; done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
-    busy=$began; base_ticks=0; base_at=$began; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
+    # the busy rule is counted in ticks of this loop, not on the wall clock (F000, 2026-08-30): each
+    # tick is a `sleep 1` or longer, so a window of IDLE ticks is never shorter than IDLE seconds —
+    # where `date +%s` truncates, and a tick that straddles two second boundaries read as two, which
+    # at `idle 2` was half the window gone: a program burning 30 % of a core was stopped as idle on
+    # the tick after it was found busy, 3 of 20 runs at no load.  The pulse and the sitting stay on
+    # the wall clock: they are the person's and the program's, and a second late errs toward running
+    tick=0; busy_tick=0; base_ticks=0; base_tick=0; clk=$(getconf CLK_TCK 2>/dev/null || echo 100)
     if [ -n "$pulse" ] || [ -n "$sitting_s" ]; then
         # a program that cannot stop itself, or one with a sitting: run it, watch it, stop it —
         # the sitting is read first, because the person's clock outranks the program's pulse
@@ -335,7 +341,7 @@ run)
         echo "$pid" > "$STATE/run.pid"
         while kill -0 "$pid" 2>/dev/null; do
             sleep 1
-            now=$(date +%s)
+            now=$(date +%s); tick=$(( tick + 1 ))
             touch "$STATE/watch"   # the heartbeat: this loop is alive and watching
             if [ -n "$sitting_s" ] && [ $(( now - began )) -ge "$sitting_s" ]; then
                 why="sitting: the $SITTING minutes of $name are up (from $(date -d "@$began" +%H:%M); the length is $name/grant's)"; break
@@ -351,13 +357,17 @@ run)
             # was busy, or since the window last slid: a program burning 30 % of a core is busy
             # at the second second, and one that only housekeeps never sums to it.
             ticks=$(awk '{ print $14 + $15 + $16 + $17 }' "/proc/$pid/stat" 2>/dev/null || echo "$base_ticks")
-            if [ $(( ticks - base_ticks )) -ge $(( clk / 2 )) ]; then busy=$now; base_ticks=$ticks; base_at=$now
-            elif [ $(( now - base_at )) -ge "${IDLE%.*}" ]; then base_ticks=$ticks; base_at=$now; fi
+            # the instrument (F000, kaizen 1934): what this rule read, one line a tick — the clock, the
+            # tick, ticks since the window's base, the window's age and how long since it last found the
+            # program busy, both in ticks — so a stop at idle can be read back, not guessed at
+            echo "$now $(( now - began )) $tick $ticks $(( ticks - base_ticks )) $(( tick - base_tick )) $(( tick - busy_tick ))" >> "$STATE/ticks"
+            if [ $(( ticks - base_ticks )) -ge $(( clk / 2 )) ]; then busy_tick=$tick; base_ticks=$ticks; base_tick=$tick
+            elif [ $(( tick - base_tick )) -ge "${IDLE%.*}" ]; then base_ticks=$ticks; base_tick=$tick; fi
             if [ -n "$pulse" ]; then
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began
                 # a hold is a standing pull: not idle while the file exists (card:hold.md, rule 2 — the runner knows it is pulled, or idle fights the pull at 80 s a reload)
-                if [ -z "$(holds_for)" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( now - busy )) -ge "${IDLE%.*}" ]; then
+                if [ -z "$(holds_for)" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( tick - busy_tick )) -ge "${IDLE%.*}" ]; then
                     why="idle: nothing has pulled $name for ${IDLE}s"; break
                 fi
             fi
