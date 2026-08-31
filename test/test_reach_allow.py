@@ -133,6 +133,42 @@ def test_a_bound_holding_a_name_that_is_not_a_row_is_said_out_loud(tree):
     assert run(tree, "--rows").returncode == 0
 
 
+def test_the_trees_bound_is_a_path_the_person_points_and_the_refusals_come_before_the_file(tree, tmp_path):
+    """card:trees.md, day one: not a row — a row is a session asking and
+    this bound refusing; this is the person pointing, once, at a place
+    to read.  It takes paths, colon-separated, and refuses before the
+    file is touched anything that would make the fence a door: a
+    relative path, one that is not there, the tree this governs, a
+    directory holding it, the home itself or its secret places."""
+    other = tmp_path / "other"; other.mkdir()
+    r = run(tree, "--trees", str(other))
+    assert r.returncode == 0, r.stderr
+    assert f"TEND_TREES={other} " in line(tree), line(tree)
+    r = run(tree, "--trees")
+    assert r.returncode == 0 and f"{other}  whole" in r.stdout, r.stdout
+    before = line(tree)
+    for bad, why in [("relative/path", "absolute"),
+                     (str(tmp_path / "nothing-here"), "not a directory"),
+                     (str(tree), "nothing changed"),
+                     (str(tmp_path), "holds the tree")]:
+        r = run(tree, "--trees", bad)
+        assert r.returncode == 2 and why in r.stderr, (bad, r.stderr)
+        assert line(tree) == before, f"{bad} was refused after the file was touched"
+    # the home's secret places, with a home the test builds — the suite runs
+    # fenced, where the real ~/.config is not there to be refused for the right reason
+    home = tmp_path / "home"; (home / ".ssh").mkdir(parents=True)
+    for bad, why in [(str(home / ".ssh"), "inside"), (str(home), "the home itself")]:
+        r = subprocess.run(["sh", str(KEY), "--trees", bad], capture_output=True, text=True,
+                           env=dict(os.environ, TEND_TREE=str(tree), HOME=str(home), TEND_FENCED=""))
+        assert r.returncode == 2 and why in r.stderr, (bad, r.stderr)
+        assert line(tree) == before, f"{bad} was refused after the file was touched"
+    # the rows bound and the trees bound live on one line and neither loses the other
+    assert run(tree, "net").returncode == 0
+    assert bound(tree) == "net" and f"TEND_TREES={other} " in line(tree), line(tree)
+    r = run(tree, "--trees", "")
+    assert r.returncode == 0 and "TEND_TREES= " in line(tree) and bound(tree) == "net", "set empty is a bound of none"
+
+
 def test_without_a_fence_hook_line_there_is_nothing_to_set(tree):
     s = tree / ".claude/settings.json"
     d = json.loads(s.read_text())

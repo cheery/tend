@@ -73,6 +73,51 @@ Red first: `--rows` on this laptop says the `trees` row binds nothing
 a bound path is readable inside and `touch` there is EROFS; `.git`
 under a method-shaped tree is not inside under shape (a).
 
+## Day one landed — 2026-08-31
+
+At Henri's *"I'd like to get the gestate's tree available for you soon
+again"* (2026-08-31, mid-benchmark; his reason: **"this tree is
+gestate's child"**).  The want splits in two, and only one half is a
+build: gestate is not on this laptop at all — bringing it here is his
+hand — and the mechanism to point at it was the dead literal.  Built
+so that the arrival costs him one line and no code change.
+
+- **`TEND_TREES` on the fence hook's line**, colon-separated, read by
+  `tools/sandbox.sh` in place of the literal.  Unset is the literal
+  (the machine this was built on does not change under it); set is
+  exactly what it says; **set empty is a bound of none**, so the
+  person can bind nothing on purpose.
+- **`tools/reach-allow.sh --trees /a:/b`** points it; `--trees` alone
+  lists each path, whether it is there, and which shape it got.  A
+  path is refused *before the file is touched* when it is not
+  absolute, not a directory, carries a character a path here may not,
+  or names somewhere that would make the fence a door: the tree this
+  governs, a directory holding it, the home itself, or `~/.ssh`,
+  `~/.config`, `~/.local/state`, `~/.gnupg`, `~/.claude`.  The rows
+  bound and the trees bound share the line and neither loses the
+  other.
+- **The shape is (a), and here is why.**  A tree of the method's shape
+  — `board/` and `.claude/settings.json` — is bound by `tree_parts`,
+  the by-purpose subset `card:keep.md` measured off 310 fenced
+  commands; any other directory is bound whole, there being no
+  measurement to subset it by.  (b) would bind the other tree's
+  `.git` and source, and `sandbox.sh --check` has asserted since the
+  fence was built that neither is inside: a shape that turns standing
+  gates red is not one to pick silently.  The tiebreak is still his,
+  and (b) is one edit if he wants it.
+- **The row stops lying.**  `--rows` prints each named path as
+  `(parts)`, `(whole)` or `(not there)`, and `--check` says *"the
+  trees row binds nothing"* instead of probing a bind that never
+  happened — the card's own `because`, closed.
+
+Measured here: the listing half, in the suite
+(`test_sandbox.py`, `test_reach_allow.py`, both red before the
+change).  **Not measured here**: the bind itself — a session cannot
+nest bubblewrap, so `touch` being EROFS inside a bound gestate is
+`sandbox.sh --check` on Henri's side, after his `sudo tend-install`,
+on the day gestate is on this disk.  Until then this is a mechanism
+that has never run, and says so.
+
 ## What it must not become
 
 A second write path.  The reach rows are a session asking and the

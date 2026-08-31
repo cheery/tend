@@ -79,7 +79,27 @@ here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 uid=$(id -u)
 rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
-trees="/home/cheery/gestate"
+# The other trees a session may read (card:trees.md, day one, 2026-08-31
+# — Henri: "I'd like to get the gestate's tree available for you soon
+# again").  The person names them on the fence hook's own line,
+# colon-separated, through `tools/reach-allow.sh --trees`; the literal
+# stays the default where the variable is unset, so the machine this
+# was built on does not change under it.  A session neither asks for
+# this row nor widens it: it is a standing read the person points.
+# Unset is the literal; set is exactly what it says, and set empty is
+# none — so the person can bind nothing, and a machine with no line
+# behaves as it did.
+trees=$(printf '%s' "${TEND_TREES-/home/cheery/gestate}" | tr ':' ' ')
+# What of a named tree is bound.  The card left two shapes open and this
+# is (a), with its reason: a tree of the method's shape — one with
+# `board/` and `.claude/settings.json` — gets `tree_parts`, the
+# by-purpose subset card:keep.md measured off 310 fenced commands; any
+# other directory gets the whole of itself, there being no measurement
+# to subset it by.  (b), the whole of everything, would bind the other
+# tree's `.git` and its source, which the probes below have asserted
+# are not inside since the fence was built; a shape that turns three
+# standing gates red is not the one to pick silently.
+method_shaped() { [ -d "$1/board" ] && [ -f "$1/.claude/settings.json" ]; }
 # What of the other tree is bound (card:keep.md, the session half,
 # 2026-08-26): its documents and its tools, read by purpose from the
 # ledger and the cards — board, tools, spec, doc, journal, the root
@@ -132,7 +152,23 @@ command -v bwrap >/dev/null 2>&1 || {
     echo "sandbox: bubblewrap (bwrap) is not installed — there is no fence.  install: bubblewrap" >&2
     exit 127
 }
-case "$root$HOME$rt" in *" "*) echo "sandbox: a path with a space in it; this script does not handle that" >&2; exit 2 ;; esac
+case "$root$HOME$rt${TEND_TREES:-}" in *" "*) echo "sandbox: a path with a space in it; this script does not handle that" >&2; exit 2 ;; esac
+
+# The trees row as it really is, for the listing and the check: each
+# named path, and what it binds — nothing at all when it is not there.
+# The row said `on` with a foreign path for as long as this ran on a
+# machine that had no such directory (card:trees.md's `because`).
+trees_shown() {
+    _s=""
+    for _t in $trees; do
+        if [ ! -d "$_t" ]; then _s="$_s $_t(not there)"
+        elif method_shaped "$_t"; then _s="$_s $_t(parts)"
+        else _s="$_s $_t(whole)"
+        fi
+    done
+    [ -n "$_s" ] || _s=" none"
+    printf '%s' "${_s# }"
+}
 
 reach=""
 mode=run
@@ -144,7 +180,7 @@ while [ $# -gt 0 ]; do
             cat <<ROWS
   on   tree      $root  read-write — the world, except .claude/, the protected set (--protected), every node's state (its own; the pull file is the session's one write there) and .venv (a runtime, read)
   on   state     ~/.local/state/tend, ~/.local/state/gestate, $rt/gestate-sitting-$uid  read-write, shared — the sitting clock, the leash ledger, the kaizen want; and not the rest of ~/.local/state (card:keep.md, the session half)
-  on   trees     $trees/{board,tools,spec,doc,journal, the root documents, .claude/settings.json}  read-only — the audit, anything cross-tree; not its source, tests, builds or .git (card:keep.md)
+  on   trees     $(trees_shown)  read-only — the audit, anything cross-tree: a method-shaped tree by its parts (board, tools, spec, doc, journal, the root documents, .claude/settings.json), any other directory whole; never its source, tests, builds or .git (card:keep.md).  The person names them, and a session cannot: tools/reach-allow.sh --trees
   on   scratch   /tmp/claude-$uid  read-write — the session's scratchpad
   on   git       ~/.gitconfig  read-only — identity for commits
   off  net       the network; off, it fails as a name-resolution error
@@ -215,7 +251,13 @@ for grant in "$root"/*/grant; do
     opts="$opts --ro-bind $st $st --bind $pf $pf"
 done
 [ -d "$root/.venv" ] && opts="$opts --ro-bind $root/.venv $root/.venv"
-for t in $trees; do for p in $tree_parts; do [ -e "$t/$p" ] && opts="$opts --ro-bind $t/$p $t/$p"; done; done
+for t in $trees; do
+    if [ ! -d "$t" ]; then continue          # a path that is not there binds nothing, and --rows says so
+    elif method_shaped "$t"; then
+        for p in $tree_parts; do [ -e "$t/$p" ] && opts="$opts --ro-bind $t/$p $t/$p"; done
+    else opts="$opts --ro-bind $t $t"        # a plain directory, whole and read-only
+    fi
+done
 [ -d "/tmp/claude-$uid" ] && opts="$opts --bind /tmp/claude-$uid /tmp/claude-$uid"
 
 # The rows that are off unless asked.
@@ -292,9 +334,23 @@ probe "no network"                      blocked timeout 5 getent ahostsv4 exampl
 probe "/usr is read-only"               blocked sh -c 'touch /usr/.probe'
 probe "DISPLAY is unset"                blocked sh -c 'test -n "${DISPLAY:-}"'
 probe "no user bus inside"              blocked sh -c 'test -e "$XDG_RUNTIME_DIR/bus"'
-probe "the other tree's tools are read-only"   blocked sh -c "touch $trees/tools/.probe"
-probe "the other tree's .git is not inside"    blocked sh -c "test -e $trees/.git"
-probe "the other tree's source is not inside"  blocked sh -c "test -e $trees/gestate"
+# The trees row, probed on what it really binds.  A path that is not
+# there is said, never probed as though it were — the row printing `on`
+# beside a directory this machine has never had is card:trees.md's own
+# `because`, and a check that reports ✓ for a bind that did not happen
+# is the same lie one level down.
+_probed=0
+for t in $trees; do
+    [ -d "$t" ] || continue
+    if method_shaped "$t"; then
+        probe "$t's tools are read-only"          blocked sh -c "touch $t/tools/.probe"
+        probe "$t's .git is not inside"           blocked sh -c "test -e $t/.git"
+    else
+        probe "$t is read-only"                   blocked sh -c "touch $t/.probe"
+    fi
+    _probed=1
+done
+[ "$_probed" = 1 ] || say "·" "the trees row binds nothing: $(trees_shown) — the person names one with tools/reach-allow.sh --trees PATH"
 probe ".claude/ is read-only"           blocked sh -c "touch $root/.claude/settings.json"
 if [ $in_tree = 1 ]; then
     for p in $protected; do

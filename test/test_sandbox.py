@@ -265,6 +265,34 @@ def test_the_state_row_is_two_directories_not_their_parent():
     assert "~/.local/state," not in state, "the parent is still the row"
 
 
+def test_the_trees_row_is_what_tend_trees_names_and_says_when_it_binds_nothing(tmp_path):
+    """card:trees.md, day one (2026-08-31, Henri: "I'd like to get the
+    gestate's tree available for you soon again"): the path leaves the
+    script for the fence hook's line, colon-separated.  A method-shaped
+    tree is bound by its parts, any other directory whole, and a path
+    that is not there binds nothing and says so — until today the row
+    printed `on` beside a directory this machine has never had, which
+    is the card's own `because`.  No bwrap: `--rows` is a listing."""
+    def row(trees):
+        out = subprocess.run(["sh", str(FENCE), "--rows"], cwd=ROOT, capture_output=True, text=True,
+                             env=dict(os.environ, TEND_TREES=trees))
+        assert out.returncode == 0, out.stderr
+        return [l for l in out.stdout.splitlines() if l.split()[1:2] == ["trees"]][0]
+
+    assert "/nowhere/at/all(not there)" in row("/nowhere/at/all"), "a path that is not there is said, not shown as a reach"
+    plain = tmp_path / "notes"; plain.mkdir()
+    assert f"{plain}(whole)" in row(str(plain)), "a plain directory, whole — there is no measurement to subset it by"
+    shaped = tmp_path / "other"; (shaped / "board").mkdir(parents=True)
+    (shaped / ".claude").mkdir(); (shaped / ".claude" / "settings.json").write_text("{}\n")
+    assert f"{shaped}(parts)" in row(str(shaped)), "a tree of the method's shape, by card:keep.md's measured parts"
+    both = row(f"{plain}:{shaped}")
+    assert f"{plain}(whole)" in both and f"{shaped}(parts)" in both, "colon-separated, each by its own shape"
+    assert "trees     none " in row(""), "set empty is a bound of none"
+    with_space = subprocess.run(["sh", str(FENCE), "--rows"], cwd=ROOT, capture_output=True, text=True,
+                                env=dict(os.environ, TEND_TREES="/two words"))
+    assert with_space.returncode == 2 and "space" in with_space.stderr, "a path with a space is refused, not word-split"
+
+
 def test_the_trees_row_is_the_other_trees_documents_and_tools():
     """`board/keep.md`, the session half, 2026-08-26: read by purpose,
     a tend session opens the other tree's board, tools, documents — and

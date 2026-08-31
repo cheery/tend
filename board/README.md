@@ -138,7 +138,16 @@ between two workable cards is Henri's.
     last by the session that wrote it on 2026-08-30 at Henri's "open
     the card for reaching other trees, or directories"; day one is the
     path on the hook line, set by the reach key, read-only, with what
-    of it is bound his to pick; the tiebreak is his.*
+    of it is bound his to pick; the tiebreak is his.  Day one landed
+    2026-08-31 at his "I'd like to get the gestate's tree available
+    for you soon again" — `TEND_TREES` on the hook line,
+    `reach-allow.sh --trees` to point it, a method-shaped tree by its
+    parts and any other directory whole (shape (a), because (b) would
+    bind the other tree's `.git` and source against three standing
+    probes), and the row saying `(parts)`, `(whole)` or `(not there)`
+    instead of `on` beside a path that was never here.  The bind
+    itself waits on gestate arriving on this disk and his
+    `sandbox.sh --check`.*
 12. **[tools](tools.md)** — a mind at the door can say and cannot do,
     and the tree has no shape for what it may do: the three acts a
     model has (read a tree file, propose, pull the andon) are run by a

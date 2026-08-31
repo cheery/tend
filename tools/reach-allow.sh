@@ -11,6 +11,10 @@
 #   tools/reach-allow.sh net,audio   allow several, comma-separated
 #   tools/reach-allow.sh             clear it — no row may be asked for
 #
+#   tools/reach-allow.sh --trees          the other trees a session may read, and whether they are there
+#   tools/reach-allow.sh --trees /a:/b    point it at them, colon-separated — read-only, always
+#   tools/reach-allow.sh --trees ""       bind none
+#
 # Takes effect on the next prompt, not the next session (the sitting
 # limit hook did the same when it was installed).  Idempotent.
 #
@@ -36,8 +40,8 @@ sel='.hooks.PreToolUse[].hooks[] | select(.command | test("fence-hook"))'
 arg="${1:-}"
 
 case $arg in
-    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-    --rows) ;;
+    -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --rows|--trees) ;;
     -*) echo "reach-allow: unknown argument \`$arg\`" >&2; exit 2 ;;
 esac
 
@@ -71,6 +75,59 @@ if [ "$arg" = --rows ]; then
         [ -n "$r" ] && ! is_row "$r" && { printf '  ?        %s  is on the line and is not a row — tools/reach-allow.sh without it\n' "$r"; bad=1; }
     done; unset IFS
     exit $bad
+fi
+
+# The other trees a session may read (card:trees.md, day one, 2026-08-31).
+# Not a row: a row is a session asking and this bound refusing, and this
+# is the person pointing, once, at a place to read.  So it takes a path
+# and not a name — and a path is refused here, before the file is
+# touched, when it is not absolute, not a directory, carries a character
+# a path here may not, or names somewhere that would make the fence a
+# door: the tree this governs (already the session's, read-write), a
+# directory holding it, the home itself, or the home's secret places.
+if [ "$arg" = --trees ]; then
+    now=$(printf '%s\n' "$line" | sed -n 's/.*TEND_TREES=\([^ ]*\).*/\1/p')
+    if [ $# -lt 2 ]; then
+        echo "reach-allow: the trees bound is ${now:-none} — read-only, and a session can neither ask for one nor widen it"
+        IFS=:; for p in $now; do
+            [ -n "$p" ] || continue
+            if [ ! -d "$p" ]; then printf '  ?        %s  is not there — the fence binds nothing for it\n' "$p"
+            elif [ -d "$p/board" ] && [ -f "$p/.claude/settings.json" ]; then printf '  bound    %s  by its parts — a method-shaped tree (board/, .claude/settings.json)\n' "$p"
+            else printf '  bound    %s  whole — a plain directory\n' "$p"
+            fi
+        done; unset IFS
+        exit 0
+    fi
+    val=$2
+    for p in $(printf '%s' "$val" | tr ':' ' '); do
+        case $p in
+            /*) ;;
+            *) echo "reach-allow: \`$p\` is not an absolute path — nothing changed" >&2; exit 2 ;;
+        esac
+        case $p in
+            *[!A-Za-z0-9._/-]*) echo "reach-allow: \`$p\` holds a character a path here may not (A-Za-z0-9._/- only) — nothing changed" >&2; exit 2 ;;
+        esac
+        [ -d "$p" ] || { echo "reach-allow: \`$p\` is not a directory — nothing changed" >&2; exit 2; }
+        rp=$(CDPATH= cd -P -- "$p" 2>/dev/null && pwd) || rp=$p
+        [ "$rp" != "$HOME" ] || { echo "reach-allow: \`$p\` is the home itself — name a directory in it — nothing changed" >&2; exit 2; }
+        for b in "$root" "$HOME/.ssh" "$HOME/.config" "$HOME/.local/state" "$HOME/.gnupg" "$HOME/.claude"; do
+            case "$rp/" in "$b/"*) echo "reach-allow: \`$p\` is $b or inside it — nothing changed" >&2; exit 2 ;; esac
+        done
+        case "$root/" in "$rp/"*) echo "reach-allow: \`$p\` holds the tree this governs — nothing changed" >&2; exit 2 ;; esac
+    done
+    new=$(printf '%s\n' "$line" | sed -e 's/^TEND_TREES=[^ ]* //' -e 's/ TEND_TREES=[^ ]*//')
+    # Always written, empty included: `--trees ""` is a bound of none, where
+    # no line at all is the script's own default (tools/sandbox.sh).  It goes
+    # after the rows bound when there is one — that one is read with `^`.
+    case $new in
+        TEND_REACH_ALLOW=*) new=$(printf '%s\n' "$new" | sed "s|^\(TEND_REACH_ALLOW=[^ ]* \)|\1TEND_TREES=$val |") ;;
+        *) new="TEND_TREES=$val $new" ;;
+    esac
+    jq --arg c "$new" "($sel | .command) |= \$c" "$S" > "$S.new"
+    mv "$S.new" "$S"
+    echo "reach-allow: $(jq -r "$sel | .command" "$S")"
+    "$here/fence.sh" >/dev/null && echo "fence: up"
+    exit 0
 fi
 
 rows=$arg
