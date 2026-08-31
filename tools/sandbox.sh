@@ -18,6 +18,22 @@
 # (doc/experiments/2026-08-25-reach.md).  The fence and the cords are
 # one design.
 #
+# **`$HOME` keeps its own path, and `~/.claude` is read-only** (Henri,
+# 2026-08-31: "should the $HOME stay $HOME?  Kind of makes sense to
+# me").  It should: the cords above are shared because the path inside
+# *is* the path outside, so `tools/limit.sh` reads one sittings log
+# from either side and `--check` can compare the clocks at all.  But an
+# empty writable home made a real defect (`card:lost-write.md`): the
+# session's memory lives at `~/.claude`, the fence hid it, and a write
+# there landed in the tmpfs and evaporated — measured 2026-08-31,
+# `mkdir -p ~/.claude/… && printf … > …` succeeded at exit 0 and was
+# gone, which is how three kaizens' worth of memories were lost.  So
+# the directory now exists as an empty read-only mount: every write is
+# EROFS, in every shell, with nothing to pattern-match and no command
+# to parse — the kernel refusing, which is the only kind of refusal
+# this fence trusts.  It leaks nothing the absence did not: the mount
+# is a fresh tmpfs, never the person's directory.
+#
 # **The rows are the dial** — Henri, 2026-08-24: "leash adjustable by
 # both parties, such that user's leash bounds it."  Each row is one
 # reach with a real caller on this machine, read off what real runs
@@ -218,6 +234,7 @@ opts="--unshare-user --unshare-pid --unshare-ipc --unshare-uts --unshare-cgroup 
   --bind $HOME/.local/state/tend $HOME/.local/state/tend --bind $HOME/.local/state/gestate $HOME/.local/state/gestate
   --dir $rt --bind-try $rt/gestate-sitting-$uid $rt/gestate-sitting-$uid
   --ro-bind-try $HOME/.gitconfig $HOME/.gitconfig
+  --tmpfs $HOME/.claude --remount-ro $HOME/.claude
   --setenv HOME $HOME --setenv XDG_RUNTIME_DIR $rt --setenv TEND_FENCED 1
   --setenv PATH $root/.venv/bin:/usr/local/bin:/usr/bin:/bin
   --unsetenv SSH_AUTH_SOCK --unsetenv ANTHROPIC_API_KEY --unsetenv DBUS_SESSION_BUS_ADDRESS --unsetenv TEND_TREE"
@@ -332,7 +349,8 @@ else
 fi
 # 3. What must not be there.
 probe "~/.ssh does not exist"           blocked sh -c 'test -e "$HOME/.ssh"'
-probe "~/.claude does not exist"        blocked sh -c 'test -e "$HOME/.claude"'
+probe "~/.claude is read-only"          blocked sh -c 'mkdir -p "$HOME/.claude/projects"'
+probe "~/.claude holds nothing"         blocked sh -c 'ls -A "$HOME/.claude" | grep -q .'
 probe "\$HOME is not the real home"     blocked sh -c 'test -e "$HOME/.bashrc"'
 probe "no network"                      blocked timeout 5 getent ahostsv4 example.com
 probe "/usr is read-only"               blocked sh -c 'touch /usr/.probe'

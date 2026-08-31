@@ -186,7 +186,12 @@ between two workable cards is Henri's.
     succeed, exit 0, and evaporate; the fourth shape is to let the
     kernel refuse it (an empty read-only `~/.claude` inside), which is
     the boundary the card's own objection to a shell-parsing hook asks
-    for.*
+    for.  **Built the same sitting** at his "defect is a caller.  yeah,
+    you can fix the thing you found" — one line of `tools/sandbox.sh`
+    — **and not yet executed**: a session cannot nest bubblewrap, so
+    the mount has never been made and its test skips from inside.  The
+    order is `tools/sandbox.sh --check` on the tree's copy first, then
+    `sudo tend-install`.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

@@ -134,16 +134,32 @@ Four shapes, kept alive on purpose (`manifesto.md` §"Set-based"), and
   built — a heuristic with a veto is not a boundary, and this is a
   boundary.  About one line in `tools/sandbox.sh`.
 
-  **Not declared**: which line is unmeasured.  `--tmpfs` then
-  `--remount-ro`, or an `--ro-bind` of an empty directory, are the two
-  candidates and bwrap's behaviour for each has not been run — a
-  session cannot nest bubblewrap, so this is the person's seat or a
-  scratch clone, and until then it is a proposal.  **Two honest
-  costs**: the probe today asserts `~/.claude` *does not exist* and
-  would have to say "exists, empty, read-only" — no leak either way,
-  but a stated property is reworded and `test/test_sandbox.py` moves
-  with it; and it is a restraint, so it lands by a commit and Henri's
-  `sudo tend-install`, not by a session's hand.
+  **Built 2026-08-31**, at Henri's *"defect is a caller.  yeah, you
+  can fix the thing you found"* — `--tmpfs $HOME/.claude
+  --remount-ro $HOME/.claude` in `tools/sandbox.sh`, one line, after
+  the cords are bound and before the environment is set.  The
+  `--ro-bind of an empty directory` candidate was dropped for a
+  reason: every empty directory on this machine that a session could
+  name is one a session could also write to, and a bind would make
+  those writes appear inside `~/.claude` — a tmpfs is nobody's.
+
+  **Not declared: the line has not executed.**  bwrap 0.11.1 lists
+  both flags (`--help`, checked), but a session cannot nest
+  bubblewrap — `No permissions to create a new namespace` — so the
+  mount has never been made.  `test/test_sandbox.py::test_the_sessions_
+  memory_directory_is_an_empty_read_only_mount` is written and
+  **skips** from inside, which is the state to fix from the person's
+  seat.  **The safe order is `tools/sandbox.sh --check` on the tree's
+  copy first** — `--check` builds the namespace with these exact
+  flags, so a bwrap that rejects them fails there, loudly, while the
+  installed fence is still the old one — and only then `sudo
+  tend-install`.  Doing it the other way round would put an untried
+  mount in front of every command in every session.
+
+  **The costs, paid:** the probe that asserted `~/.claude` *does not
+  exist* is now two — *is read-only* and *holds nothing* — which is
+  the same secrecy said twice as precisely; and it is a restraint, so
+  nothing changes until his line.
 
 What would kill each: (a) is dead if the false positives bite — a
 command may *name* `~/.claude` for good reasons (this card's own
@@ -172,6 +188,14 @@ is a heuristic that will be wrong at the edges.  The tree's standing
 answer to that tension is `card:fence.md`'s: the *kernel* decides, and
 a heuristic that guesses is worse than no heuristic — which is an
 argument this card must answer before (a) is built, not after.
+
+**Where this leaves the card.**  (d) is built and unexecuted; (a),
+(b) and (c) are alive and cheaper to refuse now — if the kernel
+refuses every write, a hook that parses shell text has nothing left to
+catch, and the day-one rate measurement becomes a question about
+whether anything *else* wants a supported path, not about whether this
+one needs a guard.  The card stays open until the mount has run on
+Henri's seat and `--check` is green with the two new probes.
 
 ## What it must not become
 

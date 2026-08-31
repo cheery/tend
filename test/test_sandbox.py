@@ -77,6 +77,33 @@ def test_inside_the_tree_is_writable_and_home_is_not_real():
 
 
 @needs_bwrap
+def test_the_sessions_memory_directory_is_an_empty_read_only_mount(tmp_path):
+    """`card:lost-write.md`, shape (d), and the measurement that asked for
+    it (2026-08-31): the home is a tmpfs, so before this a write to
+    `~/.claude` — where the session's own memory lives — succeeded at
+    exit 0 into the sandbox and evaporated.  `mkdir -p` was the natural
+    repair for the `ENOENT` a missing parent gave, and it turned a loud
+    failure into a silent one.  Now the kernel refuses: the directory
+    exists, is empty, and is read-only, so every write there is EROFS
+    with nothing to pattern-match.  Red before the change in the way
+    that matters — the old fence let the write through."""
+    out = sandbox("sh", "-c", 'test -d "$HOME/.claude" && echo present')
+    assert out.stdout.strip() == "present", "the directory exists, so the error is EROFS and not ENOENT"
+    out = sandbox("sh", "-c", 'ls -A "$HOME/.claude"')
+    assert out.stdout.strip() == "", "an empty mount — never the person's own directory"
+    for write in ('mkdir -p "$HOME/.claude/projects/x"',
+                  'touch "$HOME/.claude/probe"',
+                  'printf x > "$HOME/.claude/probe"'):
+        out = sandbox("sh", "-c", write)
+        assert out.returncode != 0, f"the fence let a write through: {write}"
+        assert "read-only" in out.stderr.lower(), out.stderr
+    # and the person's real memory is untouched on the outside, as it was before
+    real = pathlib.Path.home() / ".claude"
+    if real.exists():
+        assert not (real / "probe").exists() and not (real / "projects" / "x").exists()
+
+
+@needs_bwrap
 def test_inside_is_marked_and_cannot_nest():
     out = sandbox("sh", "-c", 'echo "$TEND_FENCED"')
     assert out.stdout.strip() == "1"
