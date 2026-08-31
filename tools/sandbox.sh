@@ -8,6 +8,20 @@
 #     tools/sandbox.sh --rows               the rows and their defaults
 #     tools/sandbox.sh --protected          the paths read-only inside, one per line
 #
+# **This is a namespace, not a permission.**  Nothing here is made
+# unreadable: a process sees exactly what was bound into its mount
+# namespace, and what was not bound does not exist for it.  `~/.ssh`
+# inside is `No such file or directory`, never `Permission denied`, and
+# `$HOME` itself is readable and writable — it is simply a fresh tmpfs
+# at the same path.  That is Plan 9's per-process namespace used as a
+# boundary, and `--ro-bind` is Plan 9's verb; it is stronger than a
+# permission, because there is no ACL to defeat and root inside cannot
+# read what was never mounted.  The tree's other boundary, `tools/keep.py`,
+# is the opposite idiom — a Landlock ruleset that denies (EACCES) rather
+# than hides — and `spec/os.md` §"Appended 2026-08-31" says why there
+# are two and where each is used.  Written at Henri's question,
+# 2026-08-31: "is there reason why $HOME is not $HOME?"
+#
 # **This is the sessions-first fence of doc/experiments/2026-08-25-both.md,
 # promoted.**  Bubblewrap: the system read-only, an empty home, no
 # network, this tree the one writable thing — and, learned the same day,

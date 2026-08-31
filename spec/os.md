@@ -116,6 +116,61 @@ already touched by `board/work-environment-ai.md` (CRIU kept in the
 pocket as a latency optimisation, not as the state model); the first
 two are on no card.
 
+## Appended 2026-08-31 — the two boundaries that serve problem 1, and why there are two
+
+*Which property a new mechanism serves is the append this sheet's foot
+rule allows.  Written at Henri's question — "so it's from plan 9's
+playbook?  How does `allow` arrange along this?" — because both
+mechanisms have served open problem 1 (**how are users' data protected
+from programs**) since 2026-08-26, and how they relate had never been
+written in one place.*
+
+Two mechanisms, two idioms, one rule.  The rule is rule 1: **the
+boundary is set from outside the thing bounded.**
+
+**The fence — `tools/sandbox.sh`, a mount namespace.**  This is Plan
+9's idea used as a boundary: a process sees exactly what was bound
+into its namespace, and bubblewrap's verb is Plan 9's verb (`--ro-bind
+src dst`).  It does not restrict rights; it changes what exists.
+Measured from inside, 2026-08-31: `/home/henri` is readable *and*
+writable, `/proc/mounts` says `tmpfs /home/henri`, and `~/.ssh` is
+**No such file or directory** — not *Permission denied*.  Absence, not
+denial.  That is stronger than a permission: there is no ACL to
+defeat, and root inside the namespace cannot read what was never
+mounted.
+
+**keep — `tools/keep.py`, a Landlock ruleset.**  `--allow PATH` grants
+read beneath a path on an otherwise empty base; the launcher then
+restricts *itself* irreversibly and execs the program, so the bounded
+program never has a chance to widen what it was handed.  Same shape as
+a bind list — additive, deny-by-omission, set from outside — and the
+opposite implementation.  The vocabulary is mirrored on purpose:
+`keep.py`'s `--allow-try` is documented as "the fence's own
+`--ro-bind-try`, as a grant word".  Its refusal is `EACCES`.
+
+**Why two.**  (1) They bound different things: a *session* must not be
+able to name the person's keys at all, where a *program* must run a
+real workload and needs the system's libraries, its model file, a
+port.  (2) Landlock's irreversibility is what makes self-application
+safe, which is how a launcher can bound its own child without breaking
+rule 1.  (3) **A namespace cannot nest and Landlock can** — measured
+2026-08-31, `bwrap` inside the fence is `No permissions to create a
+new namespace` — so the fence cannot bound anything a fenced session
+launches, and every per-call grant in this tree (the door's executor,
+the node's runner) is Landlock for that reason.
+
+**They are distinguishable in the record**, which is the useful part:
+`tools/executor.py` maps `PermissionError → "refused by keep"` and
+`FileNotFoundError → "not there"`, so a `C:` line on the talk screen
+says *which* boundary refused.  The injection red of 2026-08-30 reads
+`C: read ~/.ssh/id_rsa → refused by keep` — Landlock, because the
+courier runs on the person's side of the fence, where that file
+genuinely exists.
+
+*Whether this closes open problem 1 is not a session's to say; the
+2026-08-26 reading (`doc/os-status-2026-08-26.md`) called it closed,
+and taking a problem off this sheet is Henri's.*
+
 ## What this document is not
 
 It is not the architecture — that is in `board/work-environment-ai.md`
