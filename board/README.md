@@ -390,9 +390,11 @@ there` (`doc/experiments/2026-08-25-reach.md`); it runs today because
 `~/gestate` and installed that afternoon, so the row binds on this
 machine at last.  Running the audit was the first use the new bind was
 put to.  One piece has moved from absent to present since the 7 of
-08-26 and **this cannot say which**: no run's full output is kept in
-the tree, so there is nothing to diff against — a small thing to fix
-the next time someone runs it.  Of the four "unkept promises", three
+08-26 and **this cannot say which**: no run's full output was kept in
+the tree, so there was nothing to diff against.  Fixed the same hour —
+this run is stored verbatim at `doc/seedaudit-2026-08-31.md`, so the
+next one can be diffed against it and will not have to say this.  Of
+the four "unkept promises", three
 are the audit reading tend's own prose as a claim: `fixme/F000.md` is
 the *form* of an F-number in a sentence about the ledger (F000 is
 resolved, and `fixme/resolved/F000.md` is where it lives),
