@@ -149,20 +149,27 @@ stamp() { date '+%Y-%m-%d %H:%M'; }
 ask() {
     _conv=$1
     # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words
-    _body=$(jq -cn --argjson c "$_conv" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
+    # the conversation goes to jq in a file, never on its argument line: one
+    # execve argument is capped at MAX_ARG_STRLEN (32 pages, 131072 bytes here),
+    # and at `readchars 60000` two whole cards cross it — F007
+    printf '%s' "$_conv" > "$STATE/.turn.conv"
+    _body=$(jq -cn --slurpfile c "$STATE/.turn.conv" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
                    --argjson s "$sysmsgs" --argjson tools "$manifest" --arg tmp "$temp" \
-        '{messages:($s + $h + $c),max_tokens:$n,stream:true}
+        '{messages:($s + $h + $c[0]),max_tokens:$n,stream:true}
          + (if $tmp == "none" then {} else {temperature:($tmp|tonumber)} end)
          + (if ($tools | length) > 0 then {tools:$tools} else {} end)
          + (if $m == "" then {chat_template_kwargs:{enable_thinking:$t}}
             else {model:$m} + (if $t then {reasoning:{enabled:true}} else {} end) end)')
+    # and the body goes to curl in a file for the same reason: `-d "$body"`
+    # is one execve argument, and the request is bigger than the reply (F007)
+    _bodyf="$STATE/.turn.body"; printf '%s' "$_body" > "$_bodyf"
     _raw="$STATE/.turn.raw"; _rcf="$STATE/.turn.rc"; _tc="$STATE/.turn.tc"; : > "$_tc"
     _had=$(cat "$tans" "$tthink" 2>/dev/null | wc -c)
     { if [ -n "$keyfile" ]; then
           # the key goes to curl on stdin (-K -), never on the argument line (tools/door.sh)
           printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \
-            | curl -sSN -m 600 -K - -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"
-      else curl -sSN -m 600 -H 'Content-Type: application/json' -d "$_body" "$CHAT" 2>>"$_raw"; fi
+            | curl -sSN -m 600 -K - -H 'Content-Type: application/json' --data-binary @"$_bodyf" "$CHAT" 2>>"$_raw"
+      else curl -sSN -m 600 -H 'Content-Type: application/json' --data-binary @"$_bodyf" "$CHAT" 2>>"$_raw"; fi
       echo $? > "$_rcf"; } \
       | tee "$_raw" | sed -u 's/^data: //' | grep --line-buffered '^{' \
       | jq --unbuffered -r '.choices[0].delta // {}
@@ -245,7 +252,7 @@ answer_line() {
             break
         fi
         # the assistant's message with its calls, then one tool message per call
-        amsg=$(printf '%s' "$calls" | jq -c --arg a "$(cat "$tans")" \
+        amsg=$(printf '%s' "$calls" | jq -c --rawfile a "$tans" \
             '{role:"assistant",content:$a,tool_calls:map({id:.id,type:"function",function:{name:.name,arguments:.args}})}')
         tmsgs='[]'; ci=0
         while [ "$ci" -lt "$n" ]; do
@@ -258,13 +265,15 @@ answer_line() {
             tmsgs=$(printf '%s' "$tmsgs" | jq -c --arg id "$cid" --rawfile r "$rfile" '. + [{role:"tool",tool_call_id:$id,content:$r}]')
             ci=$((ci + 1))
         done
-        conv=$(printf '%s' "$conv" | jq -c --argjson a "$amsg" --argjson t "$tmsgs" '. + [$a] + $t')
+        # the tool results are the big ones; they ride in a file too (F007)
+        printf '%s' "$tmsgs" > "$STATE/.turn.tmsgs"
+        conv=$(printf '%s' "$conv" | jq -c --argjson a "$amsg" --slurpfile t "$STATE/.turn.tmsgs" '. + [$a] + $t[0]')
     done
     _a=$(cat "$tans"); thought=$(cat "$tthink")
     # an answer with no content is a model that put its whole reply in the reasoning, and that is the answer
     if [ -z "$_a" ]; then _a=$thought; thought=""; fi
     [ -z "$stopped" ] || _a="$_a${_a:+ }$stopped"
-    rm -f "$tans" "$tthink" "$tcalls" "$rfile"
+    rm -f "$tans" "$tthink" "$tcalls" "$rfile" "$STATE/.turn.conv" "$STATE/.turn.tmsgs" "$STATE/.turn.tc" "$STATE/.turn.body"
     { printf '%s Q: %s\n' "$(stamp)" "$_words"
       [ -z "$door" ] || printf '%s V: %s %s\n' "$(stamp)" "$door" "$dmodel"
       [ -z "$crec" ] || printf '%s' "$crec"

@@ -442,6 +442,28 @@ def test_a_call_past_the_cap_is_not_run_and_a_mind_that_keeps_calling_is_stopped
     assert "1 calls" in BODIES[n0]["messages"][0]["content"]
 
 
+def test_a_tool_result_larger_than_one_execve_argument_still_rides(tmp_path, stub):
+    """F007, 2026-08-31: the courier handed the whole conversation to `jq` on
+    its argument line, and one execve argument is capped at MAX_ARG_STRLEN —
+    32 pages, 131072 bytes here.  At the door's own `readchars 60000` two
+    whole cards cross it: `jq: Argument list too long`, an empty body, and
+    the door answering `400 JSON parsing failed`.  Henri's paired turns hit
+    it on the second read.  The conversation and the tool results ride in
+    files now.  Red before the fix: this card is 200k."""
+    st = tmp_path / "s"; st.mkdir(); t = a_tree(tmp_path)
+    (t / "board" / "big.md").write_text("a long card\n" * 18000)   # ~200k, over the cap
+    door = a_tooled_door(tmp_path, stub, tools="read", readchars=200000)
+    SCRIPT["huge"] = [("calls", [("read", {"path": "board/big.md"})]), ("say", "read it")]
+    n0 = len(BODIES)
+    r = deliver(NODE, "huge", state=st, stub=stub, TEND_TREE=str(t), **door)
+    assert r.returncode == 0, r.stderr
+    assert "Argument list too long" not in r.stderr, r.stderr
+    sent = BODIES[n0 + 1]["messages"]
+    assert len(sent[-1]["content"]) > 131072, "the whole card reached the model, past the argv cap"
+    assert record(st)[2] == "C: read board/big.md → 200.0k chars, cut at line 16667 of 18000", record(st)
+    assert record(st)[-1] == "A: read it"
+
+
 def test_grep_rides_the_same_wire_with_its_two_arguments(tmp_path, stub):
     st = tmp_path / "s"; st.mkdir(); t = a_tree(tmp_path)
     door = a_tooled_door(tmp_path, stub, tools="read ls grep")
