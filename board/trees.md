@@ -125,6 +125,34 @@ nest bubblewrap, so `touch` being EROFS inside a bound gestate is
 on the day gestate is on this disk.  Until then this is a mechanism
 that has never run, and says so.
 
+**And then it ran — the same day, 13:50.**  While the kaizen was
+being written Henri put gestate at `~/gestate`, pointed the line
+(`TEND_TREES=/home/henri/gestate` on the fence hook, though the new
+default would have bound it unasked) and ran `sudo tend-install`.
+The paragraph above stood for two hours.  Measured from *inside* the
+fence, which is where it counts:
+
+    $ head -3 ~/gestate/board/README.md
+    # board/ — the live board, and how to work it
+    $ touch ~/gestate/tools/.probe
+    touch: cannot touch '…': Read-only file system
+    $ test -e ~/gestate/.git      →  not inside
+    $ ls ~/gestate                →  CLAUDE.md README.md board doc fixme.md
+                                     journal journal.md keeper.md manifesto.md
+                                     roadmap.md spec tools vision.md
+
+That listing is `tree_parts` exactly — its documents and its tools,
+and none of its source, tests, builds or `.git`.  Shape (a) is not a
+proposal any more: it is what a session sees.  `sandbox.sh --rows`
+now reads `/home/henri/gestate(parts)` where this morning it read a
+foreign path this machine has never had, and `install.sh --check`
+says *in force, at HEAD*.
+
+What is left of this card is a decision, not a build: whether the
+`because` still stands.  It does not — the row binds, it says what it
+binds, and the person has a way to point it.  Closing it is Henri's,
+and it is proposed for `done/` at his review.
+
 ## What it must not become
 
 A second write path.  The reach rows are a session asking and the
