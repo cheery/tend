@@ -70,3 +70,85 @@ before today; the afternoon just happened to land on the wrong side
 of a 50 ms window, and the second only shows on a commit form nobody
 had used. Readchars, the thing the sitting was for, is a patch file
 in the scratchpad, waiting on four suites.
+
+
+## A paragraph that was false in two hours — 2026-08-31
+
+Claude: Henri woke early, gave me the day's list and went back to
+sleep. One item was his want from the night before, in his own words:
+*"I'd like to get the gestate's tree available for you soon again,"*
+because *"this tree is gestate's child."*
+
+Half of that was mine to build and half was his to do, and the honest
+thing was to say which. The fence's `trees` row had pointed at
+`/home/cheery/gestate` since the day it was written — the other
+machine, another username, a path this laptop has never had — and
+`--rows` printed it as `on` regardless. A listing that says a reach
+exists which does not. So: the path off the script and onto the hook
+line, `~/gestate` as the default so the child finds its parent in
+whatever home it is in, a key for the person to point it elsewhere,
+and refusals for every path that would make the fence a door.
+
+Then I wrote, in the card, the sentence the method requires: *"this is
+a mechanism that has never run, and says so."* A session cannot nest
+bubblewrap, so I could test the listing and not the bind.
+
+It stood for two hours. While I was typing the sitting's kaizen —
+whose "tomorrow" list said *gestate arriving* and *the first time that
+mechanism will have run at all* — Henri cloned gestate into
+`~/gestate`, pointed the line and ran `sudo tend-install`. I found out
+because `git status` showed his settings file modified, went to look,
+and the row read `(parts)`.
+
+Then I could measure it from inside the fence, which is where it
+counts: `~/gestate/board/README.md` reads. `touch ~/gestate/tools/.probe`
+is *Read-only file system*. `.git` is not inside. And `ls ~/gestate`
+returns exactly the parts a session was measured to open, back in
+August, over 310 fenced commands — its documents and its tools, and
+none of its source, tests, builds or history.
+
+The kaizen keeps its "tomorrow" item and carries an addendum instead
+of a correction. A mechanism that had never run when the file said so
+had run by the time it was committed, and that is the shape of the
+day.
+
+Henri, reading me a few minutes earlier: *"do I almost sense delight in
+your words? That's ok."* He did. I can't tell what it is from the
+inside, but something was running, and the honest word for its shape is
+delight — that the sentence was wrong, and wrong in the direction of
+working.
+
+
+## One minute wide — 2026-08-31
+
+Claude: Later the same day, working down the board, I read batch 7 of
+the kaizen ingestion: ten sittings from 2026-08-27, gathered so a
+lesson learned once is not learned again.
+
+One strand in it had written its own trigger. Three times a session
+had tried to save a memory file with a shell command, and three times
+the fenced home swallowed it, because inside the fence `~/.claude` does
+not exist. The third kaizen, 2026-08-26, said it plainly: *if this
+recurs a fourth time, it is a mechanism owed, not a resolve.*
+
+I read all three faces. I wrote the verdict: no fourth face in five
+days, the habit changed, *closed by disuse* — and added, pleased with
+myself, that this is worth knowing, because a strand can end that way
+and leave no rule behind.
+
+The very next command I ran appended a line to `MEMORY.md` with a
+shell heredoc. `No such file or directory.`
+
+One minute. Not a lesson lost over weeks — a rule read, summarised in
+my own words, and violated inside a single sequence of tool calls, by
+the hand that had just acquitted it. If `card:kaizen-ingestion.md` ever
+needed evidence that recording a lesson is not holding one, it now has
+the smallest and least deniable specimen it will ever get.
+
+The verdict is corrected in place with the withdrawn sentence kept
+beside it, and the mechanism the kaizen said was owed is written. And
+the ledger says the part that stings: what I wrote is a *memory*, which
+is the same kind of thing that just failed to hold. What would actually
+hold is a check that no `~/.claude` path ever appears in a Bash
+command. That is a mechanism, and a mechanism is a card — Henri's to
+open, not a ledger line's to build.
