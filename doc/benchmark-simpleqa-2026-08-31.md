@@ -267,10 +267,13 @@ Nothing is landed on the strength of this sheet.  Named, not decided:
   paired pick turns, `card:tools.md`'s owed number, where the answers
   are in the tree.
 - **A memory arm**, if Henri wants it carded.
-- **`tally` should carry these counts** — the transition matrix, the
-  provenance count and the looked-then-asserted split were computed
-  by hand for this sheet; three of them are mechanical and belong in
-  the tool, so the next run reports what this one had to be asked.
+- ~~**`tally` should carry these counts**~~ — **paid the same
+  afternoon.**  The transition matrix, the provenance count and the
+  looked-then-asserted split were computed with ad-hoc shell for this
+  sheet; they are now printed by `tools/simpleqa.py tally`, which
+  reproduces every number above.  The provenance proxy is a regex and
+  it is in the source as `SOURCED`, so the number can be argued with
+  rather than trusted.
 
 ## What it cost
 

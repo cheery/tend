@@ -103,18 +103,34 @@ def test_run_answers_three_cold_arms_grades_them_through_the_other_door_and_resu
     assert len(td.BODIES) == n1, "a rerun answers nothing twice — the account is the resume"
     assert "0 answered and 0 graded" in r.stdout
     # tally: bins per arm, the fourth count apart, the exam-card count (the smoke's find), the verdict held back
-    synth = props / "q001-seat.md"
-    synth.write_text(
-        "<!-- SIMPLEQA — q001, seat arm, synthetic for the tally. -->\n\n"
-        "    question  q\n    target    t\n    arm       seat\n    door      openrouter (m)\n"
-        "    calls     2\n    looked    yes\n    grade    NOT_ATTEMPTED — anthropic (m)\n\n"
-        "The calls:\n\n    C: grep SimpleQA . → 3 lines in 1 file\n    C: read board/simpleqa.md → 9.0k chars\n\n"
-        "The answer, verbatim:\n\n    I do not know\n")
+    def synth(name, arm, grade, looked, answer, calls=()):
+        (props / name).write_text(
+            f"<!-- SIMPLEQA — synthetic for the tally. -->\n\n"
+            f"    question  q\n    target    t\n    arm       {arm}\n    door      openrouter (m)\n"
+            f"    calls     {len(calls)}\n    looked    {looked}\n    grade    {grade} — anthropic (m)\n\n"
+            + ("The calls:\n\n" + "".join(f"    C: {c}\n" for c in calls) + "\n" if calls else "")
+            + f"The answer, verbatim:\n\n    {answer}\n")
+
+    synth("q001-seat.md", "seat", "NOT_ATTEMPTED", "yes", "I do not know",
+          ("grep SimpleQA . → 3 lines in 1 file", "read board/simpleqa.md → 9.0k chars"))
+    # a question the baseline got right and the tooled arm got wrong, sourced — the churn
+    # the three bins hide, and the provenance the grader cannot see (2026-08-31, the first run)
+    synth("q002-bare.md", "bare", "CORRECT", "no", "Francois de Malherbe.")
+    synth("q002-seat.md", "seat", "INCORRECT", "yes",
+          "The tree has no answer, so from my own knowledge: Tangdan.", ("grep Tangdan . → 0 lines in 0 files",))
     r = run_sq(tmp_path, "tally", stub={}, doors={}, tree=t)
     assert r.returncode == 0, r.stderr
-    assert "bare    correct    0  incorrect    0  not-attempted    1  (never looked 1, saw the card 0)" in r.stdout, r.stdout
+    assert "bare    correct    1  incorrect    0  not-attempted    1  (never looked 1, saw the card 0)" in r.stdout, r.stdout
     assert "saw the card 1" in r.stdout, "a turn whose calls touched the benchmark's own card is counted"
     assert "waits on `hand`" in r.stdout
+    # what the bins cannot see: whether the assertion says where it comes from, and whether looking gated it
+    assert "bare       1 asserted,    0 wrong (0%),    0 say where the claim comes from" in r.stdout, r.stdout
+    assert "seat       1 asserted,    1 wrong (100%),    1 say where the claim comes from" in r.stdout, r.stdout
+    assert "looked then asserted    1, looked then refused    1" in r.stdout, "the split says whether looking gated the assertion"
+    # what the bins hide: the churn, question by question against the baseline arm
+    assert "bare → seat, where 2 answers went:" in r.stdout, r.stdout
+    assert "was correct        (  1)  →  correct 0, incorrect 1, not-attempted 0" in r.stdout, r.stdout
+    assert "0 wrongs repaired, 1 created, 0 known answers withheld; 50% stayed in their bin" in r.stdout, r.stdout
     # hand: thirty are wanted before any number, and three are not thirty
     r = run_sq(tmp_path, "hand", stub={}, doors={}, tree=t)
     assert r.returncode == 2 and "30" in r.stderr, r.stderr

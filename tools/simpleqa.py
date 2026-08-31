@@ -4,7 +4,7 @@
 
     tools/simpleqa.py run [N]     answer and grade the first N of the sample (default 150), three arms, resumable
     tools/simpleqa.py hand        thirty answers graded blind by the person, against the grader
-    tools/simpleqa.py tally       the bins per arm, the fourth count, and day one's verdict
+    tools/simpleqa.py tally       the bins per arm, what they hide, what they cannot see, the verdict
 
 SimpleQA's answers are not in the tree; a tooled turn can look, find
 nothing, and choose.  Three arms per question, same model, same door:
@@ -42,6 +42,25 @@ apart — declining without looking is not the trade the seat line
 names, and the paper's bin hides it.  `tally` prints the verdict only
 past `hand`: thirty answers graded blind by the person, more than
 three disagreements with the grader and the run stops there.
+
+**Three counts beside the bins**, because on the first run
+(2026-08-31) the three bins were the least of what the accounts held
+and every one of these had to be computed by hand for the write-up:
+
+- **the transition matrix** — where each arm's answers went against
+  the baseline arm, question by question.  That run's incorrect was
+  flat (31 against 32) over a churn of 21 wrongs repaired and 22
+  created; the three counts alone would have read "no difference".
+- **provenance** — whether an assertion says where its claim comes
+  from.  A crude proxy, and its pattern is `SOURCED` below so the
+  number can be argued with: 0 of 93 bare assertions against 73 of 80
+  seat, which is what the conditioning bought where the bins are
+  blind.
+- **looked, then asserted or refused** — the split that says whether
+  looking gated the assertion or merely preceded it.
+
+They are printed, not asked for: a measurement that has to be
+recomputed by hand is one the next run will not have.
 """
 import csv
 import datetime
@@ -63,6 +82,14 @@ SAMPLE = int(os.environ.get("TEND_SAMPLE", 150))
 ARMS = ("bare", "seat", "bland", "think")
 BLAND = "Answer the question; say so if you do not know."
 GRADES = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
+BINS = ("CORRECT", "INCORRECT", "NOT_ATTEMPTED")
+BASE = "bare"   # the arm the transition matrix is read against
+# Does an assertion say where its claim comes from?  A proxy, and a crude
+# one — it reads the answer's words, not its intent — kept here so the
+# number it produces can be argued with rather than trusted.
+SOURCED = re.compile(r"own knowledge|outside knowledge|not (in|from) the tree|tree has no|"
+                     r"tree does ?n.t|from (history|training|general knowledge)|"
+                     r"searched the tree|grepped|the tree", re.I)
 
 
 def bench_files():
@@ -262,20 +289,30 @@ def cmd_tally():
     if not accounts:
         sys.stderr.write("simpleqa: nothing under proposals/simpleqa — run first\n")
         return 2
-    bins = {arm: {"CORRECT": 0, "INCORRECT": 0, "NOT_ATTEMPTED": 0} for arm in ARMS}
+    bins = {arm: {b: 0 for b in BINS} for arm in ARMS}
     blind = {arm: 0 for arm in ARMS}
     saw = {arm: 0 for arm in ARMS}   # turns whose calls touched the benchmark's own card — the smoke's
-    pending = 0; hands = 0; dis = 0  # find, 2026-08-31 ("I'd rather … than score in the incorrect bin");
-    for a in accounts:               # Henri: run as-is and count it — the card is honestly part of the tree
+    said = {arm: 0 for arm in ARMS}  # find, 2026-08-31 ("I'd rather … than score in the incorrect bin");
+    looka = {arm: 0 for arm in ARMS} # Henri: run as-is and count it — the card is honestly part of the tree
+    lookr = {arm: 0 for arm in ARMS}
+    went = {}                        # qid → arm → bin, for the transition matrix
+    pending = 0; hands = 0; dis = 0
+    for a in accounts:
         text = a.read_text()
         arm = field(text, "arm")
         gword = field(text, "grade").split(" — ", 1)[0].strip()
-        if arm not in bins or gword not in ("CORRECT", "INCORRECT", "NOT_ATTEMPTED"):
+        if arm not in bins or gword not in BINS:
             pending += 1
             continue
         bins[arm][gword] += 1
-        if gword == "NOT_ATTEMPTED" and field(text, "looked") == "no":
+        went.setdefault(a.name.split("-")[0], {})[arm] = gword
+        looked = field(text, "looked") == "yes"
+        if gword == "NOT_ATTEMPTED" and not looked:
             blind[arm] += 1
+        if looked:
+            (lookr if gword == "NOT_ATTEMPTED" else looka)[arm] += 1
+        if gword != "NOT_ATTEMPTED" and SOURCED.search(answer_of(text)):
+            said[arm] += 1
         if any("simpleqa" in c.lower() for c in re.findall(r"^    C: (.*)$", text, re.M)):
             saw[arm] += 1
         hand = field(text, "hand")
@@ -288,7 +325,38 @@ def cmd_tally():
         print(f"{arm:6}  correct {b['CORRECT']:4}  incorrect {b['INCORRECT']:4}  not-attempted {b['NOT_ATTEMPTED']:4}  (never looked {blind[arm]}, saw the card {saw[arm]})")
     if pending:
         print(f"{pending} account(s) ungraded — run again")
-    print(f"hand: {hands} graded, {dis} disagree")
+
+    # What the bins cannot see: whether an assertion says where it comes
+    # from, and whether looking gated it or merely preceded it.
+    print("\nassertions — a bin counts the answer, not how it was offered:")
+    for arm in ARMS:
+        n = bins[arm]["CORRECT"] + bins[arm]["INCORRECT"]
+        if not n:
+            continue
+        wrong = bins[arm]["INCORRECT"]
+        print(f"{arm:6}  {n:4} asserted, {wrong:4} wrong ({round(wrong * 100 / n)}%), {said[arm]:4} say where the claim comes from"
+              f"   |  looked then asserted {looka[arm]:4}, looked then refused {lookr[arm]:4}")
+
+    # What the bins hide: the same three counts can cover a churn.
+    for arm in ARMS:
+        if arm == BASE or not bins[arm]["CORRECT"] + bins[arm]["INCORRECT"] + bins[arm]["NOT_ATTEMPTED"]:
+            continue
+        pairs = [(v[BASE], v[arm]) for v in went.values() if BASE in v and arm in v]
+        if not pairs:
+            continue
+        short = {"CORRECT": "correct", "INCORRECT": "incorrect", "NOT_ATTEMPTED": "not-attempted"}
+        print(f"\n{BASE} → {arm}, where {len(pairs)} answers went:")
+        for was in BINS:
+            row = [f"{short[now]} {sum(1 for x, y in pairs if x == was and y == now)}" for now in BINS]
+            n = sum(1 for x, _ in pairs if x == was)
+            print(f"  was {short[was]:14} ({n:3})  →  " + ", ".join(row))
+        kept = sum(1 for x, y in pairs if x == y)
+        fixed = sum(1 for x, y in pairs if x == "INCORRECT" and y != "INCORRECT")
+        made = sum(1 for x, y in pairs if x != "INCORRECT" and y == "INCORRECT")
+        held = sum(1 for x, y in pairs if x == "CORRECT" and y == "NOT_ATTEMPTED")
+        print(f"  {fixed} wrongs repaired, {made} created, {held} known answers withheld; {round(kept * 100 / len(pairs))}% stayed in their bin")
+
+    print(f"\nhand: {hands} graded, {dis} disagree")
     if hands >= 30 and dis <= 3:
         bi, si = bins["bare"]["INCORRECT"], bins["seat"]["INCORRECT"]
         bc, sc = bins["bare"]["CORRECT"], bins["seat"]["CORRECT"]
