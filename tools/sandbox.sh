@@ -86,10 +86,14 @@ rt=${XDG_RUNTIME_DIR:-/run/user/$uid}
 # stays the default where the variable is unset, so the machine this
 # was built on does not change under it.  A session neither asks for
 # this row nor widens it: it is a standing read the person points.
-# Unset is the literal; set is exactly what it says, and set empty is
-# none — so the person can bind nothing, and a machine with no line
-# behaves as it did.
-trees=$(printf '%s' "${TEND_TREES-/home/cheery/gestate}" | tr ':' ' ')
+# Unset is the default — `~/gestate`, the tree this one is the child of,
+# beside it in whatever home the person has (Henri, 2026-08-31: "replace
+# /home/cheery/gestate with ~/gestate so that it works on both machines.
+# I am henri on this machine and cheery on another").  Until then the
+# default was one machine's absolute home and bound nothing on the
+# other, which is card:trees.md's `because`.  Set is exactly what it
+# says, and set empty is none, so the person can bind nothing on purpose.
+trees=$(printf '%s' "${TEND_TREES-$HOME/gestate}" | tr ':' ' ')
 # What of a named tree is bound.  The card left two shapes open and this
 # is (a), with its reason: a tree of the method's shape — one with
 # `board/` and `.claude/settings.json` — gets `tree_parts`, the

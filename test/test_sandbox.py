@@ -288,6 +288,13 @@ def test_the_trees_row_is_what_tend_trees_names_and_says_when_it_binds_nothing(t
     both = row(f"{plain}:{shaped}")
     assert f"{plain}(whole)" in both and f"{shaped}(parts)" in both, "colon-separated, each by its own shape"
     assert "trees     none " in row(""), "set empty is a bound of none"
+    # unset is the default, and the default is the person's own home —
+    # Henri, 2026-08-31: "I am henri on this machine and cheery on another"
+    home = dict(os.environ, HOME=str(tmp_path)); home.pop("TEND_TREES", None)
+    out = subprocess.run(["sh", str(FENCE), "--rows"], cwd=ROOT, capture_output=True, text=True, env=home)
+    assert out.returncode == 0, out.stderr
+    default = [l for l in out.stdout.splitlines() if l.split()[1:2] == ["trees"]][0]
+    assert f"{tmp_path}/gestate" in default, f"the default follows the home, never one machine's: {default}"
     with_space = subprocess.run(["sh", str(FENCE), "--rows"], cwd=ROOT, capture_output=True, text=True,
                                 env=dict(os.environ, TEND_TREES="/two words"))
     assert with_space.returncode == 2 and "space" in with_space.stderr, "a path with a space is refused, not word-split"

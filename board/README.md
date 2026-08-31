@@ -140,8 +140,10 @@ between two workable cards is Henri's.
     path on the hook line, set by the reach key, read-only, with what
     of it is bound his to pick; the tiebreak is his.  Day one landed
     2026-08-31 at his "I'd like to get the gestate's tree available
-    for you soon again" — `TEND_TREES` on the hook line,
-    `reach-allow.sh --trees` to point it, a method-shaped tree by its
+    for you soon again" — `TEND_TREES` on the hook line with
+    `~/gestate` as the default (his: "I am henri on this machine and
+    cheery on another"), `reach-allow.sh --trees` to point it
+    elsewhere, a method-shaped tree by its
     parts and any other directory whole (shape (a), because (b) would
     bind the other tree's `.git` and source against three standing
     probes), and the row saying `(parts)`, `(whole)` or `(not there)`

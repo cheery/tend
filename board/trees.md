@@ -83,10 +83,17 @@ hand — and the mechanism to point at it was the dead literal.  Built
 so that the arrival costs him one line and no code change.
 
 - **`TEND_TREES` on the fence hook's line**, colon-separated, read by
-  `tools/sandbox.sh` in place of the literal.  Unset is the literal
-  (the machine this was built on does not change under it); set is
-  exactly what it says; **set empty is a bound of none**, so the
-  person can bind nothing on purpose.
+  `tools/sandbox.sh` in place of the literal.  Set is exactly what it
+  says; **set empty is a bound of none**, so the person can bind
+  nothing on purpose; **unset is `~/gestate`** — Henri, the same
+  sitting: *"replace /home/cheery/gestate with ~/gestate so that it
+  works on both machines.  I am henri on this machine and cheery on
+  another."*  So the child tree finds its parent beside it in whatever
+  home it is in, and when gestate lands at `~/gestate` there is no
+  line to write at all: the row binds it because it is there.  The
+  literal it replaced was one machine's absolute home — the `because`
+  above — and `test_sandbox.py` is red if a home is ever hardcoded
+  again.
 - **`tools/reach-allow.sh --trees /a:/b`** points it; `--trees` alone
   lists each path, whether it is there, and which shape it got.  A
   path is refused *before the file is touched* when it is not
