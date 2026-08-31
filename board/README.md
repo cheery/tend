@@ -379,6 +379,38 @@ that name `tools/sandbox.sh` — a fact about the instrument, not the
 fence.  The two honest "unbacked" are the consent register and the
 author's own document, which exist with nothing in them but their
 rule.
+
+*Run again 2026-08-31, and for the first time on this laptop*: **8 of
+10 pieces present, 3 unbacked, 4 unkept promises** — and it still
+fails the run, as an audit with an unbacked piece does.  The same
+command here on 2026-08-25 was `can't open file
+'/home/cheery/gestate/tools/seedaudit.py' — the other tree is not
+there` (`doc/experiments/2026-08-25-reach.md`); it runs today because
+`card:trees.md` landed that morning and Henri put gestate at
+`~/gestate` and installed that afternoon, so the row binds on this
+machine at last.  Running the audit was the first use the new bind was
+put to.  One piece has moved from absent to present since the 7 of
+08-26 and **this cannot say which**: no run's full output is kept in
+the tree, so there is nothing to diff against — a small thing to fix
+the next time someone runs it.  Of the four "unkept promises", three
+are the audit reading tend's own prose as a claim: `fixme/F000.md` is
+the *form* of an F-number in a sentence about the ledger (F000 is
+resolved, and `fixme/resolved/F000.md` is where it lives),
+`tools/andon-panel.py` is named in the very sentence that records its
+rename to `tools/panel.py`, and `test/test_safety.py` is gestate's
+gate file, as above.  The fourth is gestate's instruments document.
+Only the last of these is about tend at all.
+
+*And the sentence above is stale by one as of 2026-08-30*: the
+author's own document is no longer "nothing but its rule" — Henri
+filled `spec/author.md` that evening with where the tree came from,
+what he reads, what a session decides and what he will not be asked to
+carry.  It stays `unbacked` in the audit's sense, which is a statement
+about tests and not about content; whether a document a person keeps
+should carry a gate at all is a question this tree has not answered.
+Kept beside the original rather than rewritten, for the reason the
+paragraph above gives.
+
 That last one is gestate's capped-document list encoding its own
 accidents as another tree's requirements, exactly as
 `later/rules-and-memory.md` predicted in advance.  That is on purpose: a piece arrives when
