@@ -177,3 +177,6 @@ def test_the_courier_grants_the_fences_own_parts_and_never_a_write_or_the_net():
     assert re.search(r"tree_parts=.*sandbox\.sh", src), "the parts are read from the fence's own file"
     assert '--allow $here' in src and '--no-net --write /dev/null' in src
     assert "board" in parts() and "tools" in parts() and ".git" not in parts()
+    assert "bench" not in parts() and "proposals" not in parts(), \
+        "Henri, 2026-08-31, before the 150: bench/ holds every gold answer and proposals/ holds each " \
+        "account's target — a part named here is handed to every tooled turn, and the benchmark cheats"
