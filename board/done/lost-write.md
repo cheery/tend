@@ -1,6 +1,6 @@
 # lost-write — a write into the fenced home vanishes, and the session believes it landed
 
-    status   open
+    status   done — 2026-08-31
     because  inside the fence `$HOME` is a tmpfs, so every shell write to
              `~/.claude/…` fails — and the one thing kept there is the
              session's own memory, where the lesson not to do it lives.
@@ -240,6 +240,43 @@ any other path under the tmpfs home, and nothing here says a session
 would notice.  No path there has a caller today.
 
 *Recommended for `done/`; the move is his, as every close here is.*
+**Moved the same hour, at his "you can move it":** opened, measured,
+built, installed and closed inside one sitting — from a ledger line in
+a reading of three-day-old kaizens to a mount the kernel enforces.
+
+## And why the home is empty at all — his second question, measured
+
+Henri, at the close: *"is there reason why `$HOME` is not `$HOME`?"*
+The path is his home's path; the contents are not his home.  Both
+halves are deliberate and they pull in opposite directions, which is
+why the fence looks the way it does.
+
+**The path must stay**, or the cords break — the sitting clock, the
+leash ledger and the kaizen want are shared *because*
+`$HOME/.local/state/tend` names one file from either side (§"Measured
+2026-08-31" above).
+
+**The contents must go**, and the reason is one `ls` from inside:
+
+    ~/.config/tend/openrouter.key      not there
+    ~/.config/tend/anthropic.key       not there
+    ~/.ssh                             not there
+    ~/.gnupg                           not there
+    ~/.bashrc                          not there
+
+Those first two are the door keys — the ones `doors/*/door` names, the
+ones that spent about eleven dollars of Henri's money on the SimpleQA
+run the same day.  A session that could read them could put one in a
+commit.  The home is a tmpfs so that a session *has* a home — git,
+python and every shell want one — without having **the person's**
+home.  Binding the real home read-only would not do: read is exactly
+the reach that matters for a key.
+
+So `$HOME` is `$HOME` in the one way the cords need and in no other:
+same address, empty room, three things carried in by name
+(`~/.local/state/tend`, `~/.local/state/gestate`, `~/.gitconfig`), and
+now one door welded shut.  That is the whole of it, and this card is
+the only place it has been written down in one piece.
 
 ## What it must not become
 

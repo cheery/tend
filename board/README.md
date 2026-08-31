@@ -166,34 +166,6 @@ between two workable cards is Henri's.
     correct answers without cutting wrong ones, and what they bought
     (sourced assertions, 0 of 93 against 73 of 80) the three bins
     cannot see: `doc/benchmark-simpleqa-2026-08-31.md`.*
-14. **[lost-write](lost-write.md)** — inside the fence `$HOME` is a
-    tmpfs, so a shell write to `~/.claude/…` fails quietly, and the one
-    thing kept there is the session's own memory: four faces in seven
-    days, the fourth produced one minute after the session read the
-    other three and recorded the strand as closed.  *Placed last by the
-    session that wrote it on 2026-08-31 at Henri's "you can open the
-    card for the ~/.claude check"; the first card here opened by an
-    ingestion — `card:kaizen-ingestion.md` found the strand at its
-    fourth face and refused to build a mechanism from a ledger line.
-    Day one measures the rate off the leash ledger before picking
-    among four shapes, and the card closes with nothing built if no
-    fifth face arrives by 2026-09-07; the tiebreak is his.  An hour
-    after it opened, his "should the `$HOME` stay `$HOME`?" was
-    measured onto it: it should — the clock inside is the host's only
-    because the path inside is the path outside — and the measuring
-    found the defect worse than the card recorded.  The tmpfs home is
-    writable, so `mkdir -p` after the error makes the next write
-    succeed, exit 0, and evaporate; the fourth shape is to let the
-    kernel refuse it (an empty read-only `~/.claude` inside), which is
-    the boundary the card's own objection to a shell-parsing hook asks
-    for.  **Built the same sitting** at his "defect is a caller.  yeah,
-    you can fix the thing you found" — one line of `tools/sandbox.sh`
-    — **and it ran the same hour** at his "I ran the commands":
-    `--check` on the tree's copy, then `sudo tend-install`, and from
-    inside the fence every write to `~/.claude` is now `Read-only file
-    system`, the `mkdir -p` that silently swallowed a memory that
-    morning loudest among them.  The `because` no longer stands and
-    the card is recommended for `done/`; the move is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
@@ -269,6 +241,32 @@ and the bind measured from inside the fence — reads yes, `touch` is
 EROFS, `.git` is not inside, and what a session sees is `tree_parts`
 exactly.  What is not built, and was never this card's, is a session
 *asking* for a directory: the pointing is the person's, once.
+
+`lost-write` finished 2026-08-31, the day it was opened, at Henri's
+"you can move it" (`done/lost-write.md`) — opened, measured, built,
+installed and closed inside one sitting.  Inside the fence `$HOME` is
+a tmpfs, and the session's own memory lives at `~/.claude`: a write
+there evaporated, and the natural repair for the error it gave
+(`mkdir -p`) made the next write *succeed at exit 0* and vanish, which
+is how memories were lost four times in seven days.  Now `--tmpfs
+$HOME/.claude --remount-ro $HOME/.claude`: the directory exists, is
+empty, and every write is `Read-only file system` — the kernel
+refusing, not a hook parsing shell text, which was the card's own
+objection to the shape it started with.  Two probes say it (`is
+read-only`, `holds nothing`), and the pytest form skips inside the
+fence and runs from his seat.  It is also the first card here **opened
+by an ingestion**: `card:kaizen-ingestion.md`'s batch 7 found the
+strand at its fourth face — produced by the reader, one minute after
+it recorded the strand as closed — refused to build a mechanism from a
+ledger line, and named what a card would be for.
+
+**And why the home is empty at all** (his second question, measured
+the same hour, `done/lost-write.md` §"And why the home is empty"): the
+*path* stays because the cords are shared through it — one sittings
+log from either side — and the *contents* go because
+`~/.config/tend/*.key` are the door keys, `~/.ssh` and `~/.gnupg` are
+what they are, and read is exactly the reach that matters for a key.
+A tmpfs gives a session a home without giving it the person's home.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
