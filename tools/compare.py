@@ -157,7 +157,7 @@ def _parse_replies(text):
             continue
         k, v = m.groups()
         if k == "V":
-            model = v
+            model = v.split(" ", 1)[-1]   # the V line is "door model"
         elif k == "C":
             calls.append(v)
         elif k == "A":

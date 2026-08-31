@@ -135,3 +135,21 @@ NAME`, both arms through `tools/deliver.sh`); what remains of day one
 is the three SimpleQA arms and the grader on that instrument, and the
 runs are his.  Nothing in it is a turn through the fence: it is his hand
 on the person's side, with the key, and a record for the tree.
+
+**The runner, 2026-08-31 morning** — `tools/simpleqa.py`, at Henri's
+"can we run the benchmark? Can we compose a checklist and go through
+it?", the checklist agreed at the console: the three arms as proposed
+(the seat line verbatim, `calls 16`, `readchars 60000`); qwen3.8-max
+answers and **the anthropic door grades** (his pick — a different mind
+than the answerer, its name in every grade line); **a smoke of 5
+before the 150** (his pick); the sample the paper's own draw
+(`random.Random(0)`), `run N` its first N, so the smoke counts toward
+the run.  `run` answers and grades, resumable — one account per
+question and arm under `proposals/simpleqa/`, every turn cold on
+`tools/deliver.sh`, a refused turn skipped and said, the gold target
+in the account beside the answer.  `hand` is the thirty blind grades
+against the grader — more than three disagreements and it stops;
+`tally` holds the bins, the fourth count (a NOT_ATTEMPTED that never
+looked), and prints day one's verdict only past the hand check.  The
+runs are his: `tools/simpleqa.py run 5`, read the accounts together,
+then `run` for the rest.
