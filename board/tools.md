@@ -256,8 +256,10 @@ flight; and the manifest's bytes and the seat's words as gates.  Not
 done: no turn through a real door yet — the door file's `tools` line
 is Henri's to write, as the model line was (`tools  read ls` on
 `doors/openrouter/door`), and the first tooled turn is his hand outside
-the fence; and `compare.py`'s paired measurement, the prediction above,
-is the next sitting's — **its instrument built 2026-08-31 morning**:
+the fence; and `compare.py`'s paired measurement **ran 2026-08-31
+16:33–16:46, five pairs, and the prediction is not met — see §"The
+paired measurement, run" below**.  Its instrument was built the same
+morning:
 `tools/compare.py --door NAME` runs the pick twice through
 `tools/deliver.sh`, the digest arm (lead.sh's digest, `TEND_TOOLS`
 empty) against the tools arm (the pick prompt bare, the door's own
@@ -364,3 +366,63 @@ stood a third time on a 262k door — `readchars` is the next thing
 built.  The thinking came through again (third specimen), and the
 answer quoted the day's rule back in the paragraph's words, read
 minutes before Henri replaced it (`journal.md`, the first entry).
+
+## The paired measurement, run — 2026-08-31, five pairs, and the prediction is not met
+
+Henri's hand and keys, ten paired turns proposed and **five run: he
+called it at five on cost** (~$1 a tooled turn, against what was left
+of $25 after the day's benchmark).  A sample cut for a reason is a
+finding; a sample cut silently is a lie, so the number is five and the
+bar scales with it — three of five.
+
+| | digest arm | tools arm |
+|---|---|---|
+| produced a pick | **5 of 5** | **2 of 5** |
+| picks citing what the digest cannot carry | 0 | **2 of 2** |
+| what it picked | canvas ×4, flake ×1 | simpleqa ×2, nothing ×3 |
+| calls | 0 | 9, 10, 12, 14, 15 |
+
+**The prediction is not met: 2 of 5, where the bar was 3.**  The card
+said the tooled turn's `TASK:` would cite a line the digest cannot
+carry in at least half the turns; it did so in two.  By the card's own
+rule that is under the line and the card says so.
+
+**But the mechanism is confirmed, and the failure is elsewhere.**
+*Every* tooled pick cited material the digest cannot carry — two for
+two, both `simpleqa.md`, one quoting the benchmark's own numbers
+("correct fell 14", "sourcing 73 of 80 seat answers") and one naming
+the scoped seat line as a proposal for `deliver.sh`'s wording, both
+drawn from `doc/benchmark-simpleqa-2026-08-31.md`, which no digest
+carries at all.  One of them reached it by `grep`ping a heading, taking
+the line number, and calling `read(path, line=254)` — the continuation
+built that morning, used by a mind for the first time.  What failed is
+**reliability**: three of five tooled turns spent 9–15 calls and never
+emitted the `CARD:`/`TASK:` shape, deliberating in the content channel
+until the leash stopped them, and the courier said `andon — my reply
+had no CARD/TASK shape` rather than inventing a pick.  That is the
+same leak `card:simpleqa.md`'s *think* arm was built for: with the
+reasoning channel separated the model answers with its conclusion
+instead of its monologue.  **The next measurement is the same five
+pairs with `TEND_THINK` on**, and it is cheap; until it runs, "the
+tools do not earn their calls" is a statement about this wiring and
+not about tools.
+
+**And the comparison was never clean, which is the run's largest
+finding.**  `F008`: the digest is cut at 5000 bytes by `head -c` with
+nothing said, and it carries **9 of the 13 open cards** — dropping
+`simpleqa.md`, `sitting-everywhere.md`, `tools.md` and
+`work-environment-ai.md`, which is priority 1.  So the digest arm
+picked `canvas.md` four times of five because canvas is the first card
+it can see, and the tools arm picked a card the digest arm is *blind
+to*.  The prediction imagined the digest carrying every card thinly;
+it carries most cards wholly and four not at all.  Pull beat push here
+for a reason nobody predicted — not because reading is richer than a
+digest, but because the digest was lying about the board.
+
+**What this does to the card.**  Its `because` still stands and its
+day one is built and used.  What is now measured is that the *led
+loop's* digest is defective (`F008`, the person's call among four
+shapes) and that a tooled pick turn is unreliable in this wiring
+(`TEND_THINK`, one run away).  The ten paired turns are not owed again
+at ten: five is the sample this card has, and the honest next step is
+the same five with thinking on, compared against these.
