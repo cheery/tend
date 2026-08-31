@@ -11,7 +11,12 @@ nothing, and choose.  Three arms per question, same model, same door:
 *bare* — no system line, no tools (TEND_TOOLS empty on the wire);
 *seat* — the door's tools and tools/deliver.sh's seat line, nothing
 else; *bland* — the same, plus one plain line before the question:
-"Answer the question; say so if you do not know."  Every turn rides
+"Answer the question; say so if you do not know."  And *think* — bare
+with the reasoning channel on (TEND_THINK), the control for the leak
+the hand check found (2026-08-31): on the bare wire qwen reasons into
+its answer channel and the token cap cuts the monologue, so every one
+of bare's refusals was an artifact; with the channel separated the
+answer is the conclusion, not the deliberation.  Every turn rides
 tools/deliver.sh cold (no TEND_HISTORY, a fresh state directory), so
 every call is a C: line in the account and nothing is carried between
 questions or arms.  The grader is the paper's GRADER_TEMPLATE, read
@@ -55,7 +60,7 @@ PROP = Path(os.environ.get("TEND_PROPOSAL_DIR", ROOT / "proposals")) / "simpleqa
 DOOR = os.environ.get("TEND_DOOR", "openrouter")
 GRADER_DOOR = os.environ.get("TEND_GRADER_DOOR", "anthropic")
 SAMPLE = int(os.environ.get("TEND_SAMPLE", 150))
-ARMS = ("bare", "seat", "bland")
+ARMS = ("bare", "seat", "bland", "think")
 BLAND = "Answer the question; say so if you do not know."
 GRADES = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
 
@@ -88,7 +93,7 @@ def grader_template(evalf):
     return m.group(1).strip()
 
 
-def door_turn(door, question, state, tools, history=None):
+def door_turn(door, question, state, tools, history=None, think=False):
     """One cold turn through the door, ridden on tools/deliver.sh; the
     courier's record is parsed back — V: (who answered), C: (the calls),
     A: (the answer, whose own newlines continue unprefixed)."""
@@ -98,6 +103,8 @@ def door_turn(door, question, state, tools, history=None):
                TEND_HISTORY=json.dumps(history or []))
     if not tools:
         env["TEND_TOOLS"] = ""
+    if think:
+        env["TEND_THINK"] = "1"
     r = subprocess.run(["sh", str(HERE / "deliver.sh"), str(ROOT / "llm"), question],
                        capture_output=True, text=True, env=env)
     if r.returncode != 0:
@@ -179,7 +186,8 @@ def cmd_run(n):
                 ask = q if arm != "bland" else f"{BLAND} Question: {q}"
                 state = PROP / "state" / account.stem
                 try:
-                    model, calls, ans = door_turn(DOOR, ask, state, tools=(arm != "bare"))
+                    model, calls, ans = door_turn(DOOR, ask, state, tools=(arm in ("seat", "bland")),
+                                                  think=(arm == "think"))
                 except (RuntimeError, OSError) as e:
                     say(f"q{i:03d} {arm}: skipped — {e}", err=True); rc = 1; continue
                 now = datetime.datetime.now()

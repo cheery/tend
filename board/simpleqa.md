@@ -173,6 +173,22 @@ the turns that saw it per arm beside the bins, and the write-up
 reports the count.  The 150 green-lit at ~$6 + ~$5 projected against
 $25 + $25, run by his hand, the output into `bench/log`.
 
+**The hand check, mid-run (~q050)** — thirty blind grades, four
+disagreements, the gate said stop.  All four were one specimen: on
+the bare wire qwen reasons into its answer channel and the 2000-token
+cap cuts the monologue mid-word; sonnet bins the form (never
+answered, NOT_ATTEMPTED), Henri bins the content (wrong candidates
+floated, INCORRECT — the rubric's own hedged-disjunction example).
+Counted: **all 20 of bare's refusals to that point were this
+artifact** — bare never cleanly declines — and the day-one verdict
+flips end to end depending on the reading.  Henri's calls at the
+console: **report both** (primary bins under the paper's grader, a
+sensitivity row under the strict reading; the hand gate is explained,
+not failed), and **a fourth arm as the control** — *think*, bare with
+the reasoning channel separated so the answer is the conclusion and
+not the monologue, ~$1–2, landed by the same resumable `run` after
+the 150.
+
 The results, when the run is done, go to
 `doc/benchmark-simpleqa-2026-08-31.md` (Henri, 2026-08-31, at the
 console) — the tracked write-up: the bins, the prediction against the

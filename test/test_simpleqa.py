@@ -69,21 +69,24 @@ def test_run_answers_three_cold_arms_grades_them_through_the_other_door_and_resu
     r = run_sq(tmp_path, "run", "1", stub=stub, doors=doors, tree=t)
     assert r.returncode == 0, r.stderr + r.stdout
     reqs = td.BODIES[n0:]
-    assert len(reqs) == 6, "three arms and three grades, one question"
+    assert len(reqs) == 8, "four arms and four grades, one question"
     tooled = [b for b in reqs if "tools" in b]
-    assert len(tooled) == 2, "seat and bland carry the door's tools; bare and the grader never"
+    assert len(tooled) == 2, "seat and bland carry the door's tools; bare, think and the grader never"
     seat = next(b for b in tooled if b["messages"][-1]["content"].startswith("What is"))
     bland = next(b for b in tooled if b["messages"][-1]["content"].startswith("Answer the question; say so if you do not know. Question: What is"))
     assert seat["messages"][0]["role"] == "system" and "read ls grep" in seat["messages"][0]["content"], "the courier's seat line, nothing else"
     assert len(seat["messages"]) == 2 and len(bland["messages"]) == 2, "cold — no history, no memories between turns"
-    bare = next(b for b in reqs if "tools" not in b and b["messages"][0]["content"].startswith("What is"))
+    bare = next(b for b in reqs if "tools" not in b and "reasoning" not in b and b["messages"][0]["content"].startswith("What is"))
     assert len(bare["messages"]) == 1 and bare["messages"][0]["role"] == "user", "bare: no system line at all"
+    think = next(b for b in reqs if "reasoning" in b)
+    assert think["reasoning"] == {"enabled": True} and "tools" not in think, "think: bare with the reasoning channel on — the leak's control"
+    assert len(think["messages"]) == 1 and think["messages"][0]["content"].startswith("What is")
     grades = [b for b in reqs if b["messages"][0]["content"].startswith("Grade Q")]
-    assert len(grades) == 3 and all("tools" not in b for b in grades)
+    assert len(grades) == 4 and all("tools" not in b for b in grades)
     assert all(b["messages"][-1]["content"] == "Grade." and len(b["messages"]) == 2 for b in grades), "the rubric rides whole, unflattened, as the first message"
     props = tmp_path / "props" / "simpleqa"
     accounts = sorted(props.glob("q000-*.md"))
-    assert [a.name for a in accounts] == ["q000-bare.md", "q000-bland.md", "q000-seat.md"]
+    assert [a.name for a in accounts] == ["q000-bare.md", "q000-bland.md", "q000-seat.md", "q000-think.md"]
     for a in accounts:
         txt = a.read_text()
         assert "    looked    no" in txt and "I do not know" in txt
