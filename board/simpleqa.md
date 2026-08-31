@@ -152,4 +152,8 @@ against the grader — more than three disagreements and it stops;
 `tally` holds the bins, the fourth count (a NOT_ATTEMPTED that never
 looked), and prints day one's verdict only past the hand check.  The
 runs are his: `tools/simpleqa.py run 5`, read the accounts together,
-then `run` for the rest.
+then `run` for the rest.  The results, when the run is done, go to
+`doc/benchmark-simpleqa-2026-08-31.md` (Henri, 2026-08-31, at the
+console) — the tracked write-up: the bins, the prediction against the
+outcome, the hand check, the cost; the accounts stay under the
+gitignored `proposals/simpleqa/`.
