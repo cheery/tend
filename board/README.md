@@ -188,10 +188,12 @@ between two workable cards is Henri's.
     the boundary the card's own objection to a shell-parsing hook asks
     for.  **Built the same sitting** at his "defect is a caller.  yeah,
     you can fix the thing you found" — one line of `tools/sandbox.sh`
-    — **and not yet executed**: a session cannot nest bubblewrap, so
-    the mount has never been made and its test skips from inside.  The
-    order is `tools/sandbox.sh --check` on the tree's copy first, then
-    `sudo tend-install`.*
+    — **and it ran the same hour** at his "I ran the commands":
+    `--check` on the tree's copy, then `sudo tend-install`, and from
+    inside the fence every write to `~/.claude` is now `Read-only file
+    system`, the `mkdir -p` that silently swallowed a memory that
+    morning loudest among them.  The `because` no longer stands and
+    the card is recommended for `done/`; the move is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

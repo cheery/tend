@@ -143,7 +143,39 @@ Four shapes, kept alive on purpose (`manifesto.md` §"Set-based"), and
   name is one a session could also write to, and a bind would make
   those writes appear inside `~/.claude` — a tmpfs is nobody's.
 
-  **Not declared: the line has not executed.**  bwrap 0.11.1 lists
+  **It ran, 2026-08-31 15:16, and this is the measurement.**  Henri:
+  *"I ran the commands"* — `tools/sandbox.sh --check` on the tree's
+  copy, then `sudo tend-install`.  `install.sh --check` says *in
+  force: the installed set, at HEAD*, and from inside the fence, in
+  the next command after his:
+
+        $ ls -lad $HOME/.claude
+        drwxr-xr-x 2 henri henri 40 Aug 31 15:16 /home/henri/.claude
+        $ ls -A $HOME/.claude            → (nothing)
+        $ mkdir -p $HOME/.claude/projects/x
+        mkdir: Read-only file system
+        $ touch $HOME/.claude/probe
+        touch: cannot touch '…': Read-only file system
+        $ printf x > $HOME/.claude/probe
+        bash: …/probe: Read-only file system
+        $ mkdir -p $HOME/.claude/projects/-home-henri-tend/memory
+        mkdir: Read-only file system
+
+  The last one is the whole point: that is the command whose silent
+  success on the same morning is why this card exists, and it is now
+  the loudest of the four.  The person's own memory outside is
+  untouched — read back through the tool that runs there, eight lines,
+  all present — and a session still sees nothing of it, which is the
+  secrecy the old probe asserted, kept.
+
+  **What has still not executed** is the *pytest* form.
+  `test/test_sandbox.py::test_the_sessions_memory_directory_is_an_empty_
+  read_only_mount` skips from inside the fence and runs when the suite
+  is run from Henri's seat; the shell probes in `--check` did run
+  there, which is the same property by the script's own instrument.
+  Named rather than counted as green.
+
+  **The line that had not executed, before his hand:**  bwrap 0.11.1 lists
   both flags (`--help`, checked), but a session cannot nest
   bubblewrap — `No permissions to create a new namespace` — so the
   mount has never been made.  `test/test_sandbox.py::test_the_sessions_
@@ -189,13 +221,25 @@ answer to that tension is `card:fence.md`'s: the *kernel* decides, and
 a heuristic that guesses is worse than no heuristic — which is an
 argument this card must answer before (a) is built, not after.
 
-**Where this leaves the card.**  (d) is built and unexecuted; (a),
-(b) and (c) are alive and cheaper to refuse now — if the kernel
-refuses every write, a hook that parses shell text has nothing left to
-catch, and the day-one rate measurement becomes a question about
-whether anything *else* wants a supported path, not about whether this
-one needs a guard.  The card stays open until the mount has run on
-Henri's seat and `--check` is green with the two new probes.
+**Where this leaves the card — a verdict, and the move is Henri's.**
+(d) is built, installed and measured; the `because` no longer stands.
+A write into the fenced home at `~/.claude` cannot vanish, because it
+cannot happen: the kernel refuses it in every shell, and the error
+names itself.  (a), (b) and (c) are refused by that and the reasons
+are worth keeping — **(a)** a hook parsing shell text now has nothing
+left to catch, and would have been a heuristic standing where a
+boundary is; **(b)** a watcher for silent losses is unnecessary when
+there are no silent losses; **(c)** a supported write path is the
+Write tool, which already exists and now has an unmistakable signpost
+pointing at it.  The day-one rate measurement is not needed to decide
+this and is not run: the fix cost one line and has no false positives,
+so counting how often the defect fired would only have priced a
+decision already made.  **What is not closed**, and belongs to
+whatever card wants it: the same silent-evaporation shape exists for
+any other path under the tmpfs home, and nothing here says a session
+would notice.  No path there has a caller today.
+
+*Recommended for `done/`; the move is his, as every close here is.*
 
 ## What it must not become
 
