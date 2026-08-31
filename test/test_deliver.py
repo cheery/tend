@@ -473,6 +473,33 @@ def test_a_nodes_grant_names_the_tools_the_same_way(tmp_path, stub):
     assert g.returncode == 0 and "unknown word" not in g.stderr, g.stderr
 
 
+def test_temperature_is_the_doors_word_and_none_omits_it(tmp_path, stub):
+    """2026-08-31, the smoke's first grade: the anthropic door refused —
+    `temperature` is deprecated for this model — and the courier had
+    been sending 0.2 to everyone.  The knob is the door's word, as
+    readchars is: unsaid, 0.2 as always; `temperature none` sends
+    none; `temperature N` sends N; TEND_TEMP overrides; a word that is
+    neither is refused before any ask."""
+    st = tmp_path / "s"; st.mkdir()
+    door = a_door(tmp_path, stub)
+    r = deliver(NODE, "warm", state=st, stub=stub, **door)
+    assert r.returncode == 0 and BODIES[-1]["temperature"] == 0.2, "unsaid is 0.2, as it always was"
+    f = tmp_path / "doors" / "openrouter" / "door"
+    f.write_text(f.read_text() + "temperature  none\n")
+    r = deliver(NODE, "cool", state=st, stub=stub, **door)
+    assert r.returncode == 0, r.stderr
+    assert "temperature" not in BODIES[-1], "none sends none"
+    f.write_text(f.read_text().replace("temperature  none\n", "temperature  0.7\n"))
+    r = deliver(NODE, "hot", state=st, stub=stub, **door)
+    assert r.returncode == 0 and BODIES[-1]["temperature"] == 0.7
+    r = deliver(NODE, "cold", state=st, stub=stub, TEND_TEMP="none", **door)
+    assert r.returncode == 0 and "temperature" not in BODIES[-1], "TEND_TEMP overrides"
+    n = len(BODIES)
+    f.write_text(f.read_text().replace("temperature  0.7\n", "temperature  lukewarm\n"))
+    r = deliver(NODE, "bad", state=st, stub=stub, **door)
+    assert r.returncode == 2 and "temperature wants" in r.stderr and len(BODIES) == n
+
+
 def test_tend_tools_set_replaces_the_doors_word_and_set_empty_sends_none(tmp_path, stub):
     """tools/compare.py's paired arms (card:tools.md's owed measurement):
     the same door, the same model, with and without the tools.  Set

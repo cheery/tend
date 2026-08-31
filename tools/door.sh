@@ -7,8 +7,9 @@
 #     tools/door.sh NAME --models [PATTERN] what the door's side lists: id, context, price per M tokens in
 #                                           and out, by id; PATTERN keeps the ids that contain it
 #     tools/door.sh NAME --use ID           set the door's model line to ID — only an id the door lists
-#     tools/door.sh NAME --tools            three lines: the door's `tools` word (empty when it has none),
-#                                           its `calls` cap and its `readchars` cap (empty when unsaid) — card:tools.md
+#     tools/door.sh NAME --tools            four lines: the door's `tools` word (empty when it has none),
+#                                           its `calls` cap, its `readchars` cap and its `temperature`
+#                                           (empty when unsaid) — card:tools.md
 #
 # **Browsing and picking** (2026-08-30 — Henri, after a door turn the
 # record's V: line showed was Sonnet where he meant qwen: "It's just the
@@ -37,6 +38,8 @@
 #     calls     8                                  calls a turn; 8 when unsaid
 #     readchars 60000                              chars one read returns before the cut; the
 #                                                  executor's 12000 (gemma's number) when unsaid
+#     temperature none                             the sampling knob, 0.2 when unsaid; `none` sends
+#                                                  none — Anthropic's wire deprecates it (2026-08-31)
 #
 # The node is the default door and needs none of this: `lead.sh NODE` with
 # no door speaks to the node's port as it always did.  A door is named by
@@ -76,7 +79,7 @@ case $mode in
     *) echo "door: $name's key $key is readable by others (mode $mode) — chmod 600 it" >&2; exit 2 ;;
 esac
 [ -n "$verb" ] || { printf '%s\n%s\n%s\n' "$url" "$model" "$key"; exit 0; }
-[ "$verb" != --tools ] || { printf '%s\n%s\n%s\n' "$(field tools)" "$(field calls)" "$(field readchars)"; exit 0; }
+[ "$verb" != --tools ] || { printf '%s\n%s\n%s\n%s\n' "$(field tools)" "$(field calls)" "$(field readchars)" "$(field temperature)"; exit 0; }
 
 # The door's side, listed: one line per model — id, context, $/M in, $/M out — by id.
 base=${url%/chat/completions}

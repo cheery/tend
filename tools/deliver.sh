@@ -90,22 +90,26 @@ CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
 door=$(printenv TEND_DOOR || true); dmodel=""; keyfile=""
-tools_word=""; calls_cap=""; readchars=""
+tools_word=""; calls_cap=""; readchars=""; temp=""
 if [ -n "$door" ]; then
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); dmodel=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
     t=$(sh "$here/door.sh" "$door" --tools) || exit $?
     tools_word=$(printf '%s\n' "$t" | sed -n 1p); calls_cap=$(printf '%s\n' "$t" | sed -n 2p); readchars=$(printf '%s\n' "$t" | sed -n 3p)
+    temp=$(printf '%s\n' "$t" | sed -n 4p)
 else
     tools_word=$(sed -n 's/^tools  *//p' "$NODE/grant" 2>/dev/null | head -1)
     calls_cap=$(sed -n 's/^calls  *//p' "$NODE/grant" 2>/dev/null | head -1)
     readchars=$(sed -n 's/^readchars  *//p' "$NODE/grant" 2>/dev/null | head -1)
+    temp=$(sed -n 's/^temperature  *//p' "$NODE/grant" 2>/dev/null | head -1)
 fi
 tools_word="${TEND_TOOLS-$tools_word}"   # set replaces the door's or grant's word, set empty sends none — compare.py's arms
 calls_cap="${TEND_CALLS:-${calls_cap:-8}}"
 case $calls_cap in ''|*[!0-9]*) echo "deliver: calls wants a number, got \`$calls_cap\`" >&2; exit 2 ;; esac
 readchars="${TEND_READCHARS:-$readchars}"   # empty is the executor's own default, so the number lives in one place
 case $readchars in *[!0-9]*) echo "deliver: readchars wants a number, got \`$readchars\`" >&2; exit 2 ;; esac
+temp="${TEND_TEMP:-${temp:-0.2}}"   # `temperature none` sends none — Anthropic's wire deprecates it (2026-08-31, the smoke's first grade)
+case $temp in none) ;; ''|*[!0-9.]*|*.*.*|.) echo "deliver: temperature wants a number or none, got \`$temp\`" >&2; exit 2 ;; esac
 think=$(printenv TEND_THINK || true)
 if [ -n "$think" ]; then think=true; else think=false; fi
 tthink="$STATE/turn.thinking"; tans="$STATE/turn.answer"; tcalls="$STATE/turn.calls"   # the turn in flight, as it arrives
@@ -146,8 +150,9 @@ ask() {
     _conv=$1
     # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words
     _body=$(jq -cn --argjson c "$_conv" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
-                   --argjson s "$sysmsgs" --argjson tools "$manifest" \
-        '{messages:($s + $h + $c),max_tokens:$n,temperature:0.2,stream:true}
+                   --argjson s "$sysmsgs" --argjson tools "$manifest" --arg tmp "$temp" \
+        '{messages:($s + $h + $c),max_tokens:$n,stream:true}
+         + (if $tmp == "none" then {} else {temperature:($tmp|tonumber)} end)
          + (if ($tools | length) > 0 then {tools:$tools} else {} end)
          + (if $m == "" then {chat_template_kwargs:{enable_thinking:$t}}
             else {model:$m} + (if $t then {reasoning:{enabled:true}} else {} end) end)')

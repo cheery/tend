@@ -109,12 +109,15 @@ def test_a_side_that_does_not_answer_and_an_unknown_argument_are_refused(tmp_pat
 
 def test_tools_prints_the_doors_tools_word_and_its_calls_cap_or_empty_lines(tmp_path, door):
     """card:tools.md: who gets tools is the door's word — `tools  read ls`,
-    `calls  N` and `readchars  N` on the door file; absent, three empty
-    lines, and the three-line read is as before."""
+    `calls  N`, `readchars  N` and `temperature  N|none` on the door
+    file; absent, four empty lines, and the three-line read is as
+    before."""
     r = run(tmp_path, "openrouter", "--tools")
-    assert r.returncode == 0 and r.stdout == "\n\n\n" and _Side.heads == [], r.stderr
+    assert r.returncode == 0 and r.stdout == "\n\n\n\n" and _Side.heads == [], r.stderr
     door.write_text(door.read_text() + "tools  read ls\ncalls  4\n")
-    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n\n"
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n\n\n"
     door.write_text(door.read_text() + "readchars  60000\n")
-    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\n"
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\n\n"
+    door.write_text(door.read_text() + "temperature  none\n")
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\nnone\n", "the smoke's first grade, 2026-08-31: Anthropic's wire deprecates the knob, and the door says so"
     assert len(run(tmp_path, "openrouter").stdout.splitlines()) == 3, "the three-line read is as before"
