@@ -2,4 +2,5 @@ url  https://api.anthropic.com/v1/chat/completions
 model  claude-sonnet-5
 key  ~/.config/tend/anthropic.key
 admitted  Henri, 2026-08-29 — "build capability for both gemma and claude"; the same model tools/compare.py measured on 2026-08-28 through the SDK, here on the chat wire
+calls 16
 readchars 60000
