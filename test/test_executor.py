@@ -1,4 +1,4 @@
-"""tools/executor.py — the two things a mind at the door may do, and the grant that bounds them.
+"""tools/executor.py — the things a mind at the door may do, and the grant that bounds them.
 
 card:tools.md, day one: `read` and `ls` over the tree's parts, run one
 call a process under keep by tools/deliver.sh.  What is held here is
@@ -76,6 +76,8 @@ def test_the_manifest_is_one_line_per_tool_under_a_kilobyte_and_named_what_the_t
     for t in m:
         assert "\n" not in t["function"]["description"] and len(t["function"]["description"]) < 120, "one line per tool"
         assert t["function"]["parameters"]["required"] and all(v == {"type": "string"} for v in t["function"]["parameters"]["properties"].values())
+    read_p = m[0]["function"]["parameters"]
+    assert read_p["required"] == ["path"] and set(read_p["properties"]) == {"path", "line"}, "line continues a cut read, and is never required"
     assert len(r.stdout.strip().encode()) < 1024, f"the manifest is {len(r.stdout.encode())} bytes — the cap is 1 KB"
     assert [t["function"]["name"] for t in json.loads(bare("--manifest", "read").stdout)] == ["read"]
     r = bare("--manifest", "bash")
@@ -88,18 +90,39 @@ def test_read_and_ls_say_what_they_did_in_one_line(tmp_path):
     assert r == {"c": "read board/x.md → 21 chars", "result": "card x\n" * 3}
     r = said(bare("ls", "board/", tree=t))
     assert r == {"c": "ls board/ → 2 entries", "result": "README.md\nx.md"}
-    assert "board/" in said(bare("ls", ".", tree=t))["result"].splitlines(), "a directory is shown with its slash"
     assert said(bare("read", "board/nothing.md", tree=t))["c"].endswith("→ not there")
     assert said(bare("read", "board", tree=t))["c"].endswith("→ a directory — ls it")
     assert said(bare("ls", "board/x.md", tree=t))["c"].endswith("→ not a directory — read it")
-    r = said(bare("read", "board/x.md", tree=t, TEND_READCHARS="5"))
-    assert r["c"] == "read board/x.md → 5 chars, cut" and r["result"] == "card \n[… cut at 5 chars]"
     r = bare("write", "board/x.md", tree=t)
     assert r.returncode == 2 and "read PATH" in r.stderr
     assert bare("read", tree=t).returncode == 2
     # the arguments as the wire sends them: one JSON object, the parameters by name — or the one parameter however named
     assert said(bare("read", '{"path": "board/x.md"}', tree=t))["c"] == "read board/x.md → 21 chars"
     assert said(bare("ls", '{"directory": "board/"}', tree=t))["c"] == "ls board/ → 2 entries"
+
+
+def test_a_cut_read_says_the_line_where_it_continues_and_the_tree_root_is_its_parts(tmp_path):
+    """Henri, at the 2026-08-30 close: "propose some mechanism that allows
+    the session to read more" — the cut mark names the line it stopped
+    at and the read(path, line=N) that goes on, one more call the leash
+    counts.  And the second tooled turn (~15:40) spent two of eight
+    calls on `grep … .` refused: the root is now the parts
+    (tools/sandbox.sh's tree_parts, read beside the executor), and the
+    fence's refusal is kept for real reaches outside."""
+    t = a_tree(tmp_path)
+    r = said(bare("read", "board/x.md", tree=t, TEND_READCHARS="5"))
+    assert r["c"] == "read board/x.md → 5 chars, cut at line 1 of 3"
+    assert r["result"] == "card \n[… cut at 5 chars, at line 1 of 3; read(board/x.md, line=1) continues]"
+    assert said(bare("read", "board/x.md", "2", tree=t)) == {"c": "read board/x.md 2 → 14 chars", "result": "card x\ncard x\n"}
+    assert said(bare("read", '{"path": "board/x.md", "line": 3}', tree=t)) == {"c": "read board/x.md 3 → 7 chars", "result": "card x\n"}
+    assert said(bare("read", "board/x.md", "9", tree=t))["c"] == "read board/x.md 9 → past the end — 3 lines in all"
+    assert said(bare("read", "board/x.md", "x", tree=t))["c"] == "read board/x.md x → line wants a number, got `x`"
+    # the root: ls answers the parts themselves, read points at ls, and only parts the scratch tree has appear
+    assert said(bare("ls", ".", tree=t)) == {"c": "ls . → 2 parts", "result": "board/\ntools/"}
+    assert said(kept("ls", ".", tree=t)) == {"c": "ls . → 2 parts", "result": "board/\ntools/"}
+    assert said(bare("read", ".", tree=t))["c"] == "read . → a directory — ls it"
+    r = said(bare("grep", "card", ".", tree=t))
+    assert r["c"] == "grep card . → 3 lines in 1 file" and r["result"].splitlines()[0] == "board/x.md:1: card x"
 
 
 def test_grep_says_path_line_and_text_and_is_refused_by_keep_like_the_others(tmp_path):
@@ -119,7 +142,7 @@ def test_grep_says_path_line_and_text_and_is_refused_by_keep_like_the_others(tmp
     assert r["c"] == "grep card board/ → 2 lines in 1 file, cut at 2" and r["result"].endswith("[… cut at 2 lines]")
     assert said(kept("grep", "card", "board/", tree=t))["c"] == "grep card board/ → 3 lines in 1 file"
     assert said(kept("grep", "allow", "llm/", tree=t))["c"] == "grep allow llm/ → refused by keep"
-    assert said(kept("grep", "allow", ".", tree=t))["c"] == "grep allow . → refused by keep", "the tree root is not a part; the walk's first refusal is the call's"
+    assert said(kept("grep", "allow", ".", tree=t))["c"] == "grep allow . → 0 lines in 0 files", "the root is its parts, and the grant is not among them — the fence's refusal is for real reaches outside"
     assert bare("grep", "onlyone", tree=t).returncode == 2
 
 

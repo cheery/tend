@@ -296,6 +296,11 @@ off the record with Henri ("I think that recommendation holds"):
    continues]`.  A continuation costs a call the leash counts and the
    record shows; a cap is a gate, not a wall.  Same sitting as the
    executor taking `.` as the parts (finding 2 of the second turn).
+   **Built 2026-08-31 morning**, both together, by the session Henri
+   assigned before resting: `read` takes `line` (never required — the
+   manifest says so), the mark names the line and the call that
+   continues, a line past the end is a result, and
+   `test/test_executor.py` holds the shape.
 2. **It wanted `grep`** — "Hmm, I can't grep", in the thinking, at the
    point where it had eight files to search and three calls left.  A
    third tool wanted by a turn and not designed ahead of one, which is
@@ -336,7 +341,12 @@ condition!"  Three findings:
    trained on trees reaches for `.` regardless.  Two of the eight
    calls paid for it.  Not built, an option: the executor could take
    `.` as the parts, walking each; the refusal would then be the fence's
-   answer to a real reach outside, not to the model's habit.
+   answer to a real reach outside, not to the model's habit.  **Built
+   2026-08-31 morning**: `ls .` answers the parts themselves (`N
+   parts`), `grep … .` walks them, `read .` says a directory — the
+   list is `tools/sandbox.sh`'s `tree_parts` read beside the executor,
+   one list with the fence, and a tree with no fence file beside the
+   executor keeps the old refusal.
 3. **The thinking, whole and unasked, again** — `card:private.md`'s
    second specimen.
 

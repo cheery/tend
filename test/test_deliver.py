@@ -373,8 +373,8 @@ def test_readchars_on_the_door_caps_what_one_read_returns_and_tend_readchars_ove
     SCRIPT["cut"] = [("calls", [("read", {"path": "board/x.md"})]), ("say", "cut")]
     r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), **door)
     assert r.returncode == 0, r.stderr
-    assert record(st)[2] == "C: read board/x.md → 10 chars, cut", record(st)
-    assert BODIES[-1]["messages"][3] == {"role": "tool", "tool_call_id": "call_0_0", "content": "card x\ncar\n[… cut at 10 chars]"}
+    assert record(st)[2] == "C: read board/x.md → 10 chars, cut at line 2 of 3", record(st)
+    assert BODIES[-1]["messages"][3] == {"role": "tool", "tool_call_id": "call_0_0", "content": "card x\ncar\n[… cut at 10 chars, at line 2 of 3; read(board/x.md, line=2) continues]"}
     r = deliver(NODE, "cut", state=st, stub=stub, TEND_TREE=str(t), TEND_READCHARS="100", **door)
     assert r.returncode == 0 and record(st)[-2] == "C: read board/x.md → 21 chars", (r.stderr, record(st))
     f = tmp_path / "doors" / "openrouter" / "door"
