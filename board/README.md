@@ -161,7 +161,23 @@ between two workable cards is Henri's.
     card, make it so"; day one is SimpleQA's questions, whose answers
     are not in the tree, through the door in three arms — bare, seat,
     bland — on a 150-question sample with the paper's grader, the
-    prediction written before the run; the tiebreak is his.*
+    prediction written before the run; the tiebreak is his.  Day one
+    ran 2026-08-31 and the prediction is falsified — the tools cost
+    correct answers without cutting wrong ones, and what they bought
+    (sourced assertions, 0 of 93 against 73 of 80) the three bins
+    cannot see: `doc/benchmark-simpleqa-2026-08-31.md`.*
+14. **[lost-write](lost-write.md)** — inside the fence `$HOME` is a
+    tmpfs, so a shell write to `~/.claude/…` fails quietly, and the one
+    thing kept there is the session's own memory: four faces in seven
+    days, the fourth produced one minute after the session read the
+    other three and recorded the strand as closed.  *Placed last by the
+    session that wrote it on 2026-08-31 at Henri's "you can open the
+    card for the ~/.claude check"; the first card here opened by an
+    ingestion — `card:kaizen-ingestion.md` found the strand at its
+    fourth face and refused to build a mechanism from a ledger line.
+    Day one measures the rate off the leash ledger before picking
+    among three shapes, and the card closes with nothing built if no
+    fifth face arrives by 2026-09-07; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

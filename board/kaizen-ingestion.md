@@ -376,7 +376,13 @@ honest limit of what an ingestion can promote — the fix written is a
 What would actually hold is a check that a `~/.claude` path never
 appears in a Bash command; that is a mechanism, and a mechanism is a
 card, not a ledger line.  Named here and not built, per §"The hard
-part, named".
+part, named" — and **carded the same day at Henri's "you can open the
+card for the ~/.claude check": `card:lost-write.md`.**  That is this
+card's own loop closing once, end to end: the pile was read, a strand
+was found at its fourth face, the ledger refused to build the
+mechanism, and the mechanism became a card with a measurement that can
+close it unbuilt.  The reflective organ working, on the day it caught
+the reader.
 
 **The count**: 102 kaizens today; 70 read; 32 unread — three days at
 the level of ten, with more arriving.  Batch 8 is filled in above.  No

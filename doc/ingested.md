@@ -330,6 +330,11 @@ memory `memory-write-tool-not-shell` — and the honest note is that a
 memory is the same *kind* of thing that just failed to hold; what
 would actually hold is a check that a `~/.claude` path never appears in
 a Bash command, which is a mechanism, and a mechanism is a card.
+**Opened the same day at Henri's word — `card:lost-write.md`**, the
+first card in this tree opened by an ingestion: it carries the four
+faces, three shapes kept alive, the mention-is-not-a-write problem a
+naive check would trip on, and the measurement that closes it with
+nothing built if the memory holds.
 
 **The count**: 102 kaizens in `doc/kaizen/` at this reading; 70 read;
 32 unread — at the level of ten, three days with nothing arriving, and
