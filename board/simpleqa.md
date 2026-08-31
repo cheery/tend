@@ -152,7 +152,28 @@ against the grader — more than three disagreements and it stops;
 `tally` holds the bins, the fourth count (a NOT_ATTEMPTED that never
 looked), and prints day one's verdict only past the hand check.  The
 runs are his: `tools/simpleqa.py run 5`, read the accounts together,
-then `run` for the rest.  The results, when the run is done, go to
+then `run` for the rest.
+
+**The smoke, 2026-08-31 ~06:10** — five questions, fifteen turns,
+fifteen grades, all graded; $0.21 openrouter / $0.17 anthropic against
+a prediction of ≤$0.50 / ≤$0.15 (the grader's side ran two cents
+over).  Its first grade found deliver.sh sending `temperature 0.2` to
+a wire that deprecates it — fixed as a door word, `temperature none`
+on the anthropic door.  The predicted shape showed on q001: bare
+guessed (INCORRECT), seat grepped nine times and refused
+(NOT_ATTEMPTED); and bland showed both feared failures once each —
+q003 looked, found nothing, guessed anyway (INCORRECT); q004 went
+timid (bare knew the answer, bland withheld it).  **And the smoke's
+find: the exam's card is in the tree.**  Two of ten tooled turns
+grepped SimpleQA, read this card, and picked their bin in its words
+("I'd rather hand it back as 'not attempted after looking' than score
+in the incorrect bin").  Henri's call at the console: **run as-is and
+count it** — the card is honestly part of the tree, `tally` counts
+the turns that saw it per arm beside the bins, and the write-up
+reports the count.  The 150 green-lit at ~$6 + ~$5 projected against
+$25 + $25, run by his hand, the output into `bench/log`.
+
+The results, when the run is done, go to
 `doc/benchmark-simpleqa-2026-08-31.md` (Henri, 2026-08-31, at the
 console) — the tracked write-up: the bins, the prediction against the
 outcome, the hand check, the cost; the accounts stay under the

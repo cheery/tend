@@ -89,6 +89,9 @@ def test_run_answers_three_cold_arms_grades_them_through_the_other_door_and_resu
         assert "    looked    no" in txt and "I do not know" in txt
         assert "    grade    NOT_ATTEMPTED — anthropic (vendor/some-model)" in txt, txt
         assert txt.index("    grade    ") < txt.index("The answer"), "the grade joins the field block"
+    # the run's lines land in bench/log too (Henri, 2026-08-31: "lets put it write its output into bench/log")
+    log = (tmp_path / "bench" / "log").read_text()
+    assert "graded NOT_ATTEMPTED" in log and "answered and" in log
     # resume: a second run answers nothing and grades nothing twice
     n1 = len(td.BODIES)
     r = run_sq(tmp_path, "run", "1", stub=stub, doors=doors, tree=t)
@@ -96,11 +99,19 @@ def test_run_answers_three_cold_arms_grades_them_through_the_other_door_and_resu
     assert r.returncode == 0, r.stderr
     assert len(td.BODIES) == n1, "a rerun answers nothing twice — the account is the resume"
     assert "0 answered and 0 graded" in r.stdout
-    # tally: bins per arm, the fourth count apart, and the verdict held back
+    # tally: bins per arm, the fourth count apart, the exam-card count (the smoke's find), the verdict held back
+    synth = props / "q001-seat.md"
+    synth.write_text(
+        "<!-- SIMPLEQA — q001, seat arm, synthetic for the tally. -->\n\n"
+        "    question  q\n    target    t\n    arm       seat\n    door      openrouter (m)\n"
+        "    calls     2\n    looked    yes\n    grade    NOT_ATTEMPTED — anthropic (m)\n\n"
+        "The calls:\n\n    C: grep SimpleQA . → 3 lines in 1 file\n    C: read board/simpleqa.md → 9.0k chars\n\n"
+        "The answer, verbatim:\n\n    I do not know\n")
     r = run_sq(tmp_path, "tally", stub={}, doors={}, tree=t)
     assert r.returncode == 0, r.stderr
-    assert r.stdout.count("(never looked 1)") == 3, r.stdout
-    assert "not-attempted    1" in r.stdout and "waits on `hand`" in r.stdout
+    assert "bare    correct    0  incorrect    0  not-attempted    1  (never looked 1, saw the card 0)" in r.stdout, r.stdout
+    assert "saw the card 1" in r.stdout, "a turn whose calls touched the benchmark's own card is counted"
+    assert "waits on `hand`" in r.stdout
     # hand: thirty are wanted before any number, and three are not thirty
     r = run_sq(tmp_path, "hand", stub={}, doors={}, tree=t)
     assert r.returncode == 2 and "30" in r.stderr, r.stderr

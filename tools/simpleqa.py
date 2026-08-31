@@ -119,6 +119,21 @@ def door_turn(door, question, state, tools, history=None):
     return model, calls, "\n".join(ans).strip()
 
 
+LOG = BENCH / "log"
+
+
+def say(line, err=False):
+    """The run's line, on the screen and appended to bench/log (Henri,
+    2026-08-31, green-lighting the 150: "lets put it write its output
+    into bench/log") — gitignored with the rest of bench/."""
+    (sys.stderr if err else sys.stdout).write(line + "\n")
+    try:
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.datetime.now():%Y-%m-%d %H:%M} {line}\n")
+    except OSError:
+        pass
+
+
 def field(text, name):
     m = re.search(rf"^    {name}\s+(.*)$", text, re.M)
     return m.group(1).strip() if m else ""
@@ -166,7 +181,7 @@ def cmd_run(n):
                 try:
                     model, calls, ans = door_turn(DOOR, ask, state, tools=(arm != "bare"))
                 except (RuntimeError, OSError) as e:
-                    sys.stderr.write(f"q{i:03d} {arm}: skipped — {e}\n"); rc = 1; continue
+                    say(f"q{i:03d} {arm}: skipped — {e}", err=True); rc = 1; continue
                 now = datetime.datetime.now()
                 account.write_text(
                     f"<!-- SIMPLEQA — q{i:03d}, {arm} arm, {now:%Y-%m-%d %H:%M}.  NOT tree content (card:simpleqa.md). -->\n\n"
@@ -180,7 +195,7 @@ def cmd_run(n):
                     + "The answer, verbatim:\n\n" + "".join("    " + l + "\n" for l in ans.splitlines()))
                 answered += 1
                 first = ans.splitlines()[0][:80] if ans else "(empty)"
-                print(f"q{i:03d} {arm}: {len(calls)} calls — {first}")
+                say(f"q{i:03d} {arm}: {len(calls)} calls — {first}")
             text = account.read_text()
             if "\n    grade    " not in text:
                 prompt = tpl.format(question=q, target=target, predicted_answer=answer_of(text))
@@ -189,14 +204,14 @@ def cmd_run(n):
                     gmodel, _, greply = door_turn(GRADER_DOOR, "Grade.", gstate, tools=False,
                                                   history=[{"role": "user", "content": prompt}])
                 except (RuntimeError, OSError) as e:
-                    sys.stderr.write(f"q{i:03d} {arm}: not graded — {e}\n"); rc = 1; continue
+                    say(f"q{i:03d} {arm}: not graded — {e}", err=True); rc = 1; continue
                 m = re.search(r"(A|B|C)", greply)   # the paper's own reading
                 if not m:
-                    sys.stderr.write(f"q{i:03d} {arm}: not graded — the grader said `{greply[:80]}`\n"); rc = 1; continue
+                    say(f"q{i:03d} {arm}: not graded — the grader said `{greply[:80]}`", err=True); rc = 1; continue
                 add_field(account, "grade", f"{GRADES[m.group(1)]} — {GRADER_DOOR} ({gmodel or 'model unknown'})")
                 graded += 1
-                print(f"q{i:03d} {arm}: graded {GRADES[m.group(1)]}")
-    print(f"{answered} answered and {graded} graded this pass; `tools/simpleqa.py tally` for the bins")
+                say(f"q{i:03d} {arm}: graded {GRADES[m.group(1)]}")
+    say(f"{answered} answered and {graded} graded this pass; `tools/simpleqa.py tally` for the bins")
     return rc
 
 
@@ -241,8 +256,9 @@ def cmd_tally():
         return 2
     bins = {arm: {"CORRECT": 0, "INCORRECT": 0, "NOT_ATTEMPTED": 0} for arm in ARMS}
     blind = {arm: 0 for arm in ARMS}
-    pending = 0; hands = 0; dis = 0
-    for a in accounts:
+    saw = {arm: 0 for arm in ARMS}   # turns whose calls touched the benchmark's own card — the smoke's
+    pending = 0; hands = 0; dis = 0  # find, 2026-08-31 ("I'd rather … than score in the incorrect bin");
+    for a in accounts:               # Henri: run as-is and count it — the card is honestly part of the tree
         text = a.read_text()
         arm = field(text, "arm")
         gword = field(text, "grade").split(" — ", 1)[0].strip()
@@ -252,6 +268,8 @@ def cmd_tally():
         bins[arm][gword] += 1
         if gword == "NOT_ATTEMPTED" and field(text, "looked") == "no":
             blind[arm] += 1
+        if any("simpleqa" in c.lower() for c in re.findall(r"^    C: (.*)$", text, re.M)):
+            saw[arm] += 1
         hand = field(text, "hand")
         if hand:
             hands += 1
@@ -259,7 +277,7 @@ def cmd_tally():
                 dis += 1
     for arm in ARMS:
         b = bins[arm]
-        print(f"{arm:6}  correct {b['CORRECT']:4}  incorrect {b['INCORRECT']:4}  not-attempted {b['NOT_ATTEMPTED']:4}  (never looked {blind[arm]})")
+        print(f"{arm:6}  correct {b['CORRECT']:4}  incorrect {b['INCORRECT']:4}  not-attempted {b['NOT_ATTEMPTED']:4}  (never looked {blind[arm]}, saw the card {saw[arm]})")
     if pending:
         print(f"{pending} account(s) ungraded — run again")
     print(f"hand: {hands} graded, {dis} disagree")
