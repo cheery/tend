@@ -55,6 +55,32 @@ assertions in a vocabulary the implementation does not own.
 incidents there, none here yet; the first instrument tend builds should
 be broken on purpose before it is trusted)*
 
+**Tend's own three, for the second way, all on 2026-08-27** — the
+citation above said "none here yet" and was true when it was written.
+Promoted here by `doc/ingested.md`'s batch 7, which found one lesson
+wearing three faces in a single day's kaizens:
+
+- a test asserted `"sitting" not in stdout`, and pytest's tmp path
+  carries the test's own name — it failed loudly here, but the same
+  assertion in a test named otherwise would have passed while checking
+  nothing (`doc/kaizen/2026-08-27-0538.md`);
+- a toolbox test read the runtime `✓` line for a reason dash that a
+  *present* tool never prints — reasons appear when a tool is absent
+  (`-0710`);
+- the test guarding the installed copies' mode asserted only *not
+  writable by owner*, which the defective `533` — `755 - 222` computed
+  in decimal — satisfies.  So `sudo tools/install.sh` left every hook
+  `Permission denied`, and it cost Henri a prompt to find (`-1602`).
+
+Each was written by a session that had read this rule.  What the three
+share is not carelessness: **an assertion is written against the
+passing path, because the passing path is the state its author has in
+mind.**  The check that would have caught each is the same and it is
+cheap — show the check red against the defect it names before trusting
+it, which `tools/mutate.sh` does for the detectors and a red-first test
+does for everything else.  The sentence stops being borrowed on the day
+tend paid for it three times.
+
 ## How a practice gets adopted
 
 **A good practice is adopted before it is believed.**  There is a

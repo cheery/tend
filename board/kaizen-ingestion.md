@@ -115,7 +115,8 @@ session reads ten, and what each reading produces is one line.
 | 5 | Mon 2026-08-31 | 26-1317 26-1323 26-1334 26-1342 26-1356 26-1405 26-1412 26-1421 26-1433 26-1437 |
 | 6 | Tue 2026-09-01 | 26-1500 26-1509 26-1524 26-1532 26-1535 26-1549 26-1602 26-1616 26-1633 26-1644 |
 | 7 | Wed 2026-09-02 | 26-1653 26-1712 26-1719 27-0538 27-0551 27-0710 27-0748 27-1535 27-1602 27-1650 |
-| 8… | Thu 2026-09-03 → | the ten oldest unread, whatever has arrived since |
+| 8 | Thu 2026-09-03 | 27-1714 27-1723 28-0545 28-0702 28-0758 28-0848 28-0910 28-1004 28-1017 28-1029 |
+| 9… | Fri 2026-09-04 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -328,3 +329,59 @@ from the sixty by the session that read the batch
 date), named in that sitting's report for his disagreement; the
 ledger records nothing until he answers.  The self-shaped strand
 (batch 1) is still his.
+
+## 2026-08-31 — batch 7 read, and the reader added a face to the strand it was acquitting
+
+Batch 7 is in `doc/ingested.md`: ten kaizens of 2026-08-27, the day
+the install was researched, built, landed wrong by a mode and landed
+again.  Six `rule`, two `once`, one `open`, and **three promotions —
+the ledger's first batch with more than one.**
+
+**The first promotion goes into `manifesto.md`**, which no batch had
+touched before.  The batch carries one strand three times in that
+single day — *a check that asserts less than it means*: `"sitting" not
+in stdout` matching pytest's own tmp path (`2026-08-27-0538`), a
+toolbox test reading the `✓` line for a reason dash a present tool
+never prints (`-0710`), and the mode test asserting only *not writable
+by owner*, which the defective `533` satisfies, so every hook came up
+`Permission denied` and Henri found it (`-1602`).  The rule for it
+already existed and was **borrowed**: §"The three ways an instrument
+fails" carried gestate's three incidents and the words "none here
+yet".  Tend has its own three now, from one day, and the promotion is
+the paragraph naming them — which is what the manifesto's preamble
+asks for, and the second section this week to stop being a citation
+(§"Go and see" was the first, the same morning).
+
+**The second is a memory**, `count-before-you-write-it`: three faces
+of a number going into prose from an eyeball, the last of them this
+sitting's own.
+
+**The third was owed before the batch was finished, and is the
+sharpest thing this card has produced.**  The reading judged the
+memory-write-through-the-fenced-shell strand — three faces, and a
+kaizen that had written its own trigger, *"if this recurs a fourth
+time, it is a mechanism owed"* — as closed by disuse, no fourth face
+in five days.  **The next command the reader ran was the fourth
+face**: a `MEMORY.md` line appended with a shell heredoc into the
+fenced home, `No such file or directory`, one minute after the
+acquittal, by the hand that had just read all three of the others.
+The verdict is corrected in place with the withdrawn sentence kept
+beside it, and the mechanism the kaizen said was owed is written.
+
+That minute is this card's `because` at its smallest and least
+deniable: not a lesson lost over weeks, but a rule read, summarised,
+and violated inside one sequence of tool calls.  It also marks the
+honest limit of what an ingestion can promote — the fix written is a
+*memory*, which is the same kind of thing that just failed to hold.
+What would actually hold is a check that a `~/.claude` path never
+appears in a Bash command; that is a mechanism, and a mechanism is a
+card, not a ledger line.  Named here and not built, per §"The hard
+part, named".
+
+**The count**: 102 kaizens today; 70 read; 32 unread — three days at
+the level of ten, with more arriving.  Batch 8 is filled in above.  No
+day has been missed yet.
+
+**Henri's half is still undone**, seven batches and 70 lines deep: the
+three lines drawn at random at batch 6 for his disagreement, and batch
+1's self-shaped strand.  His.

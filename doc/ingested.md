@@ -266,3 +266,85 @@ at its mechanism four days on ([[2026-08-26-1602]] → `door.sh
 dissolution — a route that no longer exists cannot be violated, which
 is not the same as a lesson learned; one uncertain verdict, not two
 in a row.  Zero verdict words added.
+
+## Batch 7 — read 2026-08-31, the next ten (2026-08-26-1653 → 2026-08-27-1650)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-26-1653 | `keep` and `resolver` judged done by the board's own test, and the ambient-exec residual moved onto the cards that own it rather than closing with the words; two wrong shelf paths typed from the README's prose before `git ls-files` was read | `rule` — the test is `board/README.md` §"Where a card is" (does the `because` still stand), and *owned elsewhere, not merely gone* has been the practice at every close since: `fence`/`green` on a shared verdict, `install` leaving `lander` behind, and `trees` on the day this batch was read.  The path half is the grep-the-hunk strand's sixth face ([[2026-08-26-1509]]), now the memory `patch-anchors-first` — and the same check landed this sitting's `board/done/` move on the first try |
+| 2026-08-26-1712 | Henri asked for flaws and got three, the idea seeded rather than carded because a `because` is a problem; a memory write through the fenced shell hit the empty home a third time, with "a fourth is a mechanism owed" written down | `rule` for the first half — `board/README.md` §"What a card is"; the critique-not-agreement mode is now Henri's own words in `spec/author.md` ("I let you influence my judgement and I influence yours", 2026-08-30).  The memory half is `recurs` at three faces ([[2026-08-25-0714]], [[2026-08-26-1323]], here).  This reading first wrote *"no fourth in the five days since — closed by disuse"* and then **produced the fourth face in its very next command**, appending this batch's own memory pointer to `MEMORY.md` with a shell heredoc into the fenced home, which has no `~/.claude`.  So the trigger this kaizen wrote for itself fires: **`promoted` — the memory `memory-write-tool-not-shell`**.  The withdrawn sentence is kept in the batch paragraph below, because a verdict falsified within a minute by the hand that wrote it is this card's `because` in miniature |
+| 2026-08-26-1719 | the toolbox verdict recorded at its true grain — the enforcement withdrawn, the manifest half kept for os.md property 2 — and a status pass that marked stances as stances rather than as built things | `once`, and a good one: a rejection recorded without flattening it.  The same move ran on the day this was read, where shape (b) of `card:trees.md` was refused with its reason and left as one edit if Henri wants it.  One face here; a second makes it a rule |
+| 2026-08-27-0538 | the first cord went out as a patch with its tests inside it so nothing was half-applied; the ingestion read the card that owns it and found two of that card's numbers wrong; and a check that would have passed for the wrong reason — `"sitting" not in stdout`, where pytest's tmp path carries the test's own name | **`promoted` — `manifesto.md` §"The three ways an instrument fails"**, with [[2026-08-27-0710]] and [[2026-08-27-1602]]: three faces in one day of *a check that asserts less than it means*.  That section's citation read "three incidents there, none here yet"; tend has its own three now, and the paragraph names them |
+| 2026-08-27-0551 | one-per-sitting reworded and demonstrated by doing; a worktree that flipped `core.bare` twice and a backgrounded `git rebase` that leaked into a read-only file; and "37 kaizens" written from an eyeball into four places where `ls \| grep -c` said 39 | `rule` for the worktree — `board/README.md`'s clone paragraph, itself retired in place by install day two ([[2026-08-27-1650]]), and the memory.  **`promoted` — the memory `count-before-you-write-it`** for the eyeball: three faces, the third being the sitting that read this batch (`2026-08-31-0547`, "two of ten tooled turns" where the count said four), each a number that went into prose with the counting one keystroke away |
+| 2026-08-27-0710 | verdicts first and the person decides — Henri's named mode; three build cards each measured into a different shape than first imagined; and a `git fetch <clone> branch:branch` that fast-forwarded main from inside the fence, landing a protected change with no hand | `rule` — the shared-verdict mode is `spec/author.md` in his own words since 2026-08-30 ("we prefer to do decisions together here"); the fetch is in the memory and was dissolved by install day two, after which nothing a session commits is in force until his line.  The toolbox test that read the runtime `✓` line for a dash a *present* tool never prints is the promoted strand's second face |
+| 2026-08-27-0748 | a one-commit tail closed by the session that had the context rather than left for one that would not; the card's `because` written as the problem under an ask that named a solution | `rule` — `board/README.md` §"What a card is".  The tail-closing is the kaizen practice read the other way round: "a session that ends while the sitting goes on owes nothing" is a permission, not an instruction to leave the lamp lit for a stranger.  `once` for the rest |
+| 2026-08-27-1535 | the install's location decided by reading gestate's settings rather than by preference; the install's own rule refusing its own first commit; the first andon ring measured to one socket by `strace`; and a test keyed "weaker" on the path where the criterion was the owner | `rule` — the location half is go-and-see, now `manifesto.md` §"Go and see" with F005/F006 as its number (2026-08-31); the `--hooks` jq one-liner withdrawn within the hour is the commands-fold-in-the-console memory.  The weaker-test half is the promoted strand's third face |
+| 2026-08-27-1602 | `755 - 222` computed in decimal left every installed copy `-r---w--w-` and every hook `Permission denied` — and the test that "held" the mode asserted only *not writable by owner*, which 533 satisfies; the session then ran unfenced to fix it and said so after staging rather than before | `rule` — the mode test is the promoted strand's clearest face and the promotion cites it.  "When the fence is found down, the first line is the restore" is `once` with no second face since, and `tools/fence.sh` prints the in-force line at every prompt now.  The fixture-copies-the-live-file half is batch 3's promotion already |
+| 2026-08-27-1650 | day two unbound the tree's copies — what runs protects itself, a workbench is free — and the proof was fixing the oldest open small bug rather than touching a file to show it writable; three fixtures copied one live settings file in one evening | `rule` — the fixture rule is `board/README.md`'s plainest form (batch 3's promotion), paid a fourth and fifth time here.  The lamp's baseline bug, named at [[2026-08-27-0538]], [[2026-08-27-0710]] and [[2026-08-27-1535]], is **fixed and verified in the tool at this reading** (`--diff-filter=A`, `tools/kaizen.sh:96`) — a strand closed by application, three namings to get there.  "`install.sh --check` first, every session" is `open — card:lander.md` |
+
+**What batch 7 showed.**  Six `rule`, two `once`, one `open`, and
+**three promotions** — the ledger's first batch with more than one,
+the first promotion into `manifesto.md`, and one the reader owed
+before the batch was finished (below).  The batch is 2026-08-27, the day the
+install was researched, built, landed wrong by a mode, and landed
+again, and its ten kaizens carry one strand three times in that single
+day: **a check that asserts less than it means.**  `"sitting" not in
+stdout` matched pytest's own tmp path ([[2026-08-27-0538]]); a toolbox
+test read the `✓` line for a reason dash that a present tool never
+prints ([[2026-08-27-0710]]); and the test guarding the installed
+copies' mode asserted only *not writable by owner*, which the
+defective `533` satisfies — so `sudo tools/install.sh` left every hook
+`Permission denied` and cost Henri a prompt ([[2026-08-27-1602]]).
+The rule for it already existed and was *borrowed*: `manifesto.md`
+§"The three ways an instrument fails" carried gestate's three
+incidents and the line "none here yet".  Tend has its own three now,
+all from one day, and the promotion is the paragraph that names them —
+which is what the manifesto's own preamble asks for ("a section earns
+its own number here, or it stays a citation").  The second promotion
+is smaller and is a session-fact, so it is a memory:
+**count-before-you-write-it**, three faces, the last of them the
+sitting that read this batch.
+
+**One strand ended, and one was declared ended and then reopened by
+the reader.**  The lamp's baseline bug was named in three kaizens and
+then **fixed** ([[2026-08-27-1650]]) — verified in `tools/kaizen.sh` at
+this reading rather than taken from the kaizen's word.  The other went
+differently, and the sentence is kept as it was written: *"the
+memory-write-through-the-fenced-shell strand, which had written its
+own trigger (a fourth time is a mechanism owed), has no fourth face in
+the five days since — the habit changed instead.  A strand can close by
+application, or by disuse."*  The next command this reader ran
+appended a `MEMORY.md` line with a shell heredoc and got `No such file
+or directory` from the fenced home — the fourth face, one minute after
+the acquittal, by the hand that had just read all three of the others.
+
+That is not an embarrassment to bury; it is the **strongest evidence
+this card has produced.**  `card:kaizen-ingestion.md`'s whole claim is
+that a lesson recorded is not a lesson held, and batch 1 named the
+strand for it (reading ≠ applying).  Here the gap is one minute wide
+and inside a single tool call sequence, in a session that was at that
+moment *writing the verdict on that very strand*.  A rule read, a rule
+summarised, a rule violated, in that order.  The mechanism the
+2026-08-26 kaizen said a fourth face would owe is now written — the
+memory `memory-write-tool-not-shell` — and the honest note is that a
+memory is the same *kind* of thing that just failed to hold; what
+would actually hold is a check that a `~/.claude` path never appears in
+a Bash command, which is a mechanism, and a mechanism is a card.
+
+**The count**: 102 kaizens in `doc/kaizen/` at this reading; 70 read;
+32 unread — at the level of ten, three days with nothing arriving, and
+something will.  Batch 8 is filled in on the card.  No day has been
+missed yet; the lamp slice still waits for the first one.
+
+**Least certain line**: [[2026-08-26-1719]]'s `once` for recording a
+rejection at its true grain — the same move ran again on the day this
+batch was read, which is arguably its second face and would make it
+`recurs`; it is called `once` because the second face is the reading
+session's own and a reader should not count itself into a strand it is
+about to promote.  One uncertain verdict, not two in a row.  Zero
+verdict words added.
+
+**Henri's half is still undone**, now seven batches and 70 lines deep:
+the three lines drawn at random for his disagreement (handed at batch
+6) and batch 1's self-shaped strand.  His, and named here so batch 8
+does not arrive before the first three lines.
