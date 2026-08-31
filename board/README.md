@@ -176,8 +176,17 @@ between two workable cards is Henri's.
     ingestion — `card:kaizen-ingestion.md` found the strand at its
     fourth face and refused to build a mechanism from a ledger line.
     Day one measures the rate off the leash ledger before picking
-    among three shapes, and the card closes with nothing built if no
-    fifth face arrives by 2026-09-07; the tiebreak is his.*
+    among four shapes, and the card closes with nothing built if no
+    fifth face arrives by 2026-09-07; the tiebreak is his.  An hour
+    after it opened, his "should the `$HOME` stay `$HOME`?" was
+    measured onto it: it should — the clock inside is the host's only
+    because the path inside is the path outside — and the measuring
+    found the defect worse than the card recorded.  The tmpfs home is
+    writable, so `mkdir -p` after the error makes the next write
+    succeed, exit 0, and evaporate; the fourth shape is to let the
+    kernel refuse it (an empty read-only `~/.claude` inside), which is
+    the boundary the card's own objection to a shell-parsing hook asks
+    for.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

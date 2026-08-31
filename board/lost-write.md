@@ -16,7 +16,11 @@
              memory.  Prose has now failed four times, and the failure is
              quiet — the shell says `No such file or directory` and a
              session that does not read the exit status has written
-             nothing and knows nothing
+             nothing and knows nothing.  **And it need not even say
+             that**: the tmpfs home is writable, so the natural repair
+             for that error — `mkdir -p` — makes the next write succeed,
+             exit 0, and evaporate with the sandbox (measured below,
+             2026-08-31, at Henri's question)
     asked    Henri, 2026-08-31 — "you can open the card for the
              ~/.claude check", after the batch-7 reading named the
              mechanism as owed and refused to build it from a ledger line
@@ -48,7 +52,47 @@ under-documented.  `card:kaizen-ingestion.md`'s §"The hard part"
 already says the honest limit: an ingestion can promote prose, and
 prose is what has been failing.
 
-## Day one — proposed, not declared, and three shapes
+## Measured 2026-08-31, an hour after the card was opened
+
+Henri, reading it: *"should the `$HOME` stay `$HOME`?  Kind of makes
+sense to me."*  It should, and the reason is the clock — but the
+question was worth more than its answer, because measuring it found
+the card understating its own defect.
+
+**`$HOME` should stay `$HOME`.**  The fence does `--tmpfs $HOME` and
+then `--setenv HOME $HOME`: the same address, an empty room, three
+things carried back in (`~/.local/state/tend` and
+`~/.local/state/gestate` read-write, `~/.gitconfig` read-only).  Those
+work *because the path inside equals the path outside* —
+`tools/limit.sh` resolves `$HOME/.local/state/gestate/sittings.log` on
+both sides and gets the same file.  That is why `sandbox.sh --check`'s
+first probe is that the sitting clock inside is the host's, and why
+`doc/experiments/2026-08-25-sessions-first-fence.sh` matters: a fence
+that hides the state directory defeats the sitting limit.  Move
+`$HOME` and every `~`-relative path means one thing inside and another
+outside — the clock, the leash ledger, the kaizen want — and each
+would have to be rewritten absolute to buy the property back.
+
+**The tmpfs home is writable, so the loss can be silent.**  The
+2026-08-31 face was loud only by luck: it appended to a path whose
+parent did not exist, so it got `ENOENT`.  From inside the fence:
+
+    $ touch $HOME/.probe-write
+    -rw-rw-r-- 1 henri henri 0 Aug 31 14:48 /home/henri/.probe-write
+    $ mkdir -p ~/.claude/projects/-home-henri-tend/memory
+    mkdir OK
+    $ printf 'a memory that will evaporate\n' > ~/.claude/…/memory/PROBE.md
+    WRITE SUCCEEDED — exit 0, no error
+
+and nothing of it exists outside.  `mkdir -p` is the natural repair
+for the error the loud face gives, which is exactly why the memory
+written that morning says *"do not retry it with `mkdir -p` — switch
+tools"*; that sentence was written on instinct and is in fact the
+whole trap.  So the defect is one step worse than the `because` first
+recorded it: not *the write fails and may go unnoticed*, but **the
+write can succeed and be lost**, with nothing to notice.
+
+## Day one — proposed, not declared, and four shapes
 
 **Measure first.**  Four faces in seven days is the count that
 justifies a card; it is not yet the count that picks a mechanism.  The
@@ -59,7 +103,8 @@ not an estimate.  If it is four in seven days, a hook is worth it.  If
 it is four ever, the memory written on 2026-08-31 may be enough and
 this card closes on that measurement.
 
-Three shapes, kept alive on purpose (`manifesto.md` §"Set-based"):
+Four shapes, kept alive on purpose (`manifesto.md` §"Set-based"), and
+**(d) arrived from the measurement above and is the one to beat**:
 
 - **(a) Refuse the write.**  A rule on the person's side — the
   `PreToolUse` hook, beside the fence's — that refuses a Bash command
@@ -79,14 +124,41 @@ Three shapes, kept alive on purpose (`manifesto.md` §"Set-based"):
   a session able to do the thing it was trying to do from where it
   actually sits.
 
+- **(d) Let the kernel refuse it.**  Bind an empty **read-only**
+  directory at `~/.claude` inside the fence, so every write there is
+  `EROFS` — always, in every shell, with no pattern to match and no
+  command to parse.  This is the shape the tree already trusts: rule 1
+  says a program's reach is a grant applied from outside, and the
+  fence's whole argument (`card:fence.md`) is that the kernel decides.
+  It also answers this card's own objection to (a) before (a) is
+  built — a heuristic with a veto is not a boundary, and this is a
+  boundary.  About one line in `tools/sandbox.sh`.
+
+  **Not declared**: which line is unmeasured.  `--tmpfs` then
+  `--remount-ro`, or an `--ro-bind` of an empty directory, are the two
+  candidates and bwrap's behaviour for each has not been run — a
+  session cannot nest bubblewrap, so this is the person's seat or a
+  scratch clone, and until then it is a proposal.  **Two honest
+  costs**: the probe today asserts `~/.claude` *does not exist* and
+  would have to say "exists, empty, read-only" — no leak either way,
+  but a stated property is reworded and `test/test_sandbox.py` moves
+  with it; and it is a restraint, so it lands by a commit and Henri's
+  `sudo tend-install`, not by a session's hand.
+
 What would kill each: (a) is dead if the false positives bite — a
 command may *name* `~/.claude` for good reasons (this card's own
 commit message does; `git grep`, the fence's own tests, and
 `tools/fence.sh` all read that path), so the rule must key on the
 write and not the string, and if that cannot be done cleanly in a hook
 it is the wrong shape.  (b) is dead if nothing can see the failure
-without wrapping every command.  (c) is dead if the Write tool already
-is that path — which it is, which is why (c) is last.
+without wrapping every command — and the measurement above nearly
+kills it already: a silent success is not a failure anything can
+watch for.  (c) is dead if the Write tool already is that path — which
+it is, which is why (c) is last.  (d) is dead if bwrap will not hold a
+read-only directory there, or if something a session legitimately
+needs turns out to live under `~/.claude` inside the fence; nothing
+does today, because the fence hides the whole directory and has since
+it was built.
 
 ## The hard part, named
 
@@ -120,6 +192,20 @@ without checking whether the fifth face ever came would be building
 what nothing needs.  **The measurement that decides it**: no fifth
 face by 2026-09-07, with the leash ledger grepped rather than
 remembered, closes this card and the memory keeps the job.
+
+*Corrected 2026-08-31, by the measurement above, before anyone acted
+on it*: **counting faces in the kaizens would have been an unsound
+falsifier**, and the card said to grep the ledger for the right reason
+without knowing it.  A face becomes a kaizen only when it is *noticed*,
+and a silent success is not noticed by anyone — so the four faces are
+the loud ones, and the quiet ones leave no trace in `doc/kaizen/` at
+all.  The ledger is sound because it records the command that was run,
+not the outcome that was seen: `~/.local/state/tend/leash.log`, grepped
+for a `~/.claude` or `$HOME/.claude` path in a write position.  This
+is the same failure the card exists to fix, one level up — an
+instrument that can only see the errors somebody happened to notice —
+and it is worth having caught it in the falsifier rather than in the
+result.
 
 ## Where it sits
 
