@@ -471,3 +471,21 @@ def test_a_nodes_grant_names_the_tools_the_same_way(tmp_path, stub):
     g = subprocess.run(["sh", str(ROOT / "tools" / "launch.sh"), str(node), "grant"], capture_output=True, text=True,
                        env={"PATH": "/usr/bin:/bin", "TEND_STATE_DIR": str(st)})
     assert g.returncode == 0 and "unknown word" not in g.stderr, g.stderr
+
+
+def test_tend_tools_set_replaces_the_doors_word_and_set_empty_sends_none(tmp_path, stub):
+    """tools/compare.py's paired arms (card:tools.md's owed measurement):
+    the same door, the same model, with and without the tools.  Set
+    empty, a tooled door sends none; set to a word, a bare door is
+    tooled; unset, the door's line stands (every test above)."""
+    st = tmp_path / "s"; st.mkdir(); t = a_tree(tmp_path)
+    door = a_tooled_door(tmp_path, stub)
+    r = deliver(NODE, "bare arm", state=st, stub=stub, TEND_TREE=str(t), TEND_TOOLS="", **door)
+    assert r.returncode == 0, r.stderr
+    assert "tools" not in BODIES[-1] and BODIES[-1]["messages"][0]["role"] == "user"
+    plain = a_door(tmp_path, stub, name="plain3")
+    SCRIPT["tooled arm"] = [("calls", [("ls", {"dir": "board/"})]), ("say", "two")]
+    r = deliver(NODE, "tooled arm", state=st, stub=stub, TEND_TREE=str(t), TEND_TOOLS="read ls", **plain)
+    assert r.returncode == 0, r.stderr
+    assert [x["function"]["name"] for x in BODIES[-2]["tools"]] == ["read", "ls"]
+    assert record(st)[-2:] == ["C: ls board/ → 2 entries", "A: two"]

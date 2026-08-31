@@ -73,7 +73,9 @@
 # screen shows: the person watches the mind act.  Past the cap a call is
 # not run and its result says so; a mind that keeps calling after that
 # is stopped one round later and the record says why.  Absent a `tools`
-# line, the request carries none, as before.
+# line, the request carries none, as before.  TEND_TOOLS, set, replaces
+# the door's or grant's word — set empty it sends none — tools/compare.py's
+# paired arms: the same door, the same model, with and without (2026-08-31).
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -99,6 +101,7 @@ else
     calls_cap=$(sed -n 's/^calls  *//p' "$NODE/grant" 2>/dev/null | head -1)
     readchars=$(sed -n 's/^readchars  *//p' "$NODE/grant" 2>/dev/null | head -1)
 fi
+tools_word="${TEND_TOOLS-$tools_word}"   # set replaces the door's or grant's word, set empty sends none — compare.py's arms
 calls_cap="${TEND_CALLS:-${calls_cap:-8}}"
 case $calls_cap in ''|*[!0-9]*) echo "deliver: calls wants a number, got \`$calls_cap\`" >&2; exit 2 ;; esac
 readchars="${TEND_READCHARS:-$readchars}"   # empty is the executor's own default, so the number lives in one place

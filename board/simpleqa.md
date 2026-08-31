@@ -130,5 +130,8 @@ Placed last by the session that wrote it, 2026-08-30, at Henri's
 It waits on `readchars` (built the same sitting) and on
 `compare.py`'s tools arm — `card:tools.md`'s owed measurement — which
 is the same instrument with a different question set, so the two are
-one build.  Nothing in it is a turn through the fence: it is his hand
+one build.  The arm was built 2026-08-31 morning (`compare.py --door
+NAME`, both arms through `tools/deliver.sh`); what remains of day one
+is the three SimpleQA arms and the grader on that instrument, and the
+runs are his.  Nothing in it is a turn through the fence: it is his hand
 on the person's side, with the key, and a record for the tree.

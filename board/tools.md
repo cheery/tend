@@ -257,7 +257,13 @@ done: no turn through a real door yet — the door file's `tools` line
 is Henri's to write, as the model line was (`tools  read ls` on
 `doors/openrouter/door`), and the first tooled turn is his hand outside
 the fence; and `compare.py`'s paired measurement, the prediction above,
-is the next sitting's.  Day two (`propose`) waits on day one holding.
+is the next sitting's — **its instrument built 2026-08-31 morning**:
+`tools/compare.py --door NAME` runs the pick twice through
+`tools/deliver.sh`, the digest arm (lead.sh's digest, `TEND_TOOLS`
+empty) against the tools arm (the pick prompt bare, the door's own
+line), one account per arm with the courier's C: lines under
+`proposals/compare/`; the ten paired turns and the count are the
+person's, with the key.  Day two (`propose`) waits on day one holding.
 
 **The first tooled turn, 2026-08-30 15:07** — Henri's hand, `tools  read
 ls` on the openrouter door, `panel.py talk --door openrouter llm "what
