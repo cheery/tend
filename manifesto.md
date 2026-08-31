@@ -5,13 +5,14 @@ This file is the method they are written under — carried from
 `~/gestate/manifesto.md` on 2026-08-24, the day tend started, and
 carried *as rules, not as evidence*.
 
-**Every claim here cites the thing that proves it**, and today every
-citation points at another tree.  That is the honest state, said out
-loud rather than faked: gestate's manifesto paid for each of these with
-a number of its own, and tend has not yet measured anything.  A
-sentence with a citation into gestate is not unfinished — it is
+**Every claim here cites the thing that proves it**, and at the
+carrying every citation pointed at another tree.  That was the honest
+state, said out loud rather than faked: gestate's manifesto paid for
+each of these with a number of its own, and tend had measured nothing.
+A sentence with a citation into gestate is not unfinished — it is
 *borrowed*, and it says so.  A section earns its own number here, or it
-stays a citation.  What was not carried is everything that was a
+stays a citation.  The first section paid for here is §"Go and see"
+(2026-08-31, F005 and F006).  What was not carried is everything that was a
 number: the instruments table, the costs of visibility, the six
 measured lessons, the shape of a good day.  Tend will have its own or
 none.
@@ -107,6 +108,50 @@ finding.**  And the second half is the method, not a sign of doing it
 badly: act and you will see your own failures.
 
 *(gestate, `manifesto.md` §"Go and do it")*
+
+## Go and see
+
+**A diagnosis is believed when the mechanism has been made to show
+it — not when the signal matches a story.**  The error message, the
+pattern it fits, the first fluent explanation: none of these is the
+thing.  Before a fix is written — and before any act that changes
+state on a signal's say-so — go to the actual mechanism and make it
+show the failure; a signal that pattern-matches a known cause may
+have a different one.  This is §"Go and do it"'s other half: doing
+shows you your failures, seeing is how you read them without being
+lied to — the same move §"The three ways an instrument fails" makes
+on instruments, pointed at diagnoses.
+
+*Paid for here, 2026-08-30, by F005 and F006 — the first number in
+this file that is tend's own; into the manifesto at Henri's ask at
+that day's close.*
+
+**F005**: a test timed out at exactly thirty seconds, in a commit
+that touched nothing near it.  The story that fits is a flaky test.
+The measurement — the fixture run alone, then by hand under the
+test's own environment — showed exit 0 after 36 s with every state
+file stamped in the pull's own second: the pull was polling 600 ×
+50 ms for a lock a runner dead at the loader had already dropped.
+The thirty seconds was the poll's cap, not the test's mood, and the
+suite had passed the commit before only because the race had been
+landing on the right side of a 50 ms window.
+
+**F006**: a commit died on "invalid object … for tools/suite.py"
+after the gates had passed — a file not in the commit, unchanged,
+`fsck` clean.  The story that fits is corruption, or the hook.  The
+measurement — a scratch repository whose hook prints
+`GIT_INDEX_FILE`, tried under both commit forms — showed that a
+pathspec commit hands its hook an *absolute* temporary index, that
+the variable is honoured across repositories, and that a scratch
+test's `git add -A` had filled the tree's temporary index with a
+blob only the scratch store held.
+
+Both stories were fluent, both were wrong, and both measurements
+were cheap next to the fix they would have misdirected.  And the
+seeing is only half: each entry's `gate` line names a test shown red
+without the fix, because a diagnosis that was measured deserves a
+gate that keeps it — that is rule 2 closing over rule 1's exception,
+a defect being the caller.
 
 ---
 
