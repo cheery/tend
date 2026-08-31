@@ -189,6 +189,25 @@ the reasoning channel separated so the answer is the conclusion and
 not the monologue, ~$1–2, landed by the same resumable `run` after
 the 150.
 
+**Day one ran, 2026-08-31, and the prediction is falsified.**  150
+questions, four arms, 600 answers, 600 grades, ~$11 on both keys.
+The bins: bare 62/31/57, seat 48/32/70, bland 40/32/78, think
+60/31/59 (correct/incorrect/not-attempted).  The card's number wanted
+seat's incorrect a fifth under bare's with correct within five: it is
+*higher* (32 against 31) and correct is *fourteen* short.  **The
+tools do not earn their calls on this question, and the card says
+so** — in the direction the card named as the one it would least like
+to report: the mind went timid, not accurate.  What the bins hide is
+the finding: flat incorrect covers a churn in which 21 wrongs were
+repaired and 22 created, and 22 of seat's 32 wrongs are questions
+bare did not get wrong.  What the bins cannot see is what was bought:
+sourced assertions, 0 of 93 bare against 73 of 80 seat.  The whole
+account, with the transition matrix, the four instrument faults found
+while running, Henri's three limits and the reading, is
+`doc/benchmark-simpleqa-2026-08-31.md`.  The card stays open: its
+`because` is answered for this question set, and §"What follows"
+names what is not.
+
 The results, when the run is done, go to
 `doc/benchmark-simpleqa-2026-08-31.md` (Henri, 2026-08-31, at the
 console) — the tracked write-up: the bins, the prediction against the
