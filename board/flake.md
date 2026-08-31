@@ -138,6 +138,24 @@ read.  The next sitting shakes it (`--shake … 20`, with and without
 burners), reads the launcher's ticks (item 2 there), and fixes the
 rule or the fixture — never marks the test.
 
+*The suspicion was wrong, and the entry it became said so:* `F000`
+(resolved 2026-08-30) measured it as **the wrong tick, the right
+clock** — `date +%s` truncating, so a tick straddling two second
+boundaries reads as two seconds, and at `idle 2` that is half the
+window gone.  Not the slow start at all.  Its gate is a `date` shim
+that skips 3 s a read.
+
+**And the shake this paragraph asked for ran 2026-08-31 16:12, after
+the fix: `0 of 20` under load, eight cores burning.**  The ledger's
+count for that test is 23 lines, every one on or before 2026-08-30
+08:42, and the 58 commits since have each run the full suite green.
+The residual is closed by measurement rather than by belief, and the
+fixture was never marked.  What stays unbuilt is the *instrument* —
+the launcher's per-second tick reads at `$STATE/ticks` (kaizen 1934,
+item 2) — and nothing owes it now: the defect it was to diagnose was
+diagnosed another way.  If a fourth flake arrives, that is the tool to
+build first.
+
 ## Rules
 
 1. **Never a silent retry.**  The suite runs once and reports once; the
