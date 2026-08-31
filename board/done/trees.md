@@ -1,6 +1,6 @@
 # trees — the other tree a session may read is a constant naming a directory on another machine
 
-    status   open
+    status   done — 2026-08-31
     because  a session inside the fence sees one tree, its own; the
              `trees` row that was meant to show it the other one is a
              constant in tools/sandbox.sh — `trees="/home/cheery/gestate"`
@@ -152,6 +152,19 @@ What is left of this card is a decision, not a build: whether the
 `because` still stands.  It does not — the row binds, it says what it
 binds, and the person has a way to point it.  Closing it is Henri's,
 and it is proposed for `done/` at his review.
+
+**Closed the same day, at his review**: *"I'd guess card:trees.md is
+done"* (2026-08-31, on his way out).  Each clause of the `because` is
+answered by something that ran: the constant is gone (`~/gestate` by
+default, `TEND_TREES` on the hook line); the row binds on this laptop
+and `--rows` says which shape it got; the person has a way to point a
+session at a directory (`reach-allow.sh --trees`, with its refusals);
+and F004's "a name the fence cannot read" cannot recur here, because
+a path is not a row and is checked as a path.  What is *not* built,
+and is not this card's: a session **asking** for a directory — the
+card's own §"What it must not become" says the pointing is the
+person's, once, and a session that needs to write there is a program
+with a grant (`card:keep.md`), not a wider fence.
 
 ## What it must not become
 

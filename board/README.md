@@ -131,26 +131,7 @@ between two workable cards is Henri's.
     one is the failure ledger the suite writes and reads back, and the
     shake — one test N times with every core burning; the tiebreak is
     his.*
-11. **[trees](trees.md)** — the other tree a session may read is a
-    constant in `tools/sandbox.sh` naming a directory on another
-    machine; on this laptop it binds nothing and nothing says so, and
-    the person has no way to point a session at a directory.  *Placed
-    last by the session that wrote it on 2026-08-30 at Henri's "open
-    the card for reaching other trees, or directories"; day one is the
-    path on the hook line, set by the reach key, read-only, with what
-    of it is bound his to pick; the tiebreak is his.  Day one landed
-    2026-08-31 at his "I'd like to get the gestate's tree available
-    for you soon again" — `TEND_TREES` on the hook line with
-    `~/gestate` as the default (his: "I am henri on this machine and
-    cheery on another"), `reach-allow.sh --trees` to point it
-    elsewhere, a method-shaped tree by its
-    parts and any other directory whole (shape (a), because (b) would
-    bind the other tree's `.git` and source against three standing
-    probes), and the row saying `(parts)`, `(whole)` or `(not there)`
-    instead of `on` beside a path that was never here.  The bind
-    itself waits on gestate arriving on this disk and his
-    `sandbox.sh --check`.*
-12. **[tools](tools.md)** — a mind at the door can say and cannot do,
+11. **[tools](tools.md)** — a mind at the door can say and cannot do,
     and the tree has no shape for what it may do: the three acts a
     model has (read a tree file, propose, pull the andon) are run by a
     fixed loop it never calls, and a tool executor with the person's
@@ -163,7 +144,7 @@ between two workable cards is Henri's.
     line on the record and on the talk screen, the injection red
     measured; the door's `tools` line is his to write, and the
     `compare.py` measurement is owed.*
-13. **[private](private.md)** — a mind's thinking is on display, and it
+12. **[private](private.md)** — a mind's thinking is on display, and it
     has no place of its own to write: the talk screen shows the
     reasoning text as the turn runs, and everything a session or a
     door mind writes is the record, the tree or a proposal, public by
@@ -172,7 +153,7 @@ between two workable cards is Henri's.
     "private is private" — thinking shown as a state, a private place
     keyed by the tree, readable on ask and out of sight by default,
     and acts never private; the tiebreak is his.*
-14. **[simpleqa](simpleqa.md)** — the tree can measure whether tools
+13. **[simpleqa](simpleqa.md)** — the tree can measure whether tools
     make a mind cite the tree, and not whether they make it stop
     guessing when the answer is not there; one turn ("I do not know"
     on fingers) is the whole evidence.  *Placed last by the session
@@ -240,6 +221,22 @@ the fence at 11:03, heard in the next room ("yes, I heard it").  Its
 first tone was `curses.beep()`, which terminals mute; that is why the
 panel lives outside the fence.  The later views (server, GUI tray) are
 widenings awaiting a want; the `audio` row's fix stays `silent-cord`'s.
+
+`trees` finished 2026-08-31, the day after it was opened, at Henri's
+"I'd guess card:trees.md is done" (`done/trees.md`).  The constant
+naming another machine's home is gone: the default is `~/gestate`, so
+the child tree finds its parent beside it in whatever home it is in,
+`TEND_TREES` on the fence hook's line names any others, and
+`tools/reach-allow.sh --trees` is the person's key to it — a path, not
+a row, refused before the file is touched when it would make the fence
+a door.  A method-shaped tree binds by `tree_parts` and any other
+directory whole; `--rows` says `(parts)`, `(whole)` or `(not there)`
+instead of `on` beside a path that was never here.  It ran the same
+afternoon, by his hand: gestate at `~/gestate`, `sudo tend-install`,
+and the bind measured from inside the fence — reads yes, `touch` is
+EROFS, `.git` is not inside, and what a session sees is `tree_parts`
+exactly.  What is not built, and was never this card's, is a session
+*asking* for a directory: the pointing is the person's, once.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.
