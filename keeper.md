@@ -1,12 +1,22 @@
-# keeper.md — standard work for the person, and today it is one act
+# keeper.md — standard work for the person, and today it is two acts
 
 *Written 2026-09-01 at Henri's ask — "I need a keeper.md -file that
 describes the act of seeking the self-shaped -records and marking them
 approved with date" — on the day the first four marks were written and
-struck within minutes of each other.  `~/gestate/keeper.md` is the same
-page in the older tree and has six acts; this one has one, because a
-piece arrives when something needs it and what needs a page today is the
-mark.  The other acts come when they are asked for.*
+struck within minutes of each other.  It began with that one act; the
+second arrived the same afternoon, when `card:questions.md`'s day one
+turned out to be the same mechanism pointed the other way.
+`~/gestate/keeper.md` is the same page in the older tree and has six
+acts; this one has two, because a piece arrives when something needs it.
+The rest come when they are asked for.*
+
+**Both acts are the same two minutes of the same skill**: run one grep,
+read what a session wrote, write one line beginning `henri:` under it.
+A mark is a session saying *I wrote a rule, read it*; a question marked
+`his call` is a session saying *I do not know and it is yours*.  If you
+only ever remember one thing from this page, remember that your answer
+is a line, in your own words, written under the thing it answers — and
+that nothing here is ever deleted.
 
 ---
 
@@ -90,6 +100,37 @@ changes is the line under it.
 
 ---
 
+## 2. Read the questions that are yours
+
+**About a minute**, at one question.  Same shape as act 1, and answered
+the same way — that is the point of both.
+
+    grep -rn -A2 '^\*(question, his call' *.md board/ fixme/ spec/ doc/
+
+**`his call` is the only category that reaches you.**  A session also
+writes `*(question, measure — …)*` and `*(question, waits on <event> —
+…)*`, and neither is ever on this list however long it sits: a `measure`
+question is a debt a session records against itself, and a `waits on`
+question has nothing to decide until the event happens.
+
+That division is the whole of what `card:questions.md` found.  On
+2026-09-01 eight questions were handed to you and five came back *"I
+don't know"* — and three of those five were **measurements nobody had
+run**.  That was not you lacking opinions; it was a session routing its
+own work to a person.  So the queue you see is short on purpose, and if
+it ever gets long, that is a finding about the sessions and not about
+you.
+
+Answer the same way as a mark, on the line under it:
+
+    henri: yes, lift it back
+    henri: no — and here is the bit I disagree with
+
+A question you answer stays where it is with your answer under it,
+exactly as a struck mark does.
+
+---
+
 ## What happens after you write it
 
 `test/test_marks.py` binds the approval to the words you read.  For each
@@ -114,7 +155,7 @@ Two things it deliberately does not do, so you know its edges:
 
 ---
 
-## Why this page has one act and gestate's has six
+## Why this page has two acts and gestate's has six
 
 `~/gestate/keeper.md` is a weekly fire — lamps, a decisions batch, a
 rule measured against the week, a pass over the pile, the journal
@@ -122,8 +163,16 @@ rotated, the pieces pushed.  None of that is carried here.  What travels
 between these trees is a mechanism and the evidence that paid for it,
 one at a time, named where it came from (`board/README.md`, last
 paragraph) — and what paid for this page is four marks written and
-struck on 2026-09-01.  When a second act is needed, it will be because
-something needed it, and it will say so here.
+struck on 2026-09-01, and eight questions handed over the same day of
+which five could not be answered.  When a third act is needed it will be
+because something needed it, and it will say so here.
+
+**There is no cadence, and that is deliberate.**  gestate's page is a
+weekly fire; this one is two greps.  A cadence would make it a
+commitment, and `vision.md` says the project will not demand your
+presence.  The honest trigger today is a session telling you at the end
+of a sitting that it wrote a mark or a `his call` question — which costs
+you nothing when it wrote neither.
 
 *(self-shaped, 2026-09-01 — a session wrote the procedure by which its
 own rules get approved, which is the sharpest case the mark exists for.)*

@@ -72,14 +72,17 @@ GATE_TARGETS = [
                                 #  comment named the tool and the gate refused it in 2 seconds)
     "test/test_ledger.py",      # the failure ledger's own parser
     "test/test_precommit.py",   # the gate's own installation
+    "test/test_questions.py",   # a question says what would answer it, and is not hidden by an indent
     "test/test_marks.py",       # a self-shaped mark's approval still covering the rule above it
-                                # (the one entry here that starts a process: `git log -L` and
-                                #  `git diff HEAD` per approved mark, plus fixtures that build
-                                #  their own repositories.  Measured before it was added — see
-                                #  the commit — and it belongs at the commit rather than in the
-                                #  full suite alone, because the defect it catches is a rule
-                                #  quietly edited after Henri approved it, and catching that one
-                                #  commit late is the lag F008's fix was written to close.)
+                                # (it starts processes — `git log -L` and `git diff HEAD` per
+                                #  approved mark, plus fixtures building their own repositories.
+                                #  The header's "nothing that starts a process" is about cost,
+                                #  not purity: test_summary, test_ledger and test_precommit all
+                                #  shell out already, and the whole gate is 299 tests in 2.5 s.
+                                #  It belongs at the commit and not in the full suite alone,
+                                #  because the defect it catches is a rule quietly edited after
+                                #  Henri approved it, and catching that one commit late is the
+                                #  lag F008's fix was written to close.)
 ]
 
 

@@ -196,7 +196,24 @@ between two workable cards is Henri's.
     written where the question is, naming what would answer it; the
     gathering tool and the lamp wait on it.  The card names what would
     close it unbuilt — hand-collection being enough — and the tiebreak is
-    his.*
+    his.  Day one (a) landed the same afternoon at his "what I next would
+    want you to work on are the questions card", and its shape came from
+    the self-shaped mark built hours earlier: the two are one mechanism
+    from opposite ends, and both are answered by a line beginning
+    `henri:`.  A question is written where it arises as `*(question,
+    measure — …)*`, `*(question, his call — …)*` or `*(question, waits
+    on <event> — …)*`, and **only `his call` ever reaches him** — the
+    first list's finding turned into a mechanism rather than a warning.
+    `test/test_questions.py` refuses a fourth category, a question with
+    no question mark, a `waits on` that does not name its event, and a
+    question hidden by an indent, that last written from the defect it
+    caught the same hour.  The three "I don't know" measurements left
+    the list by being **specified**: `F010` at 20 draft turns an arm
+    with its power calculation and its honest limit, `card:tools.md` at
+    24 arms for about $1 with the reason it is 24 and not 14.  What is
+    not built stays not built — the gathering tool and the lamp —
+    because the `his call` queue has one entry, and a lamp counting to
+    one is nagging.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
@@ -438,6 +455,18 @@ clone is then for a change to the *installed* mechanism's tests only
 if the tree itself is what runs (a fresh clone with no install), which
 `tools/fence.sh` says on every prompt.  The paragraph above is kept:
 it is the day the tax was measured, and the reason the install exists.
+
+*(question, his call — should this paragraph carry a `(self-shaped` mark
+too?)*
+
+It is a session's writing about how sessions work, so it looks like one.
+It was left unmarked on 2026-09-01 because it was not promoted by an
+ingestion: it records a *measurement* — a git write inside a linked
+worktree flips `core.bare`, and a killed background rebase leaked into a
+read-only bind — and a hard technical finding is not the shape the mark
+guards against, which is a session choosing the standard it will be held
+to.  That reasoning is a session's, about a session's own rule, which is
+exactly the reasoning the mark exists to distrust.  So it is his.
 
 ## A word left for you
 

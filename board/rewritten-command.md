@@ -164,3 +164,17 @@ The lander lamp says so from the next prompt.
   of a message ever being eaten, and refusing them would make every
   commit a two-step. If one is ever found corrupted, that is the third
   line of this section and one more test.
+
+*(question, waits on a commit message found corrupted — is the rule too
+loose in allowing commit messages through?)*
+
+Handed to Henri on 2026-09-01 and answered *"I don't know"*, which was
+the right answer to a question asked at the wrong grain: there is
+nothing to decide until the event happens, and the line above already
+said so.  It is written as a question rather than left as prose so that
+the day a message *is* found corrupted, the thing that was waiting on it
+is findable from the event.
+
+*It sits outside the list rather than inside it because a question must
+start its own line — indented, the search cannot find it, and it was
+indented for the first ten minutes of its life.*

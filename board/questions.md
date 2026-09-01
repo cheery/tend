@@ -1,6 +1,6 @@
 # questions — a question raised for the person has no home, and nothing gathers it
 
-    status   open
+    status   doing
     because  a session raises questions all day and each one is written
              into whichever card or F-number it arose in, so the set of
              things actually waiting on Henri exists nowhere.  On
@@ -110,6 +110,96 @@ a question raised, written into a card, and then lost — nobody acting on
 it because nobody saw it.  That has probably already happened and
 nothing in the tree would show it, which is the honest state of this
 card's `because` on the day it was opened.
+
+## 2026-09-01 — day one (a) landed, and the shape came from the mark
+
+Built at Henri's *"what I next would want you to work on are the
+questions card"*, hours after the self-shaped mark got its form.  The
+two turned out to be one mechanism seen from opposite ends, which is why
+this landed in an afternoon rather than a sitting: **a mark is a session
+saying "I wrote a rule, read it"; a question is a session saying "I do
+not know, and here is what would settle it."**  Both are a session
+addressing the person in place, and both are answered the same way — he
+appends a line beginning `henri:`.  One convention, learned once.
+
+### The form
+
+A question is written **where it arises**, flush left, in the card or
+F-entry it belongs to:
+
+    *(question, measure — does a drafting prompt do better told its
+    material was cut?  **20 turns per arm.**)*
+
+    *(question, his call — should this paragraph carry a mark too?)*
+
+    *(question, waits on a commit message found corrupted — is the rule
+    too loose in allowing messages through?)*
+
+Three categories and no others, taken from this card's own day-one
+sketch: **`measure`**, **`his call`**, **`waits on <event>`**.  Found
+with
+
+    grep -rn -A2 '^\*(question' *.md board/ fixme/ spec/ doc/
+
+which returned zero hits before this section existed — measured, the way
+`(self-shaped` was, rather than assumed.  `test/test_questions.py`
+refuses a fourth category, a question that is not a question, and a
+`waits on` that does not name its event.
+
+### The thing that does the work: only `his call` ever reaches him
+
+This is the whole finding of the first list turned into a mechanism.
+Five of eight came back *"I don't know"* and **three of those five were
+measurements nobody had run** — so the failure was not that he lacked
+opinions, it was that a session had routed measurements to a person.
+
+A `measure` question is a session's to run.  It never goes on the list
+that reaches him, no matter how long it sits.  A session that writes one
+is not asking for anything; it is recording a debt against itself, in
+the place where the debt was incurred.
+
+That is also the answer to *"what must this not become"*.  It cannot
+become a ticket queue for him, because the only queue that reaches him
+is the `his call` one, and today that queue has **one** entry.
+
+### Questions leave, and they leave differently
+
+- **`measure`** leaves when a session runs it and writes the answer
+  beside the question.  The three that came back "I don't know" on
+  2026-09-01 left the same day this landed — not by being answered, but
+  by being *specified*: `F010` now carries 20 turns per arm with its
+  power calculation and its honest limit, and `card:tools.md` carries 24
+  arms at about $1 with the reason the number is 24 and not 14.  A
+  measurement with a number and a cost is no longer a question waiting
+  on anybody.
+- **`his call`** leaves when he writes `henri: …` under it.
+- **`waits on`** leaves when the event happens, and the point of writing
+  it down is that the event can then find what was waiting on it —
+  which is what the commit-message question in `card:rewritten-command.md`
+  is for.
+
+A question that has left **stays where it is**, with its answer under
+it, exactly as an answered mark does.  Nothing is deleted; the record
+keeps what was asked and what came back.
+
+### What this does not build, and why
+
+**(b), the gathering tool, and (c), the lamp** — both still wait, and
+the reason is stronger now than when this card was opened.  The `his
+call` queue has one entry.  A tool to gather one line, and a lamp to
+count to one, would be the exact failure `manifesto.md` §"Two rules"
+names: building what nothing needs.  The grep above is the gathering
+tool until the queue is long enough that reading it is work.
+
+**And the honest possibility that this card still closes unbuilt.**  Its
+own §"What would make this card wrong" says: if hand-collection keeps
+being enough, the right answer is a paragraph in `board/README.md` and no
+mechanism.  What landed here is not really a collection mechanism — it is
+a **writing discipline**, and the count that decides whether it was worth
+it is how many `measure` questions get written in the next fortnight that
+would otherwise have been handed to Henri.  If that number is zero, the
+categories were ceremony.  Worth counting, and the place for the count is
+this card.
 
 ## 2026-09-01 — the first list, kept as the baseline
 

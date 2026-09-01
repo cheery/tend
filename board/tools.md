@@ -584,3 +584,63 @@ all, something between "the whole card" and "the digest" for it to read —
 which is a question for this card and not a defect, and is not opened
 here.
 
+## The two questions, with their numbers — 2026-09-01
+
+Both were handed to Henri on 2026-09-01 as questions and both came back
+*"I don't know"*, which `card:questions.md` read correctly as the
+session's fault and not his: **asking a person for an opinion where
+evidence is owed is not asking a question, it is offloading a
+measurement.**  Neither needs him.  What they needed was arithmetic, and
+here it is.
+
+*(question, measure — how many `--arm tools` runs on one model before
+1-in-6 can be told from bad luck?  **24 arms on `tencent/hy3`, about
+$1.**)*
+
+24 is the smallest number that answers it *in both directions*, which is
+why it is not the 14 a power calculation alone would give:
+
+- **If channels keep arriving**, 24 arms have 96.5% power to reject "the
+  channel is a coin flip" when the truth is 1 in 6 (exact binomial,
+  one-sided, α=0.05).  14 is the first N over 80%, and the margin from 14
+  to 24 costs about forty cents.
+- **If no channel ever comes back**, 24 is the smallest N whose 95%
+  interval on 0 successes — [0, 0.142] — excludes 1/6 itself.  At 20 it
+  does not ([0, 0.168]), so twenty arms of silence would leave "the one
+  success was a fluke" unsayable.  This is the binding condition, and it
+  is why the number is 24.
+
+The cost is from the real account, not a guess: the 08:46 tools arm read
+164.3k chars over 10 calls, and a tool-using turn re-sends the whole
+conversation each round, so the billed input is the running sum — 913k
+chars, ~304k tokens at the tree's pessimistic 3 chars/token, $0.04 an arm
+at hy3's $0.13/M.  **Run all 24; do not peek and stop**, or the stopping
+rule eats the α.
+
+*(question, measure — what should the tools arm be given, between the
+whole card and the digest?  **The 24 arms above are this question's
+control arm**, so the two experiments are one.)*
+
+The tools arm is not a fixed thing to be measured once: it is a knob, and
+the drowning (132.7k chars against the digest's 7516) is the knob at its
+current setting.  Three arms, 24 each, varying only what a read returns:
+
+| arm | `readchars` | what the mind gets |
+|---|---|---|
+| baseline | 60000 | a whole 40k card per read — the drowning, and Q1's arm |
+| head | 4000 | a card's opening, and `executor.py:139`'s cut notice already says how to continue |
+| seeded | 60000 | the digest in the prompt, tools available for depth |
+
+`head` is the interesting one and it costs one environment variable:
+`tools/executor.py:139` is the one cut in this tree that *does* say what
+it cut and how to continue, so a 4k read is not a silent truncation — it
+is a card's head with an offer of the rest.  That turns "read a card"
+from 40k into 4k and makes the whole board reachable inside a call
+budget.
+
+Measured on: whether a pick came back, whether the reasoning channel
+came back, total chars read, calls used, and this card's own standing
+prediction — does the `TASK:` line cite a line of the card the digest
+does not carry.  Arms 2 and 3 read far less, so the three together are
+about **$1.35**.
+
