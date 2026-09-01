@@ -114,3 +114,27 @@ def test_a_door_with_no_tools_line_refuses_the_pair_and_says_the_line_to_write(t
     r = _compare_door(tmp_path, tree=t, stub={}, door=door)
     assert r.returncode == 2 and "no tools line" in r.stderr, r.stderr
     assert not (tmp_path / "props").exists(), "refused before any ask"
+
+
+def test_the_two_digests_are_the_same_digest_byte_for_byte(tmp_path):
+    """The docstring above says compare.py "builds the same digest lead.sh
+    builds", and until 2026-09-01 nothing checked it — two copies of one
+    mechanism with no gate between them, which is F008's own shape (a number
+    that fitted one mechanism and was silently wrong for the next).  Both
+    ends of the F008 fix live in both files, so this runs the real lead.sh
+    against a stub and compares what actually reached the model, whole and
+    cut."""
+    import test_lead as tl
+    b = board(tmp_path)
+    for cap in (None, "120"):
+        extra = {} if cap is None else {"TEND_CTXCHARS": cap}
+        r, seen = tl.lead("ANDON: x", b, tmp_path / f"run{cap}", **extra)
+        assert r.returncode == 0, r.stdout + r.stderr
+        prompt = seen[0]["messages"][0]["content"]
+        if cap is not None:
+            compare.DIGEST_CHARS = int(cap)
+        want = compare.digest(b)
+        assert prompt.endswith(want), (
+            f"cap={cap}: the two digests have drifted\n"
+            f"lead.sh tail: {prompt[-400:]!r}\ncompare.py:   {want[-400:]!r}")
+    compare.DIGEST_CHARS = 20000

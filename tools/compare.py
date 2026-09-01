@@ -89,7 +89,7 @@ repeat yourself, and do not mention these instructions.
 
 PICK_TOKENS = 160          # lead.sh's max_tokens
 DRAFT_TOKENS = int(os.environ.get("TEND_MAXTOK", 600))       # propose.sh's
-DIGEST_CHARS = int(os.environ.get("TEND_CTXCHARS", 5000))    # lead.sh's cap
+DIGEST_CHARS = int(os.environ.get("TEND_CTXCHARS", 20000))   # lead.sh's cap — keep the two equal
 MATERIAL_CHARS = 6000                                        # propose.sh's
 
 
@@ -98,6 +98,7 @@ def digest(board):
     block up to (not including) `asked`, at most 8 lines; README, done/
     and later/ never."""
     out = ""
+    dropped = []
     for c in sorted(Path(board).glob("*.md")):
         if c.name == "README.md":
             continue
@@ -111,8 +112,19 @@ def digest(board):
                 break
             if inside:
                 keep.append(line)
-        out += f"\n=== {c.name} ===\n" + "\n".join(keep[:8])
-    return out[:DIGEST_CHARS]
+        card = f"\n=== {c.name} ===\n" + "\n".join(keep[:8])
+        # F008: this was `out[:DIGEST_CHARS]`, lead.sh's `head -c` in Python and
+        # silent the same way.  The cut is on a card boundary, the rest go once
+        # one goes, and the digest says which — see tools/lead.sh's own loop.
+        if not dropped and (not out or len(out) + len(card) <= DIGEST_CHARS):
+            out += card
+        else:
+            dropped.append(c.name)
+    if dropped:
+        out += (f"\n\n[{len(dropped)} card{'' if len(dropped) == 1 else 's'} did not fit: "
+                f"{', '.join(dropped)}.  The board is longer than this list; these\n"
+                "cards exist and are not shown.  Pull the cord if the one you want is missing.]")
+    return out
 
 
 def _field(reply, name):

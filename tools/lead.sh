@@ -46,7 +46,15 @@ propdir="${TEND_PROPOSAL_DIR:-$root/proposals}"
 port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=18080}"
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
-ctxchars="${TEND_CTXCHARS:-5000}"
+ctxchars="${TEND_CTXCHARS:-20000}"   # the digest's budget in characters, sized to the node's own window
+# 5000 until 2026-09-01, and that was the whole of F008: it was chosen for a node at `-c 2048`
+# and stayed 5000 when 37092d7 took the node to `-c 8192` on 2026-08-28 — a number that fitted
+# one mechanism and was silently wrong for the next, for four days.  20000 chars is ~6700 tokens
+# at a pessimistic 3 chars/token; the whole open board was 7516 chars on 2026-09-01, so it fits
+# it 2.6 times over.  **This number is not written down anywhere else on purpose**: the window it
+# has to fit inside is the `-c` on llm/grant's program line, and that is the number that moves —
+# so test_lead.py reads `-c` from the grant and goes red if either end moves without the other,
+# which is the only part of this comment that cannot go stale the way 5000 did.
 kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}
 shift
 while [ $# -gt 0 ]; do
@@ -111,17 +119,39 @@ fi
 # the open board, as a digest the node's small context can hold: each
 # card on the open shelf, its title and its because — never done/ or
 # later/, which are not open work
-digest=""
+digest=""; dropped=""; ndrop=0
 for c in "$board"/*.md; do
     [ -f "$c" ] || continue
-    case $(basename "$c") in README.md) continue ;; esac
-    digest="$digest
-=== $(basename "$c") ===
+    b=$(basename "$c")
+    case $b in README.md) continue ;; esac
+    card="
+=== $b ===
 $(sed -n '1p; /^    because/,/^    asked/p' "$c" | grep -v '^    asked' | head -8)"
+    # F008 (2026-08-31): this was one `head -c` after the loop, a byte cut
+    # mid-word and mid-card with nothing said — 9 of 13 cards reached the
+    # node and it never knew, so it could not pick its priority-1 card.  A
+    # cut card is not a shortened card: it is a card that does not exist for
+    # the mind being asked to choose.  So the cut falls on a card boundary,
+    # and once one card is dropped the rest are — what the node sees is a
+    # prefix of the board, never a gap in the middle.  The first card is
+    # always carried, even alone over the cap: a digest of nothing is not a
+    # smaller digest.
+    if [ -z "$dropped" ] && { [ -z "$digest" ] || [ "$(printf '%s%s' "$digest" "$card" | wc -c)" -le "$ctxchars" ]; }; then
+        digest="$digest$card"
+    else
+        ndrop=$((ndrop + 1))
+        if [ -z "$dropped" ]; then dropped="$b"; else dropped="$dropped, $b"; fi
+    fi
 done
 [ -n "$digest" ] || { echo "lead: no open cards in $board" >&2; exit 2; }
-if [ "$(printf '%s' "$digest" | wc -c)" -gt "$ctxchars" ]; then
-    digest=$(printf '%s' "$digest" | head -c "$ctxchars")
+if [ "$ndrop" -gt 0 ]; then
+    _s=cards; [ "$ndrop" -eq 1 ] && _s=card
+    # a cap is a gate, and a gate says what it stopped — the same thing the
+    # executor's readchars cut says, which this one did not (F008, shape (a))
+    digest="$digest
+
+[$ndrop $_s did not fit: $dropped.  The board is longer than this list; these
+cards exist and are not shown.  Pull the cord if the one you want is missing.]"
 fi
 
 if [ -z "$door" ] && [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then

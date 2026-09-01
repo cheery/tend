@@ -12,6 +12,7 @@ written, and a card the node makes up is a cord pull, not a proposal.
 """
 import http.server
 import json
+import re
 import subprocess
 import threading
 from pathlib import Path
@@ -319,3 +320,69 @@ def test_the_trees_own_doors_read_and_name_a_key_outside_the_tree():
         assert fields["model"], d
         assert fields["key"].startswith("~/"), f"{d}: the key lives under the person's home, never the tree"
         assert "admitted" in fields, f"{d}: a door says who admitted the model"
+
+
+# ── F008: the digest's cap is a gate, and a gate says what it stopped ────
+# 2026-08-31 the digest was cut at 5000 bytes by `head -c` with nothing
+# said, carrying 9 of 13 open cards and dropping the priority-1 one; the
+# node had never seen its last cards.  Henri picked shapes (d) and (a) on
+# 2026-09-01: a cap sized to the window the node actually has, and a cut
+# that names every card it dropped.
+
+def _node_ctx_tokens():
+    """the `-c N` on llm/grant's program line — the window the digest is for."""
+    m = re.search(r"^program .*?-c[ =]+([0-9]+)", (NODE / "grant").read_text(), re.M)
+    assert m, "llm/grant's program line names its context with -c"
+    return int(m.group(1))
+
+
+def _default_ctxchars():
+    m = re.search(r'ctxchars="\$\{TEND_CTXCHARS:-([0-9]+)\}"', LEAD.read_text())
+    assert m, "lead.sh names its digest cap as a default"
+    return int(m.group(1))
+
+
+def test_the_whole_open_board_reaches_the_model(tmp_path):
+    """(d).  Every card on the *real* open shelf is in the prompt — the cap
+    is sized to the board and the window, not to a number left behind by an
+    older one.  Goes red the day the board outgrows the cap, which is the
+    day someone must choose again."""
+    real = ROOT / "board"
+    r, seen = lead("ANDON: which is mine?", real, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    prompt = seen[0]["messages"][0]["content"]
+    cards = sorted(p.name for p in real.glob("*.md") if p.name != "README.md")
+    missing = [c for c in cards if f"=== {c} ===" not in prompt]
+    assert not missing, f"the digest dropped {len(missing)} of {len(cards)} open cards: {missing}"
+    assert "did not fit" not in prompt, "nothing was dropped, so nothing is announced"
+
+
+def test_a_cap_too_small_drops_whole_cards_and_names_every_one(board, tmp_path):
+    """(a).  A cut card is not a shortened card — it is a card that does not
+    exist for the mind being asked to choose.  So the cut falls on a card
+    boundary and the digest says which cards are missing, the way readchars
+    says where it cut."""
+    r, seen = lead("ANDON: x", board, tmp_path, TEND_CTXCHARS="120")
+    assert r.returncode == 0, r.stdout + r.stderr
+    prompt = seen[0]["messages"][0]["content"]
+    assert "lander.md" in prompt, "the cards that fit are whole"
+    assert "1 card did not fit: silent-cord.md" in prompt, \
+        f"the cut names what it dropped; prompt tail was: {prompt[-300:]!r}"
+    assert "=== silent-cord.md ===" not in prompt, "a dropped card is dropped whole, not half"
+
+
+def test_the_cap_fits_the_window_the_node_actually_has(tmp_path):
+    """F008's cause, gated: TEND_CTXCHARS was 5000 for a node at `-c 2048`
+    and stayed 5000 when 37092d7 took the node to 8192 — a number that fitted
+    one mechanism and was silently wrong for the next.  This binds the two:
+    the digest, the prompt's framing and the reply must fit the node's own
+    window, at a deliberately pessimistic 3 characters per token."""
+    ctx = _node_ctx_tokens()
+    chars = _default_ctxchars()
+    reply, framing = 160, 700 // 3
+    assert chars / 3 + reply + framing < ctx, (
+        f"the digest cap ({chars} chars) does not fit the node's -c {ctx}: "
+        f"{chars / 3:.0f} + {reply} + {framing} tokens")
+    assert chars > 12000, (
+        f"the cap is {chars}: a window of {ctx} tokens holds far more board "
+        "than that, and a cap well under the window is how F008 happened")

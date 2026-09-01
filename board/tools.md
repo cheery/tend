@@ -426,3 +426,38 @@ shapes) and that a tooled pick turn is unreliable in this wiring
 (`TEND_THINK`, one run away).  The ten paired turns are not owed again
 at ten: five is the sample this card has, and the honest next step is
 the same five with thinking on, compared against these.
+
+## 2026-09-01 — the confound is gone; the paired measurement can be run clean
+
+`F008` is resolved at Henri's "do d and a": the digest carries **13 of
+13 cards** now (7516 characters against a cap of 20000), and when it
+cannot it names every card it dropped.  The cause was not gemma's
+window — it was that `TEND_CTXCHARS` was sized for the node at `-c 2048`
+and never moved when `37092d7` took the node to `-c 8192` on 2026-08-28,
+so the digest arm of 08-31's five pairs was choosing from a board that
+silently ended at `silent-cord`.
+
+**What that does to the numbers above.**  The digest arm's *picks* are
+withdrawn as evidence about push-versus-pull: `canvas.md` ×4 was the
+first card it could see, and `simpleqa.md` — what the tools arm picked
+twice — was not on its board at all.  The tools arm's numbers stand
+(2 of 5 producing a pick; 2 of 2 citing material no digest carries),
+because nothing about the digest touched them.  So the card's prediction
+is still *not met*, and it is still not met for the reason the run
+found: the three turns that spent 9–15 calls and never emitted the
+`CARD:`/`TASK:` shape.
+
+**Two runs are owed now, not one**, and they answer different questions:
+
+1. **`TEND_THINK` on, the same five pairs** — the reliability question,
+   unaffected by `F008` and unblocked; the *think* arm of
+   `card:simpleqa.md` is the reason to expect it moves.
+2. **The digest arm re-run against the whole board** — the
+   push-versus-pull question, which could not be asked before today and
+   can be now.
+
+Both are Henri's hand and keys; ~1 dollar a tooled turn is the price the
+08-31 run measured, and it is his call whether the second is worth it or
+whether the tooled turn simply replaces the led loop (day two), which
+would make the digest dead code and the question moot.
+
