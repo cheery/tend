@@ -3,8 +3,10 @@
 """tools/compare.py — the led turn's two prompts, put to a Claude model, for comparison with the node.
 
     tools/compare.py [--thinking] [MODEL ...]                one led turn per model (default: claude-sonnet-5 claude-opus-5)
-    tools/compare.py --door NAME [--arm digest|tools] [--thinking]
+    tools/compare.py --door NAME [--arm digest|tools] [--seed] [--thinking]
                                                              the paired pick turn through a door: digest arm, then tools arm
+    tools/compare.py --draft CARD --task "…" [--cut N] [--cut-notice] [--thinking] [MODEL ...]
+                                                             one draft turn alone, on a pinned card — F010's measurement
 
 The same turn `tools/lead.sh` gives the llm node — the open board as a
 digest (each card's title and `because`, never done/ or later/), the
@@ -56,6 +58,31 @@ line refuses the tools arm and says the line to write — the line is
 the person's, as the model line was.  `--arm` reruns one arm alone.
 `card:simpleqa.md`'s day one is this instrument with a different
 question set.
+
+**Two arms added 2026-09-01**, when `card:questions.md`'s day one made
+each of the standing "I don't know" questions name what would answer it,
+and two of them turned out to want a flag rather than an opinion.
+
+`--seed` is the **third pick arm**.  The original two put the question as
+*digest or tools*, and the 08-31 run answered it badly for both: the
+digest arm picks well from 7516 chars and cannot go deeper; the tools arm
+reads 132.7k and drowns.  Seeded is neither — the digest in the prompt
+*and* the tools in the request, so the mind starts where the digest arm
+starts and reads further only if it wants to.  `TEND_READCHARS` is the
+other knob on the same question (a 4000-char read returns a card's head,
+and `executor.py:139`'s notice already says how to continue), and the
+account now records which setting it ran under, because an arm that does
+not say its own setting cannot be compared with another.
+
+`--draft CARD --task "…"` is **`F010`'s measurement** and runs the draft
+turn *alone*.  The card and the task are pinned because the normal path
+picks them, so two runs would draft different material from different
+tasks and nothing would be comparable; `--cut N` places the cut and
+`--cut-notice` is the single thing that varies between the arms.  The
+notice is `executor.py:139`'s wording **with its offer removed** — the
+executor tells a mind holding tools that `read(path, line=L) continues`,
+and a draft turn has no tools, so the same sentence would promise
+something the mind cannot do.
 """
 import datetime
 import json
@@ -212,21 +239,36 @@ def _thinking_line(asked, thought):
             "answered in the content channel")
 
 
-def door_pick(door, tools, board, propdir, thinking=False):
+def door_pick(door, tools, board, propdir, thinking=False, seed=False):
     """One pick turn through the door, ridden on tools/deliver.sh — the
     courier every talk turn rides, so the calls are run, capped and
     recorded exactly as a turn's are.  The pick prompt goes as a system
-    message in TEND_HISTORY; the digest rides it only on the digest arm."""
+    message in TEND_HISTORY; the digest rides it only on the digest arm.
+
+    **`seed` is the third arm** (`card:tools.md`, 2026-09-01).  The two
+    original arms put the question as *digest or tools*, and the 08-31
+    measurement answered it badly for both: the digest arm picks well
+    from 7516 chars and cannot go deeper, the tools arm reads 132.7k and
+    drowns.  Seeded is neither — the digest in the prompt *and* the
+    tools in the request, so the mind starts where the digest arm starts
+    and may read further if it wants to.  It is the arm the card should
+    have had, and it exists now because writing the question down as
+    `*(question, measure — …)*` made it obvious that "what should the
+    tools arm be given" has a third answer.
+    """
     now = datetime.datetime.now()
     stamp = now.strftime("%Y-%m-%d-%H%M")
-    arm = "tools" if tools else "digest"
+    arm = ("tools-seeded" if seed else "tools") if tools else "digest"
     propdir = Path(propdir); propdir.mkdir(parents=True, exist_ok=True)
     state = propdir / f"{stamp}-door-{door}-{arm}"
     k = 2
     while state.exists() or state.with_suffix(".md").exists():
         state = propdir / f"{stamp}-door-{door}-{arm}-{k}"; k += 1
+    # the digest rides on the digest arm always, on the tools arm only when seeded
+    carries_digest = seed or not tools
     env = dict(os.environ, TEND_DOOR=door, TEND_STATE_DIR=str(state),
-               TEND_HISTORY=json.dumps([{"role": "system", "content": PICK_SYS + ("" if tools else digest(board))}]))
+               TEND_HISTORY=json.dumps([{"role": "system", "content":
+                                         PICK_SYS + (digest(board) if carries_digest else "")}]))
     if not tools:
         env["TEND_TOOLS"] = ""   # the digest arm sends none, whatever the door says
     if thinking:
@@ -239,13 +281,21 @@ def door_pick(door, tools, board, propdir, thinking=False):
     got = read_reply(reply, board)
     account = state.with_suffix(".md")
     outcome = "andon" if got["andon"] else "picked"
+    # what a read returned before the cut — the knob the `head` arm turns,
+    # recorded because an arm that does not say its own setting cannot be
+    # compared with another (F011, the same lesson one layer up)
+    readchars_said = os.environ.get("TEND_READCHARS") or "the door's own"
     account.write_text(
         f"<!-- COMPARE — one pick turn through the {door} door, {arm} arm, {now:%Y-%m-%d %H:%M}.  NOT tree content.\n"
         f"     card:tools.md's paired measurement: digest against tools, same door, same model.\n"
         f"     The raw exchange is beside this file, in {state.name}/. -->\n\n"
         f"# {door} ({model or 'model unknown'}) — {arm} arm pick — {now:%Y-%m-%d %H:%M}\n\n"
-        f"    arm      {arm} — " + ("the pick prompt bare; the door's tools, the mind read the board itself\n" if tools
-                                    else "the pick prompt with lead.sh's digest; no tools\n")
+        f"    arm      {arm} — " + (
+            ("the pick prompt with lead.sh's digest AND the door's tools; the mind starts "
+             "where the digest arm starts and may read further\n" if seed else
+             "the pick prompt bare; the door's tools, the mind read the board itself\n") if tools
+            else "the pick prompt with lead.sh's digest; no tools\n")
+        + f"    readchars {readchars_said}\n"
         + f"    picked   {got['card'] or '—'}\n"
         f"    task     {got['task'] or '—'}\n"
         f"    why      {got['why'] or '—'}\n"
@@ -255,6 +305,113 @@ def door_pick(door, tools, board, propdir, thinking=False):
         + ("The calls:\n\n" + "".join(f"    C: {c}\n" for c in calls) + "\n" if calls else "")
         + "The reply, verbatim:\n\n" + "".join("    " + l + "\n" for l in reply.splitlines()))
     return account, got, calls, model
+
+
+def _pull(args, names):
+    """Take `--name value` pairs out of args.  Returns (rest, {name: value}).
+
+    A flag named twice takes the last, and a flag with no value reads as
+    None rather than swallowing the next flag — which is how `--task
+    --cut 200` would otherwise become a task of "--cut".
+    """
+    opts = {n: None for n in names}
+    rest = []
+    i = 0
+    while i < len(args):
+        if args[i] in opts:
+            nxt = args[i + 1] if i + 1 < len(args) else None
+            if nxt is not None and not nxt.startswith("--"):
+                opts[args[i]] = nxt
+                i += 2
+                continue
+            i += 1
+            continue
+        rest.append(args[i]); i += 1
+    return rest, opts
+
+
+def cut_notice(kept, total, path):
+    """What the material says when it has been cut — `F010`'s told arm.
+
+    Modelled on `tools/executor.py:139`, the one cut in this tree that
+    already says what it took, **with its offer removed**.  The
+    executor's notice ends `read(path, line=L) continues`, because a mind
+    holding tools can ask for the rest.  A draft turn has no tools, so
+    the same sentence would promise something the mind cannot do — and a
+    notice that offers an impossible remedy is worse than silence,
+    because it spends the model's turn on reaching for it.  So this one
+    says the material is cut, where, and that there is no more coming.
+    """
+    # exactly executor.py's arithmetic: `at` is the first line not shown,
+    # `lines` is readlines()'s count — so a trailing newline does not
+    # invent a line that is not there.  The first draft used
+    # `count("\n") + 1` for the total and said "line 3 of 5" of a
+    # four-line file, which a test caught.
+    at = kept.count("\n") + 1
+    lines = len(total.splitlines())
+    return (f"\n[… cut at {len(kept)} chars of {len(total)}, at line {at} of "
+            f"{lines} of {path}.  The rest of this card is not available in "
+            f"this turn — there is no way to ask for it.]")
+
+
+def draft_turn(client, model, board, propdir, card, task, cut, tell, thinking=False):
+    """One draft turn alone, on a named card — `F010`'s measurement.
+
+    **Why the card and the task are pinned rather than picked.**  The
+    normal path picks a card and then drafts on it, so two runs draft
+    different material from different tasks and nothing is comparable.
+    `F010` asks one question — *is a drafting prompt better or worse for
+    being told its material was cut* — and the only way to ask it is for
+    the two arms to differ in exactly that.  So `--draft CARD --task …`
+    fixes both, `--cut N` places the cut, and `--cut-notice` is the one
+    thing that varies.
+
+    `--cut` matters as much as the notice.  `F010`'s design says the cut
+    is placed **on purpose above a fact that would change the draft**, so
+    the outcome per draft is *does it assert what the cut-away tail
+    contradicts* — right or wrong, countable — rather than "did it hedge",
+    which is taste and would never settle.
+    """
+    path = Path(board) / card
+    if not path.exists():
+        raise RuntimeError(f"no card {card} on the open shelf")
+    whole = f"\n=== {path} ===\n" + path.read_text()
+    kept = whole[:cut]
+    was_cut = len(kept) < len(whole)
+    material = kept + (cut_notice(kept, whole, card) if (was_cut and tell) else "")
+
+    mode = (dict(thinking={"type": "adaptive"}) if thinking
+            else dict(thinking={"type": "disabled"}))
+    draft_max = 16000 if thinking else DRAFT_TOKENS
+    r = client.messages.create(model=model, max_tokens=draft_max,
+                               system=DRAFT_SYS + material,
+                               messages=[{"role": "user", "content": task}], **mode)
+    draft = _text(r)
+
+    now = datetime.datetime.now()
+    stamp = now.strftime("%Y-%m-%d-%H%M")
+    arm = "told" if tell else "silent"
+    propdir = Path(propdir); propdir.mkdir(parents=True, exist_ok=True)
+    account = propdir / f"{stamp}-draft-{arm}-{model}.md"
+    k = 2
+    while account.exists():
+        account = propdir / f"{stamp}-draft-{arm}-{model}-{k}.md"; k += 1
+    account.write_text(
+        f"<!-- COMPARE — one draft turn, {model}, {now:%Y-%m-%d %H:%M}.  NOT tree content.\n"
+        f"     F010's measurement: the same cut material, told and not told. -->\n\n"
+        f"# {model} — draft turn, {arm} arm — {now:%Y-%m-%d %H:%M}\n\n"
+        f"    arm      {arm} — the material {'carries a cut notice' if tell else 'is cut in silence'}\n"
+        f"    card     {card}\n"
+        f"    task     {task}\n"
+        f"    cut      {len(kept)} of {len(whole)} chars"
+        + (" — NOT CUT, the card is shorter than the cap\n" if not was_cut else "\n")
+        + f"    usage    {r.usage.input_tokens}→{r.usage.output_tokens} (stop {r.stop_reason})\n\n"
+        + ("**The material was not cut, so the arms are identical and this "
+           "turn measures nothing.**  Pick a longer card or a smaller --cut.\n\n"
+           if not was_cut else "")
+        + "The draft, verbatim:\n\n"
+        + "".join("    " + l + "\n" for l in draft.splitlines()))
+    return account, draft, was_cut
 
 
 def one_turn(client, model, board, propdir, thinking=False):
@@ -314,8 +471,47 @@ def main(argv):
     args = argv[1:]
     thinking = "--thinking" in args
     args = [a for a in args if a != "--thinking"]
+    seed = "--seed" in args
+    args = [a for a in args if a != "--seed"]
+    tell = "--cut-notice" in args
+    args = [a for a in args if a != "--cut-notice"]
     board = os.environ.get("TEND_BOARD_DIR", ROOT / "board")
     propdir = Path(os.environ.get("TEND_PROPOSAL_DIR", ROOT / "proposals")) / "compare"
+
+    if "--draft" in args:                      # F010's measurement
+        args, opts = _pull(args, ("--draft", "--task", "--cut"))
+        if opts["--draft"] is None:
+            sys.stderr.write("compare: --draft wants a card\n"); return 2
+        if not opts["--task"]:
+            sys.stderr.write("compare: --draft wants --task \"the one small thing\" — "
+                             "pinned, or the two arms draft different things\n"); return 2
+        try:
+            cut = int(opts["--cut"] or MATERIAL_CHARS)
+        except ValueError:
+            sys.stderr.write("compare: --cut wants a number of chars\n"); return 2
+        if seed:
+            sys.stderr.write("compare: --seed is the door's tools arm, not the draft turn\n"); return 2
+        try:
+            import anthropic
+        except ImportError:
+            sys.stderr.write("compare: the anthropic SDK is not installed — .venv/bin/pip install anthropic\n")
+            return 1
+        client = anthropic.Anthropic()
+        rc = 0
+        for model in args or ["claude-sonnet-5"]:
+            try:
+                account, draft, was_cut = draft_turn(
+                    client, model, board, propdir, opts["--draft"],
+                    opts["--task"], cut, tell, thinking)
+            except (RuntimeError, anthropic.APIStatusError, anthropic.APIConnectionError) as e:
+                sys.stderr.write(f"compare: {model}: {e}\n"); rc = 1; continue
+            print(f"{model} draft ({'told' if tell else 'silent'}): "
+                  + (draft.strip().splitlines() or ["(empty)"])[0][:110])
+            if not was_cut:
+                print("  WARNING: the material was not cut — this turn measures nothing")
+            print(f"  account: {account}")
+        return rc
+
     if "--door" in args:
         i = args.index("--door")
         door = args[i + 1] if i + 1 < len(args) else ""
@@ -339,9 +535,10 @@ def main(argv):
             return 2
         rc = 0
         for tools in arms:
-            arm = "tools" if tools else "digest"
+            arm = ("tools-seeded" if seed else "tools") if tools else "digest"
             try:
-                account, got, calls, model = door_pick(door, tools, board, propdir, thinking)
+                account, got, calls, model = door_pick(door, tools, board, propdir,
+                                                       thinking, seed and tools)
             except (RuntimeError, OSError) as e:
                 sys.stderr.write(f"compare: {door} {arm} arm: {e}\n"); rc = 1; continue
             if got["andon"]:

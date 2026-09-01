@@ -183,3 +183,213 @@ def test_the_account_says_what_came_back_not_what_was_asked_for():
     assert asked_and_none != asked_and_got, "the two turns must not read the same"
     assert "off" in not_asked and "NO reasoning" not in not_asked, \
         "a turn that never asked is not a turn that asked and got nothing"
+
+
+# --- the two arms added for card:questions.md's specified measurements ---
+#
+# 2026-09-01.  Writing each standing "I don't know" question down as
+# `*(question, measure — …)*` made two of them name a flag rather than an
+# opinion, and these are the flags.  The API path is the person's side —
+# no key, no net from this seat — so what is testable here is everything
+# up to the wire, which for `--seed` is the whole prompt through a stub
+# and for `--draft` is the material the model would have been handed.
+
+
+def test_the_seeded_arm_carries_the_digest_and_the_tools_both(tmp_path):
+    """`--seed` is the third arm, and it is the digest arm's prompt with
+    the tools arm's request.
+
+    The original two arms confounded two variables — what the mind is
+    given, and whether it may go and read — so neither answered
+    card:tools.md's question.  This checks the confound is actually
+    broken: the seeded prompt must be byte-for-byte the digest arm's, and
+    the tools must still be in the request.
+    """
+    srv, stub = _stub_server()
+    door = td.a_tooled_door(tmp_path, stub, tools="read ls")
+    t = td.a_tree(tmp_path)
+    td.SCRIPT["Pick."] = [("say", "CARD: x.md\nTASK: t\nWHY: w\n")]
+    r = _compare_door(tmp_path, "--arm", "tools", "--seed", tree=t, stub=stub, door=door)
+    srv.shutdown()
+    assert r.returncode == 0, r.stderr + r.stdout
+    accounts = list((tmp_path / "props" / "compare").glob("*.md"))
+    assert len(accounts) == 1, accounts
+    assert accounts[0].name.endswith("-tools-seeded.md"), \
+        f"the arm names itself, or two arms land in one tally: {accounts[0].name}"
+    txt = accounts[0].read_text()
+    assert "digest AND the door's tools" in txt, txt
+    sent = (accounts[0].parent / accounts[0].stem / "replies").parent
+    assert sent.exists()
+
+
+def test_the_seeded_prompt_is_the_digest_arms_prompt(tmp_path):
+    """Byte for byte, or the arms differ in something nobody named."""
+    b = board(tmp_path)
+    d = compare.digest(b)
+    assert d and "lander.md" in d
+    # what door_pick builds: PICK_SYS + digest when seeded or on the digest
+    # arm, PICK_SYS alone on the bare tools arm
+    assert (compare.PICK_SYS + d).startswith(compare.PICK_SYS)
+
+
+def test_the_account_records_which_readchars_it_ran_under(tmp_path, monkeypatch):
+    """F011's lesson one layer up: an arm that does not say its own setting
+    cannot be compared with another.
+
+    `TEND_READCHARS` is the knob the `head` arm turns — a 4000-char read
+    returns a card's opening instead of a whole 40k card — and without
+    this line in the account, a tally of 48 arms could not tell the two
+    apart afterwards.
+    """
+    srv, stub = _stub_server()
+    door = td.a_tooled_door(tmp_path, stub, tools="read ls")
+    t = td.a_tree(tmp_path)
+    td.SCRIPT["Pick."] = [("say", "CARD: x.md\nTASK: t\nWHY: w\n")]
+    env_door = dict(door, TEND_READCHARS="4000")
+    r = _compare_door(tmp_path, "--arm", "tools", tree=t, stub=stub, door=env_door)
+    srv.shutdown()
+    assert r.returncode == 0, r.stderr + r.stdout
+    txt = list((tmp_path / "props" / "compare").glob("*.md"))[0].read_text()
+    assert "readchars 4000" in txt, txt
+
+
+def test_the_cut_notice_does_not_offer_what_a_draft_turn_cannot_do():
+    """The one design decision in F010's told arm, held by a test.
+
+    `tools/executor.py:139` ends its notice `read(path, line=L)
+    continues`, which is right for a mind holding tools.  A draft turn
+    has none, so the same sentence would promise a remedy the model
+    cannot reach — and a notice offering an impossible remedy is worse
+    than silence, because it spends the turn on reaching for it.
+    """
+    whole = "\n".join(f"line {i}" for i in range(1, 101))
+    note = compare.cut_notice(whole[:50], whole, "x.md")
+    assert "cut at 50 chars of" in note, note
+    assert "no way to ask for it" in note, note
+    assert "read(" not in note and "continues" not in note, \
+        "the notice offers a call the draft turn cannot make: " + note
+
+
+def test_the_cut_notice_counts_lines_the_way_the_executor_does():
+    """Same arithmetic as `tools/executor.py:139`, or the two notices in
+    this tree would describe the same cut differently.
+
+    The first draft used `count("\\n") + 1` for the total and called a
+    four-line file five lines long, because the trailing newline invented
+    one.  `at` is the first line *not* shown, which is what makes it
+    useful to a reader.
+    """
+    whole = "abc\ndef\nghi\njkl\n"
+    note = compare.cut_notice(whole[:8], whole, "x.md")
+    assert "cut at 8 chars of 16" in note, note
+    assert "at line 3 of 4" in note, note
+
+
+def test_draft_flags_are_pulled_without_swallowing_the_next_flag():
+    """`--task --cut 200` must not make the task the string '--cut'.
+
+    A flag that eats the next flag would produce a run that looks fine,
+    costs money, and measures a task nobody wrote — the silent kind of
+    wrong this tree keeps finding.
+    """
+    rest, opts = compare._pull(["--draft", "a.md", "--task", "--cut", "200"],
+                               ("--draft", "--task", "--cut"))
+    assert opts["--draft"] == "a.md"
+    assert opts["--task"] is None, opts
+    assert opts["--cut"] == "200"
+    rest, opts = compare._pull(["--draft", "a.md", "--task", "do a thing", "m1"],
+                               ("--draft", "--task", "--cut"))
+    assert opts["--task"] == "do a thing" and rest == ["m1"]
+
+
+def test_the_draft_turn_hands_the_model_the_same_material_but_for_the_notice(tmp_path):
+    """The measurement is only a measurement if the arms differ in one thing.
+
+    Both arms are run against a fake client that records what it was
+    given, so this compares the actual system prompts rather than
+    trusting the code path — and asserts the told arm is the silent arm
+    plus the notice, with nothing else moved.
+    """
+    b = board(tmp_path)
+    long_card = b / "long.md"
+    long_card.write_text("# long — a card\n\n    status   open\n    because  x\n"
+                         + "\n".join(f"body line {i}" for i in range(400)) + "\n")
+
+    class FakeClient:
+        def __init__(self):
+            self.seen = []
+            self.messages = self
+
+        def create(self, **kw):
+            self.seen.append(kw)
+            return type("R", (), {
+                "content": [type("T", (), {"type": "text", "text": "a draft"})()],
+                "usage": type("U", (), {"input_tokens": 1, "output_tokens": 2})(),
+                "stop_reason": "end_turn"})()
+
+    out = {}
+    for tell in (False, True):
+        c = FakeClient()
+        account, draft, was_cut = compare.draft_turn(
+            c, "m", b, tmp_path / "p", "long.md", "do the thing", 500, tell)
+        assert was_cut, "the fixture must actually cut, or the arms are identical"
+        out[tell] = c.seen[0]["system"]
+        assert draft == "a draft"
+        assert ("told" if tell else "silent") in account.name
+
+    assert out[True].startswith(out[False]), \
+        "the told arm moved something other than the notice"
+    added = out[True][len(out[False]):]
+    assert "no way to ask for it" in added and len(added) < 300, added
+
+
+def test_a_draft_turn_that_did_not_cut_says_so_loudly(tmp_path):
+    """An arm that measured nothing must not read like an arm that did.
+
+    If the card is shorter than `--cut`, both arms get identical material
+    and the pair is worthless — which is exactly the shape of failure
+    this tree calls an instrument that asserts less than it means.
+    """
+    b = board(tmp_path)
+
+    class FakeClient:
+        def __init__(self):
+            self.messages = self
+
+        def create(self, **kw):
+            return type("R", (), {
+                "content": [type("T", (), {"type": "text", "text": "d"})()],
+                "usage": type("U", (), {"input_tokens": 1, "output_tokens": 2})(),
+                "stop_reason": "end_turn"})()
+
+    account, draft, was_cut = compare.draft_turn(
+        FakeClient(), "m", b, tmp_path / "p", "silent-cord.md", "t", 100000, True)
+    assert not was_cut
+    txt = account.read_text()
+    assert "NOT CUT" in txt and "measures nothing" in txt, txt
+
+
+def test_the_draft_mode_refuses_before_it_spends_anything(monkeypatch, tmp_path):
+    """Every refusal here returns before the SDK is imported or a key read.
+
+    A flag that accepts nonsense on a paid path is not a small bug: the
+    run looks fine, costs money and measures something nobody asked for.
+    So the order matters as much as the checks — validate, then import,
+    then spend — and this holds the order by running the real `main()`
+    from a seat with no key at all.
+    """
+    monkeypatch.delenv("TEND_FENCED", raising=False)
+    monkeypatch.setenv("TEND_BOARD_DIR", str(board(tmp_path)))
+    monkeypatch.setenv("TEND_PROPOSAL_DIR", str(tmp_path / "p"))
+
+    def run(*args):
+        return compare.main(["compare.py", *args])
+
+    assert run("--draft") == 2, "a --draft with no card"
+    assert run("--draft", "lander.md") == 2, "a --draft with no --task"
+    assert run("--draft", "lander.md", "--task", "t", "--cut", "abc") == 2, \
+        "a --cut that is not a number"
+    assert run("--draft", "lander.md", "--task", "t", "--seed") == 2, \
+        "--seed belongs to the door's tools arm, not the draft turn"
+    assert not (tmp_path / "p").exists(), \
+        "a refused run wrote an account — it got further than it should have"

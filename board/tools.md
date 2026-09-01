@@ -644,3 +644,76 @@ prediction — does the `TASK:` line cite a line of the card the digest
 does not carry.  Arms 2 and 3 read far less, so the three together are
 about **$1.35**.
 
+### The three arms, as commands — 2026-09-01
+
+`--seed` and the `readchars` line in the account were built the same
+afternoon; before that, arm 3 could not be run at all and arm 2 could
+not be told apart from arm 1 afterwards.
+
+    # 1. baseline — the door's own readchars 60000, the drowning
+    for i in $(seq 1 24); do TEND_PROPOSAL_DIR=proposals/arms-baseline \
+      .venv/bin/python tools/compare.py --door openrouter --arm tools --thinking; done
+
+    # 2. head — a read returns a card's opening; executor.py:139 says how to continue
+    for i in $(seq 1 24); do TEND_READCHARS=4000 TEND_PROPOSAL_DIR=proposals/arms-head \
+      .venv/bin/python tools/compare.py --door openrouter --arm tools --thinking; done
+
+    # 3. seeded — the digest in the prompt AND the tools in the request
+    for i in $(seq 1 24); do TEND_PROPOSAL_DIR=proposals/arms-seeded \
+      .venv/bin/python tools/compare.py --door openrouter --arm tools --seed --thinking; done
+
+**`--thinking` is not optional and is the easiest thing to lose.**
+Without it the account records `thinking off — the node's own condition`
+and there is no reasoning channel to count, which is the whole
+measurement.  Five of the eleven tools-arm accounts already in the tree
+say exactly that, so this is a trap the tree has fallen into before.
+
+The tally reads the accounts rather than anybody's memory:
+
+    for d in proposals/arms-baseline proposals/arms-head proposals/arms-seeded; do
+      n=$(ls $d/compare/*.md 2>/dev/null | wc -l)
+      ch=$(grep -l 'chars of reasoning came back' $d/compare/*.md 2>/dev/null | wc -l)
+      pk=$(grep -l '^    outcome  picked' $d/compare/*.md 2>/dev/null | wc -l)
+      echo "$d: $n arms, $ch with a reasoning channel, $pk picks"
+    done
+
+### The call cap, which the first twelve arms put under suspicion
+
+*(question, measure — did the call cap of 10, and not the model or the
+tools, produce the 08-31 failure?  **12 arms at `TEND_CALLS=10`** against
+the 24 at 16, about fifty cents.)*
+
+Written mid-run on 2026-09-01, from the baseline arms' own call counts.
+Twelve arms in, the distribution was 4, 5, 6, 8, 8, 8, 9, 10, 13, 16, 17,
+17, 17 — **five of twelve used more than 10 calls**, and the six arms
+that produced the "1 in 6" finding all ran under a cap of 10.  An arm cut
+off at 10 calls is an arm stopped mid-investigation, and the third turn
+of 08-31 said so in its own words ("I have up to 10 calls per turn and
+I've already used 5 … 5 remaining") before ending with `Plan: 1. grep for
+…` as prose instead of the call.  That was read at the time as the model
+narrating instead of acting.  It reads now like a mind rationing.
+
+So the sentence this card has been carrying — *the tools arm is
+drowning* — may be describing a budget and not a design.  The cap was
+named as a comparability caveat before the 24 ran; the call counts turned
+it into the leading hypothesis, which is the difference between a
+variable named and a variable measured.
+
+    for i in $(seq 1 12); do TEND_CALLS=10 TEND_PROPOSAL_DIR=proposals/arms-calls10 \
+      .venv/bin/python tools/compare.py --door openrouter --arm tools --thinking; done
+
+**And it is a `measure`, so it is not Henri's.**  He set the cap to 10 on
+2026-09-01 and lifted it back to 16 the same morning, both by hand.
+Asking him which number is right would be the exact move
+`card:questions.md` was opened to stop: the evidence is cents away and
+nobody has run it.
+
+**The third arm is the card's own question answered better than it was
+asked.**  The two original arms confounded two variables — what the mind
+is *given*, and whether it may go and *read* — so neither could answer
+"what should the tools arm be given".  Seeded breaks the confound: the
+digest arm's prompt with the tools arm's request.  That only became
+obvious when the question was written down as
+`*(question, measure — …)*` next to the others, which is
+`card:questions.md` earning its place on its first afternoon.
+
