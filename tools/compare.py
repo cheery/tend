@@ -239,6 +239,36 @@ def _thinking_line(asked, thought):
             "answered in the content channel")
 
 
+#: What `deliver.sh:217` writes on a call it refused past the cap.  The
+#: courier's words, matched rather than reimplemented: if that sentence
+#: changes, this stops matching and the count goes back to counting
+#: attempts — which is why `test_compare.py` asserts the two agree
+#: against the real deliver.sh rather than against this string.
+REFUSED = "out of calls"
+
+
+def _calls_line(calls):
+    """`F012` — the calls a turn *ran*, and the ones it only asked for.
+
+    `deliver.sh:217` refuses a call past the cap and still records a `C:`
+    line for it, because the record's rule is that the person watches the
+    model act and a call the model made is something it did.  That is
+    right.  What was wrong is that one number then meant two things — what
+    the model wanted, and what the tree paid for — and every reader took
+    it as the second, including the write-up of the 48-arm run, which
+    compared 11.1 against 13.3 when the figures run were 10.9 and 12.6.
+
+    So: a bare count when nothing was refused, which is what every
+    account written before 2026-09-01 already means, and a two-part line
+    only where the old form was misleading.  Old accounts stay readable
+    and stay true; `F012` §"The shapes a fix could take" is shape (a).
+    """
+    refused = sum(1 for c in calls if REFUSED in c)
+    if not refused:
+        return str(len(calls))
+    return f"{len(calls) - refused} run, {refused} refused past the cap"
+
+
 def door_pick(door, tools, board, propdir, thinking=False, seed=False):
     """One pick turn through the door, ridden on tools/deliver.sh — the
     courier every talk turn rides, so the calls are run, capped and
@@ -300,7 +330,7 @@ def door_pick(door, tools, board, propdir, thinking=False, seed=False):
         f"    task     {got['task'] or '—'}\n"
         f"    why      {got['why'] or '—'}\n"
         f"    outcome  {outcome} — {got['andon'] or account.name}\n"
-        f"    calls    {len(calls)}\n"
+        f"    calls    {_calls_line(calls)}\n"
         f"    limits   deliver.sh's own; {_thinking_line(thinking, thought)}\n\n"
         + ("The calls:\n\n" + "".join(f"    C: {c}\n" for c in calls) + "\n" if calls else "")
         + "The reply, verbatim:\n\n" + "".join("    " + l + "\n" for l in reply.splitlines()))

@@ -393,3 +393,56 @@ def test_the_draft_mode_refuses_before_it_spends_anything(monkeypatch, tmp_path)
         "--seed belongs to the door's tools arm, not the draft turn"
     assert not (tmp_path / "p").exists(), \
         "a refused run wrote an account — it got further than it should have"
+
+
+# --- F012: the calls a turn ran, and the ones it only asked for ---
+
+def test_a_turn_that_hit_no_cap_says_the_number_it_always_said():
+    """Every account written before 2026-09-01 means `calls N` = N ran.
+
+    Shape (a) of F012 was chosen precisely so that stays true: the
+    two-part form appears only where the one-part form was wrong, so old
+    and new accounts are comparable without knowing which side of the fix
+    they fell on.
+    """
+    assert compare._calls_line(["read a.md → 2k", "ls board/ → 9"]) == "2"
+    assert compare._calls_line([]) == "0"
+
+
+def test_a_turn_that_hit_the_cap_separates_run_from_refused():
+    calls = ["read a.md → 2k",
+             "read b.md → out of calls (16 a turn)",
+             "read c.md → out of calls (16 a turn)"]
+    assert compare._calls_line(calls) == "1 run, 2 refused past the cap"
+
+
+def test_the_refusal_string_is_the_couriers_own_and_they_still_agree(tmp_path):
+    """The one that matters, and the reason this is not a unit test.
+
+    `compare.py` recognises a refused call by matching the words
+    `deliver.sh` writes.  A copy of another program's string is a claim
+    about that program, and it is measured like one (`board/README.md`,
+    the fixture rule) — so this drives the **real** courier past a cap of
+    1 and checks the account it produces, rather than checking compare.py
+    against a string typed twice in this repository.
+
+    If someone rewords deliver.sh:217, this test goes red and the count
+    does not silently go back to counting attempts, which is F012 itself.
+    """
+    srv, stub = _stub_server()
+    door = td.a_tooled_door(tmp_path, stub, tools="read ls")
+    t = td.a_tree(tmp_path)
+    td.SCRIPT["Pick."] = [("calls", [("ls", {"dir": "board/"}),
+                                     ("ls", {"dir": "board/"}),
+                                     ("ls", {"dir": "board/"})]),
+                          ("say", "CARD: x.md\nTASK: t\nWHY: w\n")]
+    r = _compare_door(tmp_path, "--arm", "tools",
+                      tree=t, stub=stub, door=dict(door, TEND_CALLS="1"))
+    srv.shutdown()
+    assert r.returncode == 0, r.stderr + r.stdout
+    txt = list((tmp_path / "props" / "compare").glob("*.md"))[0].read_text()
+
+    assert "calls    1 run, 2 refused past the cap" in txt, txt
+    # and the refusals are still on the record, because the person
+    # watches the model act — F012 is not about hiding them
+    assert txt.count("out of calls") >= 2, txt

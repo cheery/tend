@@ -662,6 +662,12 @@ not be told apart from arm 1 afterwards.
     for i in $(seq 1 24); do TEND_PROPOSAL_DIR=proposals/arms-seeded \
       .venv/bin/python tools/compare.py --door openrouter --arm tools --seed --thinking; done
 
+    # 4. unstarved — the head arm's reads with room to make them (added
+    #    2026-09-01 after the head arm hit the cap in 10 of its 24)
+    for i in $(seq 1 24); do TEND_READCHARS=4000 TEND_CALLS=32 \
+      TEND_PROPOSAL_DIR=proposals/arms-unstarved \
+      .venv/bin/python tools/compare.py --door openrouter --arm tools --thinking; done
+
 **`--thinking` is not optional and is the easiest thing to lose.**
 Without it the account records `thinking off — the node's own condition`
 and there is no reasoning channel to count, which is the whole
