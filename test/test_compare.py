@@ -138,3 +138,45 @@ def test_the_two_digests_are_the_same_digest_byte_for_byte(tmp_path):
             f"cap={cap}: the two digests have drifted\n"
             f"lead.sh tail: {prompt[-400:]!r}\ncompare.py:   {want[-400:]!r}")
     compare.DIGEST_CHARS = 20000
+
+
+# ── F011: record what came back, never what was asked for ───────────────
+# 2026-09-01: nine arms through the openrouter door with `--thinking`
+# across three models, and every account said `thinking on` — including
+# the five whose reasoning channel was empty.  The account recorded the
+# flag.  And the presence of a reasoning channel predicted whether the
+# turn produced a pick **nine times out of nine**, so the account was
+# hiding the one fact that has explained anything about the turn it
+# describes.
+
+def test_the_record_carries_the_thinking_that_came_back():
+    with_t = ("2026-09-01 07:30 Q: Pick.\n"
+              "2026-09-01 07:30 V: openrouter tencent/hy3\n"
+              "2026-09-01 07:30 T: I should look at the board.\nand keep thinking.\n"
+              "2026-09-01 07:30 A: CARD: flake.md\nTASK: x\n")
+    model, calls, reply, thought = compare._parse_replies(with_t)
+    assert "look at the board" in thought and "keep thinking" in thought, \
+        "a multi-line reasoning channel is carried whole"
+    assert reply.startswith("CARD: flake.md"), "and it is not mistaken for the answer"
+    assert "keep thinking" not in reply, "nor leaked into it"
+
+    without_t = ("2026-09-01 07:30 Q: Pick.\n"
+                 "2026-09-01 07:30 V: openrouter qwen/qwen3.8-max\n"
+                 "2026-09-01 07:30 A: Let me look at the board.\n")
+    _, _, reply2, thought2 = compare._parse_replies(without_t)
+    assert thought2 == "", "no reasoning channel is an empty one, not a missing field"
+    assert reply2.startswith("Let me look")
+
+
+def test_the_account_says_what_came_back_not_what_was_asked_for():
+    """F011's whole point.  `thinking on` was true of the request and false
+    of the turn, and a reader comparing a thinking run against a
+    non-thinking one had no way to tell the two apart."""
+    asked_and_got = compare._thinking_line(True, "some reasoning")
+    asked_and_none = compare._thinking_line(True, "")
+    not_asked = compare._thinking_line(False, "")
+    assert "came back" in asked_and_got
+    assert "NO reasoning" in asked_and_none, asked_and_none
+    assert asked_and_none != asked_and_got, "the two turns must not read the same"
+    assert "off" in not_asked and "NO reasoning" not in not_asked, \
+        "a turn that never asked is not a turn that asked and got nothing"

@@ -542,8 +542,44 @@ It does not settle statement 1 — his models were tried elsewhere, on
 other tasks, without this courier — and the `--arm tools` run still
 decides it for a few cents.
 
-**What is owed now**: `--arm tools` on a second model, which is cents and
-decides statement 1; and, if the tools arm is to be measured fairly at
+### The same morning, three more arms and two more models — statement 1 is answered
+
+Henri ran `--arm tools` three more times: `tencent/hy3` twice and
+`xiaomi/mimo-v2.5` once.  With the six above that is **nine arms across
+three models**, and it settles the question the section above could not.
+
+| model | arm | reasoning | calls | pick |
+|---|---|---|---|---|
+| qwen/qwen3.8-max | digest x3 | yes x3 | 0 | canvas, flake, flake |
+| qwen/qwen3.8-max | tools x3 | no x3 | 7, 10, 5 | — |
+| tencent/hy3 | tools | no | 10 | — |
+| xiaomi/mimo-v2.5 | tools | no | 15 | — |
+| tencent/hy3 | tools | **yes**, 8370 chars | 10 | **model-acceptance.md** |
+
+**Statement 1 is wrong as it was written, and the correction is Henri's.**
+The section above says reasoning and tool-calling "do not compose in this
+model", and this reading first repeated it with the successful turn
+attributed to qwen.  It was `hy3` — his correction — and `hy3` ran the
+tools arm *twice*, once with a reasoning channel and once without.  So the
+channel is **intermittent, not suppressed**: it is not a property of the
+model and not a switch that tools throw.  One arm in six got it.
+
+**What survives, and it is stronger than what it replaces.**  Across all
+nine arms, a reasoning channel came back four times and a pick was
+produced four times, and **they are the same four**.  Nine for nine, three
+models, both arms.  Nothing else in this measurement has predicted
+anything: not the model, not the arm, not the call count — the one tools
+arm that succeeded used 10 calls, the same as one that failed.  The card's
+`because` asked what a mind at the door may do; the measurement's answer
+so far is that what it may do matters less than whether it was given
+somewhere to think that is not its answer.
+
+That is now visible in every account (`F011`, resolved the same day), and
+what it makes owed is a *count*, not another anecdote: the same arm run
+enough times on one model to say how often the channel arrives.  Six arms
+cannot tell 1-in-6 from bad luck.
+
+**What is owed now**: the count above, which is cents; and, if the tools arm is to be measured fairly at
 all, something between "the whole card" and "the digest" for it to read —
 which is a question for this card and not a defect, and is not opened
 here.

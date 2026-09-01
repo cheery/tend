@@ -165,21 +165,51 @@ def _parse_replies(text):
     """One exchange out of deliver.sh's record: the V: (who answered), the
     C: lines (the calls), and the A: — whose own newlines continue on
     unprefixed lines to the end of the file."""
-    model = ""; calls = []; ans = []; in_a = False
+    model = ""; calls = []; ans = []; thought = []; in_a = False; in_t = False
     for line in text.splitlines():
         if in_a:
             ans.append(line); continue
         m = re.match(r"^\d{4}-\d\d-\d\d \d\d:\d\d ([A-Z]): (.*)$", line)
         if not m:
+            # F011: the reasoning channel's own newlines continue on
+            # unprefixed lines, exactly as the answer's do, and until
+            # 2026-09-01 they were dropped here with the rest of it
+            if in_t:
+                thought.append(line)
             continue
         k, v = m.groups()
+        in_t = False
         if k == "V":
             model = v.split(" ", 1)[-1]   # the V line is "door model"
         elif k == "C":
             calls.append(v)
+        elif k == "T":
+            thought.append(v); in_t = True
         elif k == "A":
             ans.append(v); in_a = True
-    return model, calls, "\n".join(ans).strip()
+    return model, calls, "\n".join(ans).strip(), "\n".join(thought).strip()
+
+
+def _thinking_line(asked, thought):
+    """F011 — what the account says about thinking.
+
+    Until 2026-09-01 this was `thinking on` whenever `--thinking` was
+    passed, which is a fact about the *request*.  Nine arms that day
+    through one door across three models: every account said `thinking
+    on`, five had an empty reasoning channel, and whether a channel came
+    back predicted whether the turn produced a pick nine times out of
+    nine.  The account was recording the flag and hiding the only
+    variable that had explained anything.
+
+    A turn that never asked and a turn that asked and got nothing are
+    different turns and must not read the same.
+    """
+    if not asked:
+        return "thinking off — the node's own condition"
+    if thought:
+        return f"thinking asked on, and {len(thought)} chars of reasoning came back"
+    return ("thinking asked on, and NO reasoning came back — the model "
+            "answered in the content channel")
 
 
 def door_pick(door, tools, board, propdir, thinking=False):
@@ -205,7 +235,7 @@ def door_pick(door, tools, board, propdir, thinking=False):
                        capture_output=True, text=True, env=env)
     if r.returncode != 0:
         raise RuntimeError((r.stderr or r.stdout).strip() or f"deliver exited {r.returncode}")
-    model, calls, reply = _parse_replies((state / "replies").read_text())
+    model, calls, reply, thought = _parse_replies((state / "replies").read_text())
     got = read_reply(reply, board)
     account = state.with_suffix(".md")
     outcome = "andon" if got["andon"] else "picked"
@@ -221,7 +251,7 @@ def door_pick(door, tools, board, propdir, thinking=False):
         f"    why      {got['why'] or '—'}\n"
         f"    outcome  {outcome} — {got['andon'] or account.name}\n"
         f"    calls    {len(calls)}\n"
-        f"    limits   deliver.sh's own; thinking {'on' if thinking else 'off'}\n\n"
+        f"    limits   deliver.sh's own; {_thinking_line(thinking, thought)}\n\n"
         + ("The calls:\n\n" + "".join(f"    C: {c}\n" for c in calls) + "\n" if calls else "")
         + "The reply, verbatim:\n\n" + "".join("    " + l + "\n" for l in reply.splitlines()))
     return account, got, calls, model
