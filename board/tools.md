@@ -803,6 +803,105 @@ the mind is given* from *whether it may read*.  With the head arm at
 24/24 it now has a harder job than it did this morning: it has to beat a
 ceiling.
 
+
+## 2026-09-01, 15:33–15:59 — the other two arms, and the knob is neither the calls nor the digest
+
+Henri ran `unstarved` and `seeded`, 24 each.  **96 arms in all**, one
+model, one door, one afternoon.
+
+| arm | reasoning channel | picks | calls run | chars read |
+|---|---|---|---|---|
+| baseline — read 60000, calls 16 | 15/24, 95% CI [0.41, 0.81] | 17/24 | 10.9 | **175.8k** |
+| **head — read 4000, calls 16** | **24/24, [0.86, 1.00]** | **24/24** | 12.6 | **46.2k** |
+| seeded — read 60000, calls 16, +digest | 19/24, [0.58, 0.93] | 20/24 | **7.4** | 133.5k |
+| unstarved — read 4000, calls 32 | 22/24, [0.73, 0.99] | 22/24 | 10.9 | **38.5k** |
+
+Against head, on the channel: baseline **p = 0.0016**, seeded
+**p = 0.0496**, unstarved **p = 0.4894**.
+
+### The starved-ceiling hypothesis is falsified, and it was a session's
+
+Written at 15:2x, from the head arm hitting its cap in 10 of 24: *"the
+smaller reads make the mind want more of them, and it was cut off in
+nearly half its runs and still went 24 for 24 — so `readchars 4000` with
+`calls` above 16 is an arm nobody has run, and it is the obvious next
+one."*
+
+Run at 32 calls, it went **22/24, not better than 24/24** (p = 0.49) —
+and it used **fewer** calls than the head arm, 10.9 against 12.6, with
+**zero** arms hitting the cap.  Handed twice the budget it took less.
+
+So the head arm's ten capped runs were never being starved.  Hitting a
+cap and being hurt by a cap are different things, and a session read the
+first as the second.  The prediction was specific, cheap, and wrong,
+which is the good kind: about thirty cents to close a plausible line
+that would otherwise have sat in this card as a standing "obvious next
+step".
+
+### What the four arms actually separate
+
+Rank them and the knob is not subtle:
+
+    read  4000  →  24/24, 22/24
+    read 60000  →  19/24, 15/24
+
+Calls did not matter (16 vs 32: no difference).  The digest helped a
+little (15/24 → 19/24) and did not come close to what the read budget
+did.  **`readchars` is the variable**, and everything else this card has
+argued about for two days was noise beside it.
+
+**Chars read is the cleaner predictor still**: 175.8k and 133.5k are the
+two arms that fail; 46.2k and 38.5k are the two that work.  It is not
+how many things the mind looks at, nor how many it may look at — it is
+**how much comes back each time it looks.**  A 40k document in a single
+tool result is what breaks the turn, and it breaks it whether the mind
+asked for one or four.
+
+### The digest buys coverage; small reads buy reliability; nobody has run both
+
+The cards each arm reached for, and no two lists are alike:
+
+| arm | picked |
+|---|---|
+| baseline | simpleqa 6, model-acceptance 5, questions 3, rewritten-command 2 (7 failed) |
+| head | questions 10, silent-cord 6, kaizen-ingestion 6, lander 2 |
+| seeded | **swe-bench 8, session-program 5**, simpleqa 4, private 1 (4 failed) |
+| unstarved | silent-cord 8, kaizen-ingestion 6, questions 5, rewritten-command 2 |
+
+**Only the seeded arm found the two newest cards** — `swe-bench.md` and
+`session-program.md`, both written or reopened within the hour before it
+ran — and it found them thirteen times in twenty-four.  That is the
+digest doing exactly what a digest is for: every card's `because` in the
+prompt, so nothing is invisible.  The small-read arms never picked
+either, because a mind reading heads has to *stumble* on a card to know
+it exists.
+
+So the two knobs buy different things and neither substitutes for the
+other.  **The arm nobody has run is the digest with `readchars 4000`** —
+coverage from the prompt, reliability from the read budget — and on this
+evidence it is the one worth running next.  It is also the arm the tree's
+own `lead.sh` most resembles, which is worth noticing.
+
+### And the seeded arm found this card's own missing piece, unprompted
+
+Five of its twenty-four picks were `session-program.md`, and the task it
+proposed was, near enough verbatim, the question a session had written
+into that card an hour earlier as **`his call`**: *"draft the precise
+'cold' control-arm definition — same board and task, but with none of the
+tree's conditioning prose."*  One of the five even named the reason: *"the
+card says this has been deferred four days."*
+
+A model given the board's digest and read access, asked for one small
+thing, picked the same open question a session had picked, from the same
+card, without being told it was open.  That is not proof of anything —
+it read the card, and the card says so — but it is the first time in 96
+arms that the door's mind and the tree's own reading of what is owed have
+landed on the same line.
+
+*(question, measure — does the digest with `readchars 4000` beat both?
+**24 arms, about $0.35**, and it is the last cell of the 2×2 this
+afternoon filled three of.)*
+
 ### The call cap, which the first twelve arms put under suspicion
 
 *(question, measure — did the call cap of 10, and not the model or the
