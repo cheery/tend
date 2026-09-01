@@ -677,6 +677,126 @@ The tally reads the accounts rather than anybody's memory:
       echo "$d: $n arms, $ch with a reasoning channel, $pk picks"
     done
 
+## 2026-09-01, 14:44–15:14 — 48 arms, and the drowning was the cut, not the tools
+
+Henri ran the baseline and head arms, 24 each, `--thinking`, through the
+openrouter door on `tencent/hy3`.  The seeded arm is still owed.
+
+| arm | reasoning channel | picks | calls (min/mean/max) |
+|---|---|---|---|
+| baseline, `readchars` 60000 | **15 / 24** — 0.625, 95% CI [0.406, 0.812] | 17 / 24 | 4 / 10.9 / 16 |
+| head, `readchars` 4000 | **24 / 24** — 1.000, 95% CI [0.858, 1.000] | **24 / 24** | 4 / 12.6 / 16 |
+
+*Calls **run**, not attempted.  The account's `calls` field counts
+attempts and a refusal past the cap is one — so the first reading of this
+table said 11.1/17 and 13.3/20, which is `F012` and is corrected here.*
+
+Fisher two-sided: channel **p = 0.0016**, pick **p = 0.0094**.
+
+### The prior was bad luck, and 24 arms were the right number to say so
+
+The pre-registered question was whether the channel rate is 1 in 6.
+**It is not**: 1/6 = 0.167 falls outside [0.406, 0.812], and 1/2 falls
+inside.  The six arms of 08-31 that produced "one in six" were a run of
+bad luck on a rate near 0.6, which is exactly the thing this card said
+six arms could not tell apart from a real rate — and exactly why the
+number chosen was 24.  This is the design working, and it is worth
+saying plainly that **the finding this card carried for a day was
+wrong.**
+
+### `readchars 4000` is not an improvement, it is a floor and a ceiling
+
+Zero failures in 24.  The head arm never once failed to produce a
+reasoning channel or a pick.  The card's sentence — *the tools arm is
+drowning, and it is the card prose that drowns it* — turns out to be
+right about the cause and wrong about the remedy it implied: the fix is
+not to give the tools arm less to *read about*, it is to give it less
+*per read*.  `tools/executor.py:139` already says what it cut and how to
+continue, so a 4000-char read is a card's head with an offer of the
+rest, and the mind takes the offer.
+
+### The call cap is cleared, and the question written an hour ago is withdrawn
+
+Mid-run, the baseline call counts (five of twelve above 10) made the cap
+of 10 the leading suspect for the 08-31 failures, and a
+`*(question, measure — …)*` was written for it.  **The head arm kills
+it.**  Head *ran* more calls than baseline — mean 12.6 against 10.9 —
+and failed zero times.  A budget that starves an arm does not do that.
+The question is withdrawn rather than
+run: a question leaves when it is answered, when it is withdrawn, or
+when the measurement that answers it is run, and this one was answered
+by a measurement aimed at something else.
+
+*(The `calls 20` against a door that says `calls 16` looked like the cap
+failing and is not: `calls` is **16 + the refusals**, exactly, in all ten
+arms that exceeded it.  The cap holds; the account's field counts
+attempts.  `F012`.)*
+
+**And the head arm reached its ceiling while starved.**  Ten of its 24
+arms hit the cap of 16, against five of the baseline's — the smaller
+reads make the mind want *more* of them, and it was cut off in nearly
+half its runs and still went 24 for 24.  What the cap refused it, most
+often: `questions.md` 4, `hold.md` 3, `rewritten-command.md` 2,
+`canvas.md` 2.  So `readchars 4000` with `calls` above 16 is an arm
+nobody has run, and it is the obvious next one.
+
+### The 08-31 correlation is half right, and the half that fails is the interesting one
+
+That reading said a reasoning channel and a pick were "the same four
+events, nine for nine".  Across these 48:
+
+| | channel + pick | channel, no pick | **no channel, but a pick** | neither |
+|---|---|---|---|---|
+| baseline | 15 | 0 | **2** | 7 |
+| head | 24 | 0 | 0 | 0 |
+
+A channel is **sufficient** — every arm that got one produced a pick,
+48 for 48 — and it is **not necessary**: two baseline arms picked with
+the reasoning channel empty.  So the sentence to keep is *a channel
+guarantees a pick*, and the sentence to drop is *only a channel
+produces one*.
+
+### What nobody predicted: the two arms want different cards
+
+| arm | what it picked |
+|---|---|
+| baseline | simpleqa 6, model-acceptance 5, questions 3, rewritten-command 2, tools 1, (failed 7) |
+| head | **questions 10, silent-cord 6, kaizen-ingestion 6, lander 2** |
+
+**No card appears in both lists.**  This is not a better mind picking
+better; it is a different mind seeing a different board.  Reading whole
+40k cards, it reaches four or five of them and picks from those;
+reading 4k heads, it samples widely and lands somewhere else entirely.
+The card's standing prediction was about *citation depth* — does the
+tools arm's `TASK:` cite a line the digest does not carry — and this
+result says the prior question is bigger: **the material budget decides
+which cards are candidates at all.**
+
+**A correction, and the corrected fact is better than the claim it
+replaces.**  The paragraph above first ended *"neither arm ever reached
+`work-environment-ai`, which remains true across every measurement this
+card has run"* — read off the pick lists, where it is absent, without
+looking at the read lists, where it is not.  It is **read 7 times by the
+baseline and 15 times by the head arm**, and picked zero times out of
+48.  So the tree's top-priority card is not invisible to a tooled mind
+at all: the mind opens it, reads it, and puts it down.  That is a far
+sharper fact than the one asserted, and it was one `grep` away from
+being right the first time — `count-before-you-write-it`, whose whole
+rule is to read the file rather than the prose about the file.
+
+Why it declines is not measured here and is worth a line when someone
+does measure it: `work-environment-ai` names a problem with no day one
+in it, and the pick prompt asks for *one small thing that could be
+drafted now*.  A card with nothing small in it may simply be answering
+the question it was asked.
+
+### What is owed
+
+The seeded arm, 24 at `--seed`, which is the arm that separates *what
+the mind is given* from *whether it may read*.  With the head arm at
+24/24 it now has a harder job than it did this morning: it has to beat a
+ceiling.
+
 ### The call cap, which the first twelve arms put under suspicion
 
 *(question, measure — did the call cap of 10, and not the model or the
