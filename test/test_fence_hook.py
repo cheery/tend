@@ -126,3 +126,71 @@ def test_every_requested_row_must_be_in_the_bound():
 def test_there_is_no_nofence():
     assert "NOFENCE" not in HOOK.read_text(encoding="utf-8").split("set -euo pipefail")[1]
     assert rewritten("NOFENCE=1 ls").startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh")
+
+
+# ── card:rewritten-command.md day one — refuse the route ─────────────────
+# The harness substitutes braced shell expansions in a session's own
+# command text before it runs, inside a quoted heredoc where the shell
+# would not.  It has committed twice (tools/consult.sh, 2026-08-28) and
+# fired five times in the sitting that carded it.  A hook cannot see the
+# damage — the rewrite happens before the hook is handed the command — so
+# what is refused is the route: a heredoc that writes a file.  A heredoc
+# that only computes and prints is untouched, and that boundary is the
+# whole of the build.
+
+def _deny(command):
+    out = hook(command)["hookSpecificOutput"]
+    assert out["permissionDecision"] == "deny", f"expected a refusal for: {command!r}"
+    assert "updatedInput" not in out, "refused, never silently rewritten"
+    return out["permissionDecisionReason"]
+
+
+def test_a_heredoc_that_writes_a_file_is_refused_and_names_the_way_round():
+    why = _deny("cat > tools/thing.sh <<'EOF'\necho hi\nEOF")
+    assert "Write tool" in why, why
+    assert "rewritten-command" in why, "the refusal names the card that explains it"
+
+
+def test_a_python_heredoc_that_writes_a_file_is_refused():
+    _deny("python3 - <<'PY'\nimport pathlib\npathlib.Path('x').write_text('hi')\nPY")
+    _deny("python3 - <<'PY'\nopen('x', 'w').write('hi')\nPY")
+    _deny("cat >> doc/notes.md <<'EOF'\nline\nEOF")
+
+
+def test_a_heredoc_that_only_measures_is_not_refused():
+    """The boundary the card names.  A scratch measurement that reads and
+    prints must pass, or the rule taxes every sitting to prevent a defect
+    that has committed twice in nine days."""
+    for ok in ("python3 - <<'PY'\nprint(len(open('x').read()))\nPY",
+               "python3 - <<'PY'\nimport pathlib\nprint(pathlib.Path('x').read_text()[:80])\nPY"):
+        assert hook(ok)["hookSpecificOutput"].get("permissionDecision") != "deny", ok
+
+
+def test_a_comparison_inside_a_heredoc_body_is_not_a_redirect():
+    """The false positive that would have made this rule unusable: `>` is a
+    redirect on the command line and an ordinary comparison inside a python
+    body, and the two must not be confused."""
+    ok = "python3 - <<'PY'\nn = 9\nif n > 8:\n    print('bigger')\nPY"
+    out = hook(ok)["hookSpecificOutput"]
+    assert out.get("permissionDecision") != "deny", "a comparison is not a write"
+    assert "updatedInput" in out
+
+
+def test_a_command_with_no_heredoc_is_untouched_by_the_rule():
+    for ok in ("sed -n '1,5p' tools/lead.sh 2>/dev/null",
+               "grep -c because board/*.md > /dev/null",
+               "git status --short"):
+        out = hook(ok)["hookSpecificOutput"]
+        assert out.get("permissionDecision") != "deny", ok
+
+
+def test_a_heredoc_that_is_data_and_not_code_is_not_scanned_for_writes():
+    """Measured against this sitting's own commands, 2026-09-01: the rule's
+    one false refusal was a *commit message* whose prose contained
+    `write_text(`, because the body was scanned as code when nothing was
+    going to run it as code.  This tree's commit messages talk about code
+    all day, and they are how it keeps its record."""
+    out = hook("git commit -q -F - <<'MSG'\nfixed the write_text( call and the 16 -> 10 cap\nMSG")
+    assert out["hookSpecificOutput"].get("permissionDecision") != "deny"
+    # and the same body through an interpreter is still refused
+    _deny("python3 - <<'PY'\nimport pathlib\npathlib.Path('x').write_text('hi')\nPY")

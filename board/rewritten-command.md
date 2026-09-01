@@ -102,3 +102,65 @@ which is worth having on its own.
 It would also be wrong if the harness stops doing it.  Nothing in this
 tree controls that, and a card that waits on someone else's fix waits in
 `later/`, not here.
+
+## 2026-09-01 — day one landed, and the boundary was measured, not designed
+
+`tools/fence-hook.sh` refuses a heredoc that writes a file, and names the
+Write tool and this card in the refusal.  Red first: two refusal tests
+failed before the rule and the three allowance tests passed, which is the
+right shape — the allowances were already true and the refusals were the
+new behaviour.
+
+**The boundary, in two lines of it.**  A redirect is looked for only in
+the text *before* the first heredoc marker — that is the command line,
+and inside a python body `>` is a comparison.  And the body is scanned
+for write calls only when the head names an interpreter, because a
+heredoc nobody will execute is data: `git commit -F -` carries a message,
+and this tree's messages talk about code all day.
+
+**Both of those lines exist because the first version was wrong, and the
+measurement is what said so.**  Rather than reason about the boundary,
+the rule was run against this sitting's own commands — the real shapes,
+copied out of what had actually been typed that morning:
+
+| shape | verdict |
+|---|---|
+| write a file, python heredoc | **refused** |
+| append to a test file, `cat >>` | **refused** |
+| create an F-number, `cat >` | **refused** |
+| commit with a message | allowed |
+| commit whose prose says `write_text(` | allowed |
+| measure and print, python heredoc | allowed |
+| measure with a `>` comparison in the body | allowed |
+| shell loop, no heredoc | allowed |
+| pytest | allowed |
+| redirect to a scratch file, no heredoc | allowed |
+
+The first run of that table refused two of the allowed rows: a
+measurement, because the `x` in `open('x')` was read as a file mode; and a
+commit message, because its prose named `write_text(`.  Both are now
+tests.  Three refusals, seven allowances, and every refusal is the route
+the card was opened for — so the tax is the defect and nothing else,
+which is what §"What would make this card wrong" asked to be shown before
+this was worth keeping.
+
+**Not in force until Henri runs `sudo tools/install.sh`** — hooks run the
+installed copies, and the tree's are the workbench (`done/install.md`).
+The lander lamp says so from the next prompt.
+
+**What day one does not cover**, named rather than discovered later:
+
+- **Write routes the rule does not enumerate** — `sed -i` fed from a
+  heredoc, `dd of=`, an `awk > file` inside a body, a `subprocess` that
+  writes.  It catches the shapes this session actually uses; a new shape
+  is a new line and a new test.
+- **The same defect without a heredoc.**  `echo "…" > file` with a braced
+  expansion is eaten the same way, and is not refused, because outside a
+  heredoc a braced expansion is often exactly what was wanted.  The
+  heredoc is where the intent is unambiguous, which is why the rule is
+  drawn there and not wider.
+- **Commit messages.**  They are persisted text, the corruption would
+  damage them, and they are deliberately allowed — there is no evidence
+  of a message ever being eaten, and refusing them would make every
+  commit a two-step. If one is ever found corrupted, that is the third
+  line of this section and one more test.

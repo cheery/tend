@@ -75,6 +75,69 @@ if [[ $cmd =~ ^[[:space:]]*([^[:space:]]*/)?tools/sandbox\.sh[[:space:]]+(--chec
   exit 0
 fi
 
+# card:rewritten-command.md day one — the route, refused.
+#
+# The harness substitutes braced shell expansions into a session's own
+# command text before it runs — inside a quoted heredoc, where the shell
+# itself would not — so a session writes one thing and another executes,
+# at exit 0, leaving a hole and not an error.  It reached committed files
+# twice (`tools/consult.sh` shipped "trimmed to  chars", no number,
+# 01f422e and c6e9fc5, 2026-08-28) and fired five times in the sitting
+# that carded it, twice inside the prose recording it.
+#
+# **A hook cannot see this defect.**  The rewrite happens before the tool
+# call is handed here, so the expansion is already gone from what arrives:
+# an empty pair of backticks, a doubled space.  There is nothing to
+# detect, and a check for braced forms would inspect text they have
+# already vanished from.  So what is refused is the *route* — a heredoc
+# that writes a file — and the session is sent to a tool whose text does
+# not pass through a shell.  This is card:lost-write.md's shape: the
+# announced half of this defect already prints a warning, and the warning
+# was read and worked past three times in one sitting, so annotating the
+# route was never going to be the fix.
+#
+# **The boundary, which is the whole of the build.**  A redirect is looked
+# for only in the text *before* the first heredoc marker — that is the
+# command line, and inside a python body `>` is a comparison, not a
+# redirect.  `test_fence_hook.py` holds both directions, and the
+# comparison case is the false positive that would have made this rule
+# unusable.  A heredoc that only computes and prints is untouched.
+if [[ $cmd == *"<<"* ]]; then
+  head_="${cmd%%<<*}"
+  # /dev/null and >&N are not writes; drop them before looking for one
+  head_="$(printf '%s' "$head_" | sed 's|[0-9]*>>*[[:space:]]*/dev/null||g; s|>&[0-9-]*||g')"
+  writes=""
+  if printf '%s' "$head_" | grep -qE '(^|[^0-9])>>?[[:space:]]*[^|[:space:]]'; then
+    writes="a redirect on the command line"
+  elif printf '%s' "$head_" | grep -qE '(^|[[:space:]])tee([[:space:]]|$)'; then
+    writes="a tee on the command line"
+  # The body is scanned as *code* only when something is going to run it as
+  # code — the head names an interpreter.  Otherwise the heredoc is data:
+  # `git commit -F -` carries a message, and this tree's messages talk about
+  # code all day.  Measured 2026-09-01 against the sitting's own commands: a
+  # commit message containing `write_text(` was the rule's one false refusal
+  # before this line, and commit messages are how the tree keeps its record.
+  #
+  # `open(` needs its *mode*, the argument after the comma: `open('x')` is a
+  # read, and its variable name must not be mistaken for a mode letter — the
+  # first run of this rule refused a measurement because the `x` in
+  # `open('x')` matched, which is why the comma is here.
+  elif printf '%s' "$head_" | grep -qE '(^|[[:space:]/])(python[0-9.]*|perl|ruby|node|bash|sh|zsh)([[:space:]]|$)' \
+       && printf '%s' "$cmd" | grep -qE "write_text\(|\.writelines\(|\.write\(|json\.dump\(|open\([^)]*,[^)]*['\"][wax]"; then
+    writes="a write call inside the heredoc"
+  fi
+  if [[ -n $writes ]]; then
+    jq -n --arg w "$writes" '{
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: ("fence: this heredoc writes a file (" + $w + "), and the harness silently drops braced shell expansions from a heredoc before it runs — a hole at exit 0, committed twice already.  Use the Write tool for the file, then grep the result.  A heredoc that only computes and prints is fine.  card:rewritten-command.md")
+      }
+    }'
+    exit 0
+  fi
+fi
+
 # The request: a leading `REACH=row,row `.
 reach=""
 if [[ $cmd =~ ^[[:space:]]*REACH=([a-z,]+)[[:space:]]+(.*)$ ]]; then
