@@ -887,10 +887,13 @@ Three things, and the first two are writing rather than building.
 *(question, measure — does gemma4 at `readchars 4000` lead a turn the
 way hy3 did?  **The head arm's result predicts yes and nothing has
 tried it**; the node is local, so this arm costs wall-clock and no
-money.)*
+money. henri: measure 2026-09-01)*
 
 *(question, his call — is "cold" the same board with none of the tree's
 prose, or something else?  A session can propose the definition and
 should not settle it: the comparison this card exists for is decided by
 what the control arm is, and a session defining its own control is the
-shape `manifesto.md` §"How a practice gets adopted" warns about.)*
+shape `manifesto.md` §"How a practice gets adopted" warns about.
+henri: I think we should create some sort of a tree that has imperative
+commandments in it that match the stuff we have here, but written as commands
+without rationale or provenance)*
