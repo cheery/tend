@@ -214,6 +214,23 @@ between two workable cards is Henri's.
     not built stays not built — the gathering tool and the lamp —
     because the `his call` queue has one entry, and a lamp counting to
     one is nagging.*
+16. **[swe-bench](swe-bench.md)** — every measurement this tree has run
+    asks what a *mind* does at the door, and none asks what the tree is
+    for: the claim that a session working inside the fence, the board and
+    the cords does better work than one without has never been put to a
+    task with a right answer, and the only evidence is kaizens written by
+    the party being judged.  *Placed last by the session that wrote it on
+    2026-09-01 at Henri's "lets card the SWE-bench lite as shape (2)",
+    his pick of two things wearing one name — (1) SWE-bench through the
+    door, another arm on `tools/compare.py`, and (2) SWE-bench worked by
+    a session under the fence.  He took the harder one.  Day one is
+    deliberately **not** the benchmark: one instance, by hand, both ways,
+    because every hard part is a guess until one has been through — which
+    is the lesson taken from `card:simpleqa.md` running all 150 and
+    finding its bins could not see the thing that mattered.  The card
+    names what would make it wrong, and it is live: that the fence is a
+    tax on a coding task and the difference shows up in the record a
+    session leaves rather than in the fix.  The tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

@@ -808,3 +808,89 @@ or when it lives in the tree, the unknown door, the kept refusal, and
 every checked-in door parsing — all red against the previous commit.
 Not measured: a live turn through either door; that is the day one of
 the keys.
+
+## 2026-09-01, 15:40 — taken under work, and the first act is admitting where it stands
+
+At Henri's *"take the session-program under work"*.  The card's last
+entry was 2026-08-29 evening.  **Four days of work have gone into the
+door and none into this card's own milestone**, which is not a criticism
+of the door — it is the other half of his "both" — but it needs saying
+plainly before anything else is written here.
+
+**The milestone, unchanged since 08-28**: *"not 'gemma4 answers' but
+'gemma4 finishes a card and we can tell it from gemma4 with no tree'."*
+The estimate that day was ~2–4 sittings.  Four days later, the count of
+led turns through **gemma4** is what it was, and the count through the
+**door** is in the dozens — 48 arms on 2026-09-01 alone.  The three
+bricks are built and the loop runs; what has not happened is the
+comparison the card exists for.
+
+### What the door work bought this card, which is more than it looks
+
+The 48 arms of `card:tools.md` were run on `tencent/hy3`, and their
+finding transfers directly and was not looked for:
+
+**A tooled mind reading whole 40k cards produced a usable turn 15 times
+in 24.  The same mind, with `readchars` at 4000, produced one 24 times in
+24** (Fisher p = 0.0016).  The knob is what a single read returns, not
+what the mind is given overall.
+
+That matters here more than it does there.  `card:tools.md` §"Short
+prompts" already recorded the reason: at 4B active, gemma4 is the model
+least able to carry a 40k document and still act — the card wrote that
+about *tool names* ("a name the model has never seen is a call it makes
+badly") and the same argument applies with more force to material.  **The
+most likely single reason gemma4 has not led a turn well is the one thing
+measured today**, and nobody had connected them because the measurement
+was aimed at a different card.
+
+So the conditioning measurement should not be run at the settings the
+node has now.  Running it at `readchars 60000` would measure gemma4
+drowning, and would be read as measuring gemma4.
+
+### What the milestone actually needs, named as three things and not "a sitting"
+
+1. **gemma4 led turns at `readchars 4000`, enough of them to count.**
+   The instrument exists (`tools/lead.sh NODE`), the knob exists
+   (`TEND_READCHARS`), the node exists.  This is cheap in money — the
+   node is local — and expensive in wall-clock at 9.4 tokens/s.  **It is
+   also the one arm in this whole family that costs nothing to get
+   wrong**, which is an argument for running it before any more paid
+   arms.
+2. **The cold arm, which has never been defined.**  "gemma4 with no
+   tree" is written in the card three times and specified nowhere.  Cold
+   is not *no board* — a model asked to work a board it cannot see
+   produces nothing, and that comparison is rigged.  The honest cold arm
+   is the same board, the same task, and **none of the tree's
+   conditioning**: no `board/README.md`, no manifesto, no kaizen, no
+   card prose about how work is done here.  Writing that down precisely
+   is a prerequisite, not a detail, and it has been deferred for four
+   days.
+3. **A verdict a person can read.**  `card:swe-bench.md`, opened the same
+   afternoon, has the same problem one level up and states it: a
+   measurement whose result the tree cannot act on produced prose.  What
+   would make this one actionable is not "conditioned looks better" but a
+   named thing the conditioned turn does that the cold one does not —
+   cites a card, refuses a task, pulls the andon, writes a `because` as
+   a problem.  Countable, or it is a mood.
+
+### The honest state, for whoever picks this up
+
+**Built and shown**: the node under keep, delivery, the model acting on
+what it reads, propose-only writing, `lead.sh`, the heartbeat, the
+kernel boundary, the doors, the tools, the executor's cut notice.
+
+**Not built**: the cold arm's definition; the conditioning run at
+settings that are not known-bad; the verdict's countable criterion.
+Three things, and the first two are writing rather than building.
+
+*(question, measure — does gemma4 at `readchars 4000` lead a turn the
+way hy3 did?  **The head arm's result predicts yes and nothing has
+tried it**; the node is local, so this arm costs wall-clock and no
+money.)*
+
+*(question, his call — is "cold" the same board with none of the tree's
+prose, or something else?  A session can propose the definition and
+should not settle it: the comparison this card exists for is decided by
+what the control arm is, and a session defining its own control is the
+shape `manifesto.md` §"How a practice gets adopted" warns about.)*
