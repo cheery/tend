@@ -80,8 +80,8 @@ cheap — show the check red against the defect it names before trusting
 it, which `tools/mutate.sh` does for the detectors and a red-first test
 does for everything else.  The sentence stops being borrowed on the day
 tend paid for it three times.
-*(self-shaped, 2026-09-01 — a session wrote this rule about sessions;
-nobody has stood behind it.  Henri strikes the mark.)*
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+henri: approved 2026-09-01)*
 
 ## How a practice gets adopted
 
@@ -112,9 +112,10 @@ So the draft carries (self-shaped) where it stands, the way an F-entry's cause
 carries suspected, and only Henri's hand takes it off.
 **Marked, it is a rule the tree follows and nobody has yet stood behind. Unmarked, he stands behind it.**
 
-**An example of a marked paragraph.**  The rule below is real — it is
-`board/README.md` §"What the days taught"'s newest, promoted by an
-ingestion batch on 2026-09-01 — and what is being shown is its tail:
+**An example of a marked paragraph, in both its states.**  The rule below
+is real — it is `board/README.md` §"What the days taught"'s newest,
+promoted by an ingestion batch on 2026-09-01 — and what is being shown is
+its tail.  Waiting:
 
     **A check has three verdicts, not two: ✓, ✗, and "not from this
     seat."** — three kaizens on 2026-08-28 … the mechanism, where it
@@ -122,35 +123,110 @@ ingestion batch on 2026-09-01 — and what is being shown is its tail:
     `tools/launch.sh:302` prints `· … not checked from here` instead of
     a ✗.  Two call sites; every other `--check` in the tree still has
     two verdicts.
-    *(self-shaped, 2026-09-01 — a session wrote this rule about
-    sessions; nobody has stood behind it.  Henri strikes the mark.)*
+    *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.)*
 
-The mark is the last line, it goes where the rule ends, it **starts its
-own line**, and it is searched for **with its opening bracket, anchored
-to the line start**:
+and answered, which is the same mark with one line added:
 
-    grep -rn '^\*(self-shaped' board/ manifesto.md spec/ doc/
+    *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+    henri: approved 2026-09-01)*
 
-Every hit is a rule waiting on Henri, and nothing else is.  The bracket
-and the anchor each remove a different kind of noise, and both were
-measured rather than reasoned about.  The bare words name the strand
-itself in two dozen places across the ledger, the cards and the kaizens
-— *"batch 1's self-shaped strand"* — so a search for those returns the
-discussion and drowns the marks in it.  The bracket alone cuts that to
-nine, of which four are marks: the other five are this section's own
-three lines about the mark (the sentence above, the example, and this
-command) and the kaizen that chose the token.  The anchor removes those,
-because prose mentions the mark mid-sentence and the example is indented
-inside its block, while a real mark is always flush left.
+The mark opens flush left with its bracket and it is searched for **with
+that bracket, anchored to the line start**:
 
-*(The first version of this paragraph said "the first hit will always be
-this example; every hit after it is a rule waiting on Henri."  That was
-written before any real mark existed, and running the search once the
-four were in place falsified it twice over: `grep -rn` returns paths in
-sorted order, so `board/README.md`'s marks come first, and five of the
-nine hits are not marks at all.  Kept as a correction rather than
-rewritten — a findability claim is an instrument, and this one had never
-been run against the thing it finds.)*
+    grep -rn -A2 '^\*(self-shaped' *.md board/ spec/ doc/
+
+Every hit is a mark and nothing else is; the ones still waiting are those
+with no `henri:` line.  **`*.md` and not a list of documents**: the first
+version of this command named `manifesto.md` by hand, and `keeper.md` was
+written with a mark in it an hour later and was invisible to both the
+command and the gate.  A search that enumerates its own subjects goes
+stale the first time somebody adds one.  `-A2` because a mark's text runs
+to at most two lines and `henri:` begins the line after it.
+The bracket and the anchor each remove a
+different kind of noise, and both were measured rather than reasoned
+about.  The bare words name the strand itself in two dozen places across
+the ledger, the cards and the kaizens — *"batch 1's self-shaped strand"* —
+so a search for those returns the discussion and drowns the marks in it.
+The bracket alone still returns three kinds of thing that are not marks:
+this section's own lines about the mark, the same command written out in
+`keeper.md`, and the kaizen that chose the token.  The anchor removes
+all three, because prose names the mark mid-sentence, and an example or
+a command is indented inside its block, while a real mark is always
+flush left.
+
+*No count is given here on purpose.*  An earlier draft said "nine", then
+"ten", and each was true for about twenty minutes — every edit to this
+section changes the number, because the section is one of the things the
+search finds.  A document that counts itself is an instrument reading its
+own reflection: the categories are stable and the tally is not, so the
+categories are what is written down.
+
+**`henri:` is his voice, and it is not the mark's alone.**  He chose the
+words over a checkmark for two reasons, 2026-09-01: *"the check requires
+you read it before you understand it"* — a glyph is opaque until somebody
+teaches you the convention, where `approved` is not — and *"`henri:
+approved` can be written"*, on a keyboard, with no glyph picker.  The
+lowercase is what makes it findable: `Henri:` capitalised is the tree's
+attribution form and stood in 127 places when this was measured — before
+this paragraph named it twice more — a session quoting him;
+`henri:` is **him speaking, in his own hand**.  Case does the separating
+for free, so `grep -rn 'henri:'` is everything he has personally written
+inline, anywhere in the tree.  Everything after the colon is free —
+`henri: no`, `henri: not yet, the second half is wrong` — and only a
+dated `approved` is read as a claim about the text.  *The risk that
+carries: a capitalised `Henri: approved` at a sentence start would sink
+into the 127 and vanish.  Marks sit mid-line, so the lowercase is the
+natural form; if it ever bites, the gate refuses the capital.*
+
+**The date is there because an approval is a claim about a specific text,
+and until the gate nothing bound the two.**  Edit an approved rule
+tomorrow and his approval transfers, in silence, onto words he never
+read.  That matters more here than anywhere else in the tree: the danger
+this whole rule names is a session optimising inside a boundary it did
+not set, and rewriting a rule that is already approved is the cheapest
+possible way to do it.  It is `F008`'s shape — a value and the thing it
+describes drifting apart with nothing going red.
+
+So `test/test_marks.py` holds the other half: **editing an approved rule
+un-approves it.**  For each mark it takes the rule above — excluding the
+mark's own lines, or answering a mark would count as editing the rule it
+stands under — and goes red if that text was committed, or is edited in
+the working tree, after the date he wrote.  The exclusion is what makes
+it possible and it was measured before the gate was written: the batch-2
+rule's body last changed 2026-08-27, at its promotion, while its mark's
+lines changed on 2026-09-01.  The gate was then shown red against the
+real tree, by rewording that same rule's last sentence — *"which line has
+not executed"* to *"has not run"*, four words nobody would notice in a
+diff — which is the change this whole mechanism exists to catch.
+
+**Three verdicts, not two, because the extent is a judgement.**  A rule
+runs from the mark up to the nearest blank line whose successor opens
+with a bold lead, which is how every rule in this tree is written and
+which resolves all four marks standing today.  A rule written otherwise
+gets the third verdict — *cannot determine which rule this mark stands
+under* — and says so instead of guessing, since a heuristic that guesses
+where it does not know is §"The three ways an instrument fails" in its
+first form.
+
+*(Two corrections, kept rather than rewritten, because both are the same
+fault and it was paid twice in one hour.  The first version of the search
+paragraph said "the first hit will always be this example; every hit
+after it is a rule waiting on Henri" — written before any real mark
+existed.  Once the four were in, `grep -rn` returned paths in sorted
+order so `board/README.md` came first, and five of nine hits were not
+marks.  The repair then said "every hit is a rule waiting on Henri, and
+nothing else is" — and within minutes Henri had struck all four, so
+nothing was waiting.  A findability claim written before the thing is
+findable describes its author's expectation and not the tree; it is an
+instrument, and it had never been run against what it finds.)*
+
+**What is not built.**  A one-command version printing *only* the waiting
+marks (`… | paste - - | grep -v 'henri:'`) works today and depends on a
+mark being exactly two lines; a three-line mark would vanish from it
+silently.  The gate above does not need it — it reads the marks
+structurally — and a person reading four marks reads them by eye.  A
+count at the prompt is `card:questions.md`'s shape (c), and that card
+says the shape waits.
 
 *(The countermeasure is not new here.  A session named it on 2026-08-24
 — "it marks the draft *self-shaped until Henri reads it*, in the header,

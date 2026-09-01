@@ -87,6 +87,7 @@ the andon.  `card:cords.md` says why it waits, and until when.
 - `board/README.md` — how the work is worked; the first thing a session reads
 - `vision.md` — what tend is for, dated line by line
 - `manifesto.md` — the two rules everything here is built under
+- `keeper.md` — standard work for the person, not for a session
 - `spec/os.md` — the properties, in the words they were first asked in
 - `doc/summary/rules.md` and `doc/summary/interfaces.md` — the two sheets
 

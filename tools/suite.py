@@ -72,6 +72,14 @@ GATE_TARGETS = [
                                 #  comment named the tool and the gate refused it in 2 seconds)
     "test/test_ledger.py",      # the failure ledger's own parser
     "test/test_precommit.py",   # the gate's own installation
+    "test/test_marks.py",       # a self-shaped mark's approval still covering the rule above it
+                                # (the one entry here that starts a process: `git log -L` and
+                                #  `git diff HEAD` per approved mark, plus fixtures that build
+                                #  their own repositories.  Measured before it was added — see
+                                #  the commit — and it belongs at the commit rather than in the
+                                #  full suite alone, because the defect it catches is a rule
+                                #  quietly edited after Henri approved it, and catching that one
+                                #  commit late is the lag F008's fix was written to close.)
 ]
 
 

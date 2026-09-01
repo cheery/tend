@@ -351,8 +351,8 @@ strand was not this sentence but a route: a claim that cannot be run
 from where the session sits goes to the side that can run it — a
 gestate session unfenced, or Henri's hand — and until it comes back
 the commit says which line has not executed.
-*(self-shaped, 2026-09-01 — a session wrote this rule about sessions;
-nobody has stood behind it.  Henri strikes the mark.)*
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+henri: approved 2026-09-01)*
 
 **A fixture is a claim about the thing it copies, and it is measured
 like one** — three kaizens in one morning, 2026-08-26 (`07:21`, `07:28`,
@@ -373,8 +373,8 @@ fixtures copied a live `.claude/settings.json` and modelled whatever
 state Henri had left it in), which is the same rule in its plainest
 form: **a test builds the side it means; it never copies the live
 thing as it is.**
-*(self-shaped, 2026-09-01 — a session wrote this rule about sessions;
-nobody has stood behind it.  Henri strikes the mark.)*
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+henri: approved 2026-09-01)*
 
 **A check has three verdicts, not two: ✓, ✗, and "not from this
 seat."** — three kaizens on 2026-08-28 (`05:45`, `07:02`, `10:17`),
@@ -403,8 +403,8 @@ still standing in `tools/toolbox.sh`'s own comment — "the work laptop
 had the player and no socket" — citing the card that corrects it: the
 rule's counter-example living in the file that carries one of its two
 mechanisms, fixed in the ingestion's commit.*
-*(self-shaped, 2026-09-01 — a session wrote this rule about sessions;
-nobody has stood behind it.  Henri strikes the mark.)*
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+henri: approved 2026-09-01)*
 
 **To try a change to a protected script, clone the tree — never a
 worktree.**  A session cannot edit the protected set (`card:self.md`):
