@@ -80,6 +80,8 @@ cheap — show the check red against the defect it names before trusting
 it, which `tools/mutate.sh` does for the detectors and a red-first test
 does for everything else.  The sentence stops being borrowed on the day
 tend paid for it three times.
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions;
+nobody has stood behind it.  Henri strikes the mark.)*
 
 ## How a practice gets adopted
 
@@ -123,16 +125,32 @@ ingestion batch on 2026-09-01 — and what is being shown is its tail:
     *(self-shaped, 2026-09-01 — a session wrote this rule about
     sessions; nobody has stood behind it.  Henri strikes the mark.)*
 
-The mark is the last line, it goes where the rule ends, and it is
-searched for **with its opening bracket**:
+The mark is the last line, it goes where the rule ends, it **starts its
+own line**, and it is searched for **with its opening bracket, anchored
+to the line start**:
 
-    grep -rn '(self-shaped' board/ manifesto.md spec/ doc/
+    grep -rn '^\*(self-shaped' board/ manifesto.md spec/ doc/
 
-The bracket is what makes it findable.  The bare words name the strand
+Every hit is a rule waiting on Henri, and nothing else is.  The bracket
+and the anchor each remove a different kind of noise, and both were
+measured rather than reasoned about.  The bare words name the strand
 itself in two dozen places across the ledger, the cards and the kaizens
-— *"batch 1's self-shaped strand"* — and a search for those returns the
-discussion and drowns the marks in it.  The first hit will always be this
-example; every hit after it is a rule waiting on Henri.
+— *"batch 1's self-shaped strand"* — so a search for those returns the
+discussion and drowns the marks in it.  The bracket alone cuts that to
+nine, of which four are marks: the other five are this section's own
+three lines about the mark (the sentence above, the example, and this
+command) and the kaizen that chose the token.  The anchor removes those,
+because prose mentions the mark mid-sentence and the example is indented
+inside its block, while a real mark is always flush left.
+
+*(The first version of this paragraph said "the first hit will always be
+this example; every hit after it is a rule waiting on Henri."  That was
+written before any real mark existed, and running the search once the
+four were in place falsified it twice over: `grep -rn` returns paths in
+sorted order, so `board/README.md`'s marks come first, and five of the
+nine hits are not marks at all.  Kept as a correction rather than
+rewritten — a findability claim is an instrument, and this one had never
+been run against the thing it finds.)*
 
 *(The countermeasure is not new here.  A session named it on 2026-08-24
 — "it marks the draft *self-shaped until Henri reads it*, in the header,
