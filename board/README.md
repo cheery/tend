@@ -341,6 +341,34 @@ state Henri had left it in), which is the same rule in its plainest
 form: **a test builds the side it means; it never copies the live
 thing as it is.**
 
+**A check has three verdicts, not two: ✓, ✗, and "not from this
+seat."** — three kaizens on 2026-08-28 (`05:45`, `07:02`, `10:17`),
+promoted by the eighth ingestion batch (`doc/ingested.md`, 2026-09-01),
+with a fourth face at `2026-08-26-0855` that batch 4 read as `once`.
+`launch.sh NODE check` was written to "read the grant as `run` reads
+it" and inherited `run`'s seat, so it said ✗ on a state directory that
+is read-only to a session *by design* — a true sentence about the
+wrong machine.  The good case came the same morning: four ✗ in ninety
+minutes — no model, no loader, `/opt`, `/sys` — each true from its
+seat and each saying from where, and the same check going green step
+by step as Henri moved things from his shell.  The bad one came at
+10:07, from a session and not a script: *"there is no PipeWire socket
+on the work laptop"*, written into a card, when the socket had been
+live on the host since 06:26 and the fence simply could not see it —
+corrected eleven minutes later by Henri checking the host.  **A
+session inside the fence says "I cannot see X", never "X is
+absent."**  The mechanism, where it exists, is the third verdict
+printed as its own line: `tools/launch.sh:302` prints `· … not
+checked from here` instead of a ✗, and `tools/toolbox.sh:80` prints a
+✓ that names what it does not cover ("a player exists", never "the
+andon will sound").  Two call sites; every other `--check` in the tree
+still has two verdicts, which is where the next face will come from.
+*And the batch that promoted this found the withdrawn 10:07 sentence
+still standing in `tools/toolbox.sh`'s own comment — "the work laptop
+had the player and no socket" — citing the card that corrects it: the
+rule's counter-example living in the file that carries one of its two
+mechanisms, fixed in the ingestion's commit.*
+
 **To try a change to a protected script, clone the tree — never a
 worktree.**  A session cannot edit the protected set (`card:self.md`):
 those files are read-only inside the fence.  On 2026-08-27 a session

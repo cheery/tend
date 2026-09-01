@@ -80,9 +80,13 @@ want bash "tools/limit.sh needs it only when installed as a hook"
 # the andon (tools/andon.sh) rings through a sound player; without one it
 # records the question and cannot sound.  The player is a package; the
 # *socket* it needs (PipeWire's $XDG_RUNTIME_DIR/pipewire-0) is runtime,
-# not a package, and this cannot check it — the work laptop had the player
-# and no socket on 2026-08-28 (card:silent-cord.md), so a green here is
-# "a player exists", never "the andon will sound".
+# not a package, and this cannot check it — on 2026-08-28 the work laptop
+# had the player, and the socket, and the ring still failed: a fenced
+# session cannot see a socket its fence never bound (card:silent-cord.md
+# §10:18, correcting that morning's "no socket", which was the fence's
+# view stated as the machine's).  So a green here is "a player exists",
+# never "the andon will sound" — and an absence here is never "the machine
+# has none", only "not from this seat".
 andon_player=""
 for c in pw-play paplay aplay; do command -v "$c" >/dev/null 2>&1 && { andon_player=$c; break; }; done
 if [ -n "$andon_player" ]; then

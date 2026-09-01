@@ -116,7 +116,8 @@ session reads ten, and what each reading produces is one line.
 | 6 | Tue 2026-09-01 | 26-1500 26-1509 26-1524 26-1532 26-1535 26-1549 26-1602 26-1616 26-1633 26-1644 |
 | 7 | Wed 2026-09-02 | 26-1653 26-1712 26-1719 27-0538 27-0551 27-0710 27-0748 27-1535 27-1602 27-1650 |
 | 8 | Thu 2026-09-03 | 27-1714 27-1723 28-0545 28-0702 28-0758 28-0848 28-0910 28-1004 28-1017 28-1029 |
-| 9… | Fri 2026-09-04 → | the ten oldest unread, whatever has arrived since |
+| 9 | Fri 2026-09-04 | 28-1105 28-1300 28-1313 28-1401 28-1830 29-0734 29-1337 29-1918 29-1934 29-2016 |
+| 10… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -391,3 +392,66 @@ day has been missed yet.
 **Henri's half is still undone**, seven batches and 70 lines deep: the
 three lines drawn at random at batch 6 for his disagreement, and batch
 1's self-shaped strand.  His.
+
+## 2026-09-01 — batch 8 read, and the reading found the rule's counter-example alive in a tool
+
+Batch 8 is in `doc/ingested.md`: ten kaizens of 2026-08-27 evening and
+2026-08-28 morning — the day the tree moved to the work laptop, closed
+`node-install` on a run, got its first answer out of a local model,
+and found the andon silent.  Eight `rule`, and **one promotion**.
+
+**The promoted strand is the seat**, at three faces in one day plus a
+fourth batch 4 had read as `once`: **a check has three verdicts, not
+two — ✓, ✗, and "not from this seat."**  `launch.sh NODE check`
+inherited `run`'s seat and called a by-design read-only state
+directory a ✗ (`2026-08-28-0545`); the same morning gave the lesson
+done right, four ✗ in ninety minutes each saying what and from where
+(`-0702`); and at 10:07 a session wrote *"there is no PipeWire socket
+on the work laptop"* into a card when the socket had been live on the
+host since 06:26 and only the fence could not see it (`-1017`).  What
+makes it a promotion rather than a resolve is that the tree had
+already built the mechanism twice and never named it —
+`tools/launch.sh:302` prints `· … not checked from here` instead of a
+✗, and `tools/toolbox.sh:80` prints a ✓ that says what it does not
+cover.  The promotion is the naming and the count: **two call sites,
+and every other `--check` in the tree still binary.**
+
+**And the reading found the withdrawn sentence still standing.**
+`card:silent-cord.md` §10:18 corrects the 10:07 "no socket" reading in
+place, as this tree does; `tools/toolbox.sh`'s andon comment quoted the
+*uncorrected* version — "the work laptop had the player and no socket
+on 2026-08-28" — and cited the card that corrects it.  Four days, in a
+tool's own comment, in the file that carries one of the rule's two
+mechanisms.  Fixed in the ingestion's commit.  This is the card's
+`because` in its ordinary form rather than its dramatic one: not a
+lesson unlearned, but a correction that landed in one file and not the
+other, with nothing that reads across them.
+
+Two strands are new at two faces and named to watch: **a handed script
+carries its own precondition** (`2026-08-28-0758`, `-0848`), the near
+neighbour of the `commands-for-henri-fold-in-console` memory, which
+governs a handed command's length and not its assumptions; and **a
+person's report is evidence, not a diagnosis** (`-0910`, `-1017`),
+which stands in real tension with the `question-first` memory.  One
+strand reached three faces and is **not promoted** with the reason
+written: naming a failure before reading its own output (`-0758`,
+`-0910`, `-1029`) is already `manifesto.md` §"Go and see", and each
+face cost exactly one round.
+
+**The count**: 104 kaizens in `doc/kaizen/` at this reading; 80 read;
+24 unread — two full days at the level of ten and a short third, with
+more arriving.  Read two days ahead of the table's Thursday; batch 9
+is filled in above.  No day has been missed yet; the lamp slice still
+waits for the first one.
+
+**Henri's half is answered, for the first time in eight batches.**  The
+three lines drawn at random and handed at batch 6 (`2026-08-25-0639`,
+`2026-08-26-1433`, `2026-08-26-0931`) came back in his words on
+2026-09-01: *"I don't find anything particularly that I would disagree
+with in the kaizen ingestion report."*  Fifty lines and eight batches
+in, that is the only outside measurement this ledger has ever had, and
+its reading is that the lines hold.  **It does not settle batch 1's
+self-shaped strand**, which asks him to *make* a call a session may not
+make rather than to disagree with one; that is still his, and the next
+batch should say so again.
+

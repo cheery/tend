@@ -353,3 +353,87 @@ verdict words added.
 the three lines drawn at random for his disagreement (handed at batch
 6) and batch 1's self-shaped strand.  His, and named here so batch 8
 does not arrive before the first three lines.
+
+## Batch 8 — read 2026-09-01, the next ten (2026-08-27-1714 → 2026-08-28-1029)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-27-1714 | two cards closed on a "fully done" that was measured from both sides first; a card move broke a path citation and became the `card:` notation; three gate refusals for one commit, each the gate reading a document the session had not | `rule` — the notation and its resolvers are the mechanism (`test/test_board.py`, `test/test_summary.py`), named at `board/README.md` §"Where a card is"; *measured from both sides before the move* has been the practice at every close since ([[2026-08-26-1653]]).  The three-refusals half is `once`: each refusal was the gate working, none cost a wrong commit, and reading `test_summary.py` before the move would have made it one commit — no mechanism is owed for that |
+| 2026-08-27-1723 | the `lander` card holds its decision open with a count; a twin-checker red on its first run, where a green would have measured nothing; wrappers not symlinks, read off how the installed scripts find their siblings; and a default written for the one case in front of the session, the third that day | `rule` — red-first for the checker (`manifesto.md` §"The three ways an instrument fails": a first run that is green has not been shown able to go red), and `board/README.md` §"What a card is" for a card that says what would decide it rather than deciding.  The default half is `recurs` by the kaizen's own count (3× in one day) and **not promoted**: every face was caught by the suite within the minute, which is the mechanism — the tests are the enumeration of shapes the tree already knows, and the failure was writing the default before reading them |
+| 2026-08-28-0545 | batch 3 read; the lander lamp lit by its own commit; `check` inheriting `run`'s seat and saying ✗ on a state directory read-only by design; and a hook line committed with its script unprotected, because the rule that would catch it reads the *live* settings and so goes red one apply too late | `rule` — the live-state half closed with a commit-time twin in the same commit (`33f50f7`): `test/test_install.py:327`, which reads what `--hooks` *would* add and checks it against `--protected`.  The kaizen asked the ingestion to say if it recurs; four days on there is no second face.  **First face of the seat strand** — a reader built from a runner carries the runner's seat until one is shown wrong |
+| 2026-08-28-0702 | the work laptop; 54 red on one cause (the fixtures inherited `commit.gpgsign` from the person's own git config, with the key behind a fence that says `~/.ssh` does not exist); three faces of "installed" in ninety minutes, each ✗ true from the seat that gave it; `allow-try` found already in the tree rather than invented | `rule` for the fixture half — `board/README.md`'s plainest form (batch 3's promotion), paid twice more here by a busy-program fixture built on the person's machine; `rule` for the harness rewriting a braced expansion inside a quoted heredoc — the memory `bash-heredoc-expansion`, whose own line this kaizen records as blanked the same way on its first commit.  **Second face of the seat strand, and its best one**: four ✗ in ninety minutes, each saying what and from where, and the same check going green step by step from his shell as he moved things |
+| 2026-08-28-0758 | `node-install` closed on a run agreeing with its check; the first answer through the port, 9.4 tokens a second under keep; `env NAME=VALUE` as a grant word, smaller than the card had said; and a cache that segfaulted at the same place on both sides of the boundary, so the runtime's and not the fence's | `rule` — one variable at a time, and the split run on the side that can run it, is `board/README.md` §"What the days taught" (batch 2's promotion: the claim goes to the side that can run it); the two grant lines that killed the node came back out the same hour with the number beside them, which is rule 2 with a defect as its caller.  **First face of the handed-script strand**: "the second start is the measurement" handed Henri a script with no precondition in it |
+| 2026-08-28-0848 | the driver's cache 1:22 → 0:11 by hand, and a *miss* under keep told from a refusal by the cache directory's own mtimes, with no debugger; and `make` landed with its test in the same commit, not shown red first, at six minutes on the clock | `rule` — the mtimes are `manifesto.md` §"Go and see"; red-first is the standing rule the kaizen names itself for breaking, and its excuse is answered inside the tree: **the clock is not a reason**, because `board/README.md`'s "a session that ends while the sitting goes on owes nothing" means the line could have waited.  **Second face of the handed-script strand** — the script assumed a runner stops between pulls, and pull two found pull one still up: `recurs` at two, and a third face is a promotion or a reason written down |
+| 2026-08-28-0910 | the cache miss read out of an `strace` — `rename` → `EXDEV`, a Landlock ruleset that does not handle `REFER` — and fixed red-first with a raw `rename(2)` because `mv` copies on `EXDEV` and would have hidden it; a tracer that `kill` cannot end ran 25 minutes past its sitting; and a false alarm echoed as agreement | `rule` — go and see at its cleanest: every guess about the cache (runtime broken, driver off, key differs) was wrong, and the syscall and the errno were one run away; choosing the raw syscall over `mv` for the red is §"The three ways an instrument fails" applied before the fact.  The over-analysis half is `recurs` — the read-before-fix strand ([[2026-08-26-1500]], [[2026-08-26-1524]]), promoted at [[2026-08-30-0902]] to the F-entry `suspected` rule; a live process the session cannot see into is the person's hand sooner, not the fence's guesswork longer.  **First face of the person's-report strand**: "not going idle in time" was echoed as the same hang on a run that had already stopped normally at 09:36:14 |
+| 2026-08-28-1004 | delivery built red-first, and the red caught a real bug the same harness expansion had planted; the andon *tried* from the fence at Henri's ask and found silent; a cord's question written as a paragraph | `rule` — red-first, and trying the cord is §"Go and do it": the try is what turned `silent-cord` from a design worry into a dated measurement, which is a larger day one than the card had asked for.  The paragraph half is `once` — nothing in `tools/andon.sh` caps a question's length and nothing is owed until a second one arrives.  **First face of "a cord you never pull is a cord you never learn is cut"**, second at [[2026-08-28-1029]] |
+| 2026-08-28-1017 | the andon chased three layers down — player present, socket present, the fence blocks — instead of worked around; the asked fix ("install pw-play") measured rather than followed, because the player was already there; and the 10:07 "no socket" reading, which was the fence's view stated as the machine's | **`promoted` — `board/README.md` §"What the days taught"**, with [[2026-08-28-0545]] and [[2026-08-28-0702]] and batch 4's [[2026-08-26-0855]]: **a check has three verdicts, not two — ✓, ✗, and "not from this seat."**  The mechanism exists at two call sites (`tools/launch.sh:302`, `tools/toolbox.sh:80`) and nowhere else, which is where the next face will come from.  And this reading found the *withdrawn* 10:07 sentence still standing in `tools/toolbox.sh`'s comment, citing the card that corrects it — fixed in this commit.  The asked-fix half is the person's-report strand's second face: a fix that is asked is still measured |
+| 2026-08-28-1029 | the panel built at Henri's direction, which dissolved the fence-audio problem instead of fighting it; brick 2 flipped gemma's jidoka answer from wrong to right on one tree document; `curses.beep()` shipped as "the sound"; and a commit reported refused when the gate had passed | `rule` — `curses.beep()` is the manifesto strand batch 7 promoted, one layer up: a *sound* that asserts less than it means, closed the only way it could be, by hearing one.  The conditioning measurement is `card:session-program.md`'s, not a rule.  The gate-read-in-haste half is `recurs` — [[2026-08-28-0758]] and [[2026-08-28-0910]], three faces in one day of naming a failure before reading its own output — **not promoted**, on batch 1's reasoning: §"Go and see" already prescribes it, each face cost one round and was caught by the next read, and a session reading too fast leaves nothing for a mechanism to hold |
+
+**What batch 8 showed.**  Ten kaizens of 2026-08-27 evening and
+2026-08-28 morning — the day the tree moved to the work laptop, closed
+`node-install` on a run, got its first answer out of a local model, and
+found the andon silent.  Eight `rule`, and **one promotion**.
+
+The promoted strand is **the seat**: `2026-08-28-0545`'s `check`
+inheriting `run`'s seat and calling a by-design read-only directory a
+✗; `-0702`'s four ✗ in ninety minutes, each true from its seat and
+each saying from where, which is the same lesson done right; and
+`-1017`'s *"there is no PipeWire socket on the work laptop"* — written
+into a card by a session that could not see a socket live on the host
+since 06:26, and corrected eleven minutes later by Henri checking the
+host.  Batch 4 read a fourth face ([[2026-08-26-0855]]) as `once`
+because the outside seat arrived that hour instead of a rule; three
+more faces say the rule was owed.  What makes it promotable rather
+than a resolve is that the tree already built the mechanism twice and
+never named it — `tools/launch.sh:302` prints a third verdict, `· …
+not checked from here`, and `tools/toolbox.sh:80` prints a ✓ that says
+what it does not cover.  The promotion is the naming, and the count:
+two call sites, every other `--check` still binary.
+
+**And the reading found the rule's counter-example in the tree,
+alive.**  `tools/toolbox.sh`'s andon comment still said the work laptop
+"had the player and no socket on 2026-08-28", citing
+`card:silent-cord.md` — the card whose §10:18 withdraws exactly that
+sentence.  The card corrected itself and the file that quotes it did
+not, so the fence's view has been standing as the machine's in a tool's
+own comment for four days.  Fixed in this commit, and the note in
+`board/README.md` keeps it, because a rule that arrives with its own
+counter-example attached is worth more than the sentence alone.
+
+Two strands are new at two faces and named to watch: **a handed script
+carries its own precondition** ([[2026-08-28-0758]], [[2026-08-28-0848]])
+— its third face is a promotion or a reason, and it is the near
+neighbour of the `commands-for-henri-fold-in-console` memory, which
+governs a handed command's *length* and not its assumptions; and **a
+person's report is evidence, not a diagnosis** ([[2026-08-28-0910]],
+[[2026-08-28-1017]]), which stands in real tension with the
+`question-first` memory and is the more interesting of the two for it.
+One strand reached three faces and is **not promoted** with the reason
+written: naming a failure before reading its own output
+([[2026-08-28-0758]], [[2026-08-28-0910]], [[2026-08-28-1029]]) is
+already `manifesto.md` §"Go and see", and each face cost exactly one
+round.
+
+**The count**: 104 kaizens in `doc/kaizen/` at this reading; 80 read;
+24 unread — at the level of ten, two full days and a short third, with
+more arriving.  Batch 9 is filled in on the card.  No day has been
+missed yet; the lamp slice still waits for the first one.
+
+**Least certain line**: [[2026-08-27-1723]]'s `recurs` and no promotion
+for the default written for the one case in front of the session.  It
+reached three faces inside a single day, which is normally the trigger,
+and the reason given — the suite caught each within the minute — is the
+same reason batch 1 used to *not* promote the reading-is-not-applying
+strand, and could be read as an excuse rather than a mechanism.  One
+uncertain verdict, not two in a row.  Zero verdict words added.
+
+**Henri's half, answered — the first time in eight batches.**  The
+three lines drawn at random and handed at batch 6
+([[2026-08-25-0639]], [[2026-08-26-1433]], [[2026-08-26-0931]]) came
+back on 2026-09-01 in his words: *"I don't find anything particularly
+that I would disagree with in the kaizen ingestion report."*  That is
+the measurement the practice exists for, and its first reading is that
+the lines hold.  It does not settle batch 1's self-shaped strand, which
+asks him to *make* a call a session may not make rather than to
+disagree with one; that is still his.
+
