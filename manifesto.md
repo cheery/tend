@@ -97,7 +97,49 @@ honest move is to say so.
 *(gestate, `manifesto.md` §"How a practice gets adopted".  **This is the
 rule tend needs first**: every mechanism arriving here from gestate is
 in the tolerated stretch, and each one owes tend a demonstration of its
-own before it is owned here.)*
+own before it is owned here.  The two paragraphs above are gestate's;
+what follows is tend's own, and Henri's.)*
+
+**A rule about sessions, drafted by a session, says so until Henri strikes the mark.**
+A session may write one — it is closest to the work, and a standard
+written by someone who does not do the work is fiction. What it cannot do
+is approve its own. A session drafts the version it can already comply with,
+optimises hard inside that boundary, and never thinks to test the boundary.
+So the draft carries (self-shaped) where it stands, the way an F-entry's cause
+carries suspected, and only Henri's hand takes it off.
+**Marked, it is a rule the tree follows and nobody has yet stood behind. Unmarked, he stands behind it.**
+
+**An example of a marked paragraph.**  The rule below is real — it is
+`board/README.md` §"What the days taught"'s newest, promoted by an
+ingestion batch on 2026-09-01 — and what is being shown is its tail:
+
+    **A check has three verdicts, not two: ✓, ✗, and "not from this
+    seat."** — three kaizens on 2026-08-28 … the mechanism, where it
+    exists, is the third verdict printed as its own line:
+    `tools/launch.sh:302` prints `· … not checked from here` instead of
+    a ✗.  Two call sites; every other `--check` in the tree still has
+    two verdicts.
+    *(self-shaped, 2026-09-01 — a session wrote this rule about
+    sessions; nobody has stood behind it.  Henri strikes the mark.)*
+
+The mark is the last line, it goes where the rule ends, and it is
+searched for **with its opening bracket**:
+
+    grep -rn '(self-shaped' board/ manifesto.md spec/ doc/
+
+The bracket is what makes it findable.  The bare words name the strand
+itself in two dozen places across the ledger, the cards and the kaizens
+— *"batch 1's self-shaped strand"* — and a search for those returns the
+discussion and drowns the marks in it.  The first hit will always be this
+example; every hit after it is a rule waiting on Henri.
+
+*(The countermeasure is not new here.  A session named it on 2026-08-24
+— "it marks the draft *self-shaped until Henri reads it*, in the header,
+the way the elaboration rule marks a mechanism *suspected*" — and again
+on 2026-08-25, where `spec/os.md` was to carry one and never did.  This
+is its third naming in nine days and the first time it exists.  Which is
+`card:kaizen-ingestion.md`'s `because` in one more form: the countermeasure
+was written down twice and read by nobody.)*
 
 ## Set-based, not point-based
 
