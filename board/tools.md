@@ -461,3 +461,75 @@ Both are Henri's hand and keys; ~1 dollar a tooled turn is the price the
 whether the tooled turn simply replaces the led loop (day two), which
 would make the digest dead code and the question moot.
 
+## 2026-09-01 — the think arm ran, and the leak is not where the card thought
+
+Henri's hand and keys, three pairs through the openrouter door with
+`--thinking`, still `qwen/qwen3.8-max` — the run the 08-31 section called
+for, and the first paired turns since `F008` and `F009`, so the digest
+arm is reading a whole board for the first time.
+
+| arm | reasoning channel | produced a pick | calls |
+|---|---|---|---|
+| digest x3 | **yes**, a `T:` line on all three | **3 of 3** — canvas, flake, flake | 0 |
+| tools x3 | **none, on all three** | **0 of 3** | 7, 10, 5 |
+
+**The prediction is not met a second time, and this time the reason is
+measured.**  `--thinking` is not a no-op and the 08-31 note that called
+for it was right to: with reasoning on, the digest arm put its
+deliberation in its own channel and emitted a clean `CARD:`/`TASK:` on
+every turn.  **It stops working exactly when tools are in the request.**
+The three tools arms came back with an empty reasoning channel and the
+whole monologue in `content` — the same leak the *think* arm of
+`card:simpleqa.md` was built to close, and `TEND_THINK` does not close it
+for this model through this door.  The one thing that separates the arms
+that got a reasoning channel from the arms that did not is `tools`.
+
+So the sentence "the tools do not earn their calls" is still not the
+statement to make.  The two statements the tree can now support are
+narrower and both are fixable:
+
+**1. Reasoning and tool-calling do not compose in this model.**  Whether
+that is qwen's, OpenRouter's, or a documented limitation is not this
+card's claim and cannot be settled from here.  What settles it is one
+cheap run: `--arm tools` against a second model.  `tencent/hy3` is
+262144 ctx at $0.13/M in and $0.53/M out, which makes the question a few
+cents rather than a few dollars.
+
+**2. The tools arm is drowning, and it is the card prose that drowns
+it.**  The third turn's four reads: `README.md` 29.0k, `work-environment-ai.md`
+43.8k, `session-program.md` 47.6k, `simpleqa.md` 12.3k — **132.7k
+characters**, against the digest arm's **7516** for the entire board.
+That is eighteen times the context for a decision the digest arm makes
+correctly on a summary.  Nothing was truncated (`readchars` is 60000 and
+the largest read was 47.6k), so this is the tools arm working exactly as
+designed, and the design is what the measurement indicts.  A tend card is
+a 40k document; a pick needs a board.
+
+**And it was not the call budget.**  Henri had lowered the doors' `calls`
+16 -> 10 that morning, which was a second variable and is named here as
+one — but the third turn used **5 of 10** and said so in its own words
+("I have up to 10 calls per turn and I've already used 5 ... 5
+remaining"), then ended by writing `Plan: 1. grep for ...` as prose
+instead of emitting the call.  The model stopped by narrating its next
+step rather than taking it.  More calls would have bought more narration.
+
+**What the digest arm's picks now show.**  With all thirteen cards
+visible for the first time it picked canvas, flake, flake — day-one
+shaped things, which is a defensible reading of "one small thing that
+could be drafted now" and not the blindness of 08-31, where canvas was
+simply the first card it could see.  It still does not reach for
+`work-environment-ai`; that is now a preference and no longer a fact
+about the digest, which is the difference `F008` bought.
+
+**`F011` opened by this run**: every one of the six accounts records
+`limits deliver.sh's own; thinking on`, including the three whose
+reasoning channel was empty.  The account records the flag and not the
+fact, and `deliver.sh` already holds the information to know better.  A
+cap that says nothing is silent; this one asserts.
+
+**What is owed now**: `--arm tools` on a second model, which is cents and
+decides statement 1; and, if the tools arm is to be measured fairly at
+all, something between "the whole card" and "the digest" for it to read —
+which is a question for this card and not a defect, and is not opened
+here.
+
