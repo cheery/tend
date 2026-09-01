@@ -1,5 +1,5 @@
 url  https://openrouter.ai/api/v1/chat/completions
-model  qwen/qwen3.8-max
+model  tencent/hy3
 key  ~/.config/tend/openrouter.key
 admitted  Henri, 2026-08-29 — "build capability for both gemma and claude, also I'm thinking about subscribing to openrouter"; the key is his to put there, the model name is checked by the first turn
 tools  read ls grep

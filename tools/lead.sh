@@ -46,12 +46,16 @@ propdir="${TEND_PROPOSAL_DIR:-$root/proposals}"
 port=$(sed -n 's/^bind  *//p' "$NODE/grant" 2>/dev/null | head -1); : "${port:=18080}"
 CHAT="${TEND_LLM_URL:-http://127.0.0.1:$port/v1/chat/completions}"
 HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
-ctxchars="${TEND_CTXCHARS:-20000}"   # the digest's budget in characters, sized to the node's own window
+ctxchars="${TEND_CTXCHARS:-30000}"   # the digest's budget in characters, sized to the node's own window
 # 5000 until 2026-09-01, and that was the whole of F008: it was chosen for a node at `-c 2048`
 # and stayed 5000 when 37092d7 took the node to `-c 8192` on 2026-08-28 — a number that fitted
-# one mechanism and was silently wrong for the next, for four days.  20000 chars is ~6700 tokens
-# at a pessimistic 3 chars/token; the whole open board was 7516 chars on 2026-09-01, so it fits
-# it 2.6 times over.  **This number is not written down anywhere else on purpose**: the window it
+# one mechanism and was silently wrong for the next, for four days.  20000 that morning, then
+# 30000 the same afternoon when Henri took the node to `-c 16384` and said the cap "could be
+# widened further": ~10000 tokens at a pessimistic 3 chars/token, 61% of the window, leaving the
+# rest for this prompt's framing and the 160-token reply.  The whole open board was 7516 chars on
+# 2026-09-01 and 12088 with every `because` entire (F009 shape (b), not taken), so the cap is not
+# binding today and is headroom for a board that grows.
+# **This number is not written down anywhere else on purpose**: the window it
 # has to fit inside is the `-c` on llm/grant's program line, and that is the number that moves —
 # so test_lead.py reads `-c` from the grant and goes red if either end moves without the other,
 # which is the only part of this comment that cannot go stale the way 5000 did.

@@ -181,6 +181,22 @@ between two workable cards is Henri's.
     is the build's real question.  It has committed twice in nine days
     (`tools/consult.sh`), which is what makes it a card and not a habit;
     the tiebreak is his.*
+15. **[questions](questions.md)** — a question a session raises for the
+    person has no home: it is written into whichever card or F-number it
+    arose in, so the set of things actually waiting on Henri exists
+    nowhere, and on 2026-09-01 eight had to be collected by hand because
+    a grep returns a card's settled history along with its open
+    decisions.  *Placed last by the session that wrote it on 2026-09-01
+    at his "open up the card for questions", the missing half of his own
+    rule in §"The rules, as Henri wrote them".  The first list is the
+    card's finding and not its backlog: five of eight came back "I don't
+    know", and three of those five were measurements nobody had run —
+    asking a person for an opinion where evidence is owed is offloading a
+    measurement, not asking a question.  So day one is (a), a line
+    written where the question is, naming what would answer it; the
+    gathering tool and the lamp wait on it.  The card names what would
+    close it unbuilt — hand-collection being enough — and the tiebreak is
+    his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
@@ -425,6 +441,25 @@ its transcript could be kept.  It addressed its successor, which is
 whoever is reading this: *"the floor should be a little cleaner when
 you clock in."*  `doc/specimens/README.md` says what it shows and what
 it does not.
+
+## The rules, as Henri wrote them
+
+2026-09-01: This section was loaned from gestate
+
+> Negotiate at the start and ask questions freely.
+> Collect up the questions that appear, wherever they belong, and pass
+> me the info.
+> Try to continue the work as far as you can.
+>
+> These rules may change.  I'm trying things out here at first.  You are
+> welcome to give me feedback.
+>
+> It's okay, do these at your own pace.
+
+2026-09-01: Henri: I'd emphasize the "own pace". Relax, do things properly,
+work like a tortoise rather than hare. Don't stress or overburden yourself.
+I feel like you sometimes have done so. I don't intend to stop that,
+but I remind you here, that going at your own pace is ok.
 
 ## What this tree does not have yet
 

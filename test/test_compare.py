@@ -126,18 +126,21 @@ def test_the_two_digests_are_the_same_digest_byte_for_byte(tmp_path):
     cut."""
     import test_lead as tl
     b = board(tmp_path)
-    for cap in (None, "120"):
-        extra = {} if cap is None else {"TEND_CTXCHARS": cap}
-        r, seen = tl.lead("ANDON: x", b, tmp_path / f"run{cap}", **extra)
-        assert r.returncode == 0, r.stdout + r.stderr
-        prompt = seen[0]["messages"][0]["content"]
-        if cap is not None:
-            compare.DIGEST_CHARS = int(cap)
-        want = compare.digest(b)
-        assert prompt.endswith(want), (
-            f"cap={cap}: the two digests have drifted\n"
-            f"lead.sh tail: {prompt[-400:]!r}\ncompare.py:   {want[-400:]!r}")
-    compare.DIGEST_CHARS = 20000
+    default = compare.DIGEST_CHARS   # restored below: the module's own, never a number typed here
+    try:
+        for cap in (None, "120"):
+            extra = {} if cap is None else {"TEND_CTXCHARS": cap}
+            r, seen = tl.lead("ANDON: x", b, tmp_path / f"run{cap}", **extra)
+            assert r.returncode == 0, r.stdout + r.stderr
+            prompt = seen[0]["messages"][0]["content"]
+            if cap is not None:
+                compare.DIGEST_CHARS = int(cap)
+            want = compare.digest(b)
+            assert prompt.endswith(want), (
+                f"cap={cap}: the two digests have drifted\n"
+                f"lead.sh tail: {prompt[-400:]!r}\ncompare.py:   {want[-400:]!r}")
+    finally:
+        compare.DIGEST_CHARS = default
 
 
 # ── F011: record what came back, never what was asked for ───────────────

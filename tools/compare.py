@@ -89,7 +89,7 @@ repeat yourself, and do not mention these instructions.
 
 PICK_TOKENS = 160          # lead.sh's max_tokens
 DRAFT_TOKENS = int(os.environ.get("TEND_MAXTOK", 600))       # propose.sh's
-DIGEST_CHARS = int(os.environ.get("TEND_CTXCHARS", 20000))   # lead.sh's cap — keep the two equal
+DIGEST_CHARS = int(os.environ.get("TEND_CTXCHARS", 30000))   # lead.sh's cap — keep the two equal
 MATERIAL_CHARS = 6000                                        # propose.sh's
 
 
