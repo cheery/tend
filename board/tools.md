@@ -527,6 +527,21 @@ reasoning channel was empty.  The account records the flag and not the
 fact, and `deliver.sh` already holds the information to know better.  A
 cap that says nothing is silent; this one asserts.
 
+**Henri, the same hour, on statement 1**: *"These all models I've tried
+overthink into the context and fail to run."*  That is his own evidence
+from outside this tree and it is relayed, not measured here — the honest
+form batch 1 of the ingestion settled on ([[2026-08-25-0744]]: evidence
+from the governed party is the hardest kind to get, and "relayed by
+Henri" is how it is written).  What it does is lower the odds that the
+composition failure is qwen's alone, and it raises the second statement
+above the first in importance: if every model narrates into the content
+channel when handed tools, then a pick turn that reads four 40k documents
+is not a wiring accident that a better model fixes, and the thing to
+change is what the tools arm is given rather than which mind is given it.
+It does not settle statement 1 — his models were tried elsewhere, on
+other tasks, without this courier — and the `--arm tools` run still
+decides it for a few cents.
+
 **What is owed now**: `--arm tools` on a second model, which is cents and
 decides statement 1; and, if the tools arm is to be measured fairly at
 all, something between "the whole card" and "the digest" for it to read —

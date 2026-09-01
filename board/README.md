@@ -166,6 +166,21 @@ between two workable cards is Henri's.
     correct answers without cutting wrong ones, and what they bought
     (sourced assertions, 0 of 93 against 73 of 80) the three bins
     cannot see: `doc/benchmark-simpleqa-2026-08-31.md`.*
+14. **[rewritten-command](rewritten-command.md)** — the harness rewrites
+    a session's own Bash command text before it runs, so a session cannot
+    trust that what it wrote is what executed: braced expansions vanish
+    inside a quoted heredoc, at exit 0, leaving a hole and not an error.
+    *Placed last by the session that wrote it on 2026-09-01 at Henri's
+    "that command eating is nasty" and "Do the card and refuse the
+    route"; the shape is his pick of two — refuse the route, because a
+    hook cannot see the damage (the rewrite happens before the hook is
+    handed the command) and because the announced half of the defect
+    already prints a warning that was read and worked past three times in
+    one sitting.  Day one is the boundary: a heredoc that writes a file is
+    refused and one that only measures is not, and where that line falls
+    is the build's real question.  It has committed twice in nine days
+    (`tools/consult.sh`), which is what makes it a card and not a habit;
+    the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
