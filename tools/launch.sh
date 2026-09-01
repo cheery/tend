@@ -237,9 +237,17 @@ check)
     # An install test that runs nothing (card:node-install.md): the grant
     # read as `run` reads it, and each thing it names checked against the
     # machine.  Inside the fence a session may read, so it may ask this.
-    fail=0
+    fail=0; unseen=0
     ok()  { printf '  ✓ %s\n' "$1"; }
     bad() { printf '  ✗ %s\n' "$1"; fail=1; }
+    # The third verdict (board/README.md §"What the days taught": a check
+    # has three verdicts, not two — ✓, ✗, and "not from this seat").
+    # F013: a grant path a fenced session cannot see is not a path that is
+    # absent, and this check said "does not exist" about /sys, which every
+    # Linux has.  `unseen` is set only where the answer could have changed
+    # the verdict — an absent `allow-try`, or a state directory read-only
+    # by design, are checked and known fine, not unknown.
+    cant() { printf '  · %s\n' "$1"; unseen=1; }
     echo "check: $name  ($NODE)"
     ok "grant parses; $(echo "$flags" | wc -w | tr -d ' ') keep words"
     eval "set -- $program"; prog=$1
@@ -258,7 +266,14 @@ check)
     # binary has nothing to read and gets no line.
     if [ -n "$bin" ] && command -v ldd >/dev/null 2>&1 && deps=$(ldd "$bin" 2>/dev/null) && [ -n "$deps" ]; then
         missing=$(printf '%s\n' "$deps" | awk '/not found/ { print $1 }' | sort -u | tr '\n' ' ')
-        if [ -n "$missing" ]; then bad "program $bin cannot load — not found by the loader: $missing(ldd; the library is $name's own need, not the tree's)"
+        if [ -n "$missing" ] && [ "${TEND_FENCED:-}" = 1 ]; then
+            # F013's third face, found the same minute as the first two:
+            # llm's libraries live under /opt/intel/oneapi, which the fence
+            # does not bind — so from this seat "the loader cannot find it"
+            # and "the machine has not got it" are one sentence, exactly as
+            # they are for a grant path two checks below.
+            cant "program $bin: the loader cannot find $missing— from this seat that is the same sentence whether the machine has them or not; run this from outside for a verdict"
+        elif [ -n "$missing" ]; then bad "program $bin cannot load — not found by the loader: $missing(ldd; the library is $name's own need, not the tree's)"
         else
             # Found by the loader is not readable under keep: Landlock lets the
             # program read beneath keep's SYSTEM_READ and the grant's allow/write
@@ -284,6 +299,7 @@ check)
         k=${kv%%=*}; v=${kv#*=}
         if [ -e "$v" ]; then ok "$k $v"
         elif [ "$k" = allow-try ]; then printf '  · %s\n' "$k $v is not here — keep grants it where it is, and this machine has not got it"
+        elif [ "${TEND_FENCED:-}" = 1 ]; then cant "$k $v is not visible from this seat — the fence binds a subset of the machine, so absent here and absent on the machine are the same sentence from inside; run this from outside for a verdict"
         else bad "$k $v does not exist — the grant names it and keep would hand the program a path that is not there"; fi
     done
     for e in $envs; do nm=$(printf '%s' "$e" | cut -d= -f1); v=$(printenv "$nm"); ok "env $nm=$v"; done
@@ -313,12 +329,29 @@ check)
     # keep itself, with this grant, confining `true`: not the node's program,
     # and the one measurement of whether the boundary can be built here —
     # keep refuses rather than run unconfined, and says why (the ABI it needs).
-    if why=$("$py" "$here/keep.py" $flags -- true 2>&1); then ok "keep confines with this grant here (true ran under it)"
+    # F013: asked from inside the fence about a grant naming paths this
+    # seat cannot see, keep refuses *because of the fence* — and the line
+    # it produced ("keep refuses this grant here — llm would not run") was
+    # the loudest false sentence of the four.  Do not put the question.
+    if [ $unseen -eq 1 ] && [ "${TEND_FENCED:-}" = 1 ]; then
+        cant "keep was not asked — the grant names paths this seat cannot see, so a refusal here would be the fence's answer and not the machine's"
+    elif why=$("$py" "$here/keep.py" $flags -- true 2>&1); then ok "keep confines with this grant here (true ran under it)"
     else bad "keep refuses this grant here — $name would not run: $(printf '%s' "$why" | tail -1)"; fi
     echo
-    if [ $fail -eq 0 ]; then echo "  installed: $name can run under its grant on this machine."
-    else echo "  NOT installed — the lines marked ✗ say what."; fi
-    exit $fail ;;
+    # The roll-up says only what the lines above support: a ✗ is a
+    # verdict, a · that could have changed it is the absence of one.
+    if [ $fail -ne 0 ]; then echo "  NOT installed — the lines marked ✗ say what."
+    elif [ $unseen -eq 1 ]; then echo "  not said from this seat — the lines marked · are things the fence hides; nothing here is red, and nothing here is a verdict. Run it from outside the fence."
+    else echo "  installed: $name can run under its grant on this machine."; fi
+    # Three verdicts, three exit codes.  0 is a claim that the node runs
+    # here and **2 must never collapse into it**: `test_launch.py:133`
+    # gates two live-node tests on `returncode == 0`, and its own comment
+    # says why — "a guard that asked less than the check ran the node on a
+    # machine that could not".  A seat that cannot see is a guard that
+    # asked less.
+    if [ $fail -ne 0 ]; then exit 1; fi
+    [ $unseen -eq 1 ] && exit 2
+    exit 0 ;;
 run)
     mkdir -p "$STATE"
     # the lock is taken here and inherited through keep's exec; a short wait,

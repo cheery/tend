@@ -822,3 +822,89 @@ def test_the_llm_nodes_grant_names_its_mind():
     """The pick is in the grant, not in ls order (card:model-acceptance.md)."""
     words = [l.split()[0] for l in (ROOT / "llm" / "grant").read_text().splitlines() if l.strip() and not l.startswith("#")]
     assert "model" in words
+
+
+# --- F013: the third verdict at the grant's paths -------------------
+#
+# board/README.md §"What the days taught": a check has three verdicts,
+# not two.  That rule was promoted 2026-09-01 and its closing sentence
+# named where the next face would come from — "every other --check in the
+# tree still has two verdicts" — and it came from this file, eleven lines
+# above the one mechanism it cited, six hours later.
+#
+# `tools/sandbox.sh` binds neither /sys nor /dev/dri, and llm/grant names
+# both, so `launch.sh llm check` from a fenced session printed two ✗,
+# then "keep refuses this grant here — llm would not run", then "NOT
+# installed".  Every one false about the machine and true about the seat.
+
+def test_check_inside_the_fence_cannot_see_a_path_and_says_so(tmp_path):
+    """A path the seat cannot see is not a path that is absent.
+
+    The fixture's path is genuinely absent, which is the point: **a
+    fenced session cannot tell the two apart**, so the honest verdict is
+    "I cannot see this" and never "this is fine".  Unfenced, the same
+    grant is still a red — that half must not regress.
+    """
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("allow /sys\nprogram cat $NODE/grant\n")
+
+    outside = launch(n, "check", state=tmp_path / "so")
+    assert outside.returncode == 1, outside.stdout
+    assert "✗ allow /sys does not exist" in outside.stdout, outside.stdout
+    assert "NOT installed" in outside.stdout, outside.stdout
+
+    inside = launch(n, "check", state=tmp_path / "si", fenced=True)
+    assert "✗ allow /sys does not exist" not in inside.stdout, (
+        "the fenced check still calls a path it cannot see absent:\n" + inside.stdout)
+    assert "· allow /sys is not visible from this seat" in inside.stdout, inside.stdout
+
+
+def test_the_fenced_summary_claims_neither_installed_nor_not_installed(tmp_path):
+    """The roll-up must not assert what the detail withdrew.
+
+    This is F011 and F012's shape a fourth time: a summary line that
+    means something other than the lines it rolls up.  If a path went to
+    the third verdict, the check has not established that the node runs
+    *or* that it does not, and both summaries would be claims it cannot
+    make.
+    """
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("allow /sys\nprogram cat $NODE/grant\n")
+    r = launch(n, "check", state=tmp_path / "st", fenced=True)
+    assert "NOT installed" not in r.stdout, r.stdout
+    assert "installed: n can run" not in r.stdout, r.stdout
+    assert "not said from this seat" in r.stdout, r.stdout
+    # and three verdicts get three exit codes: 2 is not 0, because
+    # test_launch.py:133 gates two live-node tests on `returncode == 0`
+    # and a seat that cannot see must not read as a machine that can run
+    assert r.returncode == 2, r.returncode
+
+
+def test_keep_is_not_asked_to_judge_a_grant_the_seat_cannot_read(tmp_path):
+    """keep refusing a path the fence hides is the fence, not the machine.
+
+    Left as a ✗ it produced the loudest false sentence of the four:
+    *"keep refuses this grant here — llm would not run"*.
+    """
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text("allow /sys\nprogram cat $NODE/grant\n")
+    r = launch(n, "check", state=tmp_path / "st", fenced=True)
+    assert "✗ keep refuses this grant here" not in r.stdout, r.stdout
+    assert "keep was not asked" in r.stdout, r.stdout
+
+
+def test_a_fenced_check_with_nothing_hidden_still_says_installed(tmp_path):
+    """The third verdict must not swallow the other two.
+
+    A fenced session reads this check more often than anyone, and a
+    summary that said "not said from this seat" whenever the fence was on
+    would make it useless exactly where it is used most.  Only a path
+    that could not be seen buys the third verdict.
+    """
+    n = tmp_path / "n"; n.mkdir()
+    (n / "data.txt").write_text("x")
+    (n / "grant").write_text("allow data.txt\nprogram cat $NODE/data.txt\n")
+    r = launch(n, "check", state=tmp_path / "st", fenced=True)
+    assert r.returncode == 0, r.stdout
+    assert "installed: n can run" in r.stdout, r.stdout
+    assert "not said from this seat" not in r.stdout, r.stdout
