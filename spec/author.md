@@ -41,6 +41,16 @@ But we prefer to do decisions together here. You always have me at hearing dista
 of the andon, or even waiting and reading at the console, ready to strike! 
 We do the best decisions together. I let you influence my judgement and I influence yours.
 
+2026-09-01: Sometimes I write rules myself, more often I let you write them for me.
+But (today) I learned that my own words do carry in the tree when I am careful on what I write.
+I guess that writing a weekly blog for 10 years did teach me something.
+But don't take this as an assertion of absolute authority, I still make mistakes as well.
+
+2026-09-01: "a rule about the governed party, drafted by that party, leans toward that party."
+"you write the rules about how we work and sessions write the mechanisms."
+This was written by a session. I think these ideas and the distinction is correct.
+One thing that it reminds me of: The best standards are written by those that the standard touches.
+
 *(to be written further by Henri — the board's tiebreak is his; the rest is
 here)*
 

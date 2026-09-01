@@ -100,6 +100,7 @@ in the tolerated stretch, and each one owes tend a demonstration of its
 own before it is owned here.  The two paragraphs above are gestate's;
 what follows is tend's own, and Henri's.)*
 
+2026-09-01:
 **A rule about sessions, drafted by a session, says so until Henri strikes the mark.**
 A session may write one — it is closest to the work, and a standard
 written by someone who does not do the work is fiction. What it cannot do
