@@ -112,7 +112,23 @@ MSG
     exit 1
 fi
 
-if TEND_SUITE_WHERE=gate python3 tools/suite.py; then
+# The gate runs the *consistency* half, and says so on its way out.
+# Henri, 2026-09-01: "it's supposed to be around 30 seconds, quick check
+# that the things you rely on, citations, notations, etc. are still
+# consistent.  The program tests should live in tools/suite.py."  The
+# whole suite had reached 297 seconds on every commit; the set named in
+# `suite.py`'s GATE_TARGETS is 258 tests in 2.  The header above says
+# this gate has to be *cheap* to keep standing where the commit happens,
+# and it had stopped being that.
+#
+# What is given up is real: a program broken by this commit is no longer
+# caught by this commit.  What replaces it is not a hope that somebody
+# remembers — `suite.py --gate` prints when the whole suite last passed
+# and how many commits ago, every time, so the gap is a number on the
+# screen rather than a silence.  A gate that stops checking something and
+# does not say is the defect this tree removed twice the same morning
+# (F008, F010).
+if TEND_SUITE_WHERE=gate python3 tools/suite.py --gate; then
     # The lamp, lit where somebody is already standing.  Never changes
     # the exit code — `tools/kaizen.sh` says why.
     sh tools/kaizen.sh || true
