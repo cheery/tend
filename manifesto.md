@@ -125,10 +125,17 @@ its tail.  Waiting:
     two verdicts.
     *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.)*
 
-and answered, which is the same mark with one line added:
+and answered, which is the same mark with `henri:` and a date added
+before its closing bracket:
 
     *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
     henri: approved 2026-09-01)*
+
+*Wherever it falls* — on its own line as above, or appended to the last
+sentence, which is what Henri actually does.  He answered his first three
+appended, and the question parser had been written expecting a line of
+its own and missed one; three for three is the form and the tooling
+follows his hand.  Both are read now.
 
 The mark opens flush left with its bracket and it is searched for **with
 that bracket, anchored to the line start**:

@@ -67,16 +67,24 @@ never thinks to test the boundary — so the lean to look for is rarely
 self-serving and usually a failure of imagination.  The question a
 session did not ask is more often the defect than the answer it gave.
 
-### Write one line, in your own hand
+### Write your answer, in your own hand
 
-At the end of the mark, on its own line:
+Inside the mark, before its closing `)*`:
 
-    henri: approved 2026-09-01
+    *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.
+    henri: approved 2026-09-01)*
 
 Lowercase `henri:`, and the date you read it.  The lowercase is what
 makes it findable — `Henri:` capitalised is the tree's attribution form
 and stands in over a hundred places, a session quoting you; `henri:` is
 you speaking.
+
+**Put it wherever it falls naturally** — appended to the last sentence,
+or on a line of its own.  Both are read, and that is because you wrote
+your first three answers appended and the parser was written expecting
+its own line.  Three for three is a form, not a slip, so the tooling
+follows your hand rather than the other way round.  The date is the only
+part that has to be there, and only on an `approved`.
 
 Everything after the colon is yours.  These are all fine:
 
@@ -175,4 +183,4 @@ of a sitting that it wrote a mark or a `his call` question — which costs
 you nothing when it wrote neither.
 
 *(self-shaped, 2026-09-01 — a session wrote the procedure by which its
-own rules get approved, which is the sharpest case the mark exists for.)*
+own rules get approved, which is the sharpest case the mark exists for. henri: approved 2026-09-01)*

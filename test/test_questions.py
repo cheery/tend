@@ -75,7 +75,17 @@ WAITS = re.compile(r"^waits on\s+(\S.*)$")
 
 #: Henri's verdict, lowercase — `Henri:` capitalised is the tree's
 #: attribution form and is a session quoting him.
-VERDICT = re.compile(r"^henri:\s*(\S.*)$", re.MULTILINE)
+#:
+#: **Anywhere in or under the question, not only at a line start.**  The
+#: first version required `henri:` to open its own line on a line *after*
+#: the question, because that is the form this file documented.  Henri
+#: then answered his first two — a mark and a `his call` question — by
+#: appending `henri: …` inline, before the closing `)*`, both times.  He
+#: had done the same thing that morning on the marks.  Three for three is
+#: not a slip, it is the form, and `keeper.md` says his hand is the
+#: authority these gates defer to rather than one they audit.  So the
+#: parser follows his hand; the page follows the parser.
+VERDICT = re.compile(r"\bhenri:\s*(.+?)\s*\)?\*?\s*$", re.MULTILINE)
 
 
 class Question:
@@ -87,9 +97,9 @@ class Question:
         self.end = end
         self.text = "\n".join(lines[start:end + 1])
         self.category = OPENS.match(lines[start]).group(1)
-        # the answer, if any, is the run of lines after the question
-        rest = lines[end + 1:end + 4]
-        self.answer = "\n".join(rest)
+        # the answer is looked for **inside** the question and in the few
+        # lines under it — inside, because that is where Henri puts it
+        self.answer = "\n".join(lines[start:end + 4])
 
     @property
     def where(self) -> str:

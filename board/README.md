@@ -455,18 +455,34 @@ clone is then for a change to the *installed* mechanism's tests only
 if the tree itself is what runs (a fresh clone with no install), which
 `tools/fence.sh` says on every prompt.  The paragraph above is kept:
 it is the day the tax was measured, and the reason the install exists.
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.)*
 
 *(question, his call — should this paragraph carry a `(self-shaped` mark
-too?)*
+too? henri: yes 2026-09-01)*
 
 It is a session's writing about how sessions work, so it looks like one.
-It was left unmarked on 2026-09-01 because it was not promoted by an
-ingestion: it records a *measurement* — a git write inside a linked
+It was left unmarked at first on 2026-09-01 because it was not promoted
+by an ingestion: it records a *measurement* — a git write inside a linked
 worktree flips `core.bare`, and a killed background rebase leaked into a
 read-only bind — and a hard technical finding is not the shape the mark
 guards against, which is a session choosing the standard it will be held
-to.  That reasoning is a session's, about a session's own rule, which is
-exactly the reasoning the mark exists to distrust.  So it is his.
+to.  **That reasoning was a session's, about a session's own rule, which
+is exactly the reasoning the mark exists to distrust — so it went to him,
+and he said yes.**  The mark is above: the first in this tree that a
+session argued *against* and the person overruled, which is the
+countermeasure doing the only thing that would ever prove it real.
+
+**And the mark went on unanswered, which is a second correction in the
+same minute.**  The session that added it first wrote `henri: approved
+2026-09-01, at his "yes" to the question below` — reading his *yes* as an
+approval of the rule.  It was not.  He was asked whether the paragraph
+should carry a mark and he said it should; a mark means *nobody has stood
+behind this yet*, so answering it in the same stroke that places it
+collapses the two steps and has a session writing Henri's approval for
+him.  That is the precise move this whole mechanism exists to prevent,
+made by the mechanism's own author, ten minutes after `keeper.md` was
+written to say his hand is the authority the gates defer to.  So the mark
+stands empty and waits for him like any other.
 
 ## A word left for you
 
