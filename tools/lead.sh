@@ -124,9 +124,20 @@ for c in "$board"/*.md; do
     [ -f "$c" ] || continue
     b=$(basename "$c")
     case $b in README.md) continue ;; esac
+    _all=$(sed -n '1p; /^    because/,/^    asked/p' "$c" | grep -v '^    asked')
+    _n=$(printf '%s\n' "$_all" | wc -l)
+    _keep=$(printf '%s\n' "$_all" | head -8)
+    # F009 (2026-09-01): the eight lines are a *summary* of the because, and
+    # until today they were an unmarked one — 9 of the 13 open cards ended
+    # mid-sentence with nothing said.  A because that stops mid-sentence names
+    # a smaller problem than the card's, and the mind cannot tell the two apart.
+    if [ "$_n" -gt 8 ]; then
+        _keep="$_keep
+    [… $((_n - 8)) more lines of this because — the card says more than this]"
+    fi
     card="
 === $b ===
-$(sed -n '1p; /^    because/,/^    asked/p' "$c" | grep -v '^    asked' | head -8)"
+$_keep"
     # F008 (2026-08-31): this was one `head -c` after the loop, a byte cut
     # mid-word and mid-card with nothing said — 9 of 13 cards reached the
     # node and it never knew, so it could not pick its priority-1 card.  A

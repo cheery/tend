@@ -112,7 +112,12 @@ def digest(board):
                 break
             if inside:
                 keep.append(line)
-        card = f"\n=== {c.name} ===\n" + "\n".join(keep[:8])
+        shown = keep[:8]
+        # F009: the eight-line keep is a summary; say so when it is one.
+        if len(keep) > 8:
+            shown = shown + [f"    [… {len(keep) - 8} more lines of this because "
+                             "— the card says more than this]"]
+        card = f"\n=== {c.name} ===\n" + "\n".join(shown)
         # F008: this was `out[:DIGEST_CHARS]`, lead.sh's `head -c` in Python and
         # silent the same way.  The cut is on a card boundary, the rest go once
         # one goes, and the digest says which — see tools/lead.sh's own loop.

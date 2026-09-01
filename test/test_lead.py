@@ -386,3 +386,28 @@ def test_the_cap_fits_the_window_the_node_actually_has(tmp_path):
     assert chars > 12000, (
         f"the cap is {chars}: a window of {ctx} tokens holds far more board "
         "than that, and a cap well under the window is how F008 happened")
+
+
+def test_a_because_cut_at_eight_lines_says_how_many_it_left(tmp_path):
+    """F009.  The eight-line keep is a *summary* of the `because`, and until
+    2026-09-01 it was an unmarked one: 9 of the 13 open cards ended
+    mid-sentence with nothing said.  A `because` that stops mid-sentence
+    names a smaller problem than the card's, and the mind has no way to
+    know."""
+    b = tmp_path / "board"; b.mkdir()
+    (b / "README.md").write_text("# board\n")
+    long_because = "\n".join(f"             line {i}" for i in range(2, 14))
+    (b / "big.md").write_text(
+        "# big — a long problem\n\n    status   open\n"
+        f"    because  line 1\n{long_because}\n    asked    Henri\n")
+    (b / "small.md").write_text(
+        "# small — a short one\n\n    status   open\n    because  one line\n    asked    Henri\n")
+    r, seen = lead("ANDON: x", b, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    prompt = seen[0]["messages"][0]["content"]
+    # 13 because-lines + the title = 14 kept lines, 8 shown, 6 left
+    assert "[… 6 more lines of this because" in prompt, \
+        f"the cut says how many it left; got: {prompt[-400:]!r}"
+    assert "line 7" in prompt and "line 9" not in prompt, "eight lines are still eight"
+    assert "small.md" in prompt and "more lines of this because" not in prompt.split("=== small.md ===")[1], \
+        "a because that fits is not marked"

@@ -52,9 +52,10 @@ $(cat "$f")"
 done
 
 trimmed=""
-if [ "$(printf '%s' "$material" | wc -c)" -gt "$ctxchars" ]; then
+before=$(printf '%s' "$material" | wc -c)
+if [ "$before" -gt "$ctxchars" ]; then
     material=$(printf '%s' "$material" | head -c "$ctxchars")
-    trimmed=" (material trimmed to  chars — the node's context is small; name one card, not the board)"
+    trimmed=" (material trimmed to $ctxchars chars of $before — the node's context is small; name one card, not the board)"
 fi
 
 sys="You are answering using only the material below, from the tend project. If the material does not answer the question, say so plainly rather than guessing.
