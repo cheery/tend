@@ -130,6 +130,23 @@ a way: the user's canvas and the system canvas; into the latter one
 could put a web server, when one wants it to start and serve for the
 whole time the computer is up.
 
+*And the same hour, on what the edge is for*: *"Kun prosessi vetää
+jonkin toisen solmun päälle, se voi sen jälkeen aloittaa solmun kanssa
+keskustelun, joka on verkon pointti.  Mutta tässä päästään
+rinnakkaisajon ongelmiin ja aletaan tarvita sitä mallintarkistusta."*
+— when a process pulls another node up, it can then start a
+conversation with that node, which is the point of the network; but
+this is where the problems of concurrency arrive, and the model
+checking starts to be needed.  So the pull is the signal and the
+conversation is the parts beside it, as this card says above — and
+the conversation is the reason for the signal.  `spec/os.md` property
+4 (a programming environment designed for concurrency; behaviour
+verified by types and automatic model checkers) has been "in the air"
+in every status pass since 08-26; this is the first sentence in the
+tree that names what would call it.  Not this card's day one, which
+has one edge and no conversation on purpose; the card that carries
+the first conversation carries the first caller for 4b.
+
 So the second real node is the sink itself, and the tree has both
 halves of that sentence already as shape: `card:hold.md` names a
 **system canvas** for what opens when the machine starts and a **user
