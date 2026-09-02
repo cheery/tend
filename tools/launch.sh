@@ -22,6 +22,9 @@
 #                       runtime in a tracked grant (the fence's --ro-bind-try, as a grant word; 2026-08-28)
 #     write PATH        writable (the state directory always is)
 #     bind PORT         one TCP port to listen on, and no other bind, no connect anywhere
+#     connect PORT      one TCP port to talk to, on any host — bind's twin (keep's --connect, 2026-08-28);
+#                       the conversation over an edge (card:edge.md, 2026-09-02): a node that pulls
+#                       another says `pull NODE` for the signal and `connect PORT` for the talk
 #     no-net            no TCP at all
 #     idle SECONDS      stop when nothing has pulled for this long (default 30; TEND_IDLE overrides)
 #     pulse FILE        a file whose mtime is the program's activity — for a program that cannot stop
@@ -176,13 +179,15 @@ pulls_of() {
         case "$_l" in pull\ *) _p=$(pull_path "${_l#pull }" "$_d"); [ -f "$_p/grant" ] && readlink -f "$_p" ;; esac
     done
 }
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""; pulls=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""; pulls=""; connects=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
     case "$key" in
         allow|allow-try|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val"; paths="$paths $key=$val" ;;
         bind)        flags="$flags --bind $val"; port=$val ;;
+        connect)     case "$val" in ''|*[!0-9]*) echo "launch: $name/grant: connect wants a port, got \`$val\`" >&2; exit 2 ;; esac
+                     flags="$flags --connect $val"; connects="$connects $val" ;;
         no-net)      flags="$flags --no-net" ;;
         idle)        idle_grant=$val ;;
         pulse)       eval "pulse=\"$val\"" ;;
@@ -386,6 +391,8 @@ check)
         else bad "pull $(basename "$p"): cannot make $p/state/pulled — the edge file has nowhere to be"; fi
     done
     for w in $(pulled_by); do ok "pulled by $w — a process holds the edge $STATE/pulled/$w"; done
+    # the third verdict: whether anything listens on a connect port is the other node's, at run
+    for c in $connects; do printf '  · %s\n' "connect $c — keep lets the program talk to that port; whether anything listens there is the other node's business, at run"; done
     if [ -n "$port" ]; then
         if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"

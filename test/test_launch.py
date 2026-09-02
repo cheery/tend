@@ -1062,3 +1062,33 @@ def test_an_empty_pull_file_is_the_fences_precreation_and_starts_nothing(tmp_pat
     assert "last pull" not in s.stdout, s.stdout
     launch(ROOT / "node", "pull", "one line", state=st, idle="0.4")   # from a person's shell: appends and starts
     assert wait(lambda: (st / "stopped").exists(), cap=8), "a real pull was not served"
+
+
+# ── the conversation over the edge: `connect PORT` (card:edge.md, 2026-09-02) ──
+
+@needs_syspy
+def test_connect_is_a_grant_word_and_without_it_the_kernel_refuses_the_talk(tmp_path):
+    """keep's --connect has been there since 2026-08-28 with no grant word to
+    reach it.  A node whose grant says `connect PORT` talks to a listener
+    on that port under keep; the same program with the word gone is
+    refused by the kernel — Permission denied, not a script's care."""
+    import socket
+    srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(1); port = srv.getsockname()[1]
+    try:
+        node = tmp_path / "talker"; node.mkdir()
+        prog = f"program /usr/bin/python3 -c 'import socket; socket.socket().connect((\"127.0.0.1\", {port})); print(\"connected\")'\n"
+        (node / "grant").write_text(f"connect {port}\n" + prog)
+        g = launch(node, "grant", state=node / "state")
+        assert f"--connect {port}" in g.stdout, g.stdout
+        r = launch(node, "run", state=node / "state")
+        assert r.returncode == 0 and "connected" in (node / "state" / "log").read_text(), (r.stderr, (node / "state" / "log").read_text())
+        c = launch(node, "check", state=node / "state")
+        assert f"· connect {port}" in c.stdout and c.returncode == 0, c.stdout
+        (node / "grant").write_text("bind 1\n" + prog)   # the TCP boundary on, the word gone
+        r = launch(node, "run", state=node / "state")
+        assert r.returncode != 0 and "Permission denied" in (node / "state" / "log").read_text(), (node / "state" / "log").read_text()
+        (node / "grant").write_text("connect eighty\n" + prog)
+        r = launch(node, "grant", state=node / "state")
+        assert r.returncode == 2 and "connect wants a port" in r.stderr, r.stderr
+    finally:
+        srv.close()

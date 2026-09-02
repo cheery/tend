@@ -526,3 +526,19 @@ a harmless extra), and the store, when it comes, is a **supplier**
 question — what the pull orders, what the bin holds, what "from the
 origin" means — and that thinking is owed before the store is built,
 not before.  The kanban count waits for a second puller.
+
+## The conversation over the edge — 2026-09-02, the 15:13 sitting, at his "aloita connect-mittauksesta"
+
+**Measured first, 15:15.**  `tools/keep.py` already has `--connect PORT`
+— `--bind`'s twin, written 2026-08-28 for a led turn under keep
+(`lead.sh NODE --kept`) and held by `test/test_keep.py` — and it holds
+on this kernel, from this seat: under keep with only `bind 1`, a
+connect to a listener on 127.0.0.1:18099 is `Permission denied`; with
+`--connect 18099` it connects; with `--connect 18098` (the wrong port)
+it is refused; and with `--connect 18099` a bind is refused.  Four
+lines, one listener, no build.  So the kernel's half of the
+conversation has been in the tree for five days with no grant word to
+reach it: `tools/launch.sh` knows `bind` and not `connect`, and a grant
+saying `connect 18080` was "unknown word", exit 2.  The unix-socket
+question from the talk above is not needed for the first conversation
+— the llm listens on a TCP port — and stays unmeasured.
