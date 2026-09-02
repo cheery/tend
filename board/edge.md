@@ -591,3 +591,21 @@ puller under keep cannot re-assert).  Red first with a stand-in death,
 `test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once`.
 His "vedetyn solmun tilaa rajapintana" paid for itself within the hour
 it was said.
+
+**The second live run, 15:40 — the conversation happened.**  Henri put
+the runtime's path into the node — `env LD_LIBRARY_PATH=…`, fourteen
+oneAPI directories, in `llm/grant`, his hand — and ran `ask` again: the
+edge at 15:40:55, the tick's llm loaded this time, ask asked, and
+llama-server answered — *prompt 5 tokens, eval 200 tokens* in its log.
+The whole 200 were gemma4's thinking under `--jinja`; `content` was
+empty; ask printed `ask: ` and exited 0 as if answered, and his shell
+showed nothing, because a runner's words go to its log.  So the edge,
+the tick, the talk and the port all held, and what failed was the last
+inch: reading the reply.  Fixed the same minute: ask reads `content`
+and `reasoning_content` both (`card:private.md`'s two fields, the
+courier's own reading since F016), keeps the thinking in `answer` under
+its own rule, says *no answer — the llm thought for N words and the
+token cap ended it* when that is what happened, and asks for 800 tokens
+(`ASK_TOKENS`) instead of 200.  Red first against a stand-in that
+thinks and does not answer.  The run that answers is the next one, his
+shell again.

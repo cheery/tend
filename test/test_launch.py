@@ -1108,7 +1108,10 @@ class _Llm:
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 q = body["messages"][-1]["content"]
-                out = {"choices": [{"message": {"role": "assistant", "content": f"ANSWER to: {q}"}}]}
+                if "THINK" in q:   # gemma4 under --jinja at 15:41: the cap spent on thinking, content empty
+                    out = {"choices": [{"message": {"role": "assistant", "content": "", "reasoning_content": "hmm what is tend really"}}]}
+                else:
+                    out = {"choices": [{"message": {"role": "assistant", "content": f"ANSWER to: {q}"}}]}
                 self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
                 self.wfile.write(json.dumps(out).encode())
         self.srv = http.server.HTTPServer(("127.0.0.1", 0), H)
@@ -1190,3 +1193,22 @@ def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_
     finally:
         if p.poll() is None:
             p.kill(); p.wait()
+
+
+@needs_syspy
+def test_an_answer_that_is_all_thinking_is_said_as_no_answer_and_kept(tmp_path):
+    """The first live answer, 15:41: 200 tokens of reasoning, an empty
+    `content`, and ask said "ask: " and exited 0 as if answered.  Now the
+    thinking is kept in `answer` under its own rule, the log says there
+    was no answer and why, and the exit is still 0 — the llm did reply."""
+    llm_stub = _Llm()
+    try:
+        llm, ask = ask_nodes(tmp_path, llm_stub.port)
+        r = launch(ask, "run", "THINK", "about", "tend", state=ask / "state", timeout=60)
+        log = (ask / "state" / "log").read_text()
+        assert r.returncode == 0, (r.stderr, log)
+        assert "ask: no answer — the llm thought for 5 words" in log, log
+        ans = (ask / "state" / "answer").read_text()
+        assert ans.startswith("THINK about tend\n---\n\n---thinking (5 words)---\nhmm what is tend really\n"), ans
+    finally:
+        llm_stub.close()

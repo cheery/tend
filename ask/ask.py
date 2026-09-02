@@ -64,10 +64,25 @@ while True:
         print(f"ask: pulled llm for {time.time() - start:.0f}s and it never answered /health — is anything serving it?", file=sys.stderr)
         sys.exit(1)
     time.sleep(1)
-body = json.dumps({"messages": [{"role": "user", "content": question}], "max_tokens": 200, "temperature": 0}).encode()
+# 800 tokens, not 200: the first live answer (15:41) was 200 tokens of gemma4's thinking under --jinja and an
+# empty `content` — the cap was spent before the answer began, and ask said "ask: " and exited 0
+body = json.dumps({"messages": [{"role": "user", "content": question}],
+                   "max_tokens": int(os.environ.get("ASK_TOKENS", "800")), "temperature": 0}).encode()
 req = urllib.request.Request(url + "/v1/chat/completions", data=body, headers={"Content-Type": "application/json"})
-reply = json.load(urllib.request.urlopen(req, timeout=300))
-answer = (reply.get("choices") or [{}])[0].get("message", {}).get("content") or ""
-(state / "answer").write_text(f"{question}\n---\n{answer.strip()}\n")
-print(f"ask: {answer.strip()}", flush=True)
+reply = json.load(urllib.request.urlopen(req, timeout=600))
+msg = (reply.get("choices") or [{}])[0].get("message", {})
+answer = (msg.get("content") or "").strip()
+thinking = (msg.get("reasoning_content") or "").strip()   # the mind's thinking, when the door returns it (card:private.md)
+if not answer and not thinking:
+    print(f"ask: the llm returned no answer and no thinking — {json.dumps(reply)[:300]}", file=sys.stderr)
+    os.close(fd)
+    sys.exit(1)
+out = f"{question}\n---\n{answer}\n"
+if thinking:
+    out += f"---thinking ({len(thinking.split())} words)---\n{thinking}\n"
+(state / "answer").write_text(out)
+if answer:
+    print(f"ask: {answer}", flush=True)
+else:
+    print(f"ask: no answer — the llm thought for {len(thinking.split())} words and the token cap ended it before it answered; the thinking is in $STATE/answer.  Raise ASK_TOKENS, or ask for less", flush=True)
 os.close(fd)   # stop: the edge let go before the exit, on purpose
