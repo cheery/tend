@@ -1163,3 +1163,30 @@ def test_without_connect_the_talk_is_refused_by_the_kernel_and_the_ask_node_says
         assert r.returncode == 2 and "connect refused by keep" in log and "`connect PORT` is the word" in log, (r.returncode, log)
     finally:
         llm_stub.close()
+
+
+@needs_syspy
+def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_path):
+    """The pulled node's state is the interface (Henri, 2026-09-02): the
+    llm dying at its loader is a `stopped` newer than the edge, readable
+    to the puller, and the resolver will not restart it on that edge —
+    so the ask node says so and exits, instead of waiting out its clock
+    as it did at 15:26 (300 s to "never answered")."""
+    llm, ask = ask_nodes(tmp_path, 1)   # a port nothing listens on; the grant's ASK_WAIT is 4 s
+    g = (ask / "grant").read_text().replace("env ASK_WAIT=4\n", "env ASK_WAIT=30\n")
+    (ask / "grant").write_text(g)
+    env = dict(os.environ, TEND_STATE_DIR=str(ask / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
+               TEND_CANVAS=str(tmp_path / "canvas")); env.pop("TEND_FENCED", None)
+    p = subprocess.Popen(["sh", str(LAUNCH), str(ask), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        edge = llm / "state" / "pulled" / "ask"
+        assert wait(lambda: edge.exists() and locked(edge), cap=8), "the ask node never took the edge"
+        time.sleep(1.1)   # the death must be newer than the edge, on a filesystem with second mtimes
+        (llm / "state" / "stopped").write_text("exited 127: llm stopped by itself\n")
+        assert p.wait(timeout=15) == 1, "the ask node did not stop on the llm's death"
+        log = (ask / "state" / "log").read_text()
+        assert "ask: llm died while pulled — exited 127" in log and "pull again" in log, log
+        assert not locked(edge)
+    finally:
+        if p.poll() is None:
+            p.kill(); p.wait()

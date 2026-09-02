@@ -33,7 +33,23 @@ start = time.time()
 fd = os.open(edge, os.O_RDONLY)
 fcntl.flock(fd, fcntl.LOCK_SH)   # the pull: in force until `stop` (close) or exit
 deadline = start + float(os.environ.get("ASK_WAIT", "300"))
+# the pulled node's state is the interface (Henri, 2026-09-02): the llm's `stopped` is readable here,
+# and a death newer than this edge is one the resolver will not undo on this edge (card:hold.md, rule
+# 3) — so it is read, and said at once, instead of waiting out the clock.  Found 15:26 the same day:
+# the llm died at its loader under the tick and ask waited 300 s to say "never answered"
+stopped = pathlib.Path(edge).parent.parent / "stopped"
+edge_at = os.stat(edge).st_mtime
 while True:
+    try:
+        st = stopped.stat()
+        if st.st_mtime > edge_at:
+            first = stopped.read_text().splitlines()[0] if stopped.read_text() else ""
+            if first.startswith("exited ") and not first.startswith("exited 0"):
+                print(f"ask: llm died while pulled — {first}; the resolver restarts it only on an edge newer than the death, so this pull is over: pull again once the cause is fixed (its log and the panel say what it said)", file=sys.stderr)
+                os.close(fd)
+                sys.exit(1)
+    except OSError:
+        pass
     try:
         if urllib.request.urlopen(url + "/health", timeout=2).status == 200:
             break

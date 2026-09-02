@@ -567,3 +567,27 @@ from his shell, the tick serving the llm, the answer in `ask/state/answer`,
 and the panel showing `ask  pulls — llm` and `llm  pulled by — ask`
 while it runs.  What flows on the edge is still nothing; the talk goes
 over the port beside it, which is what this card said an edge was.
+
+**The live run, 15:25, from his shell — the edge worked and the talk
+did not.**  `ask` took the edge at 15:25:49; the tick saw the lock and
+started the llm at 15:26:11 — the first node ever started by a
+process's pull on this desk — and llama-server died at its loader:
+*libsvml.so: cannot open shared object file*, exit 127, on the andon
+record.  The tick's unit carries `Environment=TEND_TREE` and nothing
+else (`tools/install.sh`), so the oneAPI runtime that his shell puts on
+`LD_LIBRARY_PATH` is not there for a runner the tick starts; from his
+shell the same node loads.  This is `done/node-install.md`'s 07:10
+leftover — *a per-machine grant does* — met by the first start that
+was not from his shell.  The fix in the tree's grammar is one `env
+LD_LIBRARY_PATH=…` line in `llm/grant`, the node carrying its own
+runtime path (property 5's first half), and the directories are his to
+name from the shell where it works.  And `ask` then waited its whole
+300 s to say *never answered /health*, though the llm's death was in
+`llm/state/stopped` the whole time, readable to it: fixed the same
+hour — the puller reads the pulled node's `stopped`, and a death newer
+than its edge ends the pull at once with the llm's own words and "pull
+again once the cause is fixed" (rule 3 seen from the puller's side; a
+puller under keep cannot re-assert).  Red first with a stand-in death,
+`test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once`.
+His "vedetyn solmun tilaa rajapintana" paid for itself within the hour
+it was said.
