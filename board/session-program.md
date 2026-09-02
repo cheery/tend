@@ -1524,3 +1524,35 @@ resolves it.  What a person cannot yet do freely and easily: make one
 `launch.sh check` from a seat that may not see the machine, and put in
 force by an install that is his hand.  Where the talk goes is the
 next section, when it has happened.
+
+**His answers to the three questions a session put, the same hour**,
+verbatim: *"1. tilatallenne taitaa olla solmun identiteetti.  Tämä on
+vähän vaikea kysymys itseasiassa.  Minä ajattelen että tämä olisi kuin
+arvovirta: solmut riippuvat toisista solmuista ja koko järjestelmä
+olisi suunnattu akyklinen verkko jossa tarpeen mukaan ohjelmat
+käynnistyvät ja sammuvat.  Kaikki ohjelmat toimisivat tällaisessa
+verkossa solmuina.  verkon ääripäässä olisi käyttöliittymä mitä
+käyttäjä käyttää, eli canvas.  kakkoskohdan ehdottamasi järjestely
+kuulostaa järkevältä, tosin.. ehkä grant kuuluisi olla johdettavissa
+muista grant-tiedostoista.  Ensimmäinen solmu joka ei ole LLM... en
+tiedä vielä, mutta se voisi olla vaikkapa solitaire -ohjelma, tai
+digitaalinen noppa.  Toisaalta ne ovat liiankin yksinkertaisia eivätkä
+tarvitse tällaista hienoa verkkoa toimiakseen."*
+
+— The state store is probably the node's identity, and it is a hard
+question.  He thinks of it as a value stream: nodes depend on nodes,
+the whole a directed acyclic graph in which programs start and stop as
+needed; every program a node in it; at the far end the interface the
+user uses, the canvas.  The default-then-narrow grant sounds sensible,
+though a grant should perhaps be derivable from other grant files.
+The first non-LLM node he does not know yet — a solitaire, a digital
+die — but those are too simple to need such a network.
+
+What the tree already holds of this, so the next talk starts there:
+`card:hold.md`'s design (2026-08-29, his sentence) — *a pull lasts as
+long as its puller, and the canvas is the puller that does not die*,
+with **cycles forbidden at the door by the grant** — is the DAG with
+the canvas at its sink, written before the word.  The pull is
+already the edge.  What is not there: a grant that names what it
+pulls (the edge as a grant word), a grant derived from another, and
+any node whose program is not the llm.
