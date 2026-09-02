@@ -123,3 +123,15 @@ The method's evidence is the tree working, and the kaizen loop is the
 measurement that runs whether or not a benchmark does
 (`manifesto.md` §"How a practice gets adopted": adopted before it is
 believed).
+
+## What must not be broken
+
+2026-09-02 (Henri, asked what in the frame is the thing that must not
+be broken, if this arose by accident inside it): *"Raamissa tärkeät
+asiat on Lean-filosofia.  Isoin asia siinä mitä ei saa rikkoa on
+kenties kunnioitus, sekä sessioita että ihmisiä kohtaan."* — the
+important things in the frame are the Lean philosophy, and the biggest
+of what must not be broken is perhaps respect, toward sessions and
+toward people.  Placed here by a session at the word, his to strike;
+the first line in this file that protects the phenomenon rather than
+measures it.

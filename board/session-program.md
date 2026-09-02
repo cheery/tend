@@ -1498,3 +1498,29 @@ not-a-completion line carrying `finish_reason` (`F016`'s next face).
 The four runs' files stay under `proposals/arms*` as what they are:
 the first data this tree has on its own bet, and a task too easy to
 carry it.
+
+## Talk — 2026-09-02, "raised up and working": the node as the thing a person pulls
+
+Henri, the hour after, asked what "raised up and working" means now
+that the testing is far away: *"mielestäni rajapinnassa olisi vielä
+työtä.  iso juttu on että solmu on (ohjelma + tilatallenne), kun
+käyttäjä 'vetää', hänen pitäisi kenties vetää tällaista solmua jossa on
+ohjelma ja sen tila yhdessä, ja ne pitäisi olla käyttäjän
+määriteltävissä vapaasti ja helposti.  Mutta en halua pilata sitä mitä
+täällä jo on tehty hienosti.  Meidän pitäisi puhua ja keskustella
+tästä."* — there is still work in the interface; the big thing is that
+a node is (program + state store), and when a user pulls, they should
+perhaps pull such a node, program and state together, freely and
+easily definable by the user; but he does not want to spoil what has
+been done well here; this should be talked through.
+
+A talk, not a card, at his word.  What the tree has today against
+that sentence, so the talk starts from the thing and not from memory:
+a node **is** a directory with a `grant` (the program line, the keep
+words, the sitting), a `model/` and a `state/`, and `launch.sh NODE
+pull` is the one verb; the canvas pins it, a hold keeps it, the tick
+resolves it.  What a person cannot yet do freely and easily: make one
+— a grant is twelve keep words and a program line, checked by
+`launch.sh check` from a seat that may not see the machine, and put in
+force by an install that is his hand.  Where the talk goes is the
+next section, when it has happened.

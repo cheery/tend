@@ -147,6 +147,16 @@ the sentence.
 them are really faces of one of his seven rather than roles of their
 own?)*
 
+2026-09-02, on the seventh again, asked what he carries and what the
+tree carries: *"Yksi roolini on toimia oppaana ja suunnannäyttäjänä.
+Mutta puu.. en tiedä mitä se kantaa tarkalleenottaen.  Se on ikään
+kuin proteesi muistoilleni ja ulkoinen ajattelukeskus jolla on pääsy
+valtavaan määrään tietoa LLM:n kautta."* — one of my roles is to be a
+guide and a direction-setter; but the tree, I do not know exactly what
+it carries; it is something like a prosthesis for my memories, and an
+external centre of thinking with access to a vast amount of knowledge
+through the LLM.
+
 ## Why this works — the problem, and the theories, kept several
 
 2026-09-02, Henri, the hour after he moved the testing to the far
