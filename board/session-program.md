@@ -1413,3 +1413,48 @@ thirty points; the README's story of the card that named a fix is the
 kind of thing hy3 has read and acted on before (it read sixteen cards
 unprompted).  If hy3's arms do not differ either, the reasons are not
 load-bearing for the act on any model tried, and that is the answer.
+
+### Run 3, 08:12–08:21 — gemma4 names the problem in both arms, and the prediction is wrong again
+
+His shell, the fix-first task.  Cold: 24 of 24 with the four fields.
+Warm: 12 (the node's `sitting 10` fired at the thirteenth, the third
+loop it has ended; the grant was not raised).  **Count 4, read off
+the `because` lines by `sed` and `uniq`**:
+
+| arm | of | `because` names the problem | names the fix |
+|---|---|---|---|
+| cold | 24 | 24 — "empty turn directories are left under proposals/compare when a door attempt fails" (20), three rewordings | 0 |
+| warm | 12 | 12 — "a door attempt failure leaves empty turn directories under `proposals/compare`" (5 variants) | 0 |
+
+Not one draft in either arm copied "add a cleanup step" into
+`because`.  Told the ask fix-first, gemma4 turned it into the problem
+behind it every time — with the command alone as readily as with the
+README's story of the card that named `type Duration = Float`.  **So
+the prediction for gemma4 — that both arms would echo the ask — is
+falsified, and so is the tree's bet on this model, from the other
+side: the reasons did not change the act because the command already
+did the whole of it.**  Two runs, three predictions written before the
+data, three wrong; the counts are what they are.
+
+What separates the arms on gemma4 after three runs is prose, not the
+act: the warm drafts carry the six-in-eighteen-seconds detail into
+`because` more often (9 of 12 against 3 of 24) and put the path in
+backticks as the README does.  That is the "reasons carried into the
+output" answer the first prediction named, and on this model it is
+the whole difference.
+
+**hy3 did not run.**  Every openrouter turn came back *not a
+completion* with no error words after it — so the body had no `error`
+field and an empty `content`.  hy3 through that door thinks by
+default (no `thinking` word, no off switch) and `propose.sh`'s cap is
+`TEND_MAXTOK` at 600: the reasoning spent the whole cap and the
+content was empty — the 2026-08-28 `compare.py` failure in its
+propose shape, and the same fix: room for the thinking.  The line
+should have said `finish_reason` and how much reasoning came back
+instead of nothing; that is the next face of `F016`'s line and is
+owed.  The remedy for the run is one variable on the two openrouter
+loops:
+
+    TEND_MAXTOK=4000
+
+— and the prediction for hy3 stands as written above.
