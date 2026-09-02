@@ -1108,3 +1108,37 @@ so the only way to name a card is to read the shelf.  One turn, his
 shell, `tools/compare.py --door llm --arm tools`; a `C:` line answers
 yes, and a three-line reply naming a card it never read answers
 something worse.
+
+### 07:01 — the unseeded tools arm: no digest, the tools offered, and it asked
+
+His shell, three minutes later (the six empty directories at 06:58
+were his re-runs while the node loaded — his word).  No digest in the
+prompt, `read ls grep` in the request with the seat message that says
+*read the tree whenever the answer may be in it*, and the reply:
+
+    ANDON: Which card should I focus on first?
+    calls: 0
+
+Neither of the two outcomes the paragraph above named.  It did not
+read and it did not invent: it pulled the cord, which is the third
+count exercised for the first time and answered the honest way.  But
+the cord was pulled with the answer one `ls board/` away and the tools
+in hand, so on this turn gemma4 asked where reading was the act.  hy3
+on 2026-09-01, same arm, read sixteen cards.  That is the 2026-08-28
+finding again — Sonnet and Opus reached the card's own prediction from
+the `because`, gemma wrote a tautology — *a difference in kind, not
+degree*, now on the reading side.
+
+**"Did not" and "cannot" are still not separated**, and one turn from
+his shell separates them: an ask through the door that can only be
+answered by reading and offers no cord —
+
+    TEND_DOOR=llm tools/deliver.sh llm "Read board/README.md and tell me its first heading, in one line."
+
+A `C: read board/README.md` line says gemma4 emits a tool call on this
+wire; a heading guessed without one says the tools arm on the node is
+a build (a prompt that makes the call the shape of the answer, or a
+model that is not this one), and that is `card:model-acceptance.md`'s
+question before it is this card's.  Three turns so far, N=1 each, and
+every one has moved the question rather than answered it — which is
+what the card's day one is for.
