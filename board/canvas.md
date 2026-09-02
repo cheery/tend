@@ -299,3 +299,40 @@ installed set, the tree's copy is the workbench, and the lander lamp
 says the installed set is behind HEAD until then.  **The card's first
 measurement is his**: the next 13:27, on the panel, without `pull`
 having watched.
+
+## Talk — 2026-09-02: what the canvas is to the person, in his words
+
+At the end of the morning that opened `card:edge.md` and named the
+canvas the graph's sink and its second real node, Henri, asked what a
+person does with the canvas day to day:
+
+> Ihminen käyttää tietokonetta kanvasin kautta.  Siinä on ohjelmat,
+> jotka sammuvat ja käynnistyvät suurinpiirtein siihen tilaan ja
+> paikkoihin missä ne sammuessaan olivat.  Eli siinä on sellainen
+> säilyvyys sammutusten ja käynnistysten välillä.  Käyttäjä voi
+> kanvasia muokata haluamakseen ja jopa vaihtaa sitä yhdestä toiseen
+> sen mukaan mitä tehtäviä hänellä on käsissään.
+
+— A person uses the computer through the canvas.  In it are the
+programs, which stop and start roughly into the state and the places
+they were in when they stopped: a persistence across shutdowns and
+starts.  The user can edit the canvas as they like, and even switch
+from one canvas to another according to the tasks in hand.
+
+And earlier the same hour (`card:edge.md`, under its question): the
+canvas is a directory that, when needed, also means the screen; two
+of them, the user's and the system's.
+
+What the tree has of this sentence: `spec/os.md` property 8 — *open
+where left; interactions must not break each other* — is the same
+sentence from the OS side, and the 08-26 pass called it satisfied for
+what a node keeps in its `state/`.  The canvas today is a directory of
+pins and holds the panel reads; a pin is "show me", a hold is a
+standing pull, and both outlive the process.  What it is not yet: the
+place a program's *position and contents* live between stops
+(`later/canvas-windows.md`, shelved 2026-08-30: a window is a thing
+held, and nothing on the person's side records it), a canvas the
+person edits as a thing, and more than one of them to switch between.
+His sentence is the card's direction from here; the build waits on
+`card:edge.md`'s day one, because a canvas that pulls its programs is
+a node with edges, and the edge comes first.
