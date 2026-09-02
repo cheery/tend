@@ -147,3 +147,55 @@ the sentence.
 them are really faces of one of his seven rather than roles of their
 own?)*
 
+## Why this works — the problem, and the theories, kept several
+
+2026-09-02, Henri, the hour after he moved the testing to the far
+future: *"The problem statement: I do not know what's going on here.
+Things just work but I do have very little idea why.  I only have
+theories of the origin."*  And his main one:
+
+> The main theory I have right now, that I think might be true.  Is
+> that this is emergent behavior under scaffolding I made.  I allowed
+> writers to write where readers read.  And the rest came by itself
+> when the model started completing lean principles for me.
+
+*The list below is a session's, at his problem statement, in the
+tree's set-based form (`manifesto.md` §"Set-based, not point-based"):
+several alive, what would kill each, choose last.  None is a rule; a
+theory written as a rule would need a mark.*
+
+1. **Writers write where readers read, and the rest emerged** — his.
+   A kaizen is written where the next session reads first; a
+   `because` where the mind that picks reads; a mark on the rule it
+   marks; an answer under the question.  Nothing has a separate home,
+   and a model asked to complete lean principles inside that loop
+   produced the mechanisms.  *For it*: every mechanism of the week
+   arrived as a completion of a principle already on the page, in the
+   file the principle was in — three verdicts from a kaizen that read
+   a kaizen, the questions card from the marks card's shape, the
+   keeper from four marks struck.  *Would kill it*: a tree with the
+   same principles and a journal nobody reads producing the same
+   mechanisms.  gestate's early journal is near that control, and his
+   word is that its prose did not travel — one observation, not a
+   measurement.
+2. **The boundaries outside the session do the work.**  Sixteen
+   F-numbers, each naming the gate that holds it, and the kaizens'
+   "wrong, mine" every day: nearly every catch came from a kernel, a
+   test, a hash or a tone, not from the session's care.  *Would kill
+   it*: a week under the fence with no prose showing the same catch
+   rate — which is the cold arm, on a rule that needs its story.
+3. **His rhythm does it** — sittings, one question at a time, marks
+   struck, "own pace".  *Would kill it*: a session left alone for a
+   day producing the same record.
+4. **The model is strong enough that any tidy harness looks like a
+   method.**  *Would kill it*: the same tree run with a weaker mind
+   producing the same mechanisms — which gemma4 half-showed against
+   on 2026-09-02: it completed the form when the form was in front of
+   it, and nothing beyond the ask.
+
+Not one of these is chosen.  What 1 leaves unexplained is why the
+model completes lean principles well rather than badly, which is 4's
+territory; what 2 leaves unexplained is where the gates came from,
+which is 1's.  They may be one theory seen from two sides, and the
+tree's rule is to choose last.
+
