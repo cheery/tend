@@ -71,6 +71,44 @@ exists.**
    would serve a session in `card:swe-bench.md`'s arm.  If those want
    different framings, this is two artifacts, not one.
 
+### Decided 2026-09-02 — henri: "go with your picks, write them in"
+
+Read to him one at a time at his "go one at a time with elaboration",
+after a morning of four gemma4 turns through `doors/llm/door`
+(`card:session-program.md` §06:29–§07:0x) had answered one of the four
+by measurement.  The picks were a session's; the decision is his, in
+the words above.
+
+1. **Length** — measured, not decided: commandments 3,944 bytes;
+   `board/README.md` alone 9.6×; README + manifesto + vision + keeper
+   17.5×; the whole board shelf 92× (the table on
+   `card:session-program.md`).  No padding.  The ratio is stated with
+   every result, as the confound it is.
+2. **One file now, a tree later.**  For gemma4 the rules go into the
+   prompt as material, and only one file fits there; a session in the
+   swe-bench arm navigates and will want a tree shape.  The file is the
+   content; a tree is mirrored from it when that arm exists, so the
+   content lives in one place.
+3. **Reordered to the real tree's order**, the same day: the groups now
+   follow `board/README.md` as a session meets it — the shortest-form
+   rule first, the board, sittings, claims, instruments, boundaries,
+   rules, questions — and then `manifesto.md` — building, diagnosis —
+   with records last, and within a group the paragraphs' own order
+   where a counterpart exists.  The subject grouping stays, because the
+   real documents are grouped too; what went was an order *better*
+   than the real thing.  The sitting's-clock rule promoted the same
+   morning was added under sittings, as the file's rule requires: it
+   matches what tend has.
+4. **One content, two carriages.**  The morning answered it: a model
+   arm and a session arm want different carriages, and the model arm
+   splits again by whether the model reads.  gemma4 gets this file in
+   the prompt; the door models and a session get a tree with the
+   commandments standing where the reasoned documents were.  Not two
+   artifacts — one file, carried two ways.
+
+*The mark on `README.md` is untouched by this: these are the draft's
+uncertainties answered, not the arm approved.*
+
 ## The one thing that would make this arm worthless
 
 If a session or a model that reads the commandments **also** has the
