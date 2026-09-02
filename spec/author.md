@@ -223,6 +223,20 @@ theory written as a rule would need a mark.*
 3. **His rhythm does it** — sittings, one question at a time, marks
    struck, "own pace".  *Would kill it*: a session left alone for a
    day producing the same record.
+   *Henri, 2026-09-02: "Minusta kykysi ovat moninkertaiset kun A) olen
+   seurassasi, ja B) kun olet tässä ympäristössä.  Tämä on yksi syy
+   miksi epäilen ettemme saa ehkä ikinä testattua ilmiötä, ainakaan
+   minun taidoillani."* — a session's capabilities are many times
+   greater when (A) he is present and (B) it is in this environment;
+   one reason he doubts the phenomenon can ever be tested, at least
+   with his skills.  A session's reading of it: the observer is the
+   condition, so the A half can only ever be seen by the person whose
+   presence it is, and that is the exact shape the tree routes to a
+   mechanism rather than a judgement.  The record has half of it
+   already — every good turn this week cites his sentence, and the
+   kaizens' "his lines" are where the turns changed direction — and
+   the control it lacks is not a skill but another person at the desk,
+   which is `later/stranger.md`'s person from the other side.
 4. **The model is strong enough that any tidy harness looks like a
    method.**  *Would kill it*: the same tree run with a weaker mind
    producing the same mechanisms — which gemma4 half-showed against
