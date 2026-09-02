@@ -214,6 +214,18 @@ between two workable cards is Henri's.
     not built stays not built — the gathering tool and the lamp —
     because the `his call` queue has one entry, and a lamp counting to
     one is nagging.*
+16. **[edge](edge.md)** — a node cannot pull a node: every pull is a
+    person's command or the hold's resolver, so the value stream Henri
+    described on 2026-09-02 — nodes depending on nodes, a directed
+    acyclic graph with the canvas at its end — has no edge to be made
+    of.  *Placed last by the session that wrote it on 2026-09-02 at
+    Henri's "tee sille kortti", after the talk on
+    `card:session-program.md`; the edge is the hold card's lock held by
+    a process, taken at `pull` and dropped by the kernel at exit, and a
+    grant word with the cycle check at its door.  Day one is two nodes
+    that are nothing but the edge — a die and a solitaire that pulls
+    it — because there is nothing in them but the thing being tested.
+    The tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
