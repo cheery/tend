@@ -535,7 +535,7 @@ status)
     for h in $(holds_for); do echo "held: $(hold_words "$h") ($h)"; done
     for w in $(pulled_by); do echo "pulled by: $w ($STATE/pulled/$w)"; done
     for p in $pulls; do echo "pulls: $(basename "$p") ($p)"; done
-    [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
+    [ -s "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
         eval "set -- $status_cmd"; "$py" "$here/keep.py" $flags -- "$@"
@@ -561,7 +561,10 @@ serve)
         exit 0
     fi
     want=""
-    if [ -f "$pullfile" ] && { [ ! -f "$STATE/stopped" ] || [ "$pullfile" -nt "$STATE/stopped" ]; }; then
+    # a pull is a line: an empty pull file is the fence's precreation (tools/sandbox.sh makes every
+    # node's pull file on the person's side so a first pull can land) and not a pull.  F017: the
+    # tick ran the edge's two nodes the minute they arrived, on files nobody had written a line to
+    if [ -s "$pullfile" ] && { [ ! -f "$STATE/stopped" ] || [ "$pullfile" -nt "$STATE/stopped" ]; }; then
         want="had an unserved pull"
     elif holds=$(holds_for) && [ -n "$holds" ]; then
         # the hold is a standing pull (card:hold.md).  After a clean stop — idle, the sitting,

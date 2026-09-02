@@ -282,7 +282,15 @@ for grant in "$root"/*/grant; do
     nd=$(dirname "$grant"); st="$nd/state"
     pf=$(sh "$here/launch.sh" "$nd" grant 2>/dev/null | sed -n 's/^pull //p')
     [ -n "$pf" ] || continue
-    mkdir -p "$st"; [ -e "$pf" ] || : > "$pf"
+    # A node that arrived after the fence this runs inside was built has no pull file yet, and this
+    # seat cannot make one (2026-09-02, the edge's two nodes: `test_sandbox.py` from inside the fence
+    # died here at `set -e`, three tests red, and the reds were about the fence and not the rows).
+    # Said, and the node left unbound: the session cannot pull it until the next fence is built
+    # (`touch`, not `: >`: a redirection that fails on a special builtin is fatal under set -e, silently once its stderr is dropped)
+    if ! { mkdir -p "$st" && touch "$pf"; } 2>/dev/null; then
+        echo "sandbox: $(basename "$nd")'s pull file $pf is not there and cannot be made from this seat — the fence was built before the node; it cannot be pulled until the next session" >&2
+        continue
+    fi
     opts="$opts --ro-bind $st $st --bind $pf $pf"
 done
 [ -d "$root/.venv" ] && opts="$opts --ro-bind $root/.venv $root/.venv"

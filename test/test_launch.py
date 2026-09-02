@@ -1042,3 +1042,20 @@ def test_a_pulled_death_is_restarted_only_by_an_edge_newer_than_it(tmp_path):
         holder.kill(); holder.wait()
         # the die is up under the lock we held; let go and let it idle out, so no runner outlives the test
         wait(lambda: (st / "stopped").exists() and (st / "stopped").read_text().startswith("idle:"), cap=10)
+
+
+def test_an_empty_pull_file_is_the_fences_precreation_and_starts_nothing(tmp_path):
+    """F017: tools/sandbox.sh makes every node's pull file empty on the
+    person's side so a first pull can land, and `serve` read the empty
+    file with no `stopped` as an unserved pull — the edge's two nodes
+    were run by the tick the minute they arrived.  A pull is a line."""
+    st = tmp_path / "st"; st.mkdir()
+    (st / "node.state.pull").write_text("")
+    a = launch(ROOT / "node", "serve", state=st, idle="0.4")
+    assert a.returncode == 0 and a.stderr == "", (a.returncode, a.stderr)
+    time.sleep(0.3)
+    assert not (st / "stopped").exists() and not (st / "log").exists(), "an empty pull file ran the node"
+    s = launch(ROOT / "node", "status", state=st)
+    assert "last pull" not in s.stdout, s.stdout
+    launch(ROOT / "node", "pull", "one line", state=st, idle="0.4")   # from a person's shell: appends and starts
+    assert wait(lambda: (st / "stopped").exists(), cap=8), "a real pull was not served"
