@@ -18,6 +18,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import time
 
 import pytest
 
@@ -369,3 +370,20 @@ def test_the_node_state_is_read_only_inside_and_the_pull_file_is_not():
     if (ROOT / ".venv").is_dir():
         r = sandbox("sh", "-c", f"touch {ROOT}/.venv/.probe")
         assert r.returncode != 0, ".venv is writable inside"
+
+
+def test_the_fence_makes_a_missing_pull_file_and_never_touches_one_that_exists():
+    """F017's second face: the pull file's mtime against `stopped` is the
+    resolver's whole rule, so a fence that touched every node's pull file
+    at every command had the tick restart the die on a pull nobody made.
+    The first node's pull file is bound writable inside the fence, so this
+    can be measured from any seat: build a fence that is refused after
+    the precreation, and the mtime has not moved."""
+    pf = ROOT / "node" / "state" / "node.state.pull"
+    if not pf.exists():
+        pytest.skip("the first node has no pull file on this seat yet — the next fence makes it")
+    before = pf.stat().st_mtime_ns
+    time.sleep(0.05)
+    out = sandbox("--reach", "bus", "true")
+    assert out.returncode == 2, out.stderr
+    assert pf.stat().st_mtime_ns == before, "the fence touched a pull file that existed"

@@ -286,8 +286,11 @@ for grant in "$root"/*/grant; do
     # seat cannot make one (2026-09-02, the edge's two nodes: `test_sandbox.py` from inside the fence
     # died here at `set -e`, three tests red, and the reds were about the fence and not the rows).
     # Said, and the node left unbound: the session cannot pull it until the next fence is built
-    # (`touch`, not `: >`: a redirection that fails on a special builtin is fatal under set -e, silently once its stderr is dropped)
-    if ! { mkdir -p "$st" && touch "$pf"; } 2>/dev/null; then
+    # Made only when missing — never touched: the pull file's mtime against `stopped` is the resolver's
+    # whole rule, and a fence that touched it at every command had the tick restart the die at 13:35
+    # on a pull nobody made (F017's second face, the same hour).  `touch`, not `: >`: a redirection
+    # that fails on a special builtin is fatal under set -e, silently once its stderr is dropped
+    if ! { mkdir -p "$st" && { [ -e "$pf" ] || touch "$pf"; }; } 2>/dev/null; then
         echo "sandbox: $(basename "$nd")'s pull file $pf is not there and cannot be made from this seat — the fence was built before the node; it cannot be pulled until the next session" >&2
         continue
     fi
