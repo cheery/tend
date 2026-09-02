@@ -448,3 +448,36 @@ would be the store.
 *(question, his call — is identity state a declared property of a
 node — a grant word, absent by default — or a property of every node
 that the person may leave empty?)*
+
+**His answer, 14:27**: *"huh. olet oikeassa.  tietokanta tosiaan on
+solmu, jossa tila, ja se on syvällä verkossa.  Tässä on vain kysymys
+miten solmu pääsee siihen käsiksi.. Varmaan oman tilansa kautta!"* —
+a database really is a node with state, deep in the network; the only
+question is how a node gets at it, probably through its own state.
+
+So "declared, not canvas-near" stands, and the question moves to the
+access.  The tree's day one already answers half of it, read back:
+the solitaire reached the die **through the die's state** — `pull die`
+grants read on `die/state`, the edge file sits inside it, and the roll
+was read beside the edge.  That is one reading of *oman tilansa
+kautta*: the pulled node's state is its interface, and what a puller
+may see of a node is what the node left in its state.  The other
+reading is the puller's own state: the launcher puts the handle where
+the program already looks — `$STATE/pulls/die`, a link to the die's
+state, made at `run` beside the edge file — so a program finds what it
+pulls in its own directory and `$TEND_PULLS` becomes a convenience
+rather than the mechanism.  The two are one line apart in
+`tools/launch.sh` and are not exclusive; the second is one symlink
+and is not built until he says which he meant.  What neither reading
+covers is a database's *conversation*: a query is a write or a
+connect, and keep's grammar has read on a state and a `bind` for one
+port and no word for reaching another node's socket — the first caller
+for os.md 4b, as this card said at its opening, now with a concrete
+shape: a socket in the pulled node's state, and a grant word that lets
+a puller open it.  Not built; measured first, because whether Landlock
+governs a connect on a unix socket by path is a fact about the kernel
+this tree has not measured.
+
+*(question, his call — "oman tilansa kautta": the pulled node's state
+as its interface (what day one did), or a handle in the puller's own
+state (`$STATE/pulls/<node>`, one symlink), or both?)*
