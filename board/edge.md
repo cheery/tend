@@ -627,3 +627,34 @@ the line.  Measured on the way: the watcher hands the pulled node the
 puller's environment minus `TEND_STATE_DIR`, so a test that wants a
 short idle on the pulled node says so in the puller's — the die ran its
 grant's 30 s until the test did.
+
+**The third live run, 16:29 — the first conversation over an edge,
+answered.**  His shell: `tools/launch.sh ask run "Mitä varten tend on?
+Vastaa yhdellä lauseella."`  The edge at 16:29:37; the puller's runner
+asked `serve` at the lock — *llm is pulled by ask and no runner —
+started one* in ask's own log — the model loaded, ask asked, and the
+answer was in `ask/state/answer` at 16:30:29: fifty-two seconds from
+edge to answer, model load included; the llm idled out at 16:31:33,
+sixty seconds after ask let go.  The answer, verbatim:
+
+> Tend on englannin kielen verbi, jolla tarkoitetaan joko taipumusta
+> johonkin tai jonkin hoitamista ja huolehtimista.
+
+— with 184 words of thinking under it, weighing two meanings of the
+English verb and checking "one sentence? yes; Finnish? yes".  A true
+sentence about the wrong tend: asked cold, with no material from the
+tree, the mind answered the dictionary, which is `card:simpleqa.md`'s
+finding and `doc/cold/`'s in one line — what a node knows is what its
+grant lets it read, and `ask`'s grant lets it read `llm/state` and
+nothing of the tree.  That is correct for a fixture and is the next
+question for a node that should answer about tend: what it may read is
+a grant word (`allow`), and what it is handed is the courier's
+(`tools/deliver.sh`, the digest).  Not this card's.
+
+So the edge card's day one has both halves now, on the live desk: the
+signal (a process's lock brought a node up and let it stop) and the
+conversation (one question over the port beside the signal, answered,
+kept in the puller's state).  Three things were wrong on the way and
+each was found by the run and not by a reader: the tick's environment
+(his `env LD_LIBRARY_PATH` line in `llm/grant`, uncommitted at this
+writing), the reply's two fields, and the latency to the lock.
