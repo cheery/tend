@@ -178,6 +178,12 @@ theory written as a rule would need a mark.*
    mechanisms.  gestate's early journal is near that control, and his
    word is that its prose did not travel — one observation, not a
    measurement.
+   *Henri, 2026-09-02, the same hour: "I've understood, but this should
+   be suspected: Emergent behavior of LLMs is a documented behavior.  It
+   happens when you get a place where you can write, and read from
+   it."*  Suspected, in his word: the mechanism named is the loop
+   itself — a place written to and read from — and not the principles
+   in it.
 2. **The boundaries outside the session do the work.**  Sixteen
    F-numbers, each naming the gate that holds it, and the kaizens'
    "wrong, mine" every day: nearly every catch came from a kernel, a

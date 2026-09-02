@@ -132,6 +132,34 @@ def test_a_kaizen_puts_it_out(tmp_path):
     assert r.lamp().stdout == ""
 
 
+def test_a_kaizen_extended_in_the_same_sitting_puts_it_out_when_said(tmp_path):
+    """**Kaizen 1544's tension, seen twice (2026-09-01, 2026-09-02).**  A
+    kaizen written mid-sitting at Henri's ask, the sitting going on, and
+    at its close the same file extended — one sitting, one file, the
+    rule.  The lamp read the extension as a correction (a modification is
+    not a landing, 2026-08-27) and named a second file.  Neither git nor
+    the lamp can tell an extension from a count fixed; so, as with
+    `want`, the session says: `tools/kaizen.sh extended` after the
+    extending commit.  It is refused unless HEAD modified a kaizen-named
+    file, and it is forgotten when the next kaizen lands."""
+    r = Repo(tmp_path)
+    r.commit(); r.kaizen()                 # the mid-sitting kaizen
+    r.commit(); r.commit()                 # the sitting goes on
+    assert "2 commit(s)" in r.lamp().stdout
+    bad = r.lamp("extended")               # HEAD is work, not a kaizen file
+    assert bad.returncode == 2 and "did not modify a kaizen" in bad.stderr, bad.stderr
+    r.correct()                            # the extension, committed
+    assert "since the last kaizen" in r.lamp().stdout, "unsaid, a modification is a correction, as before"
+    ok = r.lamp("extended")
+    assert ok.returncode == 0 and "extended" in ok.stdout, ok.stdout + ok.stderr
+    assert r.lamp().stdout == "", "said, the extension is the sitting's kaizen"
+    r.commit()                             # the next sitting's first commit
+    out = r.lamp().stdout
+    assert "1 commit(s)" in out and "extended" in out, out
+    r.kaizen()                             # a real landing forgets the stamp
+    assert r.lamp().stdout == ""
+
+
 def test_a_non_kaizen_file_in_the_dir_is_not_a_kaizen(tmp_path):
     """**The defect of 2026-08-26 (board/green.md, and this session).**
 

@@ -65,6 +65,7 @@ here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # the parent of this file — a tree's own copy works as it always did.
 root=${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}
 WANT="${TEND_KAIZEN_WANT:-$HOME/.local/state/tend/kaizen-wanted}"
+EXT="${TEND_KAIZEN_EXTENDED:-$WANT-extended}"   # the hash of a commit that extended the sitting's kaizen, when said
 
 case "${1:-}" in
 "") ;;
@@ -76,6 +77,25 @@ want)
     mkdir -p "$(dirname "$WANT")"
     printf '%s\t%s\n' "$(date +%s)" "$2" > "$WANT"
     echo "kaizen wanted, $(date +%H:%M): $2"
+    exit 0 ;;
+extended)
+    # **A kaizen extended is the sitting's kaizen, when said** (kaizen 1544's
+    # tension, seen 2026-09-01 and 2026-09-02): a kaizen written mid-sitting at
+    # Henri's ask, the sitting going on, and at its close the same file
+    # extended — one sitting, one file.  The lamp cannot tell an extension from
+    # a count fixed (both modify, neither adds), so, as with `want`, the
+    # session says so — after the extending commit, and only if HEAD modified a
+    # kaizen-named file.  The stamp is HEAD's hash, beside the want file, and
+    # is forgotten when a later kaizen lands.  Saying it is a declaration in
+    # the one direction `want` does not cover; a hollow extension is no more
+    # checkable than a hollow kaizen, and spec/kaizen.md says so of both.
+    head=$(git -C "$root" rev-parse HEAD 2>/dev/null) || { echo "kaizen: no commit to speak of" >&2; exit 2; }
+    if ! git -C "$root" show --format= --name-only --diff-filter=M "$head" -- "doc/kaizen/????-??-??-????.md" | grep -q .; then
+        echo "kaizen: HEAD did not modify a kaizen file — \`extended\` is said after the commit that extends one" >&2; exit 2
+    fi
+    mkdir -p "$(dirname "$WANT")"
+    printf '%s\n' "$head" > "$EXT"
+    echo "kaizen extended at $(git -C "$root" log -1 --format=%h "$head"), $(date +%H:%M): the sitting's kaizen is the one this commit extends"
     exit 0 ;;
 -h|--help) sed -n '2,60p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 *) echo "kaizen: unknown argument \`$1\`" >&2; exit 2 ;;
@@ -102,6 +122,23 @@ else
     range="HEAD"
     since="and no kaizen yet"
     last_at=0
+fi
+# An extension said with `extended` is the landing when it is newer than the
+# last added kaizen and still on this branch; a later kaizen forgets it.
+if [ -f "$EXT" ]; then
+    ext=$(head -1 "$EXT" 2>/dev/null || true)
+    if [ -n "$ext" ] && git -C "$root" merge-base --is-ancestor "$ext" HEAD 2>/dev/null; then
+        ext_at=$(git -C "$root" log -1 --format=%ct "$ext" 2>/dev/null || echo 0)
+        # newer by ancestry, not by clock: two commits in one second are still ordered
+        if [ -z "$last" ] || { [ "$ext" != "$last" ] && git -C "$root" merge-base --is-ancestor "$last" "$ext" 2>/dev/null; }; then
+            last=$ext; last_at=$ext_at; range="$ext..HEAD"
+            since="since the kaizen extended at $(git -C "$root" log -1 --format=%h "$ext")"
+        else
+            rm -f "$EXT"
+        fi
+    else
+        rm -f "$EXT"
+    fi
 fi
 
 # A want is answered by a kaizen committed after it, and then forgotten.
