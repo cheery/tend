@@ -1,0 +1,7 @@
+url  http://127.0.0.1:18080/v1/chat/completions
+model  gemma-4-26B-A4B-it-UD-Q4_K_XL
+key  ~/.config/tend/llm.key
+admitted  Henri, 2026-09-02 — "ottaisitko työlle session-program ja asiat mitkä sitä nyt estävät"; the node itself, at its own port, so the tools loop can reach gemma4 — the only route by which the node ever reads the tree (tools/lead.sh gives it the digest alone).  doors/README.md foresaw it: "the node's own port".  The key file is a formality of door.sh (any line, mode 600; the node checks no key); the model name is what llama-server lists and the first turn checks it; and the program line needs --jinja for tool calls on this wire, which is a grant edit and his (card:session-program.md, 2026-09-02).  Unrun from the seat that wrote it.
+tools  read ls grep
+calls 16
+readchars 4000

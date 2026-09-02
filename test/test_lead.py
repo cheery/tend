@@ -316,7 +316,12 @@ def test_the_trees_own_doors_read_and_name_a_key_outside_the_tree():
     for d in doors:
         text = d.read_text()
         fields = dict(line.split("  ", 1) for line in text.splitlines() if "  " in line and not line.startswith("#"))
-        assert fields["url"].startswith("https://"), d
+        # a key crosses the wire, so https — except the node's own loopback
+        # port, which checks no key and is the one door where http is the
+        # honest scheme (doors/llm, 2026-09-02, card:session-program.md)
+        url = fields["url"]
+        assert url.startswith("https://") or url.startswith("http://127.0.0.1:"), \
+            f"{d}: https, or http to 127.0.0.1 only"
         assert fields["model"], d
         assert fields["key"].startswith("~/"), f"{d}: the key lives under the person's home, never the tree"
         assert "admitted" in fields, f"{d}: a door says who admitted the model"

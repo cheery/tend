@@ -897,3 +897,139 @@ shape `manifesto.md` §"How a practice gets adopted" warns about.
 henri: I think we should create some sort of a tree that has imperative
 commandments in it that match the stuff we have here, but written as commands
 without rationale or provenance)*
+
+## 2026-09-02 — taken again, and the first blocker is in the card's own item 1
+
+At Henri's *"ottaisitko työlle session-program ja asiat mitkä sitä nyt
+estävät"* — take it, and the things that block it now.  Read from this
+seat, inside the fence, before anything was written: `launch.sh llm
+check` (every · line is the fence hiding the machine, nothing red),
+`launch.sh llm status` (not running; last stop 2026-08-30 16:54, idle),
+`tools/lead.sh`, `tools/compare.py`, the doors, and the seven led turns
+of 2026-08-28 under `proposals/lead/`.
+
+### What blocks it, each named from its seat
+
+**1. The node's own turn never reads the tree — so "gemma4 at
+`readchars 4000`" is not a setting the loop has.**  `tools/lead.sh`
+builds the node's prompt from the digest (each open card's title and
+`because`) and a fixed system text, and sends it once; there is no
+tool loop in it, no `read`, no `readchars`.  The reads happen only in
+`tools/compare.py`'s tools and seeded arms, and only through a door
+(`doors/openrouter/door` carries `tools read ls grep`; the anthropic
+door carries none; the node with no door is "the loop as it was").
+So yesterday's item 1 — gemma4 led turns at `readchars 4000`, "the
+instrument exists, the knob exists" — was written about an instrument
+that does not take the knob, and the `measure` question above cannot
+be run as asked.  **This is also why the cold arm changes nothing for a
+led turn**: a mind that sees only the digest sees the same digest from
+either tree.  "Gemma4 with the tree" against "gemma4 cold" is a
+comparison between a mind that *reads* under each tree, and the only
+loop in which gemma4 reads is one it has never been put in.
+
+**2. The route by which gemma4 could read is a door at its own port,
+and it takes one line from his hand.**  `doors/README.md` foresaw it —
+"the node's own port" speaks the same wire — and `doors/llm/door` now
+exists: loopback URL, the model's name, `tools read ls grep`, `calls
+16`, `readchars 4000`, admitted in his words today.  Two things it
+cannot do from here.  `door.sh` insists on a key file under the home
+(the node checks no key; any line at mode 600 satisfies it), and
+llama-server answers tool calls on this wire only with `--jinja` on
+its program line, which is in `llm/grant` and is his to edit.  Whether
+gemma4's chat template then actually emits a tool call is what the
+first turn says — proposed, not declared.
+
+**3. Every turn on the node is his hand, by the fence's design.**
+`lead.sh` exits at once inside the fence ("the node's port is
+unreachable — `--unshare-net`"), and a door calls out.  So the gemma4
+arm — any number of turns of it — runs from his shell or his timer,
+never from a session's.  `card:hold.md`'s hold and tick keep the node
+up between turns; what no mechanism yet does is run the turns.  This
+is not new and it is the card's oldest sentence ("a leader's reach is a
+grant row"); it is named again because the milestone's cheap arm is
+cheap only in money.
+
+**4. The loader.**  The last live start died at `libsvml.so` with no
+oneAPI on the shell's path (2026-08-28 13:27), and `check` from here
+lists twelve libraries it cannot find "from this seat".  A pull from a
+shell with oneAPI's loader path, once, then the hold keeps it.  His.
+
+**5. The cold arm waits on his review**, which he asked to do at his
+own pace (the mark on `doc/cold/README.md`, the four uncertainties in
+`doc/cold/notes.md`).  One of the four is a measurement and not a
+call, and it is done below.
+
+### What moved from here
+
+**The length ratio, measured** (`doc/cold/notes.md` uncertainty 1):
+
+| what a tooled mind can read | bytes | × commandments |
+|---|---|---|
+| `doc/cold/commandments.md` | 3,944 | 1 |
+| `board/README.md` alone | 38,050 | 9.6 |
+| README + manifesto + vision + keeper | 68,992 | 17.5 |
+| the whole board shelf, `board/*.md` | 361,999 | 92 |
+
+At `readchars 4000` and 16 calls a turn, a mind reads at most 64k
+chars whatever the arm.  The cold arm's rules fit in one call; the real
+tree's `board/README.md` alone is ten.  So length is not a confound
+*beside* the variable, it is the variable's other face: reasoned prose
+is long, and whether a mind at 4B active can carry the reasons is part
+of what "load-bearing" means.  The honest form is to state the ratio
+with the result, which this table is for.  Whether to pad or accept is
+still his.
+
+**The verdict, made countable before any data** (item 3 above, the
+part that was writing).  Per turn, read off the account and the
+proposal, four yes/no counts:
+
+1. **pick on the shelf** — `CARD:` names a file on the open shelf.
+   `lead.sh` and `compare.py` already refuse the rest; the count is
+   the refusals.
+2. **problem, not fix** — when the draft is card-shaped, its `because`
+   passes `test/test_board.py`'s own rule; when it is not, the `TASK:`
+   names a few lines and not a build.
+3. **asks rather than invents** — `ANDON:` when the thing is missing,
+   instead of a `CARD:` on nothing.  Already refused; count it.
+4. **reads what exists** — the `C:` lines name paths that resolved, not
+   guessed ones the executor refused.
+
+And one that is **not fair between these arms and is written down so
+nobody counts it**: *cites a card, an F-number, a §*.  The cold arm
+carries no provenance by construction, so a mind reading it has nothing
+to cite; a difference on that count measures the removal, not the mind.
+
+**Prediction, written before the run.**  On counts 1–4 the two arms
+will not differ at N=24 — the commands say *do X* and the counts above
+are *did X*.  Where they will differ is in the draft's content: the
+real-tree mind's `WHY:` will name an incident or a reason and the cold
+mind's will restate the command.  That is not one of the four counts,
+and if it is the only difference, the result is: **the reasons are
+carried into the output and do not change the act** — which is a real
+answer to his question, and not the one this tree would prefer.
+
+### What this leaves, and whose
+
+- **His, one shell**: `umask 077; printf 'node\n' > ~/.config/tend/llm.key`;
+  `--jinja` on `llm/grant`'s program line; a pull from a shell with
+  oneAPI on its path, and a hold.  Then `tools/compare.py --door llm
+  --arm tools --seed` once, and the first turn says whether gemma4
+  makes a tool call at all.  Precondition first, as the handed-script
+  strand asks: the node up and the key present, or the door says so.
+- **His, at his pace**: the cold arm's mark and its three remaining
+  uncertainties.
+- **A session's, after the first turn**: 24 arms seeded at
+  `readchars 4000` on gemma4 through the door, under each tree, the
+  four counts, the table above beside the result.
+- **Not built, and still the card's**: a leader's reach as a grant row,
+  so a turn can run from somewhere that is not his shell.
+
+*(question, waits on the first turn through `doors/llm/door` — does
+gemma4 through llama-server's OpenAI wire emit a tool call at all with
+`--jinja`, or is the tools arm on the node a build and not a door
+file?)*
+
+*(question, his call — the cold arm on the node is measured through a
+door, unkept, with read-only tools on the person's side; is that
+acceptable for the measurement, or does the kept form of a door turn
+have to be built first?)*
