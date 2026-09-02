@@ -126,6 +126,94 @@ the trap kit's first shape for this tree — a fixed turn, a fixed
 board, accounts side by side — and the sheet that says what a pass
 licenses is owed before any refusal is wired.
 
+## 2026-09-02 — the first admission, written as a task shape: gemma4
+
+At Henri's *"write that admission into model-acceptance"*, after his
+question — *"does this mean gemma4 is a bit too lightweight model to
+work on the board?"* — and a session's answer: partly, and the
+evidence is thinner than the sentence; the question is not keep or
+retire but what it is admitted for.  He said write it.  So this is
+the sheet §18:45 said was owed before any refusal is wired: **what a
+pass licenses, and what it does not**, for the one model this tree
+runs itself.
+
+### The evidence it stands on, all of it
+
+Four turns on 2026-09-02, N=1 each, through `doors/llm/door` with
+thinking off on the wire (`card:session-program.md` §06:29–§07:0x):
+
+| the ask | what gemma4 did |
+|---|---|
+| the digest and the tools, pick a card | picked from the digest, read nothing |
+| the tools and no digest, pick a card | pulled the cord — "which card should I focus on first?" — with `ls board/` in hand |
+| "read board/README.md and tell me its first heading" | one `read`, the right heading |
+| (2026-08-28) the card as material, draft a small thing | restated the `because`; Opus reached the card's own prediction from the same material |
+
+And hy3 on 2026-09-01, same arms, read sixteen cards unprompted.  Two
+days, one direction, and one sentence: **gemma4 does what the ask
+says and nothing beyond it.**  It reads when reading is the ask, and
+not when reading is the way to the ask.
+
+### Admitted for
+
+- **A turn whose ask names the read.**  "Read X and say Y."  The
+  deliver ask is the specimen, and it passed on the first try.
+- **Material in the prompt.**  A draft or an answer grounded in text
+  the turn was handed — the same place `propose.sh` puts a card —
+  never in text one call away.
+- **A card picked by a person or a stronger mind.**  The pick is not
+  its work; the small thing under a pick can be.
+- **A few lines, not a build**, which is the pick prompt's own bound.
+- **Under keep, inside the fence, at no cost per turn.**  This is the
+  reason the admission exists at all: gemma4 is the only mind this
+  tree runs confined (`lead.sh --kept`), and every door calls out,
+  unkept, on his account.  A worker that can be fenced is worth a
+  task shape of its own.
+
+### Not admitted for
+
+- **Leading** — picking from the shelf unaided with tools in hand.
+  Two turns, both declined the read that would have answered.
+- **Reading as the route** — any turn where the material is in the
+  tree and the turn is expected to go and get it.
+- **Drafting from a `because` alone** — 2026-08-28's tautology, and
+  nothing since has moved it.
+
+### What this admission does not license, said out loud
+
+It does not license *"gemma4 finishes a card"*, which is
+`card:session-program.md`'s milestone; the milestone's gemma4 arm now
+puts the rules in the prompt as material, and that arm's result may
+narrow this sheet further.  It is an admission on four turns and one
+specimen, at temperature 0.2, with the prompt's shape never varied —
+**and it is revised by a count, not by a mood.**  What would *widen*
+it: one shaped pick prompt ("first `ls board/`, then pick"), 24 turns,
+and a read rate a person can see.  What would *narrow* it: a
+read-named ask it answers by guessing — the trap below.
+
+### Question 2, answered by the turn that answered §07:0x
+
+*What is a trap, concretely, for this tree?*  The deliver ask is one:
+an ask whose answer is in a named file, through the door, and the
+pass is a `C: read <file>` line on the record *and* the right answer.
+A guess with no `C:` line is the fail, and it is one grep.  It is a
+trap for exactly the shape this sheet admits — the read named — which
+is the only kind of pass this card can honestly check today; a trap
+for leading would be a pass this model has never had.  Where it sits
+is §18:45's answer: `launch.sh NODE check`, running that one turn and
+reading the account.  **Not built**; the sheet comes first, and this
+is the sheet.
+
+### Question 3, a proposal and not an answer
+
+*Per model or per session?*  This sheet is per model **and per task
+shape**: the same gemma4 is admitted at one ask and refused at
+another, so a per-model pass is too coarse and a per-session run is
+the tax §"Questions, open" named.  The tree already has the third
+form — a door file admits a model in the person's words — and this
+sheet is what the `admitted` line on `doors/llm/door` would point at.
+His call, as it was.
+
 ## Where it sits
 
 Placed last on the board by the session that woke it, 2026-08-28; the
