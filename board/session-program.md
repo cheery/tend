@@ -1556,3 +1556,19 @@ the canvas at its sink, written before the word.  The pull is
 already the edge.  What is not there: a grant that names what it
 pulls (the edge as a grant word), a grant derived from another, and
 any node whose program is not the llm.
+
+**Asked what flows on an edge — a node or a result — he answered the
+edge's shape**: *"ajattelin että solmuun kuuluva prosessi voisi antaa
+'pull' -käskyn, joka pysyy voimassa kunnes prosessi sanoo 'stop' tai
+lopettaa."* — the process belonging to a node could give a `pull`
+that stays in force until the process says `stop` or exits.  So the
+edge is liveness and the puller is a *process*, not a person: the
+hold card's sentence generalised from the canvas to every node, with
+exit as the release.  The tree's nearest mechanism is the one the
+hold card already named for a node — a shared `flock` — because a
+lock the kernel drops on exit is a pull that cannot be orphaned,
+and `stop` is the process letting go early.  The grant word for the
+edge is then the puller's, `pull NODE`, and the cycle check is at
+that door.  What flows is out of band — the pulled node's port or
+state — which is what a kanban card is: the signal travels, the parts
+travel beside it.  Talk, not a card, until he says the word.
