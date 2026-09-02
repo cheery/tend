@@ -267,6 +267,10 @@ def test_a_door_that_does_not_answer_says_the_doors_name(tmp_path, stub):
         f"url  http://127.0.0.1:9/nothing\nmodel  vendor/x\nkey  {tmp_path}/keys/openrouter.key\n")
     r = deliver(NODE, "hello", state=st, stub=stub, **door)
     assert r.returncode == 1 and "the openrouter door did not answer" in r.stderr, r.stderr
+    # F014: the sentence carries curl's own reason — a refused connection, a
+    # DNS miss and a 600 s timeout used to read the same, and the reason was
+    # written to a file and deleted unread
+    assert "Connection refused" in r.stderr or "curl: (7)" in r.stderr, r.stderr
     assert not (st / "replies").exists()
 
 

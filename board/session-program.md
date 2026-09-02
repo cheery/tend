@@ -1033,3 +1033,34 @@ file?)*
 door, unkept, with read-only tools on the person's side; is that
 acceptable for the measurement, or does the kept form of a door turn
 have to be built first?)*
+
+### 06:29 — the first turn through the door, and what it does and does not say
+
+Henri's shell, the same hour: `--jinja` was already on the grant line,
+the key file in place, the node pulled and held after the first run
+said "did not answer" for a runner that had idled out on 08-30 (that
+sentence hid why; `F014`, found and fixed in the hour).  Four attempts
+while the node loaded left empty turns; the fifth answered:
+
+    llm tools-seeded: picked questions.md — Define a specific markdown header or tag for "questions for the person".
+      calls: 0
+
+**`calls: 0` does not answer the `waits on` question above.**  The
+reply is 7,222 bytes of reasoning in the content channel — every card
+weighed by name, `CARD:` written twenty-two times, cut mid-sentence
+before the answer — because a door turn never sends the node's
+`enable_thinking:false` (`deliver.sh` sends it only when a door names
+no model, and a door always names one), while the account records
+"thinking off — the node's own condition" from the flag it did not
+send.  That is `F015`.  The pick is the parser's first `CARD:` line;
+the model's last was `kaizen-ingestion.md`.  So a mind that never
+reached its answer also never reached the line where it would have
+called a tool, and whether gemma4 emits one is still unmeasured.
+
+What the turn did show: through the door gemma4 gets the whole digest
+and reasons over all sixteen cards by name, which is what `F008` and
+`F009` bought; and its reasoning was tree-shaped — "if we can't find
+the questions, we can't answer them" is `card:questions.md`'s own
+`because`, said back.  The next turn wants the knob on the wire first
+(`F015`'s smaller shape), and then the question above gets its answer
+from a reply that reaches its end.

@@ -187,8 +187,14 @@ ask() {
         done
     _rc=$(cat "$_rcf" 2>/dev/null || echo 1); rm -f "$_rcf"
     if [ "$_rc" != 0 ]; then
-        if [ -n "$door" ]; then echo "deliver: the $door door did not answer at $CHAT" >&2
-        else echo "deliver: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; fi
+        # F014 (2026-09-02): curl's own line — `curl: (7) … Connection refused`,
+        # a DNS miss, the 600 s timeout — was written to $_raw and deleted
+        # unread, so every transport failure read "did not answer".  One line
+        # of it travels with the sentence; the body never does (kaizen 1624).
+        _why=$(grep -m1 '^curl: (' "$_raw" 2>/dev/null || true)
+        [ -n "$_why" ] && _why=" — $_why"
+        if [ -n "$door" ]; then echo "deliver: the $door door did not answer at $CHAT$_why" >&2
+        else echo "deliver: the node did not answer at $CHAT$_why — is it up? (tools/launch.sh $name check / pull)" >&2; fi
         rm -f "$_raw"; return 1; fi
     if [ "$(cat "$tans" "$tthink" 2>/dev/null | wc -c)" -eq "$_had" ] && [ ! -s "$_tc" ]; then
         # a door's refusal is one line — its code and its words — never the raw body
