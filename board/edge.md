@@ -114,7 +114,31 @@ refused before either runs.  Too simple as programs, he said, and
 exactly right as a fixture: there is nothing in them but the edge.
 
 *(question, his call — is the second real node the panel itself, the
-canvas as a node at the sink, or something that pulls the llm?)*
+canvas as a node at the sink, or something that pulls the llm?
+henri: Toinen oikea solmu on canvas nieluna. 2026-09-02)*
+
+His words in full, the same minute: *"Canvas on hakemisto, joka myös
+tarvittaessa tarkoittaa ikkunointisysteemin ruutua, eli ikkunat sekä
+niiden dimensiot sekä mitä niissä näkyy tulisivat canvas:ista.  Ja
+canvaseja olisi tavallaan kaksi.  Käyttäjän kanvas ja systeemikanvas.
+jälkimmäiseen voisi laittaa vaikka web serverin pyörimään silloin kun
+haluaa että se käynnistyy ja palvelee koko tietokoneen päälläolon
+ajan."* — the canvas is a directory that, when needed, also means the
+windowing system's screen: the windows, their dimensions and what
+shows in them would come from the canvas.  And there would be two, in
+a way: the user's canvas and the system canvas; into the latter one
+could put a web server, when one wants it to start and serve for the
+whole time the computer is up.
+
+So the second real node is the sink itself, and the tree has both
+halves of that sentence already as shape: `card:hold.md` names a
+**system canvas** for what opens when the machine starts and a **user
+canvas** for when the person logs in; and `later/canvas-windows.md`
+(shelved 2026-08-30) is the screen half — a window is a thing held,
+and nothing on the person's side records it.  Whether his words today
+are the event that card waits on is his to say; this card's day one
+stays the die and the solitaire, because the canvas as a node is the
+second real node and not the fixture.
 
 ## Where it sits
 
