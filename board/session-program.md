@@ -1034,6 +1034,11 @@ wire gemma4 answers in shape and calls nothing when the digest is in
 the prompt.  The event this waits on is now the unseeded tools arm,
 one turn from his shell.*
 
+*Answered 2026-09-02 07:0x (§"07:0x" below): yes — one deliver ask
+through the door, `C: read board/README.md → 4.0k chars, cut at line 76
+of 622`, and the heading right.  The tools arm on the node is a door
+file, not a build.*
+
 *(question, his call — the cold arm on the node is measured through a
 door, unkept, with read-only tools on the person's side; is that
 acceptable for the measurement, or does the kept form of a door turn
@@ -1142,3 +1147,45 @@ model that is not this one), and that is `card:model-acceptance.md`'s
 question before it is this card's.  Three turns so far, N=1 each, and
 every one has moved the question rather than answered it — which is
 what the card's day one is for.
+
+### 07:0x — the fourth turn answers it: gemma4 calls the tool when reading is the ask
+
+His shell, the deliver ask above, verbatim:
+
+    C: read board/README.md → 4.0k chars, cut at line 76 of 622
+    A: # board/ — the live board, and how to work it
+
+One call, the right file, the right heading.  So "cannot" is out: on
+this wire, with `--jinja` and the knob, gemma4 emits a tool call and
+reads the cut back correctly.  The `waits on` question is answered and
+the tools arm on the node is a door file.
+
+**What the four turns say together, N=1 each, and it is one sentence**:
+gemma4 reads when reading *is* the ask, and not when reading is the
+way to the ask.  Told to read a file, it read it.  Given tools and a
+question whose answer was one `ls` away, it asked the person.  Given
+the digest, it answered from the digest.  hy3 on the same arms read
+sixteen cards unprompted.  That is the difference in kind from
+2026-08-28, and it decides the *shape* of this card's measurement
+rather than blocking it:
+
+- **For gemma4 the tree cannot be conditioning it reaches for.**  An
+  arm that leaves the rules one read away measures whether the model
+  reads, and this model does not.  The rules go in the prompt, as
+  material — the same place `propose.sh` puts a card's text — and the
+  two arms are the same task with the real tree's rules and with
+  `doc/cold/commandments.md` in that place.  The length ratio table
+  above is then the direct confound and is stated with the result.
+- **For hy3 and the door models the arms can stay as they are**: the
+  tree bound, reads free, and the cold arm a tree with the
+  commandments where the reasoned documents were — which is the shape
+  `doc/cold/notes.md` uncertainty 4 asked about (a model arm and a
+  session arm want different artifacts), answered by this morning:
+  they do, and the model arm splits again by whether the model reads.
+
+What is his: the cold arm's review, unchanged; and whether the gemma4
+arm is worth running at all when its every turn is the prompt and
+nothing else — which is `card:model-acceptance.md`'s question, and the
+first concrete case it has been handed.  What is a session's: the
+material-in-prompt arm for gemma4 is `compare.py --draft` with a
+`--material` it does not yet have, one flag.
