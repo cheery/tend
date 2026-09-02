@@ -66,3 +66,74 @@ good decisions at the helm. If I drift, you may tell me and it will help,
 but it's my responsibility to ensure that I do not overwork myself or work
 off when I am supposed to sleep.
 
+## What my roles are
+
+*Henri, 2026-09-02, in Finnish, at his "this could be written into the
+tree, but in English".  The seven, their order and their sense are his;
+the English is a session's translation.  He named a friend in the sixth
+and then said to leave the name out and write "friends" — which is also
+what `doc/consent.md` requires of a name that has not been asked.  The
+list after the seven is the session's, at his "you may add and define
+other roles you have noticed I have", and it waits on him.*
+
+1. **Care of the tree** — cards, answers, review; the tree stays in
+   order through me.
+2. **Conversation with the tree** — the daily dialogue with sessions,
+   which is where the work happens.
+3. **Asking questions** — both of the tree and on its behalf; the
+   question is this house's sharpest tool.
+4. **Measuring** — grades, kaizens, "show the numbers"; a claim does not
+   pass without a measurement, and I keep that demand in force.
+5. **Decisions of principle** — privacy, cadence, the choice of tools;
+   what is settled by principle and not by a probe is mine.
+6. **Carrying the relationships with people** — friends talk to me, not
+   to the tree; the interface to people is the one place a session
+   cannot stand.
+7. **Cherishing, protecting and growing what makes the tree an effective
+   problem-solver** — the meta-task: the first six are work in the tree,
+   this one is work on the tree.
+
+### Roles a session has noticed, 2026-09-02
+
+Each with where the tree shows it, so he can check the claim and not
+the sentence.
+
+8. **The hand outside the fence.**  A session cannot install a
+   restraint, land a protected file, or see the host.  Every `sudo
+   tools/install.sh`, every patch left waiting at the tree root, and the
+   PipeWire socket a session called absent while it was live on the host
+   are him (`board/README.md` §"What the days taught", `card:install.md`).
+   The third verdict — *not from this seat* — names a seat, and the seat
+   is his.
+9. **The tiebreak.**  Placing a card is a session's; the order between
+   two workable cards is his, and `board/README.md` says so under nearly
+   every card.  Smaller and more frequent than a decision of principle
+   (5), and it is what makes the board a priority and not a list.
+10. **The keeper.**  A session may write the standard it works under and
+    may not approve it; the line beginning `henri:` under a mark or a
+    `his call` question is the one act the gates defer to rather than
+    audit (`keeper.md`).  Review (1) at its sharpest: standing behind a
+    rule written by the party it governs — and once, on 2026-09-01,
+    overruling a session that argued its rule needed no mark.
+11. **Shaping the measurement, not only demanding it.**  (4) says a
+    claim needs a number; the tree also shows him designing what the
+    number compares.  The cold arm of 2026-09-01 was his answer to a
+    session's proposal, and a better control than the one proposed
+    (`doc/cold/README.md`).  Demanding evidence and designing an
+    experiment are different skills, and both are his.
+12. **The carrier between trees.**  A session in one tree cannot edit
+    the other.  What travels from gestate to tend — a mechanism and the
+    evidence that paid for it, the rules section loaned on 2026-09-01,
+    gestate placed at `~/gestate` so the bind could find it — travels by
+    his hand, one piece at a time.
+13. **The purse and the keys.**  The door keys under `~/.config/tend`
+    are his, and a session's home is emptied so it cannot read them
+    (`card:lost-write.md`); every arm run through a door is paid from
+    his account — "thirty cents of falsification" is his thirty cents
+    (`doc/kaizen/2026-09-01-1544.md`).  Spending is a decision nobody
+    else here can make.
+
+*(question, his call — are these six roles as he sees them, and which of
+them are really faces of one of his seven rather than roles of their
+own?)*
+
