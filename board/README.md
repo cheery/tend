@@ -234,7 +234,21 @@ between two workable cards is Henri's.
     `NODE/state/pulled/<puller>`, the cycle refused at the door from
     either end, `die/` and `solitaire/` in the tree, and the flow
     measured by the lock: the die came up because it was pulled and
-    idled out because it was let go.*
+    idled out because it was let go.  The afternoon's 15:13 sitting put
+    the conversation on it: `connect PORT` as a grant word (keep had the
+    half since 08-28), `ask/` — the third node of tend's own, `pull llm`
+    for the signal and `connect 18080` for the talk — and three live
+    runs from his shell, the third answered in 52 s from edge to
+    `ask/state/answer`, the pulled node coming up at the lock and not
+    at the tick.*
+17. **[material](material.md)** — a node that asks the llm about tend
+    gets the dictionary, because what a node knows is what its grant
+    lets it read and no grant word names a tree file.  *Placed last by
+    the session that wrote it on 2026-09-02 at Henri's "tee siitä
+    kortti", as the afternoon closed; the shape is `pull NODE`'s — a
+    word that grants a read and tells the program where — and day one
+    is a measurement, the 16:29 question cold and with material; the
+    tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
