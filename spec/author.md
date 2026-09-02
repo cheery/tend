@@ -93,6 +93,16 @@ other roles you have noticed I have", and it waits on him.*
    problem-solver** — the meta-task: the first six are work in the tree,
    this one is work on the tree.
 
+2026-09-02, on the seventh, later the same morning.  Henri said he does
+not yet know himself what it holds, and then: everything the tree can
+do itself really belongs to the tree to do, and deciding is the tree,
+the session and him together.  A session read that as the seventh's
+first content — he decides which boundary stays his — and he answered,
+in Finnish: *"kyllä. minä päätän mitä minä kannan, ja osin valitsen sen
+mitä puu kantaa, varmistaen että se kykenee siihen."*  Yes: I decide
+what I carry, and in part choose what the tree carries, making sure
+it is able to.
+
 ### Roles a session has noticed, 2026-09-02
 
 Each with where the tree shows it, so he can check the claim and not
