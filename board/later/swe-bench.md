@@ -1,6 +1,6 @@
 # swe-bench — the tree claims to make a working session better, and has never been measured doing work
 
-    status   open
+    status   shelved — 2026-09-02
     because  every measurement this tree has run asks what a *mind* does
              at the door — SimpleQA's 150 questions, 48 pick arms, the
              compare turns.  None of them asks what this tree is for.
@@ -130,3 +130,30 @@ the card closes pointing at what the right one would be.
 *(self-shaped, 2026-09-01 — a session wrote the card that scores whether
 sessions are helped by this tree, which is the party the measurement is
 about.)*
+
+## Shelved 2026-09-02, at Henri's word — and what it waits on
+
+Henri, at the end of the morning that ran the conditioning arm three
+times on gemma4 and once on hy3 (`card:session-program.md` §"Run 1"
+to §"08:27"), and after a session had sketched how this card's day one
+would be arranged:
+
+> Lets move the testing to far future.  I don't know why this works,
+> and how to measure it.  And I'm not certain that SWE-bench would
+> capture the effect.  I think we have better things to do, such as
+> getting this project raised up and working, and leveling the
+> interface such that it's easy on the user and understandable.
+
+So this card **waits on his word to resume**, not on an event in the
+tree.  What the morning had shown by then, and why his doubt is the
+right one: three predictions written before the data, three
+falsified, and the last of them because the task was one a command
+answers as well as a reason does (§"08:27–08:45" on the
+session-program card).  A benchmark whose task has a clean imperative
+form cannot see the thing this tree bets on, and nobody yet knows
+which task can.  The mark above stands unanswered and stays so; a
+shelved card's rule is still a rule nobody has stood behind.
+
+The priority it leaves: the tree raised up and working, and the
+interface levelled so that it is easy on the user and understandable
+— his words, on `vision.md` the same hour.

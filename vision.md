@@ -103,3 +103,23 @@ silently.
   - won't require an account, a service, a licence server
   - won't trap your work — plain files you can read without it
   - won't demand your presence
+
+## What comes first now
+
+2026-09-02 (Henri, at the end of the morning that ran the conditioning
+measurement four times; placed here by a session at the word, his to
+strike): *"Lets move the testing to far future.  I don't know why this
+works, and how to measure it.  And I'm not certain that SWE-bench would
+capture the effect.  I think we have better things to do, such as
+getting this project raised up and working, and leveling the interface
+such that it's easy on the user and understandable."*  The measurement
+cards wait on his word (`later/swe-bench.md`; the arm on
+`card:session-program.md`).  What is first is the tree working, and an
+interface a person can use without being told — which is the stranger
+test above, said again from the person's side.
+
+2026-09-02 (Henri, the same minute): *"The proof is in the pudding."*
+The method's evidence is the tree working, and the kaizen loop is the
+measurement that runs whether or not a benchmark does
+(`manifesto.md` §"How a practice gets adopted": adopted before it is
+believed).

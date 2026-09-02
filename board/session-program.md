@@ -1479,3 +1479,22 @@ fixture, go-and-see.  Those are where a command and a reason would
 part, and the next test's task has to be one of them, not the board's
 easiest rule.  The counting stands as the method; the task was too
 easy for the question.
+
+### 08:5x — the measurement set aside, at his word
+
+Henri: *"Lets move the testing to far future.  I don't know why this
+works, and how to measure it.  And I'm not certain that SWE-bench
+would capture the effect.  I think we have better things to do, such
+as getting this project raised up and working, and leveling the
+interface such that it's easy on the user and understandable."*  And:
+*"The proof is in the pudding."*  Both on `vision.md` §"What comes
+first now"; `card:swe-bench.md` is on the later shelf waiting on his
+word, and **this card's milestone waits with it** — the conditioning
+comparison is not this card's work until he says so again.  What
+stays this card's, and is the working loop rather than the
+measurement: the kept loopback door (§"his call", above), the node's
+sitting against a loop longer than ten minutes, and propose's
+not-a-completion line carrying `finish_reason` (`F016`'s next face).
+The four runs' files stay under `proposals/arms*` as what they are:
+the first data this tree has on its own bet, and a task too easy to
+carry it.

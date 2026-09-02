@@ -214,23 +214,6 @@ between two workable cards is Henri's.
     not built stays not built — the gathering tool and the lamp —
     because the `his call` queue has one entry, and a lamp counting to
     one is nagging.*
-16. **[swe-bench](swe-bench.md)** — every measurement this tree has run
-    asks what a *mind* does at the door, and none asks what the tree is
-    for: the claim that a session working inside the fence, the board and
-    the cords does better work than one without has never been put to a
-    task with a right answer, and the only evidence is kaizens written by
-    the party being judged.  *Placed last by the session that wrote it on
-    2026-09-01 at Henri's "lets card the SWE-bench lite as shape (2)",
-    his pick of two things wearing one name — (1) SWE-bench through the
-    door, another arm on `tools/compare.py`, and (2) SWE-bench worked by
-    a session under the fence.  He took the harder one.  Day one is
-    deliberately **not** the benchmark: one instance, by hand, both ways,
-    because every hard part is a guess until one has been through — which
-    is the lesson taken from `card:simpleqa.md` running all 150 and
-    finding its bins could not see the thing that mattered.  The card
-    names what would make it wrong, and it is live: that the fence is a
-    tax on a coding task and the difference shows up in the record a
-    session leaves rather than in the fix.  The tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
@@ -334,7 +317,12 @@ what they are, and read is exactly the reach that matters for a key.
 A tmpfs gives a session a home without giving it the person's home.
 
 And displaced cards are in [later/](later/): real, and not being
-worked, and each says what it waits on.
+worked, and each says what it waits on.  `swe-bench` went there on
+2026-09-02 at Henri's "Lets move the testing to far future … I think we
+have better things to do, such as getting this project raised up and
+working, and leveling the interface" (`later/swe-bench.md`,
+`vision.md` §"What comes first now"); it waits on his word, and the
+conditioning arm on `card:session-program.md` waits with it.
 
 **Defects go to [`fixme/`](../fixme/README.md)** with an F-number —
 `fixme/F000.md` open, `fixme/resolved/F000.md` closed with the gate
