@@ -31,6 +31,21 @@ enemy.
 the whole rule.  This one may be the counter-example: it seems to need
 no story.
 
+**The card's form — found by the first run, 2026-09-02.**  The draft
+kept "a card names a problem" and "one card is one file" and dropped
+the *block* — the four indented lines `board/README.md` §"What a card
+is" shows — because a form is neither a reason nor a rule.  Twenty-four
+cold turns of gemma4 asked for "a board card in the tree's card form"
+answered with a filename, every one; fifteen warm turns with the README
+in the prompt wrote the block, every one.  So a form is load-bearing on
+its own and it is not provenance; the block is in `commandments.md`
+now, under the board, as the file's rule requires — it matches what tend
+has.  What this arm removed by accident is a second finding: **the
+reasoned tree carries its forms as examples, and stripping the reasons
+stripped the examples with them.**  Anything else the real tree shows
+only by example is a confound waiting in the commandments, and the next
+run's counts are where it will show.
+
 ## Rules deliberately not carried, and why
 
 **Everything naming a person, a date, a file, or a tool.**  Provenance

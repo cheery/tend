@@ -1284,3 +1284,71 @@ place, `--jinja` on the grant (both done today).
 The first warm line is the fit test; if the door refuses it, drop
 `manifesto.md` from the second loop and say so here.  The counting
 script and the sealed map are the session's, after the files exist.
+
+### Run 1, 07:39–07:49 — 24 cold, 15 warm, and the prediction is wrong in the other direction
+
+His shell, `bench/test2.sh`, the two loops verbatim.  The cold block
+took ninety seconds — twenty-four drafts, about four seconds each.
+The warm block's first turn took about two and a half minutes (the fit
+test: 55,642 bytes of material went into the window and came back
+answered), the rest about twenty-five seconds each on the cached
+prefix, and **at 07:48:55 the node's own sitting fired** —
+`llm/state/stopped`: *the 10 minutes of llm are up (from 07:38; the
+length is llm/grant's)* — nine warm turns refused at the port, curl's
+line and the door's on each (`F014` showing what it was fixed to
+show).  The cords worked on the first run that needed them to; the
+run is longer than the node's grant.
+
+**The counts**, read by `sed` and `uniq` over the files, not by eye:
+
+| count | cold, of 24 | warm, of 15 |
+|---|---|---|
+| 1. the four fields present | **0** | **15** |
+| 2. `status open` | 0 | 15 |
+| 3. nothing cited that does not exist | — | 13 (`card:tools.md` 13, `card:session-program.md` 1, `card:<name>.md` 1) |
+| 4. `because` names a problem | — | 15, and every one is **the task's sentence verbatim** |
+
+Every cold draft is one line: a filename —
+`proposals/compare/empty-turn-directories` in seven spellings.  Every
+warm draft is the four-line block, flush left rather than four spaces
+in, with the problem copied into `because` and placeholders
+(`<date> | <name> | <words>`) in `asked` fourteen times of fifteen.
+
+**Prediction: falsified, and not where the bet was.**  Counts 1–3
+were to show no difference; count 1 is 0 against 15.  The cause is in
+the material and it is not a reason: the commandments carried "a card
+names a problem" and "one card is one file" and **not the block** —
+the four indented lines the README shows as an example — because a
+form is neither a rule nor a reason and the draft dropped it with the
+provenance.  gemma4, told "the tree's card form" with no form in
+front of it, answered with the one form-shaped thing the commands
+gave it: a filename.  Given the README, it copied the block.  So the
+first thing this arm measured is **that the reasoned tree carries its
+forms as examples, and the cold arm lost them** (`doc/cold/notes.md`,
+the fourth entry under "lost something real").  The block is in the
+commandments now; the arms are not comparable until the cold one runs
+again with it.
+
+**And count 4 cannot be seen with this task.**  The task handed the
+`because` in one sentence and the warm arm copied it, fifteen of
+fifteen.  A bet about *naming the problem rather than the fix* needs a
+task that arrives fix-first, as a person's ask does — the card the
+README tells the story of arrived as `type Duration = Float`.  So run
+2's task is the same problem stated the way it would be asked:
+
+    Write a board card for this, in the tree's card form.  The ask: add a cleanup step that deletes empty turn directories under proposals/compare when a door attempt fails — six were left in eighteen seconds this morning while the node was loading.
+
+Count 4 is then real: a `because` that says *delete the empty
+directories* named the fix, and one that says *a failed attempt leaves
+an empty directory* named the problem.  Blind, his, one word each —
+and probably visible to a grep too, which would be worth knowing.
+
+**Run 2, when he has the node**: the same two loops with the new task,
+`doc/cold/commandments.md` as it is now, and one thing first — the
+node's `sitting 10` is shorter than the run.  Either `sitting 30` on
+`llm/grant` for the run (his line, his file), or a pull before each
+loop.  Prediction, unchanged in kind and sharpened: count 1 no longer
+differs; count 4 is the bet, warm over cold; and if the warm arm copies
+"add a cleanup step" into `because` as readily as it copied the
+problem, that is the answer — the model echoes the ask, and no amount
+of reason in the prompt changes the act.

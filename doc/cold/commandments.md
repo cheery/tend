@@ -10,6 +10,14 @@ A card names a problem. A card that names a fix has already decided.
 
 One card is one file. The filename is the card's name.
 
+A card opens with four lines, four spaces in, the name and value two
+spaces apart:
+
+    status   open
+    because  the problem, in the words of whoever had it
+    asked    who, when, and the words
+    see      what it leans on
+
 Cite a card by name, never by shelf.
 
 Put open work on the board, finished work on the done shelf, and waiting
