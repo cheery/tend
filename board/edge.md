@@ -161,3 +161,87 @@ second real node and not the fixture.
 
 Placed last by the session that wrote it, at his "tee sille kortti";
 the tiebreak is his.
+
+## Talk — 2026-09-02, the 12:52 sitting: reconfiguration by pull
+
+Opened at his word at the close of the morning (`doc/kaizen/2026-09-02-0557.md`):
+*"tuo uudelleenkonfigurointi vedolla on mielenkiintoinen aihe.  Me
+voisimme aloittaa seuraavan keskustelun sillä."*  The tree's state
+first, so the talk starts from the thing and not from memory.
+
+**The property** is `spec/os.md` 5: *"mikäli asennus konfiguroi
+ohjelman, tehty konfiguraatio tulee merkitä ohjelmasolmuun.
+veto-menetelmällä ohjelma tulisi kyetä uudelleenkonfiguroimaan sieltä
+mistä se tulikin."*  Its first half is built: the grant beside the
+program and `state/` are the configuration recorded in the node, and
+`/usr/local/lib/tend/installed` is the same record for the restraints.
+Its second half was decided against on 2026-08-27 in one form and
+reopened on 2026-09-02 in another, and the two forms are not the same
+sentence:
+
+- **Refused, 08-27 — the pull's text as a grant.**  `pull sitting 900`
+  is a line in the pull file and nothing more (`tools/launch.sh`'s
+  header; `card:session-program.md`, the limit's decision 1).  The
+  reason is Rule 1: a pull is the one thing a fenced session may write,
+  so a pull that configured the node would be the bounded party writing
+  its own boundary.  That refusal stands, and nothing below reopens it.
+- **Reopened, 09-02 — a grant derived from a grant.**  His *"ehkä grant
+  kuuluisi olla johdettavissa muista grant-tiedostoista"*, given a
+  direction by the value stream in point 2 above: the pulled node's
+  grant is inside its puller's.  Configuration arrives *with* the pull,
+  but from upstream — the puller's grant, which is inside the canvas's,
+  which is the person's.  Narrowing only; a widening is refused at the
+  door.  It does not touch the 08-27 refusal, because the writer is a
+  grant and not a pull line, and the direction is outer to inner.
+
+**Two readings of *"sieltä mistä se tulikin"***, and the tree has held
+both since 08-26 without saying they are two:
+
+- (a) **the origin.**  A node came from somewhere — a directory, a
+  commit, a hash — and pulling it again reconfigures it from there;
+  install is fetch.  This is `card:work-environment-ai.md`'s
+  content-addressed node and `spec/os.md` open problem 2 (how are
+  programs protected, and installed); every status pass since 08-26
+  says it waits on the store.  Nothing of it is built: a node today is
+  a directory in the tree, its origin is git, and its state records
+  nothing about what a run ran under — the 08-28 "cheap slice" (grant
+  sha, tree commit, model file and hash, in `installed`'s shape) still
+  has no reader.
+- (b) **the puller.**  The node is reconfigured by whoever pulls it,
+  from the puller's grant: the edge carrying grant words downstream.
+  This is what point 2 says, and it is the one reading day one can
+  test — `solitaire`'s grant says `pull die`, and what `die` runs
+  under is its own grant narrowed by `solitaire`'s.
+
+What (b) may carry is the real question.  The boundary words —
+`allow`, `write`, `sitting`, `idle` — narrow, and narrowing is safe by
+construction.  But `bind 18080` or a program argument is not a
+boundary: it is a parameter of the conversation that comes after the
+pull, and a puller setting it is *configuring*, not bounding — which
+is the property's own word, *konfiguroida*.  The tree has no rule yet
+for a word that a puller may set and that is not a restraint.
+
+*(question, his call — "sieltä mistä se tulikin": did the 2026-08-19
+line mean the origin a node was fetched from (a), the puller that pulls
+it (b), or both — and if both, which does the tree build first?)*
+
+*(question, his call — may a puller's grant set a parameter of the
+pulled node that is not a boundary, such as its port or a program
+argument, or may it only narrow the boundary words, with every
+parameter belonging to the conversation after the pull?)*
+
+**The rest of what was "in the air" in `spec/os.md`**, read out at the
+close of the morning and left for this sitting at his *"ne jääkööt
+seuraavaan istuntoon"*, written down here so the next reader has it in
+one place: **4b** (types and model checkers) has its first named caller
+above — the conversation after the pull — and nothing else; **6b** (no
+central server by default) is half-answered by his *"tilatallenne
+taitaa olla solmun identiteetti"*, since an identity that is a state
+store on a disk needs no server to be one, and the other half — how two
+machines agree on a node — is untouched; **open problem 3** (fast when
+closed the moment it is not needed) was seen twice today unnamed — the
+80 s reload the hold exists to prevent, and the six empty turn
+directories of a person re-running while a node loaded — so the hold
+is its first mechanism and the edge its second; and the **language
+three** (10, 15, and the bootstrap line) are where they were on 08-26,
+untouched, and are not on any card.
