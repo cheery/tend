@@ -259,3 +259,40 @@ territory; what 2 leaves unexplained is where the gates came from,
 which is 1's.  They may be one theory seen from two sides, and the
 tree's rule is to choose last.
 
+## What the danger is
+
+*Henri, 2026-09-02 evening, in Finnish, thinking aloud to a session.
+His words verbatim; the English is the session's translation.  Placed
+here at his "laitetaan se author.md tiedostoon", his to strike.*
+
+> Muistan itseni kysyneeni ChatGPT:ltä: Mikä on todennäköisin vaara
+> tekoälyssä?  Se kertoi että väärinkäyttö.  Päädyin todenneeksi että
+> oli se oikeassa.  Mutta luulin että väärinkäytökset olisivat isoja.
+> Nyt ymmärrän että kyse on pienistä maallisista väärinkäytöksistä.
+> Kun joku antaa sen tehdä läksynsä puolesta, tai käyttää
+> turhamaisuuteensa, tai luottaa aivan liikaa siihen.  Tai kysyy
+> asioita kello kolme yöllä.  Eikä kukaan katso nyt näitä pieniä
+> väärinkäytöksiä.  Ne eivät laukaise mitään hälytintä.  Ne ovat liian
+> pieniä.
+
+I remember asking ChatGPT what the likeliest danger in AI is.  It said
+misuse, and I came to think it was right.  But I thought the misuses
+would be big.  Now I understand they are small and worldly: someone
+letting it do their homework, or feeding their vanity with it, or
+trusting it far too much.  Or asking it things at three in the
+morning.  And nobody is looking at these small misuses now.  They set
+off no alarm.  They are too small.
+
+*The session's reading, the same hour, kept beside his words so he can
+strike it: an alarm sized to the event misses everything under its
+threshold, and a small misuse is only ever seen by a counter — which
+is the shape of the sitting clock, the kaizen at every sitting, and
+the flake card's "each real once counted".  Two things his list does
+not say: over-trust is the one this tree treats most, and its answer
+is not to trust less but to make a claim carry the seat it was said
+from; and the list runs one way, the person misusing the tool, while
+the other direction — the tool consuming the person's attention and
+pace — is his own note of 2026-09-01 under "own pace".  He asked
+whether this was a memory or a card; it went here, and a line to
+`vision.md` §"Tend as a working platform" the same evening.*
+

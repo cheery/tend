@@ -81,6 +81,23 @@ person working with it: programs and sessions get a budget, a grant and
 a lifecycle; a program opens where it was left and quits when nobody
 pulls it.
 
+2026-09-02 (Henri, in Finnish, thinking aloud; drafted by a session at
+his "visioniinkin voi tulla jotakin tästä", his to strike): **The
+danger tend is built against is small and everyday.**  *"Luulin että
+väärinkäytökset olisivat isoja.  Nyt ymmärrän että kyse on pienistä
+maallisista väärinkäytöksistä … Ne eivät laukaise mitään hälytintä.
+Ne ovat liian pieniä."* — I thought the misuses would be big; now I
+understand they are small and worldly, and they set off no alarm
+because they are too small.  This gives the two lines above their
+size: "dangerous to use" and "uhata turvallisuutta" mean the homework
+done for you, the vanity fed, the trust given too far, the question at
+three in the morning — not the catastrophe.  So tend's instruments are
+clocks and counters that see that a thing happened, never thresholds
+that wait for it to be large: the sitting clock says stop and does not
+ask how big the question was, and a kaizen is written at every
+sitting, not after something went wrong.  His words in full are in
+`spec/author.md` §"What the danger is".
+
 2026-08-24 (gestate, 2026-08-16): This part of the vision has a design
 tension with the "Ease of use".  Broad platforms are historically
 terrible at the stranger test.  In case that this will conflict with
