@@ -117,6 +117,17 @@ import time
 read_canvas = panel.read_canvas
 read_log = panel.read_log
 
+
+@pytest.fixture(autouse=True)
+def _own_tree(monkeypatch, tmp_path):
+    """A test builds the side it means; it never reads the live tree.  The
+    panel's canvas lists every node of the tree a process is pulling
+    (card:edge.md), and on 2026-09-02 the real `die`, pulled from Henri's
+    shell while the suite ran, appeared as a row in five tests about
+    holds — the fixture rule's face in the panel.  Every test's tree is
+    an empty directory unless it passes its own."""
+    monkeypatch.setattr(panel, "ROOT", str(tmp_path / "tree"))
+
 LOADER = "llama-server: error while loading shared libraries: libsvml.so: cannot open shared object file: No such file or directory"
 
 
@@ -301,6 +312,7 @@ def test_a_bare_hold_line_names_a_node_of_the_tree_and_its_state(tmp_path):
     node of this tree, the rest — quotes off — its state, relative to
     the node; the filename is a label."""
     canvas = tmp_path / "canvas"; canvas.mkdir()
+    llm = tmp_path / "tree" / "llm"; llm.mkdir(parents=True); (llm / "grant").write_text("program true\n")   # a node of *this test's* tree, not the live one
     (canvas / "mine.hold").write_text('llm "state"\nheld by henri\n')
     h = panel.read_holds(canvas)[0]
     assert h.label == "mine" and h.node == os.path.join(panel.ROOT, "llm")
