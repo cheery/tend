@@ -106,6 +106,12 @@ mkdir -p "$propdir"
 slug=$(printf '%s' "$task" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//' | cut -c1-40)
 [ -n "$slug" ] || slug=proposal
 file="$propdir/$(date '+%Y-%m-%d-%H%M')-$slug.md"
+# never overwrite a proposal: the second draft of a minute on the same task gets a suffix,
+# as compare.py's accounts do (2026-09-02, found designing 24 draft turns on one pinned task)
+if [ -e "$file" ]; then
+    _k=2; while [ -e "${file%.md}-$_k.md" ]; do _k=$((_k + 1)); done
+    file="${file%.md}-$_k.md"
+fi
 {
     printf '<!-- PROPOSAL — drafted by the tend %s node%s on %s.\n' "$name" "${door:+ through the $door door ($model)}" "$(date '+%Y-%m-%d %H:%M')"
     printf '     NOT tree content until a person reads it and lands it by hand.\n'

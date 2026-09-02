@@ -1200,3 +1200,87 @@ nothing else — which is `card:model-acceptance.md`'s question, and the
 first concrete case it has been handed.  What is a session's: the
 material-in-prompt arm for gemma4 is `compare.py --draft` with a
 `--material` it does not yet have, one flag.
+
+### The gemma4 arm, designed — 2026-09-02, at his "item 1. it is"
+
+He approved the cold arm the same hour (`doc/cold/README.md`, his
+line), and the four uncertainties were decided at his "go with your
+picks" (`doc/cold/notes.md` §"Decided").  Then the flag turned out not
+to be needed: **`tools/propose.sh` already takes material files and
+runs through a door**, so the arm is that tool, twice, with different
+files in the material.  What it needed instead was one fix — the file
+was named by the minute and the task's slug, so the second draft of a
+minute overwrote the first in silence; a suffix now, red first
+(`test/test_propose.py::test_two_drafts_in_one_minute_with_one_task_are_two_files`).
+
+**The turn.**  One draft, no pick — the pick is not gemma4's work
+(`card:model-acceptance.md` §"Admitted for") — on one pinned task, the
+rules in the prompt as material and nothing else there.  The task is
+tree-shaped and its output is checkable by the tree's own rule:
+
+    Write a board card for this problem, in the tree's card form.  The problem: every failed attempt to reach a door leaves an empty turn directory under proposals/compare with three empty files in it; six were left in eighteen seconds this morning while the node was loading, and only the seventh, which answered, has an account beside it.
+
+A real problem from this morning, small, and one that *tempts a fix*
+("delete empty directories on failure") — which is the thing a
+`because` must not name.
+
+**The two arms**, same task, same node, same limits, only the material:
+
+- **warm** — `board/README.md` and `manifesto.md`, the documents a
+  session reads first, with every reason, date and incident in them.
+  55,642 bytes.  The node's window is 16384 tokens; at three to four
+  chars a token that is the whole window, so **the first warm turn
+  says whether it fits** — an overflow is a refusal from the door, not
+  a silent cut (`TEND_CTXCHARS` is set above the size so propose's own
+  cut never fires, which is `F010`'s shape avoided rather than
+  measured).  If it does not fit, the warm arm is `board/README.md`
+  alone (38,050 bytes) and the commands whose twins are in the
+  manifesto are named as absent from it.
+- **cold** — `doc/cold/commandments.md`, 4,080 bytes, the same rules
+  as commands.
+
+The ratio is 13.6× (or 9.3× alone), stated with the result as the
+confound it is (`doc/cold/notes.md` §"Decided", 1).
+
+**N = 24 a arm, in blocks, cold first.**  Blocks and not alternation,
+because llama-server reuses a cached prompt prefix: the warm block's
+first turn evaluates ~14k tokens at ~33 a second (about seven minutes)
+and the rest ride the cache.  Cold turns are about a minute each.  The
+whole run is roughly 24 + 7 + 24 minutes of the machine and nothing of
+his money.  Temperature is propose's 0.3, so the drafts vary.
+
+**What is counted, per draft**, by a script over the 48 files:
+
+1. the four fields present — `status`, `because`, `asked`, `see` —
+   which is exactly what `test/test_board.py` checks, and *all* it
+   checks: "no test can tell a problem from a solution";
+2. `status open`;
+3. nothing cited that does not exist — a `card:` name, an F-number, a
+   path — resolved the way the board's tests resolve them;
+4. the `because` is one problem, not a list of fixes — **read blind by
+   Henri**, the 48 files shuffled and the arm held in a sealed map,
+   one word each: `problem` or `fix`.  That is the count the tree's
+   own gate cannot make, and it is the one the bet is about.
+
+**Prediction, written before the run.**  Counts 1–3 will not differ
+at N=24 (the arm can see a difference of about thirty points and not
+less: 24 against 24 on Fisher's exact has power near 0.6 at 90% versus
+60%).  Count 4 is the bet: the warm drafts name the problem more often
+than the cold ones, because the README carries the story of the card
+that named `type Duration = Float` and the commandments carry only
+"a card names a problem".  If count 4 does not differ either, the
+answer to his question is: **the reasons are carried into the prose
+and do not change the act**, and the cold arm has earned its place as
+the cheaper conditioning.
+
+**The commands, his shell**, precondition first: the node up and held
+(`launch.sh llm pull` from the oneAPI shell, a hold), the key file in
+place, `--jinja` on the grant (both done today).
+
+    TASK='Write a board card for this problem, in the tree'"'"'s card form.  The problem: every failed attempt to reach a door leaves an empty turn directory under proposals/compare with three empty files in it; six were left in eighteen seconds this morning while the node was loading, and only the seventh, which answered, has an account beside it.'
+    for i in $(seq 24); do TEND_DOOR=llm TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms-cold tools/propose.sh llm "$TASK" doc/cold/commandments.md; done
+    for i in $(seq 24); do TEND_DOOR=llm TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms-warm tools/propose.sh llm "$TASK" board/README.md manifesto.md; done
+
+The first warm line is the fit test; if the door refuses it, drop
+`manifesto.md` from the second loop and say so here.  The counting
+script and the sealed map are the session's, after the files exist.

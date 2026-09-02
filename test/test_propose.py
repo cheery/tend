@@ -60,6 +60,21 @@ def test_it_writes_a_banner_marked_draft_into_the_proposals_area(tmp_path, stub)
     assert str(files[0]) in r.stdout, "the path is printed for the person to review"
 
 
+def test_two_drafts_in_one_minute_with_one_task_are_two_files(tmp_path, stub):
+    """2026-09-02: the gemma4 conditioning arm is 24 draft turns on one
+    pinned task through `doors/llm/door`, and the file was named by the
+    minute and the task's slug — so the second draft of a minute silently
+    overwrote the first.  A proposal is never overwritten: the name gets
+    a suffix, the way compare.py's accounts do."""
+    propdir = tmp_path / "proposals"
+    for _ in range(3):
+        r = propose(NODE, "draft a kaizen line", stub=stub, propdir=propdir)
+        assert r.returncode == 0, r.stdout + r.stderr
+    files = sorted(propdir.glob("*.md"))
+    assert len(files) == 3, [f.name for f in files]
+    assert all("some proposed lines." in f.read_text() for f in files)
+
+
 def test_it_never_writes_a_tracked_file(tmp_path, stub):
     """The boundary: the model proposes, the person applies.  propose must
     write only under the proposals area — given a card as material it must
