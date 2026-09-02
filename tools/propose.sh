@@ -99,6 +99,13 @@ else
 fi
 draft=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null) || {
     echo "propose: the node's reply was not a completion:" >&2; printf '%s\n' "$out" | head -3 >&2; exit 1; }
+# an empty draft is not a draft: `jq -e` reads "" as true, so a JSON error body (llama-server
+# loading, a door's 429) came through here as an empty string and was written under a banner —
+# seventeen times in three seconds on 2026-09-02 (F016).  One line, its code and its words.
+if [ -z "$draft" ]; then
+    _e=$(printf '%s' "$out" | jq -r 'select(.error) | .error | if type == "object" then "\(.code // .status // .type // "error") \(.message // .msg // tostring)" else tostring end' 2>/dev/null)
+    echo "propose: the ${door:-node}'s reply was not a completion${_e:+ — $_e}" >&2; exit 1
+fi
 
 # the boundary, in one place: propose writes ONLY under propdir, never a
 # tracked file.  The banner says what it is and that a person lands it.

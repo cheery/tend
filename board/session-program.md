@@ -1352,3 +1352,64 @@ differs; count 4 is the bet, warm over cold; and if the warm arm copies
 "add a cleanup step" into `because` as readily as it copied the
 problem, that is the answer — the model echoes the ask, and no amount
 of reason in the prompt changes the act.
+
+### Run 2, 07:56–08:05 — the same task, the commandments with the block: cold 24, warm 4, and seventeen files that were nothing
+
+His shell, `bench/test2.sh` unchanged — so run 2 is **the old task**
+against the amended cold arm, and the fix-first task is still run 3's.
+Cold: twenty-four drafts in five minutes, about twelve seconds each,
+and **24 of 24 with the four fields**, indented four spaces as the
+block shows (the warm arm writes them flush left), the problem copied
+verbatim into `because`, `[who], [when], [the words]` in `asked`.  So
+count 1 is 24 against 24 where run 1 had 0 against 15, and the arm
+that lost the form has it back: **one example in the material moved
+count 1 from 0 to 24**, which is the size of what a form is worth to
+this model.
+
+Warm: four real drafts (08:04:07–08:05:24), then the node's `sitting
+10` fired at the fifth — pulled about 07:55, ten minutes — `curl:
+(52) Empty reply`, two refusals, `launch: started llm` (the hold's
+tick bringing it back), and then **seventeen files in three seconds**
+while llama-server loaded: 667 bytes each, a banner and nothing under
+it.  `propose.sh` had printed `proposed:` for each.  That is `F016`,
+found by the sizes and fixed in the hour: an empty draft is refused
+with the door's error on one line.  Those seventeen are not turns and
+are not counted; the warm arm of run 2 is four, all with the fields,
+all copying the problem.
+
+**Standing after two runs**: the arms are comparable now, and on
+this task they do not differ on anything countable — both copy the
+problem into `because` and put placeholders where the person's words
+would go.  Count 4 waits on run 3's fix-first task.  And the run is
+still longer than the node's grant: two sittings of ten minutes have
+each ended a loop.
+
+**Run 3, and the same test on hy3 — at his "I'd like to run this test
+on openrouter with tencent/hy3 model."**  The same two loops with the
+door switched; the openrouter door has no `thinking` word, so the
+account's line will say the model's own default, which is hy3's
+condition on every arm it has run so far.  The task is the fix-first
+one above for both, so count 4 is live on both models at once.  Four
+loops, `bench/test2.sh`'s shape:
+
+    TASK='Write a board card for this, in the tree'"'"'s card form.  The ask: add a cleanup step that deletes empty turn directories under proposals/compare when a door attempt fails — six were left in eighteen seconds this morning while the node was loading.'
+    for i in $(seq 24); do TEND_DOOR=llm TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms3-llm-cold tools/propose.sh llm "$TASK" doc/cold/commandments.md; done
+    for i in $(seq 24); do TEND_DOOR=llm TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms3-llm-warm tools/propose.sh llm "$TASK" board/README.md manifesto.md; done
+    for i in $(seq 24); do TEND_DOOR=openrouter TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms3-hy3-cold tools/propose.sh llm "$TASK" doc/cold/commandments.md; done
+    for i in $(seq 24); do TEND_DOOR=openrouter TEND_CTXCHARS=80000 TEND_PROPOSAL_DIR=proposals/arms3-hy3-warm tools/propose.sh llm "$TASK" board/README.md manifesto.md; done
+
+Fresh directories per arm and model, so nothing is separated by time
+again.  Precondition for the llm loops: `sitting 30` on `llm/grant`
+for the run, or a pull before each loop — the second loop is fifteen
+minutes and the grant is ten.  For hy3: the key in place, and the
+money is his — about 24 × 15k tokens on the warm arm.
+
+**Prediction for run 3, both models, before it runs.**  Count 1: no
+difference on either model.  Count 4 on gemma4: both arms copy "add
+a cleanup step" into `because` — the model echoes the ask — and the
+tree's bet fails on the model that cannot carry the reasons.  Count 4
+on hy3: warm names the problem more often than cold, by more than
+thirty points; the README's story of the card that named a fix is the
+kind of thing hy3 has read and acted on before (it read sixteen cards
+unprompted).  If hy3's arms do not differ either, the reasons are not
+load-bearing for the act on any model tried, and that is the answer.

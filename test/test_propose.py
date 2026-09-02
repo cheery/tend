@@ -28,6 +28,9 @@ class _Draft(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         task = body["messages"][-1]["content"]
+        if "LOADING" in task:   # llama-server while the model loads: a JSON error, no choices
+            self.send_response(503); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(json.dumps({"error": {"code": 503, "message": "Loading model", "type": "unavailable_error"}}).encode()); return
         out = {"choices": [{"message": {"role": "assistant",
                "content": f"DRAFT for: {task}\n\nsome proposed lines."}}]}
         self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
@@ -73,6 +76,20 @@ def test_two_drafts_in_one_minute_with_one_task_are_two_files(tmp_path, stub):
     files = sorted(propdir.glob("*.md"))
     assert len(files) == 3, [f.name for f in files]
     assert all("some proposed lines." in f.read_text() for f in files)
+
+
+def test_a_reply_with_no_completion_writes_no_proposal(tmp_path, stub):
+    """2026-09-02, run 2 of the gemma4 arm: the node's sitting fired
+    mid-loop, the hold's tick restarted it, and while it loaded
+    llama-server answered every ask with a 503 JSON error — and propose.sh
+    wrote seventeen banner-only proposals in three seconds, because its
+    `jq -e` cannot tell an empty draft from a draft.  A reply with no
+    completion is a refusal said out loud, and no file."""
+    propdir = tmp_path / "proposals"
+    r = propose(NODE, "LOADING draft a kaizen line", stub=stub, propdir=propdir)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "not a completion" in r.stderr and "Loading model" in r.stderr, r.stderr
+    assert not list(propdir.glob("*.md")), "no banner with nothing under it"
 
 
 def test_it_never_writes_a_tracked_file(tmp_path, stub):
