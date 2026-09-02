@@ -1029,6 +1029,11 @@ gemma4 through llama-server's OpenAI wire emit a tool call at all with
 `--jinja`, or is the tools arm on the node a build and not a door
 file?)*
 
+*Half answered 2026-09-02 06:58 (§"06:58" below): with the knob on the
+wire gemma4 answers in shape and calls nothing when the digest is in
+the prompt.  The event this waits on is now the unseeded tools arm,
+one turn from his shell.*
+
 *(question, his call — the cold arm on the node is measured through a
 door, unkept, with read-only tools on the person's side; is that
 acceptable for the measurement, or does the kept form of a door turn
@@ -1072,3 +1077,34 @@ account's limits line now says what the wire carried.  The url was not
 made the discriminator, because every door test's stub sits at
 127.0.0.1 and the rule would have had the tests lie about OpenRouter.
 The next turn is the same command from his shell, with the node held.
+
+### 06:58 — the second turn, clean, and it read nothing
+
+His shell, twenty-six minutes after the first.  Six attempts in
+eighteen seconds left empty turn directories (the node answering
+nothing yet) and the seventh answered, in shape, with the knob on the
+wire — the account's limits line now reads `thinking off —
+enable_thinking:false on the wire`, and the reply is three lines and
+292 bytes where the first turn's was 7,222:
+
+    CARD: questions.md
+    TASK: Define a regex pattern for "the person's call" to be used in a gathering script.
+    WHY: To move from manual collection to an automated way of surfacing open decisions.
+    calls: 0
+
+On the four counts: pick on the shelf, yes; a few lines and not a
+build, yes; asks rather than invents, not exercised; reads what
+exists, **no reads at all**.  The pick is the same card the first
+turn's reasoning reached first, and the task is `card:questions.md`'s
+day one (a) said back as a build — the regex exists
+(`test/test_questions.py`), which a read would have shown.
+
+**So the `waits on` question is half answered.**  Given the digest,
+gemma4 answers from it and does not reach for a tool — which is what
+the seeded arm permits and what hy3 also did on 2026-09-01 in the arm
+where the digest was enough.  Whether it *can* call one is the other
+half, and the arm that forces it is the tools arm unseeded: no digest,
+so the only way to name a card is to read the shelf.  One turn, his
+shell, `tools/compare.py --door llm --arm tools`; a `C:` line answers
+yes, and a three-line reply naming a card it never read answers
+something worse.
