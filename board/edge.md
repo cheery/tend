@@ -403,3 +403,48 @@ a killed `flock` is not a released edge — the tests hold the fd
 themselves, as the solitaire does.  The graph drawn as a graph —
 layered, Sugiyama — is the graphical canvas's and waits with
 `later/canvas-windows.md`, in his words; a terminal shows rows.
+
+**His question, the same sitting, 14:20**: *"Mietin tätäkin: pitäisikö
+vain canvas-läheisissä solmuissa olla määrätty tila, vai kuuluuko se
+jokaiselle solmulle?"* — should only the nodes near the canvas have a
+defined state, or does it belong to every node?
+
+What the tree has, read before answering.  Every node has a `state/`
+because the launcher writes one — `run.lock`, `stopped`, `watch`,
+`ticks`, the pull file, now `pulled/` — and that is **lifecycle**
+state: tend's, not the program's, read by the resolver and the panel,
+and it belongs to every node by construction.  Beside it, in the same
+directory, the tree already has two other kinds without naming them:
+`llm/state/neo-cache` is a **cache**, state the program may lose and
+rebuild (80 s), and `node/state/node.state` is **identity**, the tally
+the first node exists to carry across its stops — property 8's "open
+where left", the thing his *"tilatallenne taitaa olla solmun
+identiteetti"* meant.  The die has none of the third: its `roll` is
+the conversation, not the node; a fresh die is the same die.  So the
+question is about the third kind only, and the tree's answer so far is
+that it has never said which nodes have it — a node's identity state
+is whatever its program happened to write.
+
+A session's reading, offered and not decided: **identity belongs to
+the nodes that declare it, and to no node by default** — not to every
+node, and not to canvas-nearness as such.  Near the canvas is where
+most of it will be, because that is where the person's own work is
+(the windows, the document, what shows), and a stateless interior is
+what makes the network cheap: a node with no identity can be pulled by
+many, restarted anywhere, and reconfigured wholesale from its origin
+(property 5's (a): program and configuration both from the store,
+nothing of it here).  It is also where 4b's cost does *not* land — the
+concurrency he named arrives at nodes with mutable identity, and a
+declared boundary keeps the model checking to the few.  But "only
+near the canvas" as a rule breaks on the first database node three
+edges in, which has identity and no window; so the rule is *declared*,
+and the canvas is where the declarations will cluster.  The mechanism,
+if it is wanted, is one grant word naming the identity (`state
+node.state`, say), so that a node with the word moves with its state
+and a node without it is reinstalled by a pull; nothing reads such a
+word yet, so it is not built (manifesto rule 1), and the first reader
+would be the store.
+
+*(question, his call — is identity state a declared property of a
+node — a grant word, absent by default — or a property of every node
+that the person may leave empty?)*
