@@ -42,7 +42,11 @@ mechanism that arrives: which of these does it serve?*
    uudelleenkonfiguroimaan sieltä mistä se tulikin.* — if installing
    configures a program, the configuration is recorded in the program's
    node; by pull, a program can be reconfigured from wherever it came
-   from.
+   from.  *(His reading, 2026-09-02: "sieltä mistä se tulikin" is the
+   origin the node was fetched from, not its puller — so the second
+   half waits on the store, open problem 2.  A puller configuring what
+   it pulls is a second thing he wants, with its own words:
+   `card:edge.md` §"Talk — 2026-09-02, the 12:52 sitting".)*
 
 6. *ohjelma versio merkitään siten että sen tunn.  oletuksena ei ole
    keskuspalvelinta* — a program's version is marked so that it can be

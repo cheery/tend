@@ -245,3 +245,57 @@ directories of a person re-running while a node loaded — so the hold
 is its first mechanism and the edge its second; and the **language
 three** (10, 15, and the bootstrap line) are where they were on 08-26,
 untouched, and are not on any card.
+
+**His answers, the same sitting, having set its clock to 120 minutes**,
+verbatim: *"1. 19.8 kirjoittamani taisi tarkoittaa alkuperää.  'sieltä
+mistä se tulikin'.  2. mielestäni se saisi olla toisinpäin, mutta en ole
+nyt varma asiasta.  Solmun grant saisi olla mahdollisimman rajattu, ja
+käyttäjä antaisi sille parametrejä ja lisää vapauksia.  Ehkä."*
+
+— 1. The line of 19.8 probably meant the origin.  2. He thinks it
+should be the other way round, but is not sure now: the node's grant
+should be as narrow as possible, and the user would give it parameters
+and more freedoms.  Perhaps.
+
+What that does to the tree, read before anything is built on it:
+
+- **Property 5's second half is (a), the origin, and stays where every
+  status pass has put it: waiting on the store**, open problem 2.  The
+  note is on `spec/os.md` under the property.  Reading (b) is not the
+  property; it is a second thing he wants, and it has its own sentence
+  now, the one above.
+- **The direction of point 2 is reversed and survives.**  Point 2 said
+  each edge narrows: the pulled node's grant is inside its puller's.
+  His sentence puts the *node's own* grant at the bottom — the least
+  the program needs, written by whoever wrote the program — and has the
+  user add to it.  The two are one picture with three layers: the
+  node's grant is the **floor**, the puller's grant is the **ceiling**,
+  and what the puller gives — parameters and freedoms — lies between
+  and may not reach above the ceiling.  Rule 1 holds because the party
+  that widens is never the party widened: the node does not write its
+  gifts, the puller does, and the puller may give only what it has.
+  The 08-27 refusal holds too — a pull *line* still configures nothing;
+  a *grant* on the person's side does.
+- **The llm node's grant is the evidence he is right.**  Read
+  `llm/grant` as two lists: what llama-server needs anywhere (`allow
+  model`, `model …`, `bind 18080`, `program …`) and what *this machine*
+  needed to run it (`allow-try /opt/intel/oneapi`, `allow /sys`, `write
+  /dev/dri`, the two `NEO_CACHE` env lines, `make neo-cache`) — six of
+  its thirteen lines are the work laptop's, dated 2026-08-28, mixed into
+  the node's own grant because there was nowhere else to put them.
+  His floor-and-gifts would put the first list in the node and the
+  second in the person's hand on this machine.
+- **Where the gifts would live is already built as shape and not as
+  content**: a `.hold` in the canvas is the person's standing pull, on
+  the person's side, and its content today is the asked-by — words the
+  launcher reads and does nothing with.  A hold that carried grant
+  words would be reading (b) in the tree's own grammar, with rule 5 of
+  `card:hold.md` (the canvas is where a session cannot write) as the
+  thing that keeps it Rule 1.  Not built, and not this card's: he said
+  *ehkä*, and a mechanism built on a *perhaps* is a session deciding
+  for him.
+
+**So day one stands as written and depends on neither answer**: the
+die and the solitaire need one edge and no gift.  What changes is one
+sentence in point 2, left as it is above with this section as its
+correction, kept rather than rewritten.
