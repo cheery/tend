@@ -993,17 +993,20 @@ def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(t
     solitaire reads the roll, lets go, exits 0; the die, unpulled, idles
     out within a tick; `serve` starts nothing more."""
     die, sol = edge_nodes(tmp_path)
+    # TEND_IDLE reaches the die too: the solitaire's runner serves it, and the die's grant says `idle 30`
     env = dict(os.environ, TEND_STATE_DIR=str(sol / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
-               TEND_CANVAS=str(tmp_path / "canvas")); env.pop("TEND_FENCED", None)
+               TEND_CANVAS=str(tmp_path / "canvas"), TEND_IDLE="0.5"); env.pop("TEND_FENCED", None)
     p = subprocess.Popen(["sh", str(LAUNCH), str(sol), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         edge = die / "state" / "pulled" / "solitaire"
         assert wait(lambda: edge.exists() and locked(edge), cap=8), "the solitaire's process never took the edge"
         s = launch(die, "status", state=die / "state")
-        assert "die: not running" in s.stdout and "pulled by: solitaire" in s.stdout, s.stdout
-        r = launch(die, "serve", state=die / "state", idle="0.5")
-        assert r.returncode == 0 and "die is pulled by solitaire and no runner — started one" in r.stderr, (r.returncode, r.stderr)
-        assert p.wait(timeout=30) == 0, "the solitaire did not get its roll"
+        assert "pulled by: solitaire" in s.stdout, s.stdout
+        # the die comes up at the lock, not at the tick: the puller's runner asked `serve` once for it
+        # (Henri, 2026-09-02: "pystyisikö vedetty solmu käynnistymään heti vedon jälkeen?") — so a serve
+        # by hand here finds a runner up, or the die already served, and starts nothing
+        assert p.wait(timeout=30) == 0, "the solitaire did not get its roll — nothing served the die at the lock"
+        assert "die is pulled by solitaire and no runner — started one" in (sol / "state" / "log").read_text(), (sol / "state" / "log").read_text()
         log = (sol / "state" / "log").read_text()
         assert re.search(r"solitaire: die rolled [1-6]$", log, re.M), log
         assert not locked(edge), "the edge was not let go"

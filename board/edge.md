@@ -609,3 +609,21 @@ token cap ended it* when that is what happened, and asks for 800 tokens
 (`ASK_TOKENS`) instead of 200.  Red first against a stand-in that
 thinks and does not answer.  The run that answers is the next one, his
 shell again.
+
+**The pulled node comes up at the lock, 15:50** — Henri: *"pystyisikö
+vedetty solmu käynnistymään heti vedon jälkeen?  nyt siinä on viive."*
+The tick's period was the edge's latency, up to 30 s, and this card's
+§"What it must not become" had refused a scheduler.  The tree's own
+rule resolves it: a pull from the person's side starts the runner at
+once (`pull` from a shell does), and a puller's runner *is* on the
+person's side.  So `run`, having made the edge files, forks one watcher
+per edge that waits for the program to take the lock, asks `serve` once
+for the pulled node, and is gone — the tick stays the carrier for
+everything after (a death, a stop under a still-held edge).  Not a
+scheduler: nothing loops or decides beyond the moment the lock is
+taken.  The flow test no longer calls `serve` by hand: the die comes up
+because the solitaire's runner asked, and the solitaire's log carries
+the line.  Measured on the way: the watcher hands the pulled node the
+puller's environment minus `TEND_STATE_DIR`, so a test that wants a
+short idle on the pulled node says so in the puller's — the die ran its
+grant's 30 s until the test did.

@@ -440,6 +440,17 @@ run)
     # the edge files, made on the person's side before keep hands the program read on them: the
     # program locks, this launcher never does — the pull is the process's (his words), not the runner's
     for p in $pulls; do mkdir -p "$p/state/pulled" && : >> "$p/state/pulled/$name" && touch "$p/state/pulled/$name"; done
+    # A pull from the person's side starts the runner at once — `pull` from a shell does, and this
+    # runner is on the person's side too (Henri, 2026-09-02: "pystyisikö vedetty solmu käynnistymään
+    # heti vedon jälkeen?").  One watcher per edge: it waits for the program to take the lock, then
+    # asks `serve` once for the pulled node and is gone; the tick stays the carrier for everything
+    # after (a death, a stop under a still-held edge).  Not a scheduler: nothing here loops or decides
+    # beyond the moment the lock is taken.  TEND_STATE_DIR is this node's state, never the pulled one's
+    for p in $pulls; do
+        ( _e="$p/state/pulled/$name"; _n=0
+          while flock -n "$_e" true 2>/dev/null && [ "$_n" -lt 1200 ]; do sleep 0.05; _n=$((_n + 1)); done
+          flock -n "$_e" true 2>/dev/null || env -u TEND_STATE_DIR sh "$0" "$p" serve ) >> "$STATE/log" 2>&1 &
+    done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
     # the busy rule is counted in ticks of this loop, not on the wall clock (F000, 2026-08-30): each
