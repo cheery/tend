@@ -91,12 +91,13 @@ HEALTH="${TEND_LLM_HEALTH:-http://127.0.0.1:$port/health}"
 maxtok="${TEND_MAXTOK:-2000}"
 door=$(printenv TEND_DOOR || true); dmodel=""; keyfile=""
 tools_word=""; calls_cap=""; readchars=""; temp=""
+knob=template   # the node's own wire reads chat_template_kwargs; a door says so with `thinking  template` (F015)
 if [ -n "$door" ]; then
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); dmodel=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
     t=$(sh "$here/door.sh" "$door" --tools) || exit $?
     tools_word=$(printf '%s\n' "$t" | sed -n 1p); calls_cap=$(printf '%s\n' "$t" | sed -n 2p); readchars=$(printf '%s\n' "$t" | sed -n 3p)
-    temp=$(printf '%s\n' "$t" | sed -n 4p)
+    temp=$(printf '%s\n' "$t" | sed -n 4p); knob=$(printf '%s\n' "$t" | sed -n 5p)
 else
     tools_word=$(sed -n 's/^tools  *//p' "$NODE/grant" 2>/dev/null | head -1)
     calls_cap=$(sed -n 's/^calls  *//p' "$NODE/grant" 2>/dev/null | head -1)
@@ -148,18 +149,22 @@ stamp() { date '+%Y-%m-%d %H:%M'; }
 # loudly when the node did not answer, or answered with no completion.
 ask() {
     _conv=$1
-    # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words
+    # the node gets its loader knob (chat_template_kwargs); a door gets the model it names, and thinking in its own words —
+    # unless the door says `thinking  template`, in which case it is the node's wire behind a door and gets both
+    # (F015, 2026-09-02: the door at the node's own port got a model line and no knob, and gemma4 thought 7,222
+    # bytes into the content channel while the account said "thinking off")
     # the conversation goes to jq in a file, never on its argument line: one
     # execve argument is capped at MAX_ARG_STRLEN (32 pages, 131072 bytes here),
     # and at `readchars 60000` two whole cards cross it — F007
     printf '%s' "$_conv" > "$STATE/.turn.conv"
     _body=$(jq -cn --slurpfile c "$STATE/.turn.conv" --argjson n "$maxtok" --argjson h "$hist" --argjson t "$think" --arg m "$dmodel" \
-                   --argjson s "$sysmsgs" --argjson tools "$manifest" --arg tmp "$temp" \
+                   --argjson s "$sysmsgs" --argjson tools "$manifest" --arg tmp "$temp" --arg knob "$knob" \
         '{messages:($s + $h + $c[0]),max_tokens:$n,stream:true}
          + (if $tmp == "none" then {} else {temperature:($tmp|tonumber)} end)
          + (if ($tools | length) > 0 then {tools:$tools} else {} end)
-         + (if $m == "" then {chat_template_kwargs:{enable_thinking:$t}}
-            else {model:$m} + (if $t then {reasoning:{enabled:true}} else {} end) end)')
+         + (if $m == "" then {} else {model:$m} end)
+         + (if $m == "" or $knob == "template" then {chat_template_kwargs:{enable_thinking:$t}}
+            else (if $t then {reasoning:{enabled:true}} else {} end) end)')
     # and the body goes to curl in a file for the same reason: `-d "$body"`
     # is one execve argument, and the request is bigger than the reply (F007)
     _bodyf="$STATE/.turn.body"; printf '%s' "$_body" > "$_bodyf"

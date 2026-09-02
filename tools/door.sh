@@ -79,7 +79,10 @@ case $mode in
     *) echo "door: $name's key $key is readable by others (mode $mode) — chmod 600 it" >&2; exit 2 ;;
 esac
 [ -n "$verb" ] || { printf '%s\n%s\n%s\n' "$url" "$model" "$key"; exit 0; }
-[ "$verb" != --tools ] || { printf '%s\n%s\n%s\n%s\n' "$(field tools)" "$(field calls)" "$(field readchars)" "$(field temperature)"; exit 0; }
+# the fifth line, `thinking  template` (F015, 2026-09-02): this side takes the node's own
+# template knob, chat_template_kwargs.enable_thinking — the door at the node's port.  Absent,
+# the side has no off switch and thinking is asked in OpenRouter's `reasoning` spelling.
+[ "$verb" != --tools ] || { printf '%s\n%s\n%s\n%s\n%s\n' "$(field tools)" "$(field calls)" "$(field readchars)" "$(field temperature)" "$(field thinking)"; exit 0; }
 
 # The door's side, listed: one line per model — id, context, $/M in, $/M out — by id.
 base=${url%/chat/completions}

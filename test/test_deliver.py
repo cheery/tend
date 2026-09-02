@@ -260,6 +260,29 @@ def test_a_door_carries_the_turn_with_its_model_and_key_and_is_never_a_pull(tmp_
     assert "sk-test" not in (st / "replies").read_text()
 
 
+def test_a_door_that_says_thinking_template_gets_the_nodes_own_knob(tmp_path, stub):
+    """F015 (2026-09-02): the first gemma4 turn through `doors/llm/door` —
+    the node at its own port — carried a model line and therefore no
+    `chat_template_kwargs`, so gemma4 thought 7,222 bytes into the content
+    channel and was cut before its answer, while the account said
+    "thinking off".  A door whose side reads the node's template knob says
+    so with `thinking  template`, and the knob then goes out with the
+    model's name: off by default, on with TEND_THINK, and never
+    OpenRouter's `reasoning` spelling."""
+    st = tmp_path / "s"; st.mkdir()
+    door = a_door(tmp_path, stub)
+    (tmp_path / "doors" / "openrouter" / "door").write_text(
+        (tmp_path / "doors" / "openrouter" / "door").read_text() + "thinking  template\n")
+    r = deliver(NODE, "through", state=st, stub=stub, **door)
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["model"] == "vendor/some-model"
+    assert BODIES[-1]["chat_template_kwargs"] == {"enable_thinking": False}, BODIES[-1]
+    assert "reasoning" not in BODIES[-1]
+    r = deliver(NODE, "deep", state=st, stub=stub, TEND_THINK="1", **door)
+    assert r.returncode == 0, r.stderr
+    assert BODIES[-1]["chat_template_kwargs"] == {"enable_thinking": True} and "reasoning" not in BODIES[-1]
+
+
 def test_a_door_that_does_not_answer_says_the_doors_name(tmp_path, stub):
     st = tmp_path / "s"; st.mkdir()
     door = a_door(tmp_path, stub)

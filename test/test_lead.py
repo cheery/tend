@@ -243,9 +243,10 @@ def test_a_pick_decorated_with_the_digests_own_fence_is_read_by_its_filename(boa
 # --- the door: where a model other than the node's is admitted (card:session-program.md, card:model-acceptance.md, 2026-08-29 —
 #     Henri: "build capability for both gemma and claude, also I'm thinking about subscribing to openrouter") ---
 
-def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openrouter", **extra):
+def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openrouter", door_lines="", **extra):
     """One turn through a door: the door names the stub's url, a model, and
-    a key file outside the tree; the stub records what arrived."""
+    a key file outside the tree; the stub records what arrived.
+    `door_lines` are appended to the door file (F015: `thinking  template`)."""
     H = _stub(reply)
     srv = http.server.HTTPServer(("127.0.0.1", 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -255,7 +256,7 @@ def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openr
         key.parent.mkdir(); key.write_text("sk-test-0000\n"); key.chmod(key_mode)
     d = tmp_path / "doors" / "openrouter"; d.mkdir(parents=True)
     (d / "door").write_text(f"url  {base}/v1/chat/completions\nmodel  vendor/some-model\nkey  {key}\n"
-                            "admitted  the test, for the stub\n")
+                            "admitted  the test, for the stub\n" + door_lines)
     env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path),
            "TEND_DOOR_DIR": str(tmp_path / "doors"), "TEND_DOOR": door,
            "TEND_PROPOSAL_DIR": str(tmp_path / "proposals"),
@@ -282,6 +283,22 @@ def test_a_door_carries_the_model_and_the_key_and_the_account_names_it(board, tm
     assert "sk-test" not in acc, "the key is never in an account"
     prop = next((tmp_path / "proposals").glob("*.md")).read_text()
     assert "through the openrouter door" in prop and "sk-test" not in prop, prop
+
+
+def test_a_door_that_says_thinking_template_sends_the_nodes_knob_with_the_model(board, tmp_path):
+    """F015 (2026-09-02): `doors/llm/door` is the node at its own port, and
+    a led turn through it got a model line and no loader knob, so gemma4
+    thought in the content channel.  `thinking  template` on the door
+    sends `enable_thinking:false` beside the model's name, on the pick
+    and on the draft."""
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: draft the lamp's one line\nWHY: day one", board, tmp_path,
+                           door_lines="thinking  template\n")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(seen) == 2
+    for body in seen:
+        assert body["model"] == "vendor/some-model"
+        assert body["chat_template_kwargs"] == {"enable_thinking": False}, body
+        assert "reasoning" not in body
 
 
 def test_a_door_key_others_can_read_is_refused_before_anything_is_sent(board, tmp_path):

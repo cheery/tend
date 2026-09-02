@@ -1064,3 +1064,11 @@ the questions, we can't answer them" is `card:questions.md`'s own
 `because`, said back.  The next turn wants the knob on the wire first
 (`F015`'s smaller shape), and then the question above gets its answer
 from a reply that reaches its end.
+
+**F015 fixed the same hour, in the slower shape** — a door word,
+`thinking  template`, on `doors/llm/door`, read by `door.sh --tools`
+as its fifth line and honoured by deliver, lead and propose; the
+account's limits line now says what the wire carried.  The url was not
+made the discriminator, because every door test's stub sits at
+127.0.0.1 and the rule would have had the tests lie about OpenRouter.
+The next turn is the same command from his shell, with the node held.

@@ -20,6 +20,16 @@ unsaid); `tools/door.sh NAME --tools` reads the two.  Absent, a turn
 carries no tools.  Every call is a `C:` line on the record
 (card:tools.md, day one, 2026-08-30).
 
+`thinking  template` says the door's side takes the node's own off
+switch — `chat_template_kwargs.enable_thinking`, llama-server's wire —
+and the knob then goes out beside the model's name, off unless asked.
+Absent, the side has no off switch: thinking is asked in OpenRouter's
+`reasoning` spelling and a turn that did not ask gets the model's own
+default, and the account says so.  The door for the node at its own
+port (`doors/llm/door`) is the one that carries it: without the word,
+its first turn on 2026-09-02 thought 7,222 bytes into the content
+channel under an account line that said "thinking off" (F015).
+
 `tools/lead.sh NODE --door NAME` and `TEND_DOOR=NAME tools/propose.sh …`
 run the same turn through the door instead of the node's port, on the
 person's side; the account and the proposal say which door.  A kept

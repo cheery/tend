@@ -217,7 +217,7 @@ def _parse_replies(text):
     return model, calls, "\n".join(ans).strip(), "\n".join(thought).strip()
 
 
-def _thinking_line(asked, thought):
+def _thinking_line(asked, thought, knob="template"):
     """F011 — what the account says about thinking.
 
     Until 2026-09-01 this was `thinking on` whenever `--thinking` was
@@ -230,9 +230,20 @@ def _thinking_line(asked, thought):
 
     A turn that never asked and a turn that asked and got nothing are
     different turns and must not read the same.
+
+    And `knob` (F015, 2026-09-02) is what the wire carried: `template`
+    when the request had the node's `chat_template_kwargs` — the node's
+    own turn, or a door that says `thinking  template` — and empty when
+    the door's side has no off switch at all.  The first gemma4 turn
+    through `doors/llm/door` read "thinking off — the node's own
+    condition" on a request that carried no knob, and the model thought
+    7,222 bytes into the content channel under that sentence.
     """
     if not asked:
-        return "thinking off — the node's own condition"
+        if knob == "template":
+            return "thinking off — enable_thinking:false on the wire"
+        return ("thinking not asked, and this door has no off switch — the "
+                "model's own default, whatever it did")
     if thought:
         return f"thinking asked on, and {len(thought)} chars of reasoning came back"
     return ("thinking asked on, and NO reasoning came back — the model "
@@ -269,7 +280,7 @@ def _calls_line(calls):
     return f"{len(calls) - refused} run, {refused} refused past the cap"
 
 
-def door_pick(door, tools, board, propdir, thinking=False, seed=False):
+def door_pick(door, tools, board, propdir, thinking=False, seed=False, knob=""):
     """One pick turn through the door, ridden on tools/deliver.sh — the
     courier every talk turn rides, so the calls are run, capped and
     recorded exactly as a turn's are.  The pick prompt goes as a system
@@ -331,7 +342,7 @@ def door_pick(door, tools, board, propdir, thinking=False, seed=False):
         f"    why      {got['why'] or '—'}\n"
         f"    outcome  {outcome} — {got['andon'] or account.name}\n"
         f"    calls    {_calls_line(calls)}\n"
-        f"    limits   deliver.sh's own; {_thinking_line(thinking, thought)}\n\n"
+        f"    limits   deliver.sh's own; {_thinking_line(thinking, thought, knob)}\n\n"
         + ("The calls:\n\n" + "".join(f"    C: {c}\n" for c in calls) + "\n" if calls else "")
         + "The reply, verbatim:\n\n" + "".join("    " + l + "\n" for l in reply.splitlines()))
     return account, got, calls, model
@@ -563,12 +574,15 @@ def main(argv):
             sys.stderr.write(f"compare: the {door} door has no tools line — the tools arm needs one"
                              f" (`tools  read ls grep` on the door file; the line is the person's to write)\n")
             return 2
+        # the fifth `--tools` line: `template` when the door's side takes the node's
+        # off switch, empty when it has none — the account says which (F015)
+        knob = (t.stdout.splitlines() + [""] * 5)[4].strip()
         rc = 0
         for tools in arms:
             arm = ("tools-seeded" if seed else "tools") if tools else "digest"
             try:
                 account, got, calls, model = door_pick(door, tools, board, propdir,
-                                                       thinking, seed and tools)
+                                                       thinking, seed and tools, knob)
             except (RuntimeError, OSError) as e:
                 sys.stderr.write(f"compare: {door} {arm} arm: {e}\n"); rc = 1; continue
             if got["andon"]:

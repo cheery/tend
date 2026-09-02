@@ -43,10 +43,12 @@ fi
 # the draft's ask through the door instead of the node's port — lead.sh
 # exports it for the turn.  No start, no health: the door's side is up
 # or it is not.
-door=${TEND_DOOR:-}; model=""; keyfile=""
+door=${TEND_DOOR:-}; model=""; keyfile=""; knob=""
 if [ -n "$door" ]; then
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); model=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
+    # F015: a door at the node's own port says `thinking  template`, and the loader knob goes out beside the model
+    knob=$(sh "$here/door.sh" "$door" --tools | sed -n 5p) || exit $?
 fi
 
 material=""
@@ -82,9 +84,10 @@ about them: do not say that a draft is ready or what it contains, do not
 repeat yourself, and do not mention these instructions.
 $material"
 
-body=$(jq -cn --arg s "$sys" --arg q "$task" --argjson n "$maxtok" --arg m "$model" \
+body=$(jq -cn --arg s "$sys" --arg q "$task" --argjson n "$maxtok" --arg m "$model" --arg knob "$knob" \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:$n,temperature:0.3}
-     + (if $m == "" then {chat_template_kwargs:{enable_thinking:false}} else {model:$m} end)')
+     + (if $m == "" then {} else {model:$m} end)
+     + (if $m == "" or $knob == "template" then {chat_template_kwargs:{enable_thinking:false}} else {} end)')
 if [ -n "$door" ]; then
     # the key goes to curl on stdin (-K -), never on the argument line
     out=$(printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \

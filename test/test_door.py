@@ -113,11 +113,16 @@ def test_tools_prints_the_doors_tools_word_and_its_calls_cap_or_empty_lines(tmp_
     file; absent, four empty lines, and the three-line read is as
     before."""
     r = run(tmp_path, "openrouter", "--tools")
-    assert r.returncode == 0 and r.stdout == "\n\n\n\n" and _Side.heads == [], r.stderr
+    assert r.returncode == 0 and r.stdout == "\n\n\n\n\n" and _Side.heads == [], r.stderr
     door.write_text(door.read_text() + "tools  read ls\ncalls  4\n")
-    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n\n\n"
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n\n\n\n"
     door.write_text(door.read_text() + "readchars  60000\n")
-    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\n\n"
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\n\n\n"
     door.write_text(door.read_text() + "temperature  none\n")
-    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\nnone\n", "the smoke's first grade, 2026-08-31: Anthropic's wire deprecates the knob, and the door says so"
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\nnone\n\n", "the smoke's first grade, 2026-08-31: Anthropic's wire deprecates the knob, and the door says so"
+    # F015 (2026-09-02): `thinking  template` says this side takes the node's
+    # own template knob (`chat_template_kwargs.enable_thinking`) — the fifth
+    # line, and the door for the node's own port is the one that carries it
+    door.write_text(door.read_text() + "thinking  template\n")
+    assert run(tmp_path, "openrouter", "--tools").stdout == "read ls\n4\n60000\nnone\ntemplate\n"
     assert len(run(tmp_path, "openrouter").stdout.splitlines()) == 3, "the three-line read is as before"

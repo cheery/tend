@@ -88,8 +88,11 @@ if [ -n "$door" ]; then
     fi
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); model=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
+    # F015: a door at the node's own port says `thinking  template`, and the loader knob goes out beside the model
+    knob=$(sh "$here/door.sh" "$door" --tools | sed -n 5p) || exit $?
     export TEND_DOOR="$door"
 fi
+: "${knob:=}"
 
 andon_state="${TEND_ANDON_STATE:-$HOME/.local/state/tend}"
 if [ -n "$kept" ]; then
@@ -187,10 +190,12 @@ WHY: one line
 If you cannot decide, or need the person, answer instead with one line:
 ANDON: your question for the person
 $digest"
-# the node's loader knob (chat_template_kwargs) stays on the node's side; a door gets the model it names
-body=$(jq -cn --arg s "$sys" --arg q "Pick." --arg m "$model" \
+# the node's loader knob (chat_template_kwargs) stays on the node's side; a door gets the model it names —
+# and a door that says `thinking  template` is the node's wire behind a door and gets both (F015)
+body=$(jq -cn --arg s "$sys" --arg q "Pick." --arg m "$model" --arg knob "$knob" \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2}
-     + (if $m == "" then {chat_template_kwargs:{enable_thinking:false}} else {model:$m} end)')
+     + (if $m == "" then {} else {model:$m} end)
+     + (if $m == "" or $knob == "template" then {chat_template_kwargs:{enable_thinking:false}} else {} end)')
 if [ -n "$door" ]; then
     # the key goes to curl on stdin (-K -), never on the argument line
     out=$(printf 'header = "Authorization: Bearer %s"\n' "$(cat "$keyfile")" \

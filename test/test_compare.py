@@ -185,6 +185,20 @@ def test_the_account_says_what_came_back_not_what_was_asked_for():
         "a turn that never asked is not a turn that asked and got nothing"
 
 
+def test_the_account_says_whether_the_off_switch_was_on_the_wire():
+    """F015 (2026-09-02): the first gemma4 turn through `doors/llm/door`
+    read `thinking off — the node's own condition` while the request
+    carried no knob at all — a door names a model, and the knob went only
+    where no model was named — so 7,222 bytes of reasoning came back in
+    the content channel and the account said off.  The line says what the
+    wire carried: the knob, or that this door has no off switch."""
+    on_the_wire = compare._thinking_line(False, "", knob="template")
+    no_switch = compare._thinking_line(False, "", knob="")
+    assert "enable_thinking:false" in on_the_wire, on_the_wire
+    assert "no off switch" in no_switch and "off —" not in no_switch, no_switch
+    assert compare._thinking_line(False, "") == on_the_wire, "the node's own turn always carries it"
+
+
 # --- the two arms added for card:questions.md's specified measurements ---
 #
 # 2026-09-01.  Writing each standing "I don't know" question down as
