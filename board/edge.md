@@ -486,3 +486,43 @@ henri: vedetyn solmun tilaa rajapintana. ehkä molempia. 2026-09-02)*
 So the pulled node's state is the interface, which is what day one
 built and what the die and the solitaire measure; the handle in the
 puller's own state is an *ehkä* and stays a line not written.
+
+**His two questions, 14:30**: *"Osaisitko sanoa miten lean-tyylisiä
+arvovirtaketjuja/veto -käytäntöä sovellettaisiin itse ohjelmiin ja
+ohjelma-asennuksiin?"* and *"Ja tarvitseeko sitä miettiä jo nyt?"* —
+how would lean value streams and pull practice be applied to programs
+themselves and to installs, and does it need thinking about now?
+
+The tree's answer, read off what it already runs, with lean's names
+put beside each: the **customer** is the person at the canvas, and
+liveness enters only through a canvas (`card:hold.md` rule 4) — that
+*is* pull, against the push of an init system starting everything at
+boot.  The **kanban card** is the edge: the signal travels upstream
+(the lock), the parts travel downstream beside it (the state).  The
+**supermarket** — a small standing stock where demand is frequent,
+replenished when drawn — is the hold: the llm kept warm because the
+80 s reload is the changeover cost, lean's SMED problem, open problem
+3 on `spec/os.md`.  **Overproduction**, lean's first waste, is F017
+exactly: a node run with no pull, found today.  **Waiting** is the tick:
+the solitaire waited up to 30 s for a die that could have come up at
+the lock; lean would cut that lead time, and this card's "not a
+scheduler" line is the reason it has not.  **Andon** and **jidoka** are
+the cord and property 9 (crash, never hang).  The **value stream map**
+is the DAG, and the Sugiyama drawing he named is literally that map.
+For **installs**: just-in-time supply is property 5's (a) — a node is
+not installed in advance but fetched from its origin at the first pull,
+its configuration recorded in the node, re-pulled to reconfigure; the
+store is the supplier and the node directory is the bin.  What lean
+has that the tree does not: a **kanban count** — how many pullers a
+node serves at once, the WIP limit on an edge — and **takt**, an even
+rhythm of demand; neither has a caller, since no node has two pullers.
+
+*Does it need thinking now?*  Mostly no: the practice is already in
+the tree without the vocabulary — it fell out of his 08-19 list and
+the hold card — and naming it changes no mechanism.  Two places where
+the names earn their keep today: F017 is clearer as *overproduction*
+than as a race (it says why running unpulled is the worst waste, not
+a harmless extra), and the store, when it comes, is a **supplier**
+question — what the pull orders, what the bin holds, what "from the
+origin" means — and that thinking is owed before the store is built,
+not before.  The kanban count waits for a second puller.
