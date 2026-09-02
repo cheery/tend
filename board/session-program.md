@@ -1458,3 +1458,24 @@ loops:
     TEND_MAXTOK=4000
 
 — and the prediction for hy3 stands as written above.
+
+### 08:27–08:45 — hy3 ran at `TEND_MAXTOK=4000`, and it is the same picture
+
+Cold 24 of 24 with the fields, `because` the problem every time, zero
+fix words.  Warm 9 (three turns not a completion, the line still
+wordless), 9 of 9 fields, `because` the problem every time, zero fix
+words.  The hy3 prediction — warm over cold by thirty points — is
+falsified too: **on both models, both arms, the command "a card names
+a problem" did the whole of the work the reasons were bet to do.**
+
+Henri, at the end: *"not perfect, also dropped the llm computations.
+I think the test itself is a bit too simple.  I am not sure what it
+shows."*  He is right about the shape and it shows one thing exactly:
+for a rule that *has* a clean imperative form, the reason behind it is
+not load-bearing for the act, on a 4B-active model or a strong one.
+What it cannot show is the thing `doc/cold/notes.md` said to look at
+first — the rules that *lost* something in translation: the mark, the
+fixture, go-and-see.  Those are where a command and a reason would
+part, and the next test's task has to be one of them, not the board's
+easiest rule.  The counting stands as the method; the task was too
+easy for the question.
