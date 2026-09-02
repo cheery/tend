@@ -480,4 +480,9 @@ this tree has not measured.
 
 *(question, his call — "oman tilansa kautta": the pulled node's state
 as its interface (what day one did), or a handle in the puller's own
-state (`$STATE/pulls/<node>`, one symlink), or both?)*
+state (`$STATE/pulls/<node>`, one symlink), or both?
+henri: vedetyn solmun tilaa rajapintana. ehkä molempia. 2026-09-02)*
+
+So the pulled node's state is the interface, which is what day one
+built and what the die and the solitaire measure; the handle in the
+puller's own state is an *ehkä* and stays a line not written.
