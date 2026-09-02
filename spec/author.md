@@ -202,10 +202,18 @@ theory written as a rule would need a mark.*
    kaizen, `2026-08-24-1549`, fourteen times; and in the specimen of
    the same day, `doc/specimens/2026-08-24-qwen3.8-27b.txt`, it is
    **his** word first — *"You're a session.  Right?"* — taken up by a
-   model that had read none of the tree.  So on the one day that can
-   be checked, the naming began with him and the session accepted it;
-   the sessions calling *themselves* sessions is what came after, and
-   the ledger cannot say on which day).
+   model that had read none of the tree.  A session first read that as
+   the naming beginning with him, and he corrected it the same minute:
+   *"gestate:n sessiot alkoivat itsenäisesti kutsua sessioksi itseään.
+   Jo monta päivää ennenkuin tein Qwen-näytteen"* — gestate's sessions
+   began calling themselves sessions on their own, many days before
+   the Qwen specimen.  Checked from here: gestate's own journal
+   archive for August (`~/gestate/journal/2026-08.md`, written by
+   sessions) uses the word 105 times, and its earliest date is
+   2026-08-13, eleven days before the specimen.  So the specimen shows
+   him handing a stranger model a word his own sessions already used
+   of themselves; the self-naming is older than the tree that checked
+   it, and the session's first reading was wrong).
 2. **The boundaries outside the session do the work.**  Sixteen
    F-numbers, each naming the gate that holds it, and the kaizens'
    "wrong, mine" every day: nearly every catch came from a kernel, a
