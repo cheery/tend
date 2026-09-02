@@ -1,0 +1,9 @@
+# the die — a node that is nothing but the far end of an edge (card:edge.md, day one, 2026-09-02).
+# It rolls once into its state and waits to be let go: pulled, it stays up; the last puller gone, it
+# idles out.  Too simple as a program, Henri said, and exactly right as a fixture — there is nothing
+# in it but the edge.  `pulse roll` is the roll's mtime, so idle counts from the roll, not from a log
+allow die.py
+no-net
+pulse roll
+idle 30
+program /usr/bin/python3 $NODE/die.py --state $STATE

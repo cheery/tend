@@ -30,6 +30,12 @@
 #                       program is — the person's clock, not the program's (TEND_SITTING overrides,
 #                       in minutes).  Absent, the node is a program; present, it carries the first cord
 #     pull FILE         the file a pull appends to (default $STATE/pull)
+#     pull NODE         an edge (card:edge.md, 2026-09-02): this node's program may pull NODE — a bare
+#                       name is a node of this tree, `./x` or `../x` is beside this node, `/x` is a path.
+#                       The value is a node when a grant is there, else the pull file, as above.  The
+#                       program takes a shared flock on $TEND_PULLS's file for NODE and holds it while
+#                       it wants NODE; NODE's state is readable to it.  A pull that reaches back to this
+#                       node is refused before anything runs
 #     program CMD...    what runs, under the grant.  Lines may use $NODE, $STATE, $IDLE and $MODEL
 #     status CMD...     what says what it did (optional; run read-only under the grant)
 #     make PATH         a directory made before the program runs, under $STATE unless absolute — for a
@@ -124,6 +130,27 @@
 # hammered: after a clean stop the hold restarts unconditionally; after
 # a non-zero exit only a hold *newer* than the death restarts — the
 # person re-asserts with a `touch`, having seen why on the panel.
+#
+# **The edge** (2026-09-02, card:edge.md day one — Henri: "solmuun kuuluva
+# prosessi voisi antaa 'pull' -käskyn, joka pysyy voimassa kunnes prosessi
+# sanoo 'stop' tai lopettaa").  Until today every pull was a person's line
+# or the hold's file, so nothing ran as a network.  A node's pull is the
+# hold card's lock held by a program: the puller's grant says `pull NODE`,
+# the launcher makes NODE/state/pulled/<puller> before keep execs the
+# program and names it in $TEND_PULLS (`NODE=/path …`), and the program
+# takes a shared flock on it — in force until it closes the fd (`stop`)
+# or exits, when the kernel drops it, so an edge is never orphaned by a
+# crash.  NODE's runner is not idle while any file under its `pulled/`
+# is locked, `serve` starts a runner for a node that is pulled and has
+# none (the tick is the carrier, as for a hold), and `status` names the
+# pullers from the filenames.  Nothing flows on the edge: NODE's state is
+# readable to the puller, and the conversation is beside the signal.  A
+# pulled node's state is NODE/state, as the resolver runs it.  Cycles are
+# refused at the door (card:hold.md, rule 4): `check` says ✗ and `run`
+# exits 2 before the lock is taken.  After a death, a pulled node is
+# restarted only by an edge newer than the death — the same rule as a
+# hold's, and a puller under keep cannot touch its edge, so it waits for
+# a fresh puller; said here because it is the plainest form of rule 3.
 set -u
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # The tree this governs: TEND_TREE when installed (tools/install.sh), else
@@ -139,7 +166,17 @@ py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "launch:
 MODEL=""; for m in "$NODE"/model/*.gguf; do [ -e "$m" ] && { MODEL=$m; break; }; done
 export NODE STATE MODEL
 
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""
+# a `pull` value as a path to a node: a bare name is a node of this tree, `./x` or `../x` is beside
+# the node whose grant says it (a fixture's two nodes in one scratch directory), `/x` is a path
+pull_path() { case "$1" in /*) echo "$1" ;; ./*|../*) echo "$2/$1" ;; *) echo "$root/$1" ;; esac; }
+# the nodes a grant pulls (card:edge.md): its `pull` lines whose value has a grant, one directory per line
+pulls_of() {
+    _d=$1
+    grep -v '^ *#' "$_d/grant" 2>/dev/null | while IFS= read -r _l; do
+        case "$_l" in pull\ *) _p=$(pull_path "${_l#pull }" "$_d"); [ -f "$_p/grant" ] && readlink -f "$_p" ;; esac
+    done
+}
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""; pulls=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
@@ -150,7 +187,9 @@ while IFS= read -r line || [ -n "$line" ]; do
         idle)        idle_grant=$val ;;
         pulse)       eval "pulse=\"$val\"" ;;
         sitting)     sitting_grant=$val ;;
-        pull)        eval "pullfile=\"$val\"" ;;
+        pull)        _p=$(pull_path "$val" "$NODE")
+                     if [ -f "$_p/grant" ]; then _p=$(readlink -f "$_p"); pulls="$pulls $_p"; flags="$flags --allow $_p/state"   # the edge: NODE's state readable, its edge file inside it
+                     else eval "pullfile=\"$val\""; fi ;;
         program)     program=$val ;;
         status)      status_cmd=$val ;;
         make)        case "$val" in /*) ;; *) val="$STATE/$val" ;; esac; makes="$makes $val" ;;
@@ -226,11 +265,29 @@ cut_for() {
     echo "$_s"
 }
 cut_line() { echo "$name: runner up, watcher silent $(( $1 / 60 )) min — the cords are cut (a held lock and a stale $STATE/watch; \`serve\` kills it)"; }
+# the edge (card:edge.md).  A pulled node's runner asks: is anyone pulling me?  — a file under
+# $STATE/pulled/ that some process holds a flock on; the filename is the puller.  An unlocked file
+# is a trace of an edge that was, like `stopped`
+pulled_by() { for _f in "$STATE"/pulled/*; do [ -f "$_f" ] || continue; flock -n "$_f" true 2>/dev/null || basename "$_f"; done; }
+# does following `pull` lines from directory $1 reach the node $2?  (card:hold.md rule 4: A pulls B
+# pulls A with no canvas behind them is the bounded party setting its own boundary — refused at the door)
+reaches_back() {
+    [ "${3:-0}" -lt 16 ] || return 0   # deeper than any tree of nodes this size: treat as a cycle, loudly
+    for _q in $(pulls_of "$1"); do
+        [ "$_q" = "$2" ] && return 0
+        reaches_back "$_q" "$2" $(( ${3:-0} + 1 )) && return 0
+    done
+    return 1
+}
+me=$(readlink -f "$NODE")
+# the edge files this node's program may lock, made by `run` and named in $TEND_PULLS; `check` says them
+TEND_PULLS=""; for _p in $pulls; do TEND_PULLS="$TEND_PULLS${TEND_PULLS:+ }$(basename "$_p")=$_p/state/pulled/$name"; done; export TEND_PULLS
 
 case "$verb" in
 grant)
     echo "keep $flags"; echo "program $program"; [ -n "$pulse" ] && echo "pulse $pulse"; echo "pull $pullfile"; echo "idle $IDLE"
     for e in $envs; do echo "env $e"; done
+    for p in $pulls; do echo "edge $(basename "$p") $p/state/pulled/$name"; done
     [ -n "$sitting_s" ] && echo "sitting $SITTING min"
     exit 0 ;;
 check)
@@ -321,6 +378,14 @@ check)
     else bad "state $STATE cannot be created"; fi
     if silent=$(cut_for); then bad "$(cut_line "$silent")"; fi
     for h in $(holds_for); do ok "held — $h: $(hold_words "$h")"; done
+    # the edges (card:edge.md): each pulled node has a grant (the parser saw to that), its state is made
+    # here as this node's is, and the pull graph from here must not reach back — at the door, run nothing
+    for p in $pulls; do
+        if reaches_back "$p" "$me"; then bad "pull $(basename "$p") reaches back to $name — a cycle with no canvas behind it, refused before either runs (card:hold.md, rule 4)"
+        elif mkdir -p "$p/state/pulled" 2>/dev/null; then ok "pull $(basename "$p") → $p (the edge file is $p/state/pulled/$name, made by run)"
+        else bad "pull $(basename "$p"): cannot make $p/state/pulled — the edge file has nowhere to be"; fi
+    done
+    for w in $(pulled_by); do ok "pulled by $w — a process holds the edge $STATE/pulled/$w"; done
     if [ -n "$port" ]; then
         if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
@@ -353,6 +418,10 @@ check)
     [ $unseen -eq 1 ] && exit 2
     exit 0 ;;
 run)
+    # the door (card:edge.md): a pull graph that reaches back to this node runs nothing
+    for p in $pulls; do
+        reaches_back "$p" "$me" && { echo "launch: $name/grant: pull $(basename "$p") reaches back to $name — a cycle with no canvas behind it; refused before either runs (card:hold.md, rule 4)" >&2; exit 2; }
+    done
     mkdir -p "$STATE"
     # the lock is taken here and inherited through keep's exec; a short wait,
     # not a refusal at once — the resolver tests the lock by taking it for a
@@ -361,6 +430,9 @@ run)
     flock -w 2 9 || { echo "launch: a runner already holds $lock — pull $name instead." >&2; exit 75; }
     rm -f "$STATE/stopped" "$STATE/ticks"
     for m in $makes; do mkdir -p "$m"; done
+    # the edge files, made on the person's side before keep hands the program read on them: the
+    # program locks, this launcher never does — the pull is the process's (his words), not the runner's
+    for p in $pulls; do mkdir -p "$p/state/pulled" && : >> "$p/state/pulled/$name" && touch "$p/state/pulled/$name"; done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
     # the busy rule is counted in ticks of this loop, not on the wall clock (F000, 2026-08-30): each
@@ -409,7 +481,8 @@ run)
                 last=$(stat -c %Y "$pulse" 2>/dev/null || echo "$began")
                 [ "$last" -lt "$began" ] && last=$began
                 # a hold is a standing pull: not idle while the file exists (card:hold.md, rule 2 — the runner knows it is pulled, or idle fights the pull at 80 s a reload)
-                if [ -z "$(holds_for)" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( tick - busy_tick )) -ge "${IDLE%.*}" ]; then
+                # and an edge is a standing pull while a process holds its lock (card:edge.md)
+                if [ -z "$(holds_for)" ] && [ -z "$(pulled_by)" ] && [ $(( now - last )) -ge "${IDLE%.*}" ] && [ $(( tick - busy_tick )) -ge "${IDLE%.*}" ]; then
                     why="idle: nothing has pulled $name for ${IDLE}s"; break
                 fi
             fi
@@ -460,6 +533,8 @@ status)
     elif silent=$(cut_for); then cut_line "$silent"
     else echo "$name: running"; fi
     for h in $(holds_for); do echo "held: $(hold_words "$h") ($h)"; done
+    for w in $(pulled_by); do echo "pulled by: $w ($STATE/pulled/$w)"; done
+    for p in $pulls; do echo "pulls: $(basename "$p") ($p)"; done
     [ -f "$pullfile" ] && echo "last pull: $(tail -1 "$pullfile" | cut -d' ' -f1 | xargs -I{} date -d @{} '+%F %T' 2>/dev/null)"
     [ -f "$STATE/stopped" ] && echo "last stop: $(date -r "$STATE/stopped" '+%F %T')$(head -1 "$STATE/stopped" | sed 's/^./ — &/')"
     if [ -n "$status_cmd" ]; then
@@ -497,6 +572,16 @@ serve)
             "exited 0"*|"") want="is held" ;;
             exited*) for h in $holds; do [ "$h" -nt "$STATE/stopped" ] && want="is held, and the hold is newer than its death"; done ;;
             *) want="is held" ;;
+        esac
+    elif who=$(pulled_by) && [ -n "$who" ]; then
+        # the edge is a standing pull while a process holds it (card:edge.md); the same rule after a
+        # death as the hold's — only an edge newer than the death restarts, and an edge a puller made
+        # after the death is that.  The line names the pullers, so the log says who wanted it
+        who=$(echo $who)
+        case "$(head -1 "$STATE/stopped" 2>/dev/null)" in
+            "exited 0"*|"") want="is pulled by $who" ;;
+            exited*) for w in $who; do [ "$STATE/pulled/$w" -nt "$STATE/stopped" ] && want="is pulled by $w, and the edge is newer than its death"; done ;;
+            *) want="is pulled by $who" ;;
         esac
     fi
     [ -n "$want" ] || exit 0

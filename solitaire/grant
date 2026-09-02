@@ -1,0 +1,8 @@
+# the solitaire — a node that is nothing but the near end of an edge (card:edge.md, day one, 2026-09-02).
+# Its grant says `pull die`; its program takes the edge, waits for the die to come up and roll, says
+# the roll, and lets go.  With `pull die` missing the program has no edge and says so; with it, the die
+# comes up for it (`serve`, the tick) and idles out after it.  Nothing in it but the edge
+allow solitaire.py
+no-net
+pull die
+program /usr/bin/python3 $NODE/solitaire.py

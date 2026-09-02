@@ -908,3 +908,137 @@ def test_a_fenced_check_with_nothing_hidden_still_says_installed(tmp_path):
     assert r.returncode == 0, r.stdout
     assert "installed: n can run" in r.stdout, r.stdout
     assert "not said from this seat" not in r.stdout, r.stdout
+
+
+# ── the edge: a node's process pulls a node (card:edge.md, day one, 2026-09-02) ──
+#
+# Henri: "solmuun kuuluva prosessi voisi antaa 'pull' -käskyn, joka pysyy
+# voimassa kunnes prosessi sanoo 'stop' tai lopettaa."  The puller's
+# grant says `pull NODE`; the launcher makes NODE/state/pulled/<puller>
+# and names it in $TEND_PULLS; the program takes a shared flock on it.
+# The pulled node is not idle while the lock is held, `serve` starts it
+# when it is pulled and has no runner, and the kernel drops the lock on
+# exit.  Two nodes that are nothing but the edge: the tree's own `die`
+# and `solitaire`, copied to scratch with the edge pointed at the copy.
+
+def edge_nodes(tmp_path):
+    die = tmp_path / "die"; sol = tmp_path / "solitaire"
+    shutil.copytree(ROOT / "die", die, ignore=shutil.ignore_patterns("state", "__pycache__"))
+    shutil.copytree(ROOT / "solitaire", sol, ignore=shutil.ignore_patterns("state", "__pycache__"))
+    g = sol / "grant"; g.write_text(g.read_text().replace("\npull die\n", "\npull ../die\n"))
+    return die, sol
+
+
+def locked(path):
+    return subprocess.run(["flock", "-n", str(path), "true"]).returncode != 0
+
+
+def test_a_pull_word_naming_a_node_is_an_edge_and_the_grant_says_so(tmp_path):
+    """`pull` with a node's path is the edge: the pulled node's state is
+    readable to the program, the edge file is named, and `status` says
+    what this node pulls.  `pull` with anything else is the pull file, as
+    it has been since the first node (test_the_nodes_grant_is_the_launchers_three_flags)."""
+    die, sol = edge_nodes(tmp_path)
+    r = launch(sol, "grant", state=sol / "state")
+    assert r.returncode == 0, r.stderr
+    assert f"--allow {die}/state" in r.stdout, r.stdout
+    assert f"edge die {die}/state/pulled/solitaire" in r.stdout, r.stdout
+    assert f"pull {sol}/state/pull" in r.stdout, "the pull file is still the default"
+    s = launch(sol, "status", state=sol / "state")
+    assert f"pulls: die ({die})" in s.stdout, s.stdout
+    c = launch(sol, "check", state=sol / "state")
+    assert c.returncode == 0 and "✓ pull die →" in c.stdout, c.stdout
+
+
+def test_a_pull_that_reaches_back_is_refused_at_the_door_before_anything_runs(tmp_path):
+    """card:hold.md rule 4: A pulls B pulls A with no canvas behind them.
+    `check` says ✗ and exits 1; `run` exits 2 from either end and takes
+    no lock, writes no log."""
+    die, sol = edge_nodes(tmp_path)
+    with (die / "grant").open("a") as f:
+        f.write("pull ../solitaire\n")
+    c = launch(die, "check", state=die / "state")
+    assert c.returncode == 1 and "✗ pull solitaire reaches back to die" in c.stdout, c.stdout
+    for node in (die, sol):
+        r = launch(node, "run", state=node / "state")
+        assert r.returncode == 2 and "reaches back" in r.stderr, (r.returncode, r.stderr)
+        assert not (node / "state" / "log").exists(), "the cycle ran something"
+
+
+@needs_syspy
+def test_without_the_word_the_edge_is_refused_by_keep_and_the_program_says_so(tmp_path):
+    """Red first, from both sides of the door.  A program that reads the
+    die's state with no `pull die` in its grant is refused by keep — the
+    kernel's voice, Permission denied.  The solitaire's own program,
+    handed no edge, says which word is missing and dies with it in the
+    death notice."""
+    die, sol = edge_nodes(tmp_path)
+    (die / "state").mkdir(); (die / "state" / "roll").write_text("6\n")
+    peek = tmp_path / "peek"; peek.mkdir()
+    (peek / "grant").write_text(f"program /bin/cat {die}/state/roll\n")
+    r = launch(peek, "run", state=peek / "state")
+    assert r.returncode != 0 and "Permission denied" in (peek / "state" / "log").read_text(), (peek / "state" / "log").read_text()
+    g = sol / "grant"; g.write_text(g.read_text().replace("pull ../die\n", ""))
+    r = launch(sol, "run", state=sol / "state")
+    assert r.returncode == 2, (r.returncode, r.stderr)
+    notice = (sol / "state" / "andon" / "andon.log").read_text()
+    assert "solitaire: exited 2" in notice and "`pull die` is the word" in notice, notice
+
+
+@needs_syspy
+def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(tmp_path):
+    """The flow, measured by the lock and not by the clock: the solitaire's
+    process locks the edge; `status` on the die names it; `serve` (the
+    tick) starts the die because it is pulled; the die rolls; the
+    solitaire reads the roll, lets go, exits 0; the die, unpulled, idles
+    out within a tick; `serve` starts nothing more."""
+    die, sol = edge_nodes(tmp_path)
+    env = dict(os.environ, TEND_STATE_DIR=str(sol / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
+               TEND_CANVAS=str(tmp_path / "canvas")); env.pop("TEND_FENCED", None)
+    p = subprocess.Popen(["sh", str(LAUNCH), str(sol), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        edge = die / "state" / "pulled" / "solitaire"
+        assert wait(lambda: edge.exists() and locked(edge), cap=8), "the solitaire's process never took the edge"
+        s = launch(die, "status", state=die / "state")
+        assert "die: not running" in s.stdout and "pulled by: solitaire" in s.stdout, s.stdout
+        r = launch(die, "serve", state=die / "state", idle="0.5")
+        assert r.returncode == 0 and "die is pulled by solitaire and no runner — started one" in r.stderr, (r.returncode, r.stderr)
+        assert p.wait(timeout=30) == 0, "the solitaire did not get its roll"
+        log = (sol / "state" / "log").read_text()
+        assert re.search(r"solitaire: die rolled [1-6]$", log, re.M), log
+        assert not locked(edge), "the edge was not let go"
+        assert wait(lambda: (die / "state" / "stopped").exists(), cap=10), "the die did not idle out after the pull was let go"
+        assert (die / "state" / "stopped").read_text().startswith("idle:"), (die / "state" / "stopped").read_text()
+        again = launch(die, "serve", state=die / "state", idle="0.5")
+        assert again.returncode == 0 and again.stderr == "", "an edge that was let go restarted the die"
+    finally:
+        if p.poll() is None:
+            p.kill(); p.wait()
+
+
+def test_a_pulled_death_is_restarted_only_by_an_edge_newer_than_it(tmp_path):
+    """Rule 3 for the edge, the plainest form: a puller under keep cannot
+    touch its edge, so after a death the die waits for an edge made after
+    it.  A lock on an old edge starts nothing; the same lock on a fresh
+    edge does."""
+    die, _ = edge_nodes(tmp_path)
+    st = die / "state"; (st / "pulled").mkdir(parents=True)
+    death = int(time.time()) - 60
+    (st / "stopped").write_text("exited 127: die stopped by itself\n"); os.utime(st / "stopped", (death, death))
+    edge = st / "pulled" / "solitaire"; edge.write_text(""); os.utime(edge, (death - 30, death - 30))
+    holder = subprocess.Popen(["flock", "-s", str(edge), "sleep", "30"])
+    try:
+        assert wait(lambda: locked(edge), cap=4)
+        a = launch(die, "serve", state=st, idle="0.5")
+        assert a.returncode == 0 and a.stderr == "", (a.returncode, a.stderr)
+        assert (st / "stopped").read_text().startswith("exited 127"), "a death older than its edge was restarted"
+        os.utime(edge, (death + 30, death + 30))
+        b = launch(die, "serve", state=st, idle="0.5")
+        assert b.returncode == 0 and "the edge is newer than its death" in b.stderr, (b.returncode, b.stderr)
+        # `run` removes `stopped` as it starts and writes it again at the stop: gone or rewritten is restarted
+        assert wait(lambda: not (st / "stopped").exists() or not (st / "stopped").read_text().startswith("exited 127"), cap=8), \
+            "the fresh edge did not restart the die"
+    finally:
+        holder.kill(); holder.wait()
+        # the die is up under the lock we held; let go and let it idle out, so no runner outlives the test
+        wait(lambda: (st / "stopped").exists() and (st / "stopped").read_text().startswith("idle:"), cap=10)

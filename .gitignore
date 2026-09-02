@@ -30,3 +30,7 @@ proposals/
 
 # benchmark data the person copies in from outside the fence (card:simpleqa.md, ~/simple-evals); never tree content
 bench/
+
+# the edge's two nodes (card:edge.md, day one) — runtime state, like node/state/
+die/state/
+solitaire/state/

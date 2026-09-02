@@ -299,3 +299,92 @@ What that does to the tree, read before anything is built on it:
 die and the solitaire need one edge and no gift.  What changes is one
 sentence in point 2, left as it is above with this section as its
 correction, kept rather than rewritten.
+
+## Day one landed — 2026-09-02, the same sitting
+
+Built in the hour after his answers, in `tools/launch.sh` and two
+directories, and measured by hand in scratch before the tests were
+written.
+
+**The word.**  `pull NODE` in a grant.  `pull` was already a grant word
+— *the file a pull appends to*, `pull node.state.pull` in the first
+node's grant — so the value decides: a value with a grant beside it is
+a node, and anything else is the pull file as before.  A bare name is
+a node of this tree, `./x` or `../x` is beside the grant that says it
+(so a fixture's two nodes can live in one scratch directory), `/x` is a
+path.  The launcher adds `--allow NODE/state` to keep's flags — the
+pulled node's state readable, and nothing else of it.
+
+**The edge.**  `NODE/state/pulled/<puller>`, one file per puller, made
+by the puller's `run` on the person's side before keep execs the
+program, and named to the program in `$TEND_PULLS`
+(`die=/…/die/state/pulled/solitaire`).  The program takes a shared
+`flock` on it — the pull, in force until the process closes the fd
+(`stop`) or exits.  The launcher never takes it: the pull is the
+process's, his words, not the runner's.  The filename is the puller's
+name, so `status` on the pulled node says `pulled by: solitaire` with
+no registry and no pid; an unlocked file is the trace of an edge that
+was, like `stopped`.
+
+**The pulled node's side.**  Three places read the lock, each with
+`flock -n FILE true` failing: the watch loop is not idle while any edge
+is held (rule 2, as for a hold); `serve` starts a runner for a node
+that is pulled and has none, so the tick is the carrier as it is for a
+hold; `status` and `check` name the pullers.  After a death, `serve`
+restarts only on an edge newer than the death — rule 3 as for a hold —
+and since a puller under keep has read on its edge and cannot touch
+it, the die waits for a fresh puller, which is said in the header
+rather than hidden.
+
+**The door.**  `reaches_back` follows `pull` lines from each pulled
+node's grant; a path that reaches the node itself is ✗ in `check`
+(exit 1) and exit 2 in `run` before the lock is taken, from either end
+of the cycle.  Sixteen deep is read as a cycle and said.
+
+**The two nodes.**  `die/` — `pulse roll`, `idle 30`, a program that
+writes one number to `$STATE/roll` by rename and sleeps; the roll's
+mtime is its pulse, so idle counts from the roll.  `solitaire/` —
+`pull die`, a program that locks the edge, waits for a `roll` newer
+than its own start (a stale roll from an earlier run is not an
+answer), says `solitaire: die rolled N`, closes the fd on purpose
+before exiting, so `stop` is exercised and not only exit.  Both
+`no-net`; both `allow` only their own script.  Their state directories
+are gitignored like the first node's.
+
+**Measured, 13:16, in scratch, by hand and then by
+`test/test_launch.py` (five tests, 54 in the file, 218 across launch,
+resolve and board, none red):**
+
+- Red first, from both sides of the door: a node whose program reads
+  `die/state/roll` with no `pull` word is refused by keep — `Permission
+  denied`, the kernel's voice; the solitaire with the word deleted says
+  *the grant names no edge to die — `pull die` is the word*, exits 2,
+  and the death notice on the andon record carries that sentence.
+- The cycle: `die` given `pull ../solitaire`, `check` says ✗ *reaches
+  back to die*, and `run` exits 2 from either end with no log written.
+- The flow: the solitaire's process locks the edge; `die status` says
+  *not running, pulled by: solitaire*; `die serve` says *is pulled by
+  solitaire and no runner — started one*; the die rolls 1; the
+  solitaire's log says *die rolled 1* and it exits 0; the edge is
+  unlocked; the die's `stopped` reads *idle: nothing has pulled die for
+  1s* within a tick; a second `serve` starts nothing.  **Measured by
+  the lock, not by the clock**, as the card asked.
+- Rule 3: a lock on an edge older than a death starts nothing; the same
+  lock on an edge touched after the death starts the die.
+
+**What is not built, and is said where it was measured.**  (1) A
+generic program — llama-server — cannot say `pull`: only a program
+written to read `$TEND_PULLS` and lock can, so the edge is for nodes
+of tend's own until a wrapper takes the lock on a program's behalf,
+which would be the runner pulling and not the process, the thing this
+day one refused on purpose.  (2) The pulled node comes up at the next
+tick or `serve`, not at the lock: the solitaire waited for the tick,
+and its `SOLITAIRE_WAIT` of 60 s is the latency it tolerates.  A puller
+that resolves what it pulls would be a scheduler, which §"What it must
+not become" forbids; the tick's period is the edge's latency, and that
+is the hold card's line too.  (3) Nothing flows: the solitaire read a
+file in the die's state.  A conversation over a port needs a `connect`
+word keep does not have, and that is the first caller for os.md 4b,
+as the talk above says — not this card's.  (4) Nothing of the gifts:
+the floor-and-ceiling of the talk is written and not built, at his
+*ehkä*.

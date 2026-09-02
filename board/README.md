@@ -225,7 +225,16 @@ between two workable cards is Henri's.
     grant word with the cycle check at its door.  Day one is two nodes
     that are nothing but the edge — a die and a solitaire that pulls
     it — because there is nothing in them but the thing being tested.
-    The tiebreak is his.*
+    The tiebreak is his.  Day one landed the same day, the 13:03
+    sitting, after his two answers on reconfiguration by pull —
+    property 5's second half means the origin and waits on the store;
+    the node's grant is the floor and the user adds to it, *ehkä* —
+    neither of which day one needed: `pull NODE` as a grant word, the
+    edge a shared `flock` the puller's process holds on
+    `NODE/state/pulled/<puller>`, the cycle refused at the door from
+    either end, `die/` and `solitaire/` in the tree, and the flow
+    measured by the lock: the die came up because it was pulled and
+    idled out because it was let go.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
