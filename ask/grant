@@ -1,0 +1,9 @@
+# ask — the first conversation over an edge (card:edge.md, 2026-09-02, at Henri's "aloita
+# connect-mittauksesta"): pull the llm, wait for it to answer, ask it one thing, say the answer into
+# this state, let go.  `pull llm` is the signal — the edge the process holds — and `connect 18080` is
+# the talk: keep lets the program reach that one port and nothing else.  The question is `run`'s
+# arguments, or one about the tree when there are none.  The llm's own sitting and idle are its own
+allow ask.py
+pull llm
+connect 18080
+program /usr/bin/python3 $NODE/ask.py

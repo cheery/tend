@@ -542,3 +542,28 @@ reach it: `tools/launch.sh` knows `bind` and not `connect`, and a grant
 saying `connect 18080` was "unknown word", exit 2.  The unix-socket
 question from the talk above is not needed for the first conversation
 — the llm listens on a TCP port — and stays unmeasured.
+
+**Built, 15:20–15:40.**  `connect PORT` as a grant word in
+`tools/launch.sh` — `bind`'s twin, a port and nothing else, red first
+(`test_launch.py::test_connect_is_a_grant_word_and_without_it_the_kernel_refuses_the_talk`:
+with the word a program under keep reaches a listener, with `bind 1`
+instead it is `Permission denied`, `connect eighty` is refused at
+parse).  The check prints the third verdict for it: keep lets the
+program talk to the port, and whether anything listens is the other
+node's business, at run.  Then **`ask/`**, the third node of tend's own
+and the first conversation over an edge: `pull llm` for the signal,
+`connect 18080` for the talk, a program that takes the edge, waits for
+`/health` (the tick brings the llm up; the model takes about 80 s), asks
+one question — `run`'s arguments, or one about the tree — writes the
+answer to its own `state/answer` beside the signal, says it in the log,
+and lets go.  With `connect` gone it does not wait out its clock: the
+kernel's refusal comes back wrapped in the first request, and the
+program names the missing word and exits 2.  Two tests against a
+stand-in for llama-server's two doors on a free port, in a thread —
+the fixture rule, the stand-in built and the live llm never touched
+from this seat, where `launch.sh llm check` says *not said from this
+seat*.  So the live conversation is his hand: `tools/launch.sh ask run`
+from his shell, the tick serving the llm, the answer in `ask/state/answer`,
+and the panel showing `ask  pulls — llm` and `llm  pulled by — ask`
+while it runs.  What flows on the edge is still nothing; the talk goes
+over the port beside it, which is what this card said an edge was.

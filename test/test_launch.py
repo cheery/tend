@@ -1092,3 +1092,74 @@ def test_connect_is_a_grant_word_and_without_it_the_kernel_refuses_the_talk(tmp_
         assert r.returncode == 2 and "connect wants a port" in r.stderr, r.stderr
     finally:
         srv.close()
+
+
+# ── the first conversation over an edge: the ask node (card:edge.md, 2026-09-02) ──
+
+class _Llm:
+    """A stand-in for llama-server's two doors — /health and one chat completion —
+    on a free port, in a thread.  The test builds the side it means."""
+    def __init__(self):
+        import http.server, threading
+        class H(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *a): pass
+            def do_GET(self):
+                self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
+            def do_POST(self):
+                body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                q = body["messages"][-1]["content"]
+                out = {"choices": [{"message": {"role": "assistant", "content": f"ANSWER to: {q}"}}]}
+                self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+                self.wfile.write(json.dumps(out).encode())
+        self.srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+        self.port = self.srv.server_address[1]
+    def close(self):
+        self.srv.shutdown()
+
+
+def ask_nodes(tmp_path, port, connect=True):
+    """The tree's `ask`, copied, its edge pointed at a scratch `llm` and its talk at the stand-in's port."""
+    llm = tmp_path / "llm"; (llm / "state").mkdir(parents=True)
+    (llm / "grant").write_text("program true\n")
+    ask = tmp_path / "ask"
+    shutil.copytree(ROOT / "ask", ask, ignore=shutil.ignore_patterns("state", "__pycache__"))
+    g = (ask / "grant").read_text().replace("\npull llm\n", "\npull ../llm\n")
+    g = g.replace(f"\nconnect 18080\n", f"\nconnect {port}\n" if connect else "\nbind 1\n")
+    g += f"env ASK_URL=http://127.0.0.1:{port}\nenv ASK_WAIT=4\n"
+    (ask / "grant").write_text(g)
+    return llm, ask
+
+
+@needs_syspy
+def test_the_ask_node_pulls_the_llm_talks_to_it_over_the_edge_and_lets_go(tmp_path):
+    """`pull llm` for the signal, `connect PORT` for the talk: the ask node
+    takes the edge, waits for /health, asks its one question, writes the
+    answer beside the signal in its own state, and lets go."""
+    llm_stub = _Llm()
+    try:
+        llm, ask = ask_nodes(tmp_path, llm_stub.port)
+        r = launch(ask, "run", "Say", "hi", state=ask / "state", timeout=60)
+        log = (ask / "state" / "log").read_text()
+        assert r.returncode == 0, (r.stderr, log)
+        assert "ask: ANSWER to: Say hi" in log, log
+        assert (ask / "state" / "answer").read_text() == "Say hi\n---\nANSWER to: Say hi\n"
+        edge = llm / "state" / "pulled" / "ask"
+        assert edge.exists() and not locked(edge), "the edge was not let go"
+    finally:
+        llm_stub.close()
+
+
+@needs_syspy
+def test_without_connect_the_talk_is_refused_by_the_kernel_and_the_ask_node_says_which_word(tmp_path):
+    """The signal without the talk: `pull llm` and no `connect` — the edge is
+    taken, the first request is Permission denied, and the program names
+    the missing word instead of waiting out its clock."""
+    llm_stub = _Llm()
+    try:
+        llm, ask = ask_nodes(tmp_path, llm_stub.port, connect=False)
+        r = launch(ask, "run", state=ask / "state", timeout=60)
+        log = (ask / "state" / "log").read_text()
+        assert r.returncode == 2 and "connect refused by keep" in log and "`connect PORT` is the word" in log, (r.returncode, log)
+    finally:
+        llm_stub.close()

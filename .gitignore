@@ -34,3 +34,4 @@ bench/
 # the edge's two nodes (card:edge.md, day one) — runtime state, like node/state/
 die/state/
 solitaire/state/
+ask/state/
