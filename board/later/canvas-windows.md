@@ -81,3 +81,11 @@ the manager sees the desk; the session sees the files.
 Shelved on arrival, 2026-08-30, at Henri's "put these into later/ as
 cards".  It is `canvas`'s day N, not a new line of work; when it
 wakes, it wakes below `canvas` and the tiebreak is his.
+
+*2026-09-02, still shelved — one line added to what it carries, in
+Henri's words at `card:edge.md`'s panel rows: "vasta graafisessa
+ympäristössä se voi näyttää sugiyama-graafin" — the pull graph drawn
+as a graph, layered, is this card's; the terminal panel shows the
+edges as rows.  His words on the canvas as the windowing system's
+screen, the same day (`card:edge.md`), are also here to read when it
+wakes.  Not the event it waits on: he did not say so.*

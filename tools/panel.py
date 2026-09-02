@@ -164,8 +164,8 @@ def read_state(state_dir=None):
     return State(pending, rings, last_ring, pulled, answered)
 
 
-Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held held_at broken note",
-                 defaults=(None, None, None, None))
+Pin = namedtuple("Pin", "name node state running cut last_pull last_stop stop_reason dead said held held_at broken note pulled_by pulls",
+                 defaults=(None, None, None, None, (), ()))
 Event = namedtuple("Event", "epoch who text")
 
 CANVAS_DEFAULT = os.path.join(STATE_DEFAULT, "canvas")
@@ -305,6 +305,68 @@ def _is_node(word):
     return os.path.isfile(os.path.join(_node_path(word), "grant"))
 
 
+# --- the edges (card:edge.md, 2026-09-02 — Henri: "paneeli voisi näyttää reunat riveinä.. vasta
+# graafisessa ympäristössä se voi näyttää sugiyama-graafin") ---
+# A node's pull is a shared flock its process holds on NODE/state/pulled/<puller>, and the
+# puller's grant says `pull NODE`.  The panel reads both ends as words on a row — `pulled by`
+# on the pulled node, `pulls` on the puller — and a node a process pulls is on the canvas
+# whether or not it is pinned, as a held node is.  The graph drawn as a graph (layered, Sugiyama)
+# is the graphical canvas's, `later/canvas-windows.md`; a terminal shows rows.
+
+def _edge_path(word, node):
+    """A `pull` value as tools/launch.sh's pull_path reads it: `./x` or `../x`
+    is beside the node whose grant says it; else a bare name is a node of
+    this tree and `/x` is a path."""
+    if word.startswith("./") or word.startswith("../"):
+        return os.path.join(node, word)
+    return _node_path(word)
+
+
+def read_pulls(node):
+    """What this node's grant pulls: its `pull` lines whose value has a
+    grant beside it, by name.  A `pull` value with no grant is the pull
+    file, the word's older meaning, and is not an edge."""
+    out = []
+    try:
+        with open(os.path.join(node, "grant")) as f:
+            for line in f:
+                if line.startswith("pull "):
+                    p = _edge_path(line[5:].strip(), node)
+                    if os.path.isfile(os.path.join(p, "grant")):
+                        out.append(os.path.basename(os.path.realpath(p)))
+    except OSError:
+        pass
+    return tuple(out)
+
+
+def read_pulled_by(state):
+    """Who holds an edge on this node: the files under state/pulled/ some
+    process has a flock on; the filename is the puller.  An unlocked file
+    is the trace of an edge that was, like `stopped`."""
+    d = os.path.join(state, "pulled")
+    try:
+        names = sorted(os.listdir(d))
+    except OSError:
+        return ()
+    return tuple(n for n in names if _lock_held(os.path.join(d, n)))
+
+
+def pulled_nodes(tree=None):
+    """Every node of the tree some process is pulling right now, with its
+    default state — the resolver's (NODE/state)."""
+    root = tree or ROOT
+    out = []
+    try:
+        names = sorted(os.listdir(root))
+    except OSError:
+        return out
+    for n in names:
+        node = os.path.join(root, n)
+        if os.path.isfile(os.path.join(node, "grant")) and read_pulled_by(os.path.join(node, "state")):
+            out.append(node)
+    return out
+
+
 def _read_hold(path):
     """A hold, read (card:hold.md; Henri, 2026-08-29: "I'd like to name
     what I'm holding inside the file").  Pin-shaped: `node NAME-OR-DIR`,
@@ -432,10 +494,11 @@ def read_pin_state(name, node, state, canvas_dir=None):
         # the resolver runs a node with NODE/state only (tools/resolve.sh → launch.sh NODE serve), so a
         # hold on any other state is honoured by nothing yet — said here, not promised (2026-08-29)
         note = f"state {state} is not the state the resolver runs ({os.path.join(node, 'state')}); not honoured yet"
-    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at, None, note)
+    return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at, None, note,
+               read_pulled_by(state), read_pulls(node))
 
 
-def read_canvas(canvas_dir=None):
+def read_canvas(canvas_dir=None, tree=None):
     """The canvas, read: one row per `<name>.pin`, in name order, and then
     one per node a `*.hold` holds that no pin shows (card:hold.md — a
     held node is on the canvas whether or not it is pinned; its row is
@@ -467,6 +530,12 @@ def read_canvas(canvas_dir=None):
             rows.append(Pin(h.label, h.node, state, False, None, None, None, "", False, "", h.words, h.mtime, fault))
             continue
         rows.append(read_pin_state(os.path.basename(h.node.rstrip("/")), h.node, state, canvas_dir=d))
+    # and one per node a process pulls that no row shows (card:edge.md): alive by an edge, on the canvas
+    for node in pulled_nodes(tree):
+        state = os.path.join(node, "state")
+        if any(_same(r.node, node) and _same(r.state, state) for r in rows):
+            continue
+        rows.append(read_pin_state(os.path.basename(node), node, state, canvas_dir=d))
     return rows
 
 
@@ -912,15 +981,17 @@ def _talk_screen(stdscr, name, canvas_dir):
 
 def _counts(rows):
     held = sum(1 for r in rows if r.held is not None)
+    pulled = sum(1 for r in rows if r.pulled_by)
     broken = sum(1 for r in rows if r.broken)
-    return f"{len(rows)} on it, {held} held" + (f", {broken} BROKEN" if broken else "")
+    return f"{len(rows)} on it, {held} held" + (f", {pulled} pulled" if pulled else "") + (f", {broken} BROKEN" if broken else "")
 
 
 def wrong(p):
     """Is this row something gone wrong — shown bold: a death, cut cords, a
     hold that holds nothing, or a held node with no runner up (the hold's
-    promise is not kept, whatever the reason)."""
-    return bool(p.dead or p.cut or p.broken or p.note or (p.held is not None and not p.running))
+    promise is not kept, whatever the reason) — and a node a process
+    pulls with no runner up, the same promise from an edge (card:edge.md)."""
+    return bool(p.dead or p.cut or p.broken or p.note or ((p.held is not None or p.pulled_by) and not p.running))
 
 
 def row_line(p):
@@ -941,6 +1012,12 @@ def row_line(p):
             state = "DEAD, HELD — the resolver restarts it at its next visit"
         else:
             state = "HELD, NOT RUNNING — no runner up; the resolver starts one at its next visit"
+    elif p.pulled_by:
+        # an edge is a standing pull while a process holds it (card:edge.md): the same promise as a hold's
+        if p.dead:
+            state = "DEAD, PULLED — the resolver restarts it at its next visit if the edge is newer than the death"
+        else:
+            state = "PULLED, NOT RUNNING — a process holds its edge; the resolver starts one at its next visit"
     elif p.dead:
         state = "DEAD"
     else:
@@ -948,6 +1025,10 @@ def row_line(p):
     bits = [p.name.ljust(10), state]
     if p.held is not None:
         bits.append(f"held — {p.held}")   # the canvas's standing pull: it is restarted when it stops (card:hold.md)
+    if p.pulled_by:
+        bits.append("pulled by — " + ", ".join(p.pulled_by))   # a process's standing pull, the edge (card:edge.md)
+    if p.pulls:
+        bits.append("pulls — " + ", ".join(p.pulls))
     if p.last_pull:
         bits.append(f"pulled {_hhmm(p.last_pull)}")
     if p.last_stop:

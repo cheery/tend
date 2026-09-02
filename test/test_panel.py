@@ -720,3 +720,68 @@ def test_the_calls_a_mind_made_are_read_back_on_the_exchange_and_from_the_live_f
     assert panel.read_calls(str(st)) == ["ls board/ → 2 entries"]
     src = inspect.getsource(panel._talk_screen)
     assert "read_calls(row.state)" in src and "[call]" in src and "'acting'" in src, "the calls are shown as the turn runs"
+
+
+# ── the edges as rows (card:edge.md, 2026-09-02 — Henri: "paneeli voisi näyttää reunat riveinä") ──
+
+def take(edge):
+    """The pull as the solitaire's program takes it: a shared flock on the
+    edge file, held by this process's fd — closing the fd is `stop`.  (Not
+    `flock -s FILE sleep`: its child inherits the fd and keeps the lock
+    after flock is killed — measured here first.)"""
+    import fcntl
+    fd = os.open(edge, os.O_RDONLY)
+    fcntl.flock(fd, fcntl.LOCK_SH)
+    return fd
+
+
+def edge_tree(tmp_path):
+    """A scratch tree with the edge's two nodes: `solitaire` pulls `die`,
+    and the edge file is where tools/launch.sh makes it."""
+    tree = tmp_path / "tree"
+    die = tree / "die"; (die / "state" / "pulled").mkdir(parents=True)
+    (die / "grant").write_text("pulse roll\nprogram /usr/bin/python3 die.py\n")
+    sol = tree / "solitaire"; (sol / "state").mkdir(parents=True)
+    (sol / "grant").write_text("pull ../die\nprogram /usr/bin/python3 solitaire.py\n")
+    edge = die / "state" / "pulled" / "solitaire"; edge.write_text("")
+    return tree, die, sol, edge
+
+
+def test_a_pulled_node_names_its_puller_and_a_puller_says_what_it_pulls(tmp_path):
+    """Both ends of an edge as words on a row: the die, pulled by a process
+    and not up, is bold like a held node with no runner — the same promise,
+    kept at the resolver's next visit; the solitaire's row says what it
+    pulls.  The lock let go, the die's row says neither."""
+    tree, die, sol, edge = edge_tree(tmp_path)
+    canvas = tmp_path / "canvas"; pin(canvas, "die", die); pin(canvas, "solitaire", sol)
+    fd = take(edge)
+    try:
+        rows = {r.name: r for r in read_canvas(canvas, tree=tree)}
+        d = rows["die"]
+        assert d.pulled_by == ("solitaire",) and d.pulls == ()
+        assert panel.wrong(d), "a pulled node with no runner is the edge's promise not kept: bold"
+        line = panel.row_line(d)
+        assert "PULLED, NOT RUNNING" in line and "pulled by — solitaire" in line, line
+        s = rows["solitaire"]
+        assert s.pulls == ("die",) and s.pulled_by == ()
+        assert "pulls — die" in panel.row_line(s) and not panel.wrong(s)
+        assert "1 pulled" in panel._counts(list(rows.values()))
+    finally:
+        os.close(fd)   # stop: the process lets go
+    d = {r.name: r for r in read_canvas(canvas, tree=tree)}["die"]
+    assert d.pulled_by == () and not panel.wrong(d)
+    assert "pulled by" not in panel.row_line(d), "an unlocked edge file is a trace, not a pull"
+
+
+def test_a_node_a_process_pulls_is_on_the_canvas_with_no_pin(tmp_path):
+    """Alive by an edge is on the canvas, as a held node is: no pin, no
+    hold, one row named by the node directory."""
+    tree, die, sol, edge = edge_tree(tmp_path)
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    assert read_canvas(canvas, tree=tree) == []
+    fd = take(edge)
+    try:
+        rows = read_canvas(canvas, tree=tree)
+        assert [r.name for r in rows] == ["die"] and rows[0].pulled_by == ("solitaire",)
+    finally:
+        os.close(fd)

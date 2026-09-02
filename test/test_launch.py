@@ -1026,9 +1026,12 @@ def test_a_pulled_death_is_restarted_only_by_an_edge_newer_than_it(tmp_path):
     death = int(time.time()) - 60
     (st / "stopped").write_text("exited 127: die stopped by itself\n"); os.utime(st / "stopped", (death, death))
     edge = st / "pulled" / "solitaire"; edge.write_text(""); os.utime(edge, (death - 30, death - 30))
-    holder = subprocess.Popen(["flock", "-s", str(edge), "sleep", "30"])
+    # the pull as the solitaire's program takes it: a shared flock on this process's fd, closed to let go
+    # (not `flock -s FILE sleep`: its child inherits the fd and keeps the lock after flock is killed)
+    import fcntl
+    fd = os.open(edge, os.O_RDONLY); fcntl.flock(fd, fcntl.LOCK_SH)
     try:
-        assert wait(lambda: locked(edge), cap=4)
+        assert locked(edge)
         a = launch(die, "serve", state=st, idle="0.5")
         assert a.returncode == 0 and a.stderr == "", (a.returncode, a.stderr)
         assert (st / "stopped").read_text().startswith("exited 127"), "a death older than its edge was restarted"
@@ -1039,7 +1042,7 @@ def test_a_pulled_death_is_restarted_only_by_an_edge_newer_than_it(tmp_path):
         assert wait(lambda: not (st / "stopped").exists() or not (st / "stopped").read_text().startswith("exited 127"), cap=8), \
             "the fresh edge did not restart the die"
     finally:
-        holder.kill(); holder.wait()
+        os.close(fd)
         # the die is up under the lock we held; let go and let it idle out, so no runner outlives the test
         wait(lambda: (st / "stopped").exists() and (st / "stopped").read_text().startswith("idle:"), cap=10)
 

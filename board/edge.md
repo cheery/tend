@@ -388,3 +388,18 @@ word keep does not have, and that is the first caller for os.md 4b,
 as the talk above says — not this card's.  (4) Nothing of the gifts:
 the floor-and-ceiling of the talk is written and not built, at his
 *ehkä*.
+
+**The panel, the same sitting** — Henri: *"paneeli voisi näyttää reunat
+riveinä.. vasta graafisessa ympäristössä se voi näyttää
+sugiyama-graafin."*  Built as said: `tools/panel.py` reads both ends of
+an edge as words on a row — `pulled by — solitaire` on the pulled node
+and `pulls — die` on the puller — and a node a process pulls with no
+runner up is bold, *PULLED, NOT RUNNING*, the same promise a hold makes
+and the resolver keeps at its next visit.  A node alive by an edge is
+on the canvas whether or not it is pinned, as a held node is; the
+counts line says `N pulled`.  Two tests in `test/test_panel.py`; the
+first found that `flock -s FILE sleep` hands the lock to its child, so
+a killed `flock` is not a released edge — the tests hold the fd
+themselves, as the solitaire does.  The graph drawn as a graph —
+layered, Sugiyama — is the graphical canvas's and waits with
+`later/canvas-windows.md`, in his words; a terminal shows rows.
