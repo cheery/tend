@@ -116,8 +116,9 @@ session reads ten, and what each reading produces is one line.
 | 6 | Tue 2026-09-01 | 26-1500 26-1509 26-1524 26-1532 26-1535 26-1549 26-1602 26-1616 26-1633 26-1644 |
 | 7 | Wed 2026-09-02 | 26-1653 26-1712 26-1719 27-0538 27-0551 27-0710 27-0748 27-1535 27-1602 27-1650 |
 | 8 | Thu 2026-09-03 | 27-1714 27-1723 28-0545 28-0702 28-0758 28-0848 28-0910 28-1004 28-1017 28-1029 |
-| 9 | Fri 2026-09-04 | 28-1105 28-1300 28-1313 28-1401 28-1830 29-0734 29-1337 29-1918 29-1934 29-2016 |
-| 10… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
+| 9 | Wed 2026-09-02 (was Fri 09-04; read at Henri's "aloita kaizen ingestion -kortilla") | 28-1105 28-1300 28-1313 28-1401 28-1830 29-0734 29-1337 29-1918 29-1934 29-2016 |
+| 10 | Fri 2026-09-04 | 29-2031 29-2048 29-2100 30-0523 30-0730 30-0902 30-0952 30-1624 30-1741 30-1852 |
+| 11… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -454,4 +455,50 @@ its reading is that the lines hold.  **It does not settle batch 1's
 self-shaped strand**, which asks him to *make* a call a session may not
 make rather than to disagree with one; that is still his, and the next
 batch should say so again.
+
+## 2026-09-02 — batch 9 read, and the clock got its rule
+
+Batch 9 is in `doc/ingested.md`: ten kaizens from 2026-08-28 midday to
+2026-08-29 evening — the road's three bricks closed and the first live
+led turns read, the canvas, `hold` in four passes, `flake` carded and
+built in one evening, two Claude models on the node's turn, and the two
+module sheets.  Five `rule`, two `recurs`, one `open`, one `once`, and
+**one promotion**.
+
+**The promoted strand is the sitting's clock**, four faces in two days:
+a card stamped "14:20" at 17:33 off the lamp's filename
+(`2026-08-28-1401`), an hour paced against 19:40 when `date` said 19:18
+(`-1918`), a kaizen written with an hour left because "the sitting
+ends" was read as "my builds ended" (`-1934`), and a third kaizen file
+for one evening because an extension by hand arrives on the limit as a
+fresh sitting and the lamp cannot tell (`-2016`).  Each kaizen wrote
+the instrument down — `date`, or the lamp's own *Nm in, Nm left* — and
+nothing carried it where a session reads before pacing.  One paragraph
+in `board/README.md` §"What the days taught", with the mechanism and
+its honest limit (inside the commit hook the lamp's line shows the
+limit's default), marked self-shaped and waiting for him.
+
+Two strands were counted on and neither verdict moved: reading≠applying
+at **six faces** (`2026-08-29-0734` asked for its decorator-shaped one
+to be counted, and it is) and naming-before-reading at **five**
+(`-1918`, `-1934`), both `recurs` on the reasons every batch has given,
+the second named least certain.  The placeholder-time strand got a
+neighbour and not a face — a real-looking time that was wrong, which
+the regex batch 4 named would not catch.  Three lessons closed by
+application inside the batch: brick 3's `keep` boundary owed at 11:05
+and paid at 13:13; the field-without-a-mechanism from 13:37 applied
+twice at 19:18; `mutate.sh`'s `fatal:` chased into `F002` the same
+evening.  One `waits on` question for 2026-09-05, the sheets read
+against their mechanisms after a week.
+
+**The count**: 111 kaizens in `doc/kaizen/` today; 90 read; 21 unread
+— two days at the level of ten and a short third, with more arriving.
+Read two days ahead of the table's Friday; batch 10 is filled in above.
+No day has been missed yet; the lamp slice still waits for the first
+one.
+
+**Henri's half**: batch 1's self-shaped strand is still his, nine
+batches on.  The three lines at random were answered on 2026-09-01 and
+the next draw is a week from then.  This batch adds one mark to his
+grep.
 

@@ -437,3 +437,90 @@ the lines hold.  It does not settle batch 1's self-shaped strand, which
 asks him to *make* a call a session may not make rather than to
 disagree with one; that is still his.
 
+## Batch 9 — read 2026-09-02, the next ten (2026-08-28-1105 → 2026-08-29-2016)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-28-1105 | the reach-free cord heard in the room; brick 3 (`propose.sh`) closed the road with the model's writes confined to a gitignored area by the tool's code and not by `keep` — "the keep-enforced version is owed" | `rule` — the owed half was paid the same day: [[2026-08-28-1313]]'s `keep --connect` and `lead.sh --kept`, a proposal written and a board write refused by the kernel in one turn (`tools/keep.py`, `tools/lead.sh`).  A boundary the bounded party could step around is not the boundary — `vision.md`'s first decision, applied to the tree's own newest tool within four hours.  The order of the bricks (each a tool a person runs, the model one step further from the tree each time) is `once`: a design, not a lesson |
+| 2026-08-28-1300 | `andon-panel` closed on his word; `lead.sh` built inside a fifteen-minute sitting because the bricks were already tools; nothing landed live and the kaizen said so — "the live turn is Henri's one command" | `rule` — *proposed, not declared* (`board/README.md` §"What the days taught", batch 2's promotion) done right: the card carries the command and the seat it runs from.  A fifteen-minute sitting against a ninety-six-second gate is `once`, a fact planned around; and the kaizen written at eight minutes left is on the rule's right side |
+| 2026-08-28-1313 | the watcher heartbeat and the kernel-confined led turn; two commits refused by the tool's own 120 s timeout inside a 110–119 s suite and first called a flaky test; `$$` and `${…}` eaten by the tool's expansion; `launch.sh` drifted from the installed copy three times in one sitting | `open — card:flake.md` for the refusal read as a flake: *a red that vanishes on retry is a claim about the instrument first* is this kaizen's own sentence and the card's `because`, and [[2026-08-29-1934]] built it (the failure ledger and the shake).  The expansion half is `rule` — the `bash-heredoc-expansion` memory and, since 2026-09-01, `card:rewritten-command.md`, which refuses the route.  The drift is `open — card:lander.md`, measured three more times as the kaizen says |
+| 2026-08-28-1401 | the tool ate a `$` in a patch script four hours after 1313 named it, and what closed it was the Write tool; a prompt tuned against one echo produced the next, fixed by reading for the thing the shelf checks; a card stamped "14:20" at 17:33 off the lamp's filename; a one-second fixture between a failed ring and its relay | `rule` — the Write-tool route is the memory `bash-heredoc-expansion`, and the card that refuses the heredoc arrived on 2026-09-01, after this kaizen's own trigger ("if it is a third, it is a line in the README") had been passed; the fixture half is `board/README.md`'s fixture rule, applied within the minute.  **The wrong stamp is a neighbour of the placeholder strand, not its third face**: [[2026-08-25-1404]] and [[2026-08-26-1309]] wrote `14:xx`, which a regex could refuse; this wrote a real-looking time that was wrong, which no regex can — the mechanism batch 4 named for that strand would not have caught this.  It is counted instead as the first face of the sitting-clock strand (see [[2026-08-29-1934]]).  *Read for the thing that is checked, not the shape that was asked* is `once`, and a good sentence |
+| 2026-08-28-1830 | `compare.py`'s first run copied the node's `max_tokens` and not its `enable_thinking:false`, and thinking spent all 600 tokens on nothing; the second run had one variable and moved a card, not a dial; the model's draft was better than the session's build and the session said so without landing it | `rule` — half a condition copied from the live thing is the fixture rule in its API form (`board/README.md`), caught by the `usage` line the tool writes into its own account, which is why the line is there.  The draft-not-landed half is the boundary `card:model-acceptance.md` was woken to judge, and [[2026-08-29-0734]] is what a pass licenses: the model proposes, the tree corrects by line, the person lands.  Item 4, batch 4 in the morning, was done at [[2026-08-29-0734]] |
+| 2026-08-29-0734 | batch 4 read; Opus's draft landed as canvas day two with two corrections only the parser could supply; `hold` carded around his sentence; a decorator orphaned at 08:05 by the session that read [[2026-08-26-0926]] at 07:40; a README anchor edited from memory; `mutate.sh`'s `fatal:` on every row not chased | `recurs` — the reading≠applying strand of batch 1 ([[2026-08-24-1549]] [[2026-08-25-0626]] [[2026-08-25-0714]] [[2026-08-26-0822]] [[2026-08-26-0926]]) at its **second decorator-shaped face**, which the kaizen asked the ledger to count, and it does: six faces, verdict unchanged — the catcher (`SyntaxError`, one second) is faster than any sentence.  The anchor-from-memory is `rule` — the `patch-anchors-first` memory.  The `fatal:` is `rule` — chased at [[2026-08-29-1934]] into `F002`, and the harness now says `signing?` at exit 3 (`tools/mutate.sh:66`) |
+| 2026-08-29-1337 | `hold` day one in four passes at his review; a probe at the commit line (`git commit -m "x"`) landed a commit named "x"; a hold keyed on the pin's name and not its shape; `state` accepted in a hold with nothing honouring it | `once` for the probe — `--dry-run` is named nowhere in the tree but this kaizen, and no second face has arrived.  The field-without-mechanism is `rule` by application: [[2026-08-29-1918]] applied it twice the same evening (a kept turn through a door refused with its reason; a hold with no tick is a bold row), and a lesson applied the next sitting wants no promotion (batch 2's convention).  *Read the card's `because` against the build before "day one landed"* is `once`; and "think critically and don't just obey" is batch 8's person's-report strand done right — his ask measured, and the honest build a row that says *not honoured yet* |
+| 2026-08-29-1918 | two decisions of his taken one question at a time, each a sentence that was also the design; the key never on an argument line; a wrong clock in the session's head (19:40 for 19:18); a red check that was green because the stash failed on an untracked directory and "12 passed" was read before the error line above it; the busy-and-silent test flaked once | `recurs` ×2.  The count-before-setup half is the *naming a failure before reading its own output* strand ([[2026-08-28-0758]] [[2026-08-28-0910]] [[2026-08-28-1029]]) at a **fourth face**, and [[2026-08-29-1934]] repeats it as a fifth; batch 8's reason not to promote — `manifesto.md` §"Go and see" already prescribes it, each face cost one round — is kept and is the least certain line below.  The clock half is the **sitting-clock strand**, promoted at [[2026-08-29-1934]].  The flake is `open` — `F001`, since resolved, `card:flake.md`'s first count.  One question at a time is `once`: a form for the person, and it worked |
+| 2026-08-29-1934 | `flake` carded and built the same evening — the failure ledger and the shake, 8 of 10 under load, and *the count did not move* after the window rule changed; `mutate.sh`'s "noise" `fatal:` was every gate row refused by a signing failure the fence could not see; a kaizen written mid-sitting because "the sitting ends" was read as "my builds ended" | **`promoted` — `board/README.md` §"What the days taught"**, with [[2026-08-28-1401]], [[2026-08-29-1918]] and [[2026-08-29-2016]]: **the sitting's clock is the lamp's line, read at every decision about scope — never a remembered start, a filename, or the end of a build.**  Four faces in two days: a card stamped off the lamp's filename, a start time paced against for an hour, a kaizen at the end of a build with an hour left, and a third kaizen file for one evening because the lamp cannot tell an extension.  The rest is `rule` — the shake is `card:flake.md`'s instrument and *the count did not move* is the card's argument on its first evening; the signing row is `F002`; "reasoning from a count is still reasoning" is §"Go and see" |
+| 2026-08-29-2016 | `spec/kaizen.md` and `spec/kanban.md` written as modules with the author's consent rule at the top; "tell me if you can access it" answered before the work, with the evidence; a sitting extended by hand is the same sitting, and the lamp cannot tell | `rule` — consent first is batch 1's self-shaped finding turned outward, and it is the sheets' first line; "I cannot see it" before the work is the seat rule (batch 8's promotion) done right, and it got the source pasted in under a minute.  The extension is the sitting-clock strand's fourth face, named on `spec/kaizen.md` §"What it still cannot do"; the lamp still cannot, and `card:sitting-everywhere.md` holds the shape — a session may end a sitting and never extend one (`tools/limit.sh:57`).  Item 2 is a date, below |
+
+*(question, waits on 2026-09-05, the week the sheets asked for — does `spec/kaizen.md` still describe `tools/kaizen.sh`, and does `spec/kanban.md` still describe `test/test_board.py`?)*
+
+**What batch 9 showed.**  Ten kaizens from 2026-08-28 midday to
+2026-08-29 evening — the road's three bricks closed and the first live
+led turns read, the canvas, `hold` in four passes, `flake` carded and
+built in one evening, two Claude models on the node's turn, and the
+two module sheets.  Five `rule`, two `recurs`, one `open`, one `once`,
+and **one promotion**.
+
+The promoted strand is **the sitting's clock**: [[2026-08-28-1401]]
+stamped a card "14:20" at 17:33 because the lamp names the sitting
+file by its first commit's time and the session took the name for the
+clock; [[2026-08-29-1918]] paced an hour against 19:40 when `date`
+said 19:18, and named the cost — a session that thinks it has twenty
+minutes narrows scope on its own; [[2026-08-29-1934]] wrote a kaizen
+with an hour left because "the sitting ends" was read as "my builds
+ended"; and [[2026-08-29-2016]] was the third kaizen file of one
+evening because an extension by hand arrives on the limit as a fresh
+sitting and the lamp cannot tell.  Four faces in two days, and each
+kaizen wrote the instrument down — `date`, or the lamp's own *Nm in,
+Nm left* — without the tree carrying it anywhere a session reads
+before pacing.  The promotion is one paragraph in `board/README.md`
+§"What the days taught", with the mechanism named and its honest
+limit beside it: inside the commit hook the lamp's line shows the
+limit's default rather than the desk's clock (the `lamp-clock-in-hook`
+memory), so a clock read off a hook is read again from the sittings
+log before it is believed.  It is a rule about sessions written by a
+session, so it carries a mark and waits for him.
+
+Two strands were counted on and neither verdict moved.  The
+reading≠applying strand reached **six faces** — [[2026-08-29-0734]]
+asked the ledger to count its second decorator-shaped one, and it is
+counted — and stays `recurs`, on the reason every batch has given: the
+catcher is faster than any sentence, and this face cost one second.
+The naming-before-reading strand reached **five** ([[2026-08-29-1918]],
+[[2026-08-29-1934]]) and stays unpromoted on batch 8's reason, which
+is where the least certain line is.  The placeholder-time strand got
+a **neighbour and not a face** — a real-looking time that was wrong —
+and the reading says why that matters: the regex batch 4 named as the
+strand's mechanism would not have caught it.
+
+Three lessons closed by application inside the batch, which is the
+count that says the method was working those two days: brick 3's
+`keep`-enforced boundary owed at 11:05 and paid at 13:13; the
+field-without-a-mechanism from 13:37 applied twice at 19:18; and
+`mutate.sh`'s "noise" `fatal:` from 13:37, chased at 19:34 into a
+resolved F-number.
+
+**The count**: 111 kaizens in `doc/kaizen/` at this reading; 90 read;
+21 unread — two days at the level of ten and a short third, with more
+arriving.  Read two days ahead of the table's Friday, at Henri's
+"aloita kaizen ingestion -kortilla"; batch 10 is filled in on the
+card.  No day has been missed yet; the lamp slice still waits for the
+first one.
+
+**Least certain line**: [[2026-08-29-1918]]'s `recurs` and no
+promotion for the naming-before-reading strand at five faces.  Batch
+8's reason was that each face cost one round and was caught by the
+next read; the fourth face was not caught by a read but by the
+session's own *second* red check, which it might not have run, and a
+green red-check is a fixture that reports the wrong side — the one
+shape this tree has promoted twice.  Kept unpromoted because
+§"Go and see" is the sentence and no mechanism is in reach of a
+session's console; if the sixth face is a red check read green, that
+reason is spent.  One uncertain verdict, not two in a row.  Zero
+verdict words added.
+
+**Henri's half**: batch 1's self-shaped strand is still his, nine
+batches on.  The weekly three lines were answered on 2026-09-01 and
+the next draw is a week from then.  And this batch adds one mark to
+his grep — the clock rule in `board/README.md`.
+

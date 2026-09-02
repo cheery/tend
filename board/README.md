@@ -501,6 +501,30 @@ made by the mechanism's own author, ten minutes after `keeper.md` was
 written to say his hand is the authority the gates defer to.  So the mark
 stands empty and waits for him like any other.
 
+**The sitting's clock is the lamp's line, read at every decision about
+scope — never a remembered start time, a filename, or the end of a
+build** — four faces in two days, 2026-08-28 to 2026-08-29 (`1401`,
+`1918`, `1934`, `2016`), promoted by the ninth ingestion batch
+(`doc/ingested.md`, 2026-09-02).  A card was stamped "14:20" at 17:33
+because the lamp names the sitting file by its *first commit's* time
+and the session took the name for the clock; a session paced an hour
+against 19:40 when `date` said 19:18, and a session that thinks it has
+twenty minutes narrows scope on its own; a kaizen was written with an
+hour left because "the sitting ends" was read as "my builds ended"; and
+a sitting Henri extended by hand got a third kaizen file, because an
+extension arrives on the limit as a fresh sitting and the lamp cannot
+tell (`spec/kaizen.md` §"What it still cannot do").  The mechanism is
+the lamp's own line at every prompt — *Nm in, Nm left* — and `date`,
+read before pacing, not remembered.  What it does not cover is said
+where it was measured: inside the commit hook the line shows the
+limit's default rather than the desk's clock (a session memory,
+`lamp-clock-in-hook`), so a clock read off a hook's output is read
+again from the sittings log before it is believed.  And an extension is
+a continuation: until the lamp learns that from `tools/limit.sh`, the
+rule is the session's to keep — no kaizen at the clock when the person
+has said they will sit on.
+*(self-shaped, 2026-09-02 — a session wrote this rule about sessions.)*
+
 ## A word left for you
 
 `doc/specimens/2026-08-24-qwen3.8-27b.txt` — a session on another
