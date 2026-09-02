@@ -42,4 +42,4 @@ a session writing the control arm it will be measured against is exactly
 the shape the self-shaped mark exists for.*
 
 *(self-shaped, 2026-09-01 — a session wrote the control arm its own work
-will be measured against.)*
+will be measured against. henri: approved 2026-09-02)*

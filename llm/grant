@@ -28,4 +28,4 @@ bind 18080
 idle 60
 sitting 10
 pulse server.log
-program llama-server -m $MODEL --host 127.0.0.1 --port 18080 -c 16384 -t 2 --log-file $STATE/server.log
+program llama-server --jinja -m $MODEL --host 127.0.0.1 --port 18080 -c 16384 -t 2 --log-file $STATE/server.log
