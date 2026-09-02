@@ -1042,7 +1042,18 @@ file, not a build.*
 *(question, his call — the cold arm on the node is measured through a
 door, unkept, with read-only tools on the person's side; is that
 acceptable for the measurement, or does the kept form of a door turn
-have to be built first?)*
+have to be built first?
+henri: unkept is okay for measurement, but in practice the commands
+should probably be possible to run kept by the model's decision. It's
+the mechanism to limit blast radius, right? 2026-09-02)*
+
+*So the measurement runs unkept and every account says so, and the
+kept door turn is this mechanism's next line: keep's `--connect` is one
+loopback port, `doors/llm/door` is a loopback port, so `--kept` with a
+door whose url is 127.0.0.1 is the refusal at `lead.sh` and
+`deliver.sh` lifted for that one case — the courier confined, not only
+its reads, which are kept per call already.  A line here and not a
+build, until something wants to run with nobody at the desk.*
 
 ### 06:29 — the first turn through the door, and what it does and does not say
 
