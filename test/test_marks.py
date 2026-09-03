@@ -175,13 +175,43 @@ def rule_last_touched(path: Path, a: int, b: int,
     lines long, so git answered `fatal: file README.md has only 103 lines`
     and the swallowed error read as "no edits found".  All three board
     marks were being checked by nothing.  Now `_git` raises instead.
+
+    **And the lines git is given are HEAD's, not the working tree's**
+    (F021).  `git log -L` reads the committed file, so when an uncommitted
+    edit above the rule has shifted it — 66 lines moved on 2026-09-03
+    morning, 120 in the evening — a..b names some other paragraph in
+    HEAD, and the gate reported that paragraph's date as the rule's.
+    `rule_dirty` has already said no hunk crosses a..b, so every hunk is
+    wholly above or below; the ones above are the shift, and a..b is
+    moved back by it before git is asked.
     """
     at = path.resolve().relative_to(cwd.resolve())
+    a, b = head_lines(path, a, b, cwd)
     out = _git("log", "-1", "--format=%cI", f"-L{a},{b}:{at}", cwd=cwd)
     for line in out.splitlines():
         if line.strip():
             return datetime.datetime.fromisoformat(line.strip()).date()
     return None
+
+
+def head_lines(path: Path, a: int, b: int, cwd: Path = ROOT) -> tuple[int, int]:
+    """Working-tree lines a..b as HEAD numbers them: shifted back by every
+    uncommitted hunk that lies wholly above them (F021).  A hunk that
+    crosses a..b is `rule_dirty`'s to refuse, and it is asked first."""
+    out = _git("diff", "HEAD", "-U0", "--", str(path), cwd=cwd)
+    shift = 0
+    for line in out.splitlines():
+        if not line.startswith("@@"):
+            continue
+        found = re.search(r"-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?", line)
+        if not found:
+            continue
+        old_count = int(found.group(2) or 1)
+        new_at = int(found.group(3)); new_count = int(found.group(4) or 1)
+        new_end = new_at + new_count - 1 if new_count else new_at
+        if new_end < a:
+            shift += new_count - old_count
+    return a - shift, b - shift
 
 
 def rule_dirty(path: Path, a: int, b: int, cwd: Path = ROOT) -> bool:
@@ -326,6 +356,28 @@ def _the_mark(here: Path) -> Mark:
     lines = (here / RULE).read_text(encoding="utf-8").splitlines()
     at = next(i for i, l in enumerate(lines) if OPENS.match(l))
     return Mark(here / RULE, lines, at, at + 1)
+
+
+def test_the_gate_reads_the_rules_own_lines_when_an_edit_above_it_shifts_them(tree):
+    """F021: an uncommitted edit above an approved rule moves its lines,
+    and `git log -L` with the working tree's numbers reads some other
+    paragraph in HEAD — here the mark's own lines, committed today, so the
+    gate said the rule changed after Henri read it.  Twice on 2026-09-03,
+    both false, both needing his `--no-verify`.  The fixture's HEAD has the
+    rule at lines 3-4 (committed 2026-08-20) and the mark below it
+    (committed now); three lines added above the rule in the working tree
+    put the rule at 6-7, where HEAD holds the mark.  The gate must answer
+    with the rule's date, and say the rule is not dirty."""
+    here = tree
+    p = here / RULE
+    text = p.read_text(encoding="utf-8")
+    p.write_text(text.replace("# doc\n", "# doc\n\nsomething new above the rule,\nuncommitted.\n", 1), encoding="utf-8")
+    mark = _the_mark(here)
+    a, b = mark.rule_start + 1, mark.start
+    assert (a, b) == (6, 7), (a, b)
+    assert not rule_dirty(p, a, b, cwd=here)
+    assert head_lines(p, a, b, cwd=here) == (3, 4)
+    assert rule_last_touched(p, a, b, cwd=here) == datetime.date(2026, 8, 20)
 
 
 def test_the_fixture_reads_as_a_fresh_approval(tree: Path):
