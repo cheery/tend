@@ -1179,6 +1179,8 @@ class _Llm:
                 q = body["messages"][-1]["content"]
                 if "THINK" in q:   # gemma4 under --jinja at 15:41: the cap spent on thinking, content empty
                     out = {"choices": [{"message": {"role": "assistant", "content": "", "reasoning_content": "hmm what is tend really"}}]}
+                elif "CUT" in q:   # gemma4 2026-09-03: a partial answer the token cap ended, finish_reason length
+                    out = {"choices": [{"finish_reason": "length", "message": {"role": "assistant", "content": "Tend on ymparisto jossa"}}]}
                 else:
                     out = {"choices": [{"message": {"role": "assistant", "content": f"ANSWER to: {q}"}}]}
                 self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
@@ -1262,6 +1264,27 @@ def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_
     finally:
         if p.poll() is None:
             p.kill(); p.wait()
+
+
+@needs_syspy
+def test_a_partial_answer_the_token_cap_cut_is_said_and_not_passed_off_as_whole(tmp_path):
+    """card:material.md, 2026-09-03: gemma4's answer was cut mid-sentence at
+    the 800-token cap and ask wrote the partial content as if it were the
+    whole.  A reply whose finish_reason is `length` is unfinished — ask says
+    so, in the answer file and on the screen, so a cut does not read as an
+    answer (the F010 family: a cut that says nothing)."""
+    llm_stub = _Llm()
+    try:
+        llm, ask = ask_nodes(tmp_path, llm_stub.port)
+        r = launch(ask, "run", "CUT", "please", state=ask / "state", timeout=60)
+        log = (ask / "state" / "log").read_text()
+        assert r.returncode == 0, (r.stderr, log)
+        answer = (ask / "state" / "answer").read_text()
+        assert "Tend on ymparisto jossa" in answer, answer
+        assert "cut" in answer and "800" in answer, answer   # the file says the cap ended it, unfinished
+        assert "cut" in log or "unfinished" in log, log      # and the screen does too
+    finally:
+        llm_stub.close()
 
 
 @needs_syspy
