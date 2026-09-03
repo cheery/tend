@@ -101,10 +101,51 @@ baseline, on `card:edge.md`) and with `material board/README.md`,
 in `ask/state/answer`.  What the tokens cost is part of the measurement:
 gemma4 spent 200 on thinking with nothing to read.
 
-*(question, measure — does material change the answer at all, and at
-what token cost? the day-one run, both arms, is what answers it)*
+## The measurement, 2026-09-03 — the answer is yes, and the cost is the output cap
+
+Built and run the same morning `material` became a grant word.  `ask`
+carried `material ../board/README.md` and `material ../vision.md` (39199
+and 7619 chars, ~11.8k tokens, inside the node's `-c 16384`) and was
+asked the 16:29 question again, "Mitä varten tend on?".
+
+- **Cold (baseline, `card:edge.md` 16:29):** the dictionary — tend is
+  an English verb.
+- **With material:** the mind read the two files and answered from the
+  tree, in the tree's own words — *"Tend on tekoälyn työskentelyyn
+  suunniteltu ympäristö, jossa virheet voidaan tehdä näkyviksi ja niiden
+  vaikutukset rajata pitämällä valvontamekanismit session
+  kirjoitusoikeuden ulkopuolella"* — the enforcement boundary outside
+  the session's write access, `vision.md`'s and `README.md`'s own claim,
+  quoted back.  The thinking shows it reading both files by name and
+  drafting the sentence from their lines.
+
+So the card's question is answered: **material changes the answer at all,
+and decisively** — the whole distance from a dictionary entry to tend's
+actual reason for being.  The shape is right: a grant word puts the tree
+in front of the mind, and the mind uses it.  What would have made the
+card wrong — the mind ignoring what it was handed — did not happen.
+
+**The token cost is real, and it is the output cap, not the input.**
+The material was handed whole (no `F010` input cut — the 39k chars fit).
+But the answer arrived truncated: 436 words of reasoning over the
+material plus the beginning of the answer hit `ASK_TOKENS=800`, and
+`content` was cut mid-sentence at "jossa"; the complete correct sentence
+is only in the thinking.  Reasoning over ~11.8k tokens of tree is
+expensive, and 800 output tokens is too small for think-and-answer
+together.  The fix is a larger `ASK_TOKENS` for a node that reads the
+tree (the run above with `ASK_TOKENS=2000` finishes the sentence in
+`content`), or a mind that thinks less; neither changes the finding.
+
+*(measured 2026-09-03, at Henri's "tehdään card:material.md mittaus
+seuraavaksi"; the day-one arms both ran, cold on `card:edge.md` and
+material in `ask/state/answer`.  Whether `ask` carries the two `material`
+lines as a standing grant, and whether this card closes here or goes on
+to the feature and the digest-vs-tool question, is his call.)*
 
 ## Where it sits
+
+Placed last by the session that wrote it, at his "tee siitä kortti", as
+the sitting closed; the tiebreak is his.
 
 Placed last by the session that wrote it, at his "tee siitä kortti", as
 the sitting closed; the tiebreak is his.
