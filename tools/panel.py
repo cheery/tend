@@ -487,6 +487,20 @@ def read_pin_state(name, node, state, canvas_dir=None):
         dead = bool(m) and m.group(1) != "0"
     except OSError:
         pass
+    pulled_by = read_pulled_by(state)
+    if pulled_by:
+        # a live edge is what holds the node up now; its time is the edge file's, not the
+        # person's `pull` file, which may be an old hand pull (Henri, 2026-09-03: `pulled 08:05`
+        # was yesterday's, on a row a process holds today)
+        edge_at = None
+        for puller in pulled_by:
+            try:
+                m = int(os.stat(os.path.join(state, "pulled", puller)).st_mtime)
+                edge_at = m if edge_at is None else max(edge_at, m)
+            except OSError:
+                pass
+        if edge_at is not None:
+            last_pull = edge_at
     said = _last_said(os.path.join(state, "log")) if dead else ""
     held, held_at = read_hold(canvas_dir, name, node, state)
     note = None
@@ -495,7 +509,7 @@ def read_pin_state(name, node, state, canvas_dir=None):
         # hold on any other state is honoured by nothing yet — said here, not promised (2026-08-29)
         note = f"state {state} is not the state the resolver runs ({os.path.join(node, 'state')}); not honoured yet"
     return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at, None, note,
-               read_pulled_by(state), read_pulls(node))
+               pulled_by, read_pulls(node))
 
 
 def read_canvas(canvas_dir=None, tree=None):
@@ -1030,14 +1044,14 @@ def row_line(p):
     if p.pulls:
         bits.append("pulls — " + ", ".join(p.pulls))
     if p.last_pull:
-        bits.append(f"pulled {_hhmm(p.last_pull)}")
+        bits.append(f"pulled {_when(p.last_pull)}")
     if p.last_stop:
-        bits.append(f"stopped {_hhmm(p.last_stop)}" + (f" — {p.stop_reason}" if p.stop_reason else ""))
+        bits.append(f"stopped {_when(p.last_stop)}" + (f" — {p.stop_reason}" if p.stop_reason else ""))
     return "  ".join(bits)
 
 
 def event_line(e):
-    return f"{_hhmm(e.epoch)}  {e.who.ljust(6)} {e.text}"
+    return f"{_when(e.epoch)}  {e.who.ljust(6)} {e.text}"
 
 
 def answer(state_dir=None):
@@ -1048,9 +1062,14 @@ def answer(state_dir=None):
     return subprocess.run(["sh", os.path.join(HERE, "andon.sh"), "answered"], env=env)
 
 
-def _hhmm(epoch):
+def _when(epoch):
+    """A clock for today, a date for any other day — Henri, 2026-09-03: a
+    bare `08:05` on a row read as this morning when it was yesterday's."""
     import datetime
-    return datetime.datetime.fromtimestamp(epoch).strftime("%H:%M")
+    t = datetime.datetime.fromtimestamp(epoch)
+    if t.date() == datetime.date.today():
+        return t.strftime("%H:%M")
+    return t.strftime("%b %-d %H:%M")
 
 
 def _write_tone(path):
@@ -1170,7 +1189,7 @@ def _tui(stdscr, canvas=None):
             put(row, 2, "nothing pending — the floor is quiet."); row += 1
         else:
             put(row, 2, f"{len(st.pending)} pending"
-                + (f", last ring {_hhmm(st.last_ring)}" if st.last_ring else "")
+                + (f", last ring {_when(st.last_ring)}" if st.last_ring else "")
                 + ":", curses.A_BOLD)
             row += 2
             for q in st.pending:
@@ -1296,7 +1315,7 @@ def main(argv):
             print(f"resolver: {line}")
         n = len(st.pending)
         print(f"andon-panel: {n} pending"
-              + (f", pulled since {_hhmm(st.last_ring)}" if st.pulled else "")
+              + (f", pulled since {_when(st.last_ring)}" if st.pulled else "")
               + " — run in a terminal for the live panel.")
         print(f"canvas {_canvas_dir(canvas)} — {_counts(pins)}")
         for p in pins:

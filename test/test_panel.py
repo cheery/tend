@@ -785,6 +785,35 @@ def test_a_pulled_node_names_its_puller_and_a_puller_says_what_it_pulls(tmp_path
     assert "pulled by" not in panel.row_line(d), "an unlocked edge file is a trace, not a pull"
 
 
+def test_a_live_edge_dates_the_pull_and_shows_the_edges_own_time(tmp_path):
+    """Henri, 2026-09-03: the llm row said `pulled 08:05` — yesterday's hand
+    pull from state/pull, shown with no day, on a row a process's edge holds
+    up today.  Two wrongs: a time with no date reads as today, and the edge's
+    own time is not the one shown.  The pull time is the live edge's mtime
+    when a process holds it, and any time not today carries its date."""
+    import time, re
+    now = int(time.time()); old = 1787916000   # 2026-08-28, well before today
+    assert re.search(r"[A-Za-z]", panel._when(old)), "a time not today carries its date"
+    assert not re.search(r"[A-Za-z]", panel._when(now)), "today is the bare clock"
+    tree, die, sol, edge = edge_tree(tmp_path)
+    (die / "state" / "pull").write_text(f"{old} 2026-08-28 08:05 pulled by hand\n")   # the stale person-pull
+    canvas = tmp_path / "canvas"; pin(canvas, "die", die)
+    fd = take(edge)
+    try:
+        os.utime(edge, (now, now))   # the edge taken now
+        r = {x.name: x for x in read_canvas(canvas, tree=tree)}["die"]
+        assert r.pulled_by == ("solitaire",)
+        assert r.last_pull == now, (r.last_pull, now)   # the edge's time, not the file's
+        line = panel.row_line(r)
+        assert "pulled by — solitaire" in line and str(old) not in line, line
+        assert panel._when(old) not in line, "yesterday's hand pull is not the pull that holds it"
+    finally:
+        os.close(fd)
+    # the lock let go: no live edge, so the person-pull file's time is what there is, and it carries its date
+    r = {x.name: x for x in read_canvas(canvas, tree=tree)}["die"]
+    assert r.pulled_by == () and r.last_pull == old and panel._when(old) in panel.row_line(r), panel.row_line(r)
+
+
 def test_a_node_a_process_pulls_is_on_the_canvas_with_no_pin(tmp_path):
     """Alive by an edge is on the canvas, as a held node is: no pin, no
     hold, one row named by the node directory."""
