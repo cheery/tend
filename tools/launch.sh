@@ -479,10 +479,12 @@ run)
     # asks `serve` once for the pulled node and is gone; the tick stays the carrier for everything
     # after (a death, a stop under a still-held edge).  Not a scheduler: nothing here loops or decides
     # beyond the moment the lock is taken.  TEND_STATE_DIR is this node's state, never the pulled one's
+    watchers=""
     for p in $pulls; do
         ( _e="$p/state/pulled/$name"; _n=0
           while flock -n "$_e" true 2>/dev/null && [ "$_n" -lt 1200 ]; do sleep 0.05; _n=$((_n + 1)); done
           flock -n "$_e" true 2>/dev/null || env -u TEND_STATE_DIR sh "$0" "$p" serve ) >> "$STATE/log" 2>&1 &
+        watchers="$watchers $!"
     done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
     began=$(date +%s); why=""
@@ -553,6 +555,13 @@ run)
     else
         "$py" "$here/keep.py" $flags -- "$@" >> "$STATE/log" 2>&1; rc=$?
     fi
+    # the edge watchers are done: one caught the program's lock and ran serve early, and any that missed
+    # it (a program that took and let the edge go faster than the 0.05 s poll — a stub, a quick pull) would
+    # otherwise spin its whole 60 s, its momentary flock -n on the edge making the edge read as held to the
+    # panel, the resolver and a test long after the program let go (the "edge was not let go" flake, three
+    # times 2026-09-03, F019).  The program has exited, so a still-spinning watcher has no pull left to serve
+    for w in $watchers; do kill "$w" 2>/dev/null; done
+    for w in $watchers; do wait "$w" 2>/dev/null; done
     [ -n "$why" ] || why="exited $rc: $name stopped by itself"
     echo "$why" > "$STATE/stopped"   # its mtime is the last stop (serve, status); its line is why
     if [ "$rc" -ne 0 ]; then

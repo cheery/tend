@@ -1075,7 +1075,7 @@ def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(t
         assert "die is pulled by solitaire and no runner — started one" in (sol / "state" / "log").read_text(), (sol / "state" / "log").read_text()
         log = (sol / "state" / "log").read_text()
         assert re.search(r"solitaire: die rolled [1-6]$", log, re.M), log
-        assert not locked(edge), "the edge was not let go"
+        assert wait(lambda: not locked(edge)), "the edge was not let go"   # a reader's momentary flock -n is not the puller holding it (F019)
         assert wait(lambda: (die / "state" / "stopped").exists(), cap=10), "the die did not idle out after the pull was let go"
         assert (die / "state" / "stopped").read_text().startswith("idle:"), (die / "state" / "stopped").read_text()
         again = launch(die, "serve", state=die / "state", idle="0.5")
@@ -1219,7 +1219,7 @@ def test_the_ask_node_pulls_the_llm_talks_to_it_over_the_edge_and_lets_go(tmp_pa
         assert "ask: ANSWER to: Say hi" in log, log
         assert (ask / "state" / "answer").read_text() == "Say hi\n---\nANSWER to: Say hi\n"
         edge = llm / "state" / "pulled" / "ask"
-        assert edge.exists() and not locked(edge), "the edge was not let go"
+        assert edge.exists() and wait(lambda: not locked(edge)), "the edge was not let go"   # tolerate a reader's momentary flock -n (F019)
     finally:
         llm_stub.close()
 
@@ -1260,7 +1260,7 @@ def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_
         assert p.wait(timeout=15) == 1, "the ask node did not stop on the llm's death"
         log = (ask / "state" / "log").read_text()
         assert "ask: llm died while pulled — exited 127" in log and "pull again" in log, log
-        assert not locked(edge)
+        assert wait(lambda: not locked(edge))   # F019
     finally:
         if p.poll() is None:
             p.kill(); p.wait()
