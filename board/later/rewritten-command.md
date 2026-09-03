@@ -1,6 +1,6 @@
 # rewritten-command — a session cannot trust that what it wrote is what ran
 
-    status   open
+    status   shelved — 2026-09-03
     because  the harness rewrites a session's own Bash command text before
              it runs, substituting braced shell expansions even inside a
              quoted heredoc, where the shell itself would not touch them.
@@ -178,3 +178,16 @@ is findable from the event.
 *It sits outside the list rather than inside it because a question must
 start its own line — indented, the search cannot find it, and it was
 indented for the first ten minutes of its life.*
+
+## Shelved 2026-09-03 — waits on a corruption found
+
+Moved to `later/` at Henri's "rewritten-command/ … later/ hakemistoon".
+Day one is built and in force, and proved itself the same day it moved:
+a heredoc that writes a file is refused, and the fence caught the route
+twice this sitting (`repro.py`, a revert script) at no cost.  So the
+`because` — a session unable to trust its command text — is answered by
+the tree's response, the refusal.  What remains is the one `waits on`
+question the card already carries: whether the rule is too loose in
+letting commit messages through, undecidable until a message is **found
+corrupted**.  That is the event this card waits on, findable from it;
+real, and not being worked until it happens.

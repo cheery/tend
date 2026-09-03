@@ -81,18 +81,12 @@ between two workable cards is Henri's.
    offers has no shape: on 2026-08-26 the desk was retaken within
    minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
    session on 2026-08-27, as a new card arrives; the tiebreak is his.*
-5. **[lander](lander.md)** — a commit that passed the gates is not in
-   force until a person runs one line, and nothing but the person's
-   memory carries it there.  *Placed last by the session that wrote it
-   on 2026-08-27 at Henri's "Write the lander card"; its day one is a
-   lamp, which is also the count that would make the rest of it wrong;
-   the tiebreak is his.*
-6. **[silent-cord](silent-cord.md)** — the andon sounds only through a
+5. **[silent-cord](silent-cord.md)** — the andon sounds only through a
    reach row the session must be allowed, so narrowing reach cuts the
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
    first with the row off; the tiebreak is his.*
-7. **[canvas](canvas.md)** — a pulled node's death is a line in a file
+6. **[canvas](canvas.md)** — a pulled node's death is a line in a file
    nobody is looking at: nothing on the person's side shows what they
    are holding, and a death and a cord pull are events on one timeline
    seen in two places or in none.  *Placed last by the session that
@@ -100,13 +94,13 @@ between two workable cards is Henri's.
    a canvas directory of `name.pin` files and the panel showing a row
    per pin with the stop's reason in the log column; the tiebreak is
    his.*
-8. **[model-acceptance](model-acceptance.md)** — something breaks when
+7. **[model-acceptance](model-acceptance.md)** — something breaks when
    nobody picks the mind, and the keeper is the only check.  *Woken
    from `later/` on 2026-08-28 by a session at Henri's "do
    session-program", on the event it waited for — a door where a
    model is admitted (the llm node's cords) — with `tools/compare.py`
    as its first instrument; placed last; the tiebreak is his.*
-9. **[hold](hold.md)** — a node that should be up is up only while
+8. **[hold](hold.md)** — a node that should be up is up only while
    something happens to pull it: the llm node idles out 60 s after the
    last pull and reloads for 80 s on the next, and nowhere on the
    person's side says "keep this alive".  *Placed last by the session
@@ -124,14 +118,14 @@ between two workable cards is Henri's.
    `TICK STALE` under a hold), and `install.sh --tick` is Ubuntu's
    carrier, a user timer running the installed copy; systemd is the
    implementation, never the dependency (Henri's words).*
-10. **[flake](flake.md)** — a red that vanishes on retry is met with
-    the session's memory, and the tree keeps no count: three times in
-    six days, each real once counted.  *Placed last by the session that
-    wrote it on 2026-08-29 at Henri's "lets card it, then do it"; day
-    one is the failure ledger the suite writes and reads back, and the
-    shake — one test N times with every core burning; the tiebreak is
-    his.*
-11. **[tools](tools.md)** — a mind at the door can say and cannot do,
+9. **[flake](flake.md)** — a red that vanishes on retry is met with
+   the session's memory, and the tree keeps no count: three times in
+   six days, each real once counted.  *Placed last by the session that
+   wrote it on 2026-08-29 at Henri's "lets card it, then do it"; day
+   one is the failure ledger the suite writes and reads back, and the
+   shake — one test N times with every core burning; the tiebreak is
+   his.*
+10. **[tools](tools.md)** — a mind at the door can say and cannot do,
     and the tree has no shape for what it may do: the three acts a
     model has (read a tree file, propose, pull the andon) are run by a
     fixed loop it never calls, and a tool executor with the person's
@@ -144,7 +138,7 @@ between two workable cards is Henri's.
     line on the record and on the talk screen, the injection red
     measured; the door's `tools` line is his to write, and the
     `compare.py` measurement is owed.*
-12. **[private](private.md)** — a mind's thinking is on display, and it
+11. **[private](private.md)** — a mind's thinking is on display, and it
     has no place of its own to write: the talk screen shows the
     reasoning text as the turn runs, and everything a session or a
     door mind writes is the record, the tree or a proposal, public by
@@ -153,68 +147,7 @@ between two workable cards is Henri's.
     "private is private" — thinking shown as a state, a private place
     keyed by the tree, readable on ask and out of sight by default,
     and acts never private; the tiebreak is his.*
-13. **[simpleqa](simpleqa.md)** — the tree can measure whether tools
-    make a mind cite the tree, and not whether they make it stop
-    guessing when the answer is not there; one turn ("I do not know"
-    on fingers) is the whole evidence.  *Placed last by the session
-    that wrote it on 2026-08-30 at Henri's "this would make a great
-    card, make it so"; day one is SimpleQA's questions, whose answers
-    are not in the tree, through the door in three arms — bare, seat,
-    bland — on a 150-question sample with the paper's grader, the
-    prediction written before the run; the tiebreak is his.  Day one
-    ran 2026-08-31 and the prediction is falsified — the tools cost
-    correct answers without cutting wrong ones, and what they bought
-    (sourced assertions, 0 of 93 against 73 of 80) the three bins
-    cannot see: `doc/benchmark-simpleqa-2026-08-31.md`.*
-14. **[rewritten-command](rewritten-command.md)** — the harness rewrites
-    a session's own Bash command text before it runs, so a session cannot
-    trust that what it wrote is what executed: braced expansions vanish
-    inside a quoted heredoc, at exit 0, leaving a hole and not an error.
-    *Placed last by the session that wrote it on 2026-09-01 at Henri's
-    "that command eating is nasty" and "Do the card and refuse the
-    route"; the shape is his pick of two — refuse the route, because a
-    hook cannot see the damage (the rewrite happens before the hook is
-    handed the command) and because the announced half of the defect
-    already prints a warning that was read and worked past three times in
-    one sitting.  Day one is the boundary: a heredoc that writes a file is
-    refused and one that only measures is not, and where that line falls
-    is the build's real question.  It has committed twice in nine days
-    (`tools/consult.sh`), which is what makes it a card and not a habit;
-    the tiebreak is his.*
-15. **[questions](questions.md)** — a question a session raises for the
-    person has no home: it is written into whichever card or F-number it
-    arose in, so the set of things actually waiting on Henri exists
-    nowhere, and on 2026-09-01 eight had to be collected by hand because
-    a grep returns a card's settled history along with its open
-    decisions.  *Placed last by the session that wrote it on 2026-09-01
-    at his "open up the card for questions", the missing half of his own
-    rule in §"The rules, as Henri wrote them".  The first list is the
-    card's finding and not its backlog: five of eight came back "I don't
-    know", and three of those five were measurements nobody had run —
-    asking a person for an opinion where evidence is owed is offloading a
-    measurement, not asking a question.  So day one is (a), a line
-    written where the question is, naming what would answer it; the
-    gathering tool and the lamp wait on it.  The card names what would
-    close it unbuilt — hand-collection being enough — and the tiebreak is
-    his.  Day one (a) landed the same afternoon at his "what I next would
-    want you to work on are the questions card", and its shape came from
-    the self-shaped mark built hours earlier: the two are one mechanism
-    from opposite ends, and both are answered by a line beginning
-    `henri:`.  A question is written where it arises as `*(question,
-    measure — …)*`, `*(question, his call — …)*` or `*(question, waits
-    on <event> — …)*`, and **only `his call` ever reaches him** — the
-    first list's finding turned into a mechanism rather than a warning.
-    `test/test_questions.py` refuses a fourth category, a question with
-    no question mark, a `waits on` that does not name its event, and a
-    question hidden by an indent, that last written from the defect it
-    caught the same hour.  The three "I don't know" measurements left
-    the list by being **specified**: `F010` at 20 draft turns an arm
-    with its power calculation and its honest limit, `card:tools.md` at
-    24 arms for about $1 with the reason it is 24 and not 14.  What is
-    not built stays not built — the gathering tool and the lamp —
-    because the `his call` queue has one entry, and a lamp counting to
-    one is nagging.*
-16. **[edge](edge.md)** — a node cannot pull a node: every pull is a
+12. **[edge](edge.md)** — a node cannot pull a node: every pull is a
     person's command or the hold's resolver, so the value stream Henri
     described on 2026-09-02 — nodes depending on nodes, a directed
     acyclic graph with the canvas at its end — has no edge to be made
@@ -241,7 +174,7 @@ between two workable cards is Henri's.
     runs from his shell, the third answered in 52 s from edge to
     `ask/state/answer`, the pulled node coming up at the lock and not
     at the tick.*
-17. **[material](material.md)** — a node that asks the llm about tend
+13. **[material](material.md)** — a node that asks the llm about tend
     gets the dictionary, because what a node knows is what its grant
     lets it read and no grant word names a tree file.  *Placed last by
     the session that wrote it on 2026-09-02 at Henri's "tee siitä
@@ -249,7 +182,7 @@ between two workable cards is Henri's.
     word that grants a read and tells the program where — and day one
     is a measurement, the 16:29 question cold and with material; the
     tiebreak is his.*
-18. **[lock-test](lock-test.md)** — the tree asks "is this lock held?"
+14. **[lock-test](lock-test.md)** — the tree asks "is this lock held?"
     by taking the lock, so two reads of one lock collide, and every such
     collision is a latent flake of the family F019 and F020 were, still
     open on about eleven sites.  *Placed last by the session that wrote
@@ -369,6 +302,17 @@ have better things to do, such as getting this project raised up and
 working, and leveling the interface" (`later/swe-bench.md`,
 `vision.md` §"What comes first now"); it waits on his word, and the
 conditioning arm on `card:session-program.md` waits with it.
+
+Four more went there on 2026-09-03, at Henri's "laita simpleqa ja
+questions later/ hakemistoon" and "lander/ … sekä rewritten-command/
+molemmat later/ hakemistoon" — each with its day one built and its
+`because` answered, and each naming what it now waits on: `simpleqa` a
+decision (a second question set, or the sourced-assertion account made
+the instrument); `questions` an event (the `his call` queue growing past
+the one entry that made a lamp nagging); `lander` a measurement (a week
+of `lander.log` read from 2026-09-04, to say whether the lamp needs an
+actor); `rewritten-command` an event (a commit message found corrupted,
+the one question its refuse-the-route day one left open).
 
 **Defects go to [`fixme/`](../fixme/README.md)** with an F-number —
 `fixme/F000.md` open, `fixme/resolved/F000.md` closed with the gate

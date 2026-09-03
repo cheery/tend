@@ -1,6 +1,6 @@
 # lander — a vetted change waits, silently, between the gate and the machine
 
-    status   open
+    status   shelved — 2026-09-03
     because  a commit that passed the gates is not in force until a
              person runs one line, and nothing but the person's memory
              carries it there.  On 2026-08-27 the lamp's fix was
@@ -155,3 +155,16 @@ installed set is behind HEAD.  The check's "the lander lamp is on no
 hook" line, seen every prompt today, is answered.  The count it would
 make wrong (day one, §"What it must not become") is the next
 measurement, and it is what the lamp says tomorrow.
+
+## Shelved 2026-09-03 — waits on the log
+
+Moved to `later/` at Henri's "lander/ voistaisiin siirtää myös … later/
+hakemistoon".  Day one is built and in force: the lamp is on a hook and
+lit this sitting, "sudo tend-install" carried a behind-HEAD launcher to
+force.  So the `because` — nothing but memory carrying an installed
+commit — is answered by the lamp.  What waits is the **measurement** the
+card set for itself: read `lander.log` a week on (from 2026-09-04) and
+see whether `wait=` ever exceeds a sitting's length.  If it does not, the
+lamp is the whole card and the actor is not built; if it does, the actor
+is the card's second half.  Real, and not being worked until the log is
+read.

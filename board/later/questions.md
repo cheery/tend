@@ -1,6 +1,6 @@
 # questions — a question raised for the person has no home, and nothing gathers it
 
-    status   doing
+    status   shelved — 2026-09-03
     because  a session raises questions all day and each one is written
              into whichever card or F-number it arose in, so the set of
              things actually waiting on Henri exists nowhere.  On
@@ -222,3 +222,15 @@ install boundary already stands between a bad commit and a restraint in
 force, and the whole suite runs before an install.  Adding the fence's
 own tests to the gate would buy an earlier red for a failure that cannot
 reach the machine.*
+
+## Shelved 2026-09-03 — waits on the queue growing
+
+Moved to `later/` at Henri's "laita simpleqa ja questions later/
+hakemistoon".  Day one (a) landed and holds: a question is written where
+it arises, only `his call` reaches him, and `test/test_questions.py`
+refuses the shapes that hid one.  So the `because` — a raised question
+having no home — is answered.  What waits is the rest the card named
+unbuilt: the gathering tool and the lamp, and both wait on an **event**,
+the `his call` queue growing past the one entry that made a lamp
+"nagging".  Until a sitting leaves several unanswered, hand-collection is
+enough and the card says so; it is real and not being worked.

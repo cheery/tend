@@ -1,6 +1,6 @@
 # simpleqa — a mind with a place to look: does it stop guessing when the answer is not there?
 
-    status   open
+    status   shelved — 2026-09-03
     because  the tree can now measure whether tools make a mind cite the
              tree (card:tools.md's prediction: five of ten cite a line
              the digest cannot carry), and cannot measure the other half
@@ -213,3 +213,14 @@ The results, when the run is done, go to
 console) — the tracked write-up: the bins, the prediction against the
 outcome, the hand check, the cost; the accounts stay under the
 gitignored `proposals/simpleqa/`.
+
+## Shelved 2026-09-03 — waits on a decision
+
+Moved to `later/` at Henri's "laita simpleqa ja questions later/
+hakemistoon".  Its `because` is answered for this question set — day one
+ran, the prediction was falsified, and `doc/benchmark-simpleqa-2026-08-31.md`
+has the account.  What it waits on is a **decision**: whether the tools'
+guess-cost is measured again on a second question set, or with the
+sourced-assertion account (73 of 80) that the three bins could not see
+made into the instrument, or is left where it stands.  Nothing is owed
+until that call; the card is real and not being worked.
