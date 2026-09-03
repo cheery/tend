@@ -182,28 +182,6 @@ between two workable cards is Henri's.
     word that grants a read and tells the program where — and day one
     is a measurement, the 16:29 question cold and with material; the
     tiebreak is his.*
-14. **[lock-test](lock-test.md)** — the tree asks "is this lock held?"
-    by taking the lock, so two reads of one lock collide, and every such
-    collision is a latent flake of the family F019 and F020 were, still
-    open on about eleven sites.  *Placed last by the session that wrote
-    it on 2026-09-03 at Henri's "Avaisitko kortin vankasta lukkotesti-
-    primitiivistä? ja lisää siihen mukaan tuo testiapuri", after the two
-    flakes ate a sitting; day one is a `held` primitive that reads a lock
-    across a few tries (one success is free) to replace the raw
-    `flock -n true` reads, and a test helper — a hammer and a
-    hold-for-a-window — so the next such flake is a written test, not a
-    morning of scratch harnesses; the tiebreak is his.  Day one landed the
-    same evening, the 18:14 sitting, at his "aloita lock-testistä" — and
-    measured before written: a raw read said held of a free lock 22 of 40
-    times under a loop of the tree's own readers, a read that waits a
-    window 0 of 40, so the primitive is a window, not a retry
-    (`held PATH [WINDOW]` in `tools/launch.sh`, `_lock_held`'s window in
-    `tools/panel.py`); then measured under load, which moved the window
-    from 50 ms to 200 ms — a 50 ms wait was wrong 7 of 200 with every
-    core burning, 100 ms 0 of 200.  Every raw read in `tools/` is on it,
-    `hammer` and `hold` are fixtures in `test/conftest.py`, the F020 test
-    their first caller, and both breaks are at `tools/mutate.sh`'s foot.*
-
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
 predicted them; the placing was the session's and the tiebreak his.
@@ -304,6 +282,26 @@ log from either side — and the *contents* go because
 `~/.config/tend/*.key` are the door keys, `~/.ssh` and `~/.gnupg` are
 what they are, and read is exactly the reach that matters for a key.
 A tmpfs gives a session a home without giving it the person's home.
+
+`lock-test` finished 2026-09-03, the day it was opened, at Henri's
+"siirrä done hyllylle kortti" (`done/lock-test.md`), opened at 08:50 and
+built in the 18:14 sitting.  The tree asked "is this lock held?" by
+taking the lock, so two reads of one lock collided, and F019 and F020
+were that family on two sides.  Now every read in `tools/` goes through
+a window — `held PATH [WINDOW]` in `tools/launch.sh`, `_lock_held`'s in
+`tools/panel.py` — free the instant the lock is free, held only if held
+across the whole window.  The number was measured twice: idle, a 50 ms
+wait was right 40 of 40; under the shake it was wrong 9 of 30, because
+a "momentary" reader under load holds for whole timeslices and a
+blocking wait is woken at the instant the next reader is runnable too;
+200 reads of each shape under eight burners put the cliff between 50
+and 100 ms, so the window is 200 ms.  `hammer` and `hold` are fixtures
+in `test/conftest.py`, so the next flake of this family is a written
+test; the F020 test is their first caller.  Installed by his hand the
+same evening (`sudo tend-install`, a7961f6).  What it left: one whole
+suite run red on the die flow test with its traceback lost to the
+session's own `tail`, green on the second and shaken 0 of 25 — on the
+ledger, the next sighting read whole.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.  `swe-bench` went there on

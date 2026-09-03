@@ -1,6 +1,6 @@
 # lock-test — the tree tests a lock by taking it, so two tests of one lock collide, and every such collision is a latent flake nobody has found yet
 
-    status   doing
+    status   done — 2026-09-03
     because  Henri, 2026-09-03, after F019 and F020: "flaket olivat todella
              aikaa vieviä. mitä seuraavalla kerralla voidaan tehdä?"  The
              two flakes that ate a sitting were one root: the tree asks "is
