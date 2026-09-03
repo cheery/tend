@@ -481,9 +481,25 @@ run)
     # beyond the moment the lock is taken.  TEND_STATE_DIR is this node's state, never the pulled one's
     watchers=""
     for p in $pulls; do
-        ( _e="$p/state/pulled/$name"; _n=0
-          while flock -n "$_e" true 2>/dev/null && [ "$_n" -lt 1200 ]; do sleep 0.05; _n=$((_n + 1)); done
-          flock -n "$_e" true 2>/dev/null || env -u TEND_STATE_DIR sh "$0" "$p" serve ) >> "$STATE/log" 2>&1 &
+        # serve the pulled node once its puller holds the edge.  The puller holds a *shared* lock, and holds
+        # it persistently; another reader (the panel, `status`, `pulled_by`, a test's poll) takes a *momentary
+        # exclusive* lock to test the edge — and `flock -n` cannot tell the two apart.  The old watcher exited
+        # its wait on one failed `flock -n` on the edge and served: a reader's momentary lock tripped it, it
+        # re-tested, found the edge free (the reader gone, the puller not yet holding), and never served — the
+        # puller then held the edge with no one left to serve it, and hung (F020, the die-serve flake).  So the
+        # watcher does not read the edge lock at all: it asks `serve` on an interval, and serve decides from
+        # `pulled_by` — which is reliable the way that matters, an exclusive test *always* fails against the
+        # puller's shared lock, so it never misses a held edge (it can only err toward serving, which is safe).
+        # It stops on two lock-free signals: the node is up (its `run.pid` names a live process) or it has run
+        # and stopped (a `stopped` file — the tick carries it from there, and a stub that exits at once, or a
+        # dead pulled node, does not spin).  run kills it when this program exits.
+        ( _n=0
+          while [ "$_n" -lt 400 ]; do
+              env -u TEND_STATE_DIR sh "$0" "$p" serve
+              _rp=$(cat "$p/state/run.pid" 2>/dev/null) && [ -n "$_rp" ] && kill -0 "$_rp" 2>/dev/null && break
+              [ -f "$p/state/stopped" ] && break
+              sleep 0.05; _n=$((_n + 1))
+          done ) >> "$STATE/log" 2>&1 &
         watchers="$watchers $!"
     done
     eval "set -- $program \"\$@\""   # the grant's program line, then whatever run was given
@@ -651,7 +667,15 @@ serve)
     # a node held before it ever ran has no state directory, and a lock that cannot be opened
     # read as "a runner is up" — found by the panel's hold-to-death flow test, 2026-08-29
     mkdir -p "$STATE" 2>/dev/null || true
-    flock -n "$lock" true 2>/dev/null || exit 0
+    # is a runner already up?  A single `flock -n "$lock" true` can lose a microsecond race to another
+    # lock test — `status`, a panel read, the runner's own start — and read a free lock as held, because
+    # the test takes the lock to test it (F019's family).  Here that false positive leaves a pulled node
+    # unstarted and its puller hung (F020, the die-serve flake).  So conclude "up" only if the lock stays
+    # held across a few tries — one success is a free lock — and when in doubt start: a redundant runner
+    # is refused by run's own `flock -w 2` (75)
+    _up=1; _n=0
+    while [ "$_n" -lt 10 ]; do if flock -n "$lock" true 2>/dev/null; then _up=0; break; fi; sleep 0.02; _n=$((_n + 1)); done
+    [ "$_up" -eq 1 ] && exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
     n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
     echo "launch: $name $want and no runner — started one (under the leash); $STATE/log" >&2

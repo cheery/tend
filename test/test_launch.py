@@ -1052,6 +1052,42 @@ def test_without_the_word_the_edge_is_refused_by_keep_and_the_program_says_so(tm
 
 
 @needs_syspy
+def test_serve_starts_a_pulled_node_when_its_run_lock_is_momentarily_contended(tmp_path):
+    """F020: serve tested "is a runner already up?" with a single
+    `flock -n "$lock" true`, which loses a microsecond race to another lock
+    test — `status`, a panel read, the runner's own start — and reads a free
+    lock as held, because the test takes the lock to test it (F019's family).
+    That false positive left a pulled node unstarted and its puller hung:
+    a run.lock hammer made 24 of 40 pulls hang, the die never starting.  serve
+    now retries, so a momentary contender does not stop it.  Here the run lock
+    is held for 0.1 s while serve runs; the old serve exits at once and starts
+    nothing, the new one retries past the release and brings the die up."""
+    import fcntl
+    die, sol = edge_nodes(tmp_path)
+    (die / "state" / "pulled").mkdir(parents=True)
+    # the die is pulled: a process holds its edge, so serve wants to start it
+    edge = die / "state" / "pulled" / "solitaire"; edge.write_text("")
+    holder = subprocess.Popen(["sh", "-c", 'exec 9<>"$1"; flock -s 9; sleep 30', "_", str(edge)])
+    lock = die / "state" / "run.lock"; lock.touch()
+    lockfd = os.open(str(lock), os.O_RDWR)
+    fcntl.flock(lockfd, fcntl.LOCK_EX)   # hold the run lock: serve's single test would read this as "a runner is up"
+    env = dict(os.environ, TEND_STATE_DIR=str(die / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
+               TEND_CANVAS=str(tmp_path / "canvas"), TEND_IDLE="0.5"); env.pop("TEND_FENCED", None)
+    served = subprocess.Popen(["sh", str(LAUNCH), str(die), "serve"], env=env,
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        time.sleep(0.1); os.close(lockfd)   # release within serve's retry window (10 x 20 ms)
+        assert served.wait(timeout=15) == 0
+        assert wait(lambda: (die / "state" / "log").exists() and "rolled" in (die / "state" / "log").read_text()), \
+            "serve did not start the die past a momentary run.lock contender (F020)"
+    finally:
+        for pr in (holder, served):
+            if pr.poll() is None:
+                pr.kill()
+            pr.wait()
+
+
+@needs_syspy
 def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(tmp_path):
     """The flow, measured by the lock and not by the clock: the solitaire's
     process locks the edge; `status` on the die names it; `serve` (the
@@ -1066,8 +1102,11 @@ def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(t
     try:
         edge = die / "state" / "pulled" / "solitaire"
         assert wait(lambda: edge.exists() and locked(edge), cap=8), "the solitaire's process never took the edge"
-        s = launch(die, "status", state=die / "state")
-        assert "pulled by: solitaire" in s.stdout, s.stdout
+        # poll status: a single read can catch the edge between the puller grabbing it and holding it, or be
+        # fooled by another reader's momentary lock (F020's family); the puller's hold is persistent, so status
+        # shows it once it is real
+        assert wait(lambda: "pulled by: solitaire" in launch(die, "status", state=die / "state").stdout, cap=8), \
+            launch(die, "status", state=die / "state").stdout
         # the die comes up at the lock, not at the tick: the puller's runner asked `serve` once for it
         # (Henri, 2026-09-02: "pystyisikö vedetty solmu käynnistymään heti vedon jälkeen?") — so a serve
         # by hand here finds a runner up, or the die already served, and starts nothing
