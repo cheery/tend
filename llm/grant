@@ -13,6 +13,12 @@ allow-try /opt/intel/oneapi
 # /dev/dri/renderD* read-write (the write boundary is on).  Measured by the next run here, not before
 allow /sys
 write /dev/dri
+# /dev/null writable: the wrapper at /usr/local/bin/llama-server sources oneAPI's setvars.sh, which
+# redirects to /dev/null in its shell detection.  With the write boundary on (from write /dev/dri
+# above), keep denies it — llm/state/log 2026-09-03 05:38: "setvars.sh: line 360: /dev/null:
+# Permission denied", setvars then bails "must be sourced", and the wrapper's set -e kills it at
+# exit 255.  Not a machine fact: every process keep fences with the boundary on needs /dev/null
+write /dev/null
 # the SYCL runtime's kernel cache: 80 s and 81 s on consecutive starts under keep (2026-08-28), because its
 # default cache is under ~/.cache, which keep does not grant.  Tried 08:17 as
 #     env SYCL_CACHE_PERSISTENT=1
