@@ -187,7 +187,16 @@ the panel's window at 0 fails one; both intact copies green.  **The
 measurement the card asked for**, the shake with every core burning: the
 `status` test 9 of 30 at the 50 ms window, **0 of 30** at 200 ms; the
 panel test 0 of 30; the F020 serve test, now on `held` and `hold`, 0 of
-20.
+20.  The whole suite (`tools/suite.py`, the program tests included) ran
+twice after the commit: the first run red on one test — the die flow,
+F019 and F020's own gate, its sixteenth line on the failure ledger — and
+**its traceback lost**, because the session read the run through `tail`;
+the second run 798 passed, 0 failed, and the die flow shaken 0 of 25
+under load and 0 of 10 under eight burners by hand.  A red that vanishes
+on retry is a claim about the instrument first (`card:flake.md`), and
+this one is on the ledger with no assertion beside it: the next sighting
+is read whole, and if it is the family this card closed, it is this
+card's F-number.
 
 **What it did not do.**  The test suite's own raw reads — `_lock_holder`
 and `_hung_runner`'s fixture polls — are tolerant loops already and
