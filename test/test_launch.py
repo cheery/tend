@@ -384,6 +384,39 @@ def test_check_is_red_on_a_program_whose_shared_library_is_not_found(tmp_path):
     assert "NOT installed" in r.stdout
 
 
+def test_check_resolves_the_program_as_keep_would_and_says_when_keep_would_skip_it(tmp_path):
+    """F018, the work laptop, 2026-09-03: a wrapper at ~/.local/bin/llama-server
+    ran from Henri's shell, and `check` said ✓ program → that path; under keep
+    execvp got EACCES there (the home is outside SYSTEM_READ), walked on to
+    /usr/local/bin/llama-server and ran the bare binary, which died at its
+    loader.  The check resolved PATH from the shell's seat and not keep's, and
+    a script has no ldd line to catch it.  Now the check walks PATH as keep
+    would — an entry keep cannot read is skipped, not refused — and says so."""
+    name = "tend-f018-prog"
+    home = tmp_path / "home" / "bin"; home.mkdir(parents=True)
+    (home / name).write_text("#!/bin/sh\nexit 0\n"); (home / name).chmod(0o755)
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text(f"program {name}\n")
+    # found by the shell, outside keep's read, and no other on PATH: keep would find nothing
+    r = launch(n, "check", state=tmp_path / "st", path=str(home))
+    assert r.returncode == 1 and f"✗ program {name} → {home / name} for you" in r.stdout, r.stdout
+    assert "keep would find nothing" in r.stdout and "NOT installed" in r.stdout, r.stdout
+    # a second copy where keep can read: keep would skip the first and run the second, and the check names it
+    sys_ = tmp_path / "sys" / "bin"; sys_.mkdir(parents=True)
+    shutil.copy(home / name, sys_ / name)
+    (n / "grant").write_text(f"allow {sys_}\nprogram {name}\n")
+    r = launch(n, "check", state=tmp_path / "st", path=f"{home}:{sys_}")
+    assert r.returncode == 1 and "keep would skip it" in r.stdout and f"run {sys_ / name} instead" in r.stdout, r.stdout
+    # the first copy readable too: the shell and keep agree, ✓
+    (n / "grant").write_text(f"allow {home}\nprogram {name}\n")
+    r = launch(n, "check", state=tmp_path / "st", path=f"{home}:{sys_}")
+    assert r.returncode == 0 and f"✓ program {name} → {home / name}" in r.stdout, r.stdout
+    # an absolute program outside keep's read is refused, not skipped — there is nothing to walk on to
+    (n / "grant").write_text(f"program {home / name}\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 1 and f"✗ program {home / name} is there, and keep would refuse it" in r.stdout, r.stdout
+
+
 def test_allow_try_is_a_grant_word_and_check_says_when_the_path_is_not_here(tmp_path):
     """A grant is tracked and a machine's runtime is not: `allow-try PATH`
     is readable where it exists and no refusal where it does not (the

@@ -313,10 +313,37 @@ check)
     echo "check: $name  ($NODE)"
     ok "grant parses; $(echo "$flags" | wc -w | tr -d ' ') keep words"
     eval "set -- $program"; prog=$1
+    # What keep lets the program read: SYSTEM_READ, the grant's paths, and
+    # its own state.  The program is resolved against this set, not the
+    # shell's — F018 (2026-09-03): a wrapper in ~/.local/bin was ✓ from the
+    # shell's seat, and keep's execvp got EACCES there (the home is outside
+    # SYSTEM_READ), walked on down PATH and ran the bare binary, which died
+    # at its loader.  A skipped entry is not an error to execvp, so nothing
+    # said so; and a script has no ldd line.  Skipped is not refused: the
+    # verdict says which, and what keep would run instead.
+    sysread=$("$py" -c "import sys; sys.path.insert(0, '$here'); import keep; print(' '.join(keep.SYSTEM_READ))")
+    grantread="$STATE"
+    for kv in $paths; do v=${kv#*=}; v=$(readlink -f "$v" 2>/dev/null || echo "$v"); grantread="$grantread $v"; done
+    keep_reads() { _r=$(readlink -f "$1" 2>/dev/null) || _r=$1; for _root in $sysread $grantread; do case "$_r" in "$_root"/*) return 0 ;; esac; done; return 1; }
     bin=""
     case "$prog" in
-        /*) if [ -x "$prog" ]; then ok "program $prog"; bin=$prog; else bad "program $prog is not there or not executable"; fi ;;
-        *)  if found=$(command -v "$prog" 2>/dev/null); then ok "program $prog → $found"; bin=$found
+        /*) if [ ! -x "$prog" ]; then bad "program $prog is not there or not executable"
+            elif keep_reads "$prog"; then ok "program $prog"; bin=$prog
+            else bad "program $prog is there, and keep would refuse it — outside what keep lets it read (an \`allow\` line for its directory, or a place SYSTEM_READ looks: /usr/local/bin)"; bin=$prog; fi ;;
+        *)  if found=$(command -v "$prog" 2>/dev/null); then
+                # keep's own walk: execvp takes the first PATH entry it can exec, and one it cannot read is skipped
+                # (`command -v` names a shell builtin — `true` — without a path; keep's execvp
+                # knows no builtins, so the shell's answer is the first PATH entry too)
+                kept=""; first=""
+                for d in $(printf '%s' "$PATH" | tr ':' '\n'); do
+                    [ -n "$d" ] && [ -f "$d/$prog" ] && [ -x "$d/$prog" ] || continue
+                    [ -n "$first" ] || first="$d/$prog"
+                    keep_reads "$d/$prog" && { kept="$d/$prog"; break; }
+                done
+                case "$found" in /*) ;; *) found=${first:-$found} ;; esac
+                if [ "$kept" = "$found" ]; then ok "program $prog → $found"; bin=$found
+                elif [ -n "$kept" ]; then bad "program $prog → $found for you, and keep would skip it — outside what keep lets it read — and run $kept instead (F018)"; bin=$kept
+                else bad "program $prog → $found for you, and keep would find nothing — outside what keep lets it read, and no other $prog on PATH (an \`allow\` line for its directory, or a place SYSTEM_READ looks: /usr/local/bin — F018)"; bin=$found; fi
             else bad "program \`$prog\` is not on PATH — tools/toolbox.sh says what the tree wants; this is $name's own"; fi ;;
     esac
     # Present is not loadable.  The work laptop, 2026-08-28: the check said
@@ -342,9 +369,6 @@ check)
             # paths and nowhere else.  The work laptop, 2026-08-28, second face:
             # the check said "loads" from a shell whose LD_LIBRARY_PATH reached
             # a oneAPI runtime in the person's home, where keep would not.
-            sysread=$("$py" -c "import sys; sys.path.insert(0, '$here'); import keep; print(' '.join(keep.SYSTEM_READ))")
-            grantread=""
-            for kv in $paths; do v=${kv#*=}; v=$(readlink -f "$v" 2>/dev/null || echo "$v"); grantread="$grantread $v"; done
             outside=""
             for lib in $(printf '%s\n' "$deps" | awk '$3 ~ /^\// { print $3 }'); do
                 real=$(readlink -f "$lib" 2>/dev/null) || real=$lib; inside=0
