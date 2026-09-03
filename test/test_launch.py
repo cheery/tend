@@ -417,6 +417,39 @@ def test_check_resolves_the_program_as_keep_would_and_says_when_keep_would_skip_
     assert r.returncode == 1 and f"✗ program {home / name} is there, and keep would refuse it" in r.stdout, r.stdout
 
 
+def test_material_is_a_grant_word_that_reads_a_tree_file_and_names_it(tmp_path):
+    """card:material.md day one: a node reads a tree file only through a grant
+    word.  `material PATH` grants the read (keep --allow) and names the path in
+    $TEND_MATERIAL, so the program knows what to put in front of the mind;
+    absent, keep refuses the read.  One path per line, like allow, refused at
+    parse when the file is not there.  Red first against a launcher with no
+    such word — the read is denied and the word is unknown."""
+    tree = tmp_path / "tree"; (tree / "board").mkdir(parents=True)
+    doc = tree / "board" / "README.md"; doc.write_text("the board's rule\n")
+    real = os.path.realpath(doc)
+    n = tree / "node"; n.mkdir()
+    prog = 'program /bin/sh -c "echo M=$TEND_MATERIAL; cat $TEND_MATERIAL 2>&1"'
+    # absent file: refused at parse, like model
+    (n / "grant").write_text(f"material ../board/nope.md\n{prog}\n")
+    r = launch(n, "grant", state=tmp_path / "st")
+    assert r.returncode == 2 and "material" in (r.stdout + r.stderr) and "is not there" in (r.stdout + r.stderr), r.stdout + r.stderr
+    # the word present: grant emits --allow the resolved path, check lists it
+    (n / "grant").write_text(f"material ../board/README.md\n{prog}\n")
+    r = launch(n, "grant", state=tmp_path / "st")
+    assert r.returncode == 0 and f"--allow {real}" in r.stdout, r.stdout
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0 and f"✓ material {real}" in r.stdout, r.stdout
+    # run under keep: the program is handed the path and reads the file — the grant carried the read in
+    r = launch(n, "run", state=tmp_path / "st")
+    log = (tmp_path / "st" / "log").read_text()
+    assert real in log and "the board's rule" in log, log
+    # the control: no material word, the same read by literal path — keep refuses it (outside the grant)
+    (n / "grant").write_text(f'program /bin/sh -c "cat {real} 2>&1; true"\n')
+    r = launch(n, "run", state=tmp_path / "st2")
+    log = (tmp_path / "st2" / "log").read_text()
+    assert "the board's rule" not in log and "Permission denied" in log, log
+
+
 def test_allow_try_is_a_grant_word_and_check_says_when_the_path_is_not_here(tmp_path):
     """A grant is tracked and a machine's runtime is not: `allow-try PATH`
     is readable where it exists and no refusal where it does not (the

@@ -179,12 +179,19 @@ pulls_of() {
         case "$_l" in pull\ *) _p=$(pull_path "${_l#pull }" "$_d"); [ -f "$_p/grant" ] && readlink -f "$_p" ;; esac
     done
 }
-flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""; pulls=""; connects=""
+flags="--write $STATE"; program=""; status_cmd=""; pulse=""; pullfile=""; idle_grant=""; sitting_grant=""; paths=""; port=""; envs=""; makes=""; pulls=""; connects=""; materials=""
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in ''|'#'*) continue ;; esac
     key=${line%% *}; val=${line#* }; [ "$val" = "$line" ] && val=""
     case "$key" in
         allow|allow-try|write) case "$val" in /*) ;; *) val="$NODE/$val" ;; esac; flags="$flags --$key $val"; paths="$paths $key=$val" ;;
+        material)    # a tree file a node may read (card:material.md): keep grants the read (--allow) and
+                     # the path is named in $TEND_MATERIAL, so the program knows what to put in front of the
+                     # mind — a word that grants a read and tells the program where.  One path per line, like
+                     # allow; refused at parse when it is not there, because a node's material is a decision
+                     case "$val" in /*) _m=$val ;; *) _m="$NODE/$val" ;; esac
+                     if [ ! -e "$_m" ]; then echo "launch: $name/grant: material $val is not there — the tree file a node reads, and the grant names it (card:material.md)" >&2; exit 2; fi
+                     _m=$(readlink -f "$_m"); flags="$flags --allow $_m"; paths="$paths material=$_m"; materials="$materials $_m" ;;
         bind)        flags="$flags --bind $val"; port=$val ;;
         connect)     case "$val" in ''|*[!0-9]*) echo "launch: $name/grant: connect wants a port, got \`$val\`" >&2; exit 2 ;; esac
                      flags="$flags --connect $val"; connects="$connects $val" ;;
@@ -287,6 +294,8 @@ reaches_back() {
 me=$(readlink -f "$NODE")
 # the edge files this node's program may lock, made by `run` and named in $TEND_PULLS; `check` says them
 TEND_PULLS=""; for _p in $pulls; do TEND_PULLS="$TEND_PULLS${TEND_PULLS:+ }$(basename "$_p")=$_p/state/pulled/$name"; done; export TEND_PULLS
+# the tree files this node may read, named for the program (card:material.md): the paths keep already grants
+TEND_MATERIAL="${materials# }"; export TEND_MATERIAL
 
 case "$verb" in
 grant)

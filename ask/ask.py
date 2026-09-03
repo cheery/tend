@@ -29,6 +29,23 @@ if not edge:
 state = pathlib.Path(os.environ["STATE"])
 url = os.environ.get("ASK_URL", "http://127.0.0.1:18080").rstrip("/")
 question = " ".join(sys.argv[1:]) or "What is tend for?  Answer in one sentence."
+# the material (card:material.md): the tree files the grant lets this node read, named in $TEND_MATERIAL by
+# the launcher.  Each is put in front of the question under its name, as tools/propose.sh's digest does, so a
+# node asks with the tree in hand instead of cold; `answer` records what was handed.  With no `material` word
+# the list is empty and the ask is cold — the measurement's baseline (the 16:29 answer on card:edge.md)
+material = os.environ.get("TEND_MATERIAL", "").split()
+handed = []
+preamble = ""
+for f in material:
+    try:
+        content = pathlib.Path(f).read_text()
+    except OSError as e:
+        print(f"ask: material {f} could not be read — {e}; `material PATH` is the grant word and keep grants the read (card:material.md)", file=sys.stderr)
+        sys.exit(2)
+    label = os.path.basename(f)
+    preamble += f"=== {label} ===\n{content}\n\n"
+    handed.append(f"{label} ({len(content)} chars)")
+asked = question if not preamble else f"{preamble}---\n{question}"
 start = time.time()
 fd = os.open(edge, os.O_RDONLY)
 fcntl.flock(fd, fcntl.LOCK_SH)   # the pull: in force until `stop` (close) or exit
@@ -66,7 +83,7 @@ while True:
     time.sleep(1)
 # 800 tokens, not 200: the first live answer (15:41) was 200 tokens of gemma4's thinking under --jinja and an
 # empty `content` — the cap was spent before the answer began, and ask said "ask: " and exited 0
-body = json.dumps({"messages": [{"role": "user", "content": question}],
+body = json.dumps({"messages": [{"role": "user", "content": asked}],
                    "max_tokens": int(os.environ.get("ASK_TOKENS", "800")), "temperature": 0}).encode()
 req = urllib.request.Request(url + "/v1/chat/completions", data=body, headers={"Content-Type": "application/json"})
 reply = json.load(urllib.request.urlopen(req, timeout=600))
@@ -77,7 +94,10 @@ if not answer and not thinking:
     print(f"ask: the llm returned no answer and no thinking — {json.dumps(reply)[:300]}", file=sys.stderr)
     os.close(fd)
     sys.exit(1)
-out = f"{question}\n---\n{answer}\n"
+out = f"{question}\n"
+if handed:   # the material arm records what it handed; the cold arm's answer is unchanged (card:material.md)
+    out += f"---material: {', '.join(handed)}---\n"
+out += f"---\n{answer}\n"
 if thinking:
     out += f"---thinking ({len(thinking.split())} words)---\n{thinking}\n"
 (state / "answer").write_text(out)
