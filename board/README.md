@@ -249,6 +249,17 @@ between two workable cards is Henri's.
     word that grants a read and tells the program where — and day one
     is a measurement, the 16:29 question cold and with material; the
     tiebreak is his.*
+18. **[lock-test](lock-test.md)** — the tree asks "is this lock held?"
+    by taking the lock, so two reads of one lock collide, and every such
+    collision is a latent flake of the family F019 and F020 were, still
+    open on about eleven sites.  *Placed last by the session that wrote
+    it on 2026-09-03 at Henri's "Avaisitko kortin vankasta lukkotesti-
+    primitiivistä? ja lisää siihen mukaan tuo testiapuri", after the two
+    flakes ate a sitting; day one is a `held` primitive that reads a lock
+    across a few tries (one success is free) to replace the raw
+    `flock -n true` reads, and a test helper — a hammer and a
+    hold-for-a-window — so the next such flake is a written test, not a
+    morning of scratch harnesses; the tiebreak is his.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session
