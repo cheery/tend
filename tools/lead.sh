@@ -101,7 +101,7 @@ if [ -n "$kept" ]; then
     cport=$(printf '%s' "$CHAT" | sed -n 's|^http://[^:/]*:\([0-9]*\)/.*|\1|p'); : "${cport:=$port}"
     mkdir -p "$propdir/lead" "$STATE" "$andon_state"
     if ! curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; then
-        if ! flock -n "$STATE/run.lock" true 2>/dev/null; then
+        if ! flock -w 0.2 "$STATE/run.lock" true 2>/dev/null; then   # held across a window, not one read — launch.sh's `held` (card:lock-test.md)
             # a runner holds the lock and is not answering yet: loading (the llm node takes ~80 s)
             echo "lead: $name is up and not yet answering — waiting for $HEALTH (up to 150s)…" >&2
             _n=0; until curl -sf -m 2 "$HEALTH" >/dev/null 2>&1; do

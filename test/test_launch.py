@@ -996,7 +996,9 @@ def edge_nodes(tmp_path):
 
 
 def locked(path):
-    return subprocess.run(["flock", "-n", str(path), "true"]).returncode != 0
+    # across a window, as the tree reads it now: a raw `flock -n` here collided with the
+    # code under test's own reads (F019, card:lock-test.md)
+    return subprocess.run(["flock", "-w", "0.2", str(path), "true"]).returncode != 0
 
 
 def test_a_pull_word_naming_a_node_is_an_edge_and_the_grant_says_so(tmp_path):
@@ -1052,39 +1054,68 @@ def test_without_the_word_the_edge_is_refused_by_keep_and_the_program_says_so(tm
 
 
 @needs_syspy
-def test_serve_starts_a_pulled_node_when_its_run_lock_is_momentarily_contended(tmp_path):
+def test_serve_starts_a_pulled_node_when_its_run_lock_is_momentarily_contended(tmp_path, hold):
     """F020: serve tested "is a runner already up?" with a single
     `flock -n "$lock" true`, which loses a microsecond race to another lock
     test — `status`, a panel read, the runner's own start — and reads a free
     lock as held, because the test takes the lock to test it (F019's family).
     That false positive left a pulled node unstarted and its puller hung:
     a run.lock hammer made 24 of 40 pulls hang, the die never starting.  serve
-    now retries, so a momentary contender does not stop it.  Here the run lock
-    is held for 0.1 s while serve runs; the old serve exits at once and starts
-    nothing, the new one retries past the release and brings the die up."""
-    import fcntl
+    now reads the lock across a window (`held`, 200 ms), so a momentary
+    contender does not stop it.  Here the run lock is held for 0.1 s while
+    serve runs; the old serve exits at once and starts nothing, the new one
+    waits past the release and brings the die up.  (The holders are the
+    suite's `hold` — card:lock-test.md's day one made this test's scratch
+    harness the instrument.)"""
     die, sol = edge_nodes(tmp_path)
     (die / "state" / "pulled").mkdir(parents=True)
     # the die is pulled: a process holds its edge, so serve wants to start it
     edge = die / "state" / "pulled" / "solitaire"; edge.write_text("")
-    holder = subprocess.Popen(["sh", "-c", 'exec 9<>"$1"; flock -s 9; sleep 30', "_", str(edge)])
-    lock = die / "state" / "run.lock"; lock.touch()
-    lockfd = os.open(str(lock), os.O_RDWR)
-    fcntl.flock(lockfd, fcntl.LOCK_EX)   # hold the run lock: serve's single test would read this as "a runner is up"
+    lock = die / "state" / "run.lock"
     env = dict(os.environ, TEND_STATE_DIR=str(die / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
                TEND_CANVAS=str(tmp_path / "canvas"), TEND_IDLE="0.5"); env.pop("TEND_FENCED", None)
-    served = subprocess.Popen(["sh", str(LAUNCH), str(die), "serve"], env=env,
-                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    try:
-        time.sleep(0.1); os.close(lockfd)   # release within serve's retry window (10 x 20 ms)
-        assert served.wait(timeout=15) == 0
-        assert wait(lambda: (die / "state" / "log").exists() and "rolled" in (die / "state" / "log").read_text()), \
-            "serve did not start the die past a momentary run.lock contender (F020)"
-    finally:
-        for pr in (holder, served):
-            if pr.poll() is None:
-                pr.kill()
-            pr.wait()
+    # the run lock held 0.1 s: serve's single test read this as "a runner is up"; its window outlasts it
+    with hold(edge, 30, shared=True), hold(lock, 0.1):
+        served = subprocess.Popen(["sh", str(LAUNCH), str(die), "serve"], env=env,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            assert served.wait(timeout=15) == 0
+            assert wait(lambda: (die / "state" / "log").exists() and "rolled" in (die / "state" / "log").read_text()), \
+                "serve did not start the die past a momentary run.lock contender (F020)"
+        finally:
+            if served.poll() is None:
+                served.kill()
+            served.wait()
+
+
+def test_status_reads_a_free_lock_as_free_under_a_hammer_of_readers(tmp_path, hammer):
+    """card:lock-test.md: the tree asked "is this lock held?" with one
+    `flock -n LOCK true`, which takes the lock to test it, so two such reads
+    of one lock collide and a free lock reads as held.  F019 and F020 were
+    that on two sides, fixed one site at a time; `held` closes the class —
+    the read waits a window, free the instant it is free, held only if held
+    across the whole window.  The raw idiom is asserted wrong first, so the
+    hammer is known to bite; then `status`, through `held`, is right every
+    time under it."""
+    st = tmp_path / "st"; st.mkdir(); lock = st / "run.lock"; lock.touch()
+    with hammer(lock):
+        raw = sum(subprocess.run(["flock", "-n", str(lock), "true"]).returncode != 0 for _ in range(40))
+        assert raw >= 1, "the hammer did not bite: no raw flock -n read collided with it"
+        for _ in range(20):
+            r = launch(ROOT / "node", "status", state=st)
+            assert "node: not running" in r.stdout, (r.stdout, r.stderr)
+
+
+def test_status_reads_a_held_lock_as_held(tmp_path, hold):
+    """The other half of `held`: a real holder holds across the window, and the
+    read says so — a window is not a blindness to holders."""
+    st = tmp_path / "st"; st.mkdir(); lock = st / "run.lock"
+    with hold(lock):
+        for _ in range(5):
+            r = launch(ROOT / "node", "status", state=st)
+            assert "node: running" in r.stdout, (r.stdout, r.stderr)
+    r = launch(ROOT / "node", "status", state=st)
+    assert "node: not running" in r.stdout, r.stdout
 
 
 @needs_syspy

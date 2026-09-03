@@ -227,6 +227,28 @@ def _lock_holder(st):
     raise AssertionError("the fixture holds the lock")
 
 
+def test_lock_held_reads_a_free_lock_as_free_under_a_hammer_and_a_held_one_as_held(tmp_path, hammer, hold):
+    """card:lock-test.md: `_lock_held` took the lock once to test it, and one
+    read collides with any other reader's — under a loop of readers a free
+    lock read as held about half the time (measured, 2026-09-03).  Now it
+    reads across a window: free the instant a try succeeds, held only if
+    every try in the window fails.  The single read (window=0) is asserted
+    wrong first, so the hammer is known to bite."""
+    lock = tmp_path / "run.lock"; lock.touch()
+    def single_reads(n):   # spread over many of the hammer's rounds, not a burst inside one
+        wrong = 0
+        for _ in range(n):
+            wrong += panel._lock_held(lock, window=0); time.sleep(0.001)
+        return wrong
+    with hammer(lock):
+        assert single_reads(200) >= 1, "the hammer did not bite: no single read collided"
+        assert not any(panel._lock_held(lock) for _ in range(40)), "a free lock read as held across the window"
+    with hold(lock):
+        assert all(panel._lock_held(lock) for _ in range(5)), "a real holder read as free"
+    assert not panel._lock_held(lock)
+    assert not panel._lock_held(tmp_path / "never") and not (tmp_path / "never").exists(), "a lock that is not there is never made"
+
+
 def test_a_running_pin_reads_the_lock_and_a_silent_watcher_is_the_cords_cut(tmp_path):
     node = dead_node(tmp_path)
     st = node / "state"

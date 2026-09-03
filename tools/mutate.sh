@@ -238,6 +238,9 @@ test/test_launch.py	launch: an unknown grant word is accepted	sed -i 's/^       
 test/test_launch.py	launch: run does not take the lock	sed -i 's/^    flock -w 2 9 || {/    : || {/' tools/launch.sh
 test/test_launch.py	launch: a missing grant is not refused	sed -i 's/^\[ -f "\$NODE\/grant" \] || {/[ -f "$NODE\/grant" ] || true \&\& true || {/' tools/launch.sh
 test/test_launch.py	launch: serve starts even when the pull is older than the last stop	sed -i 's/^    if \[ -f "\$pullfile" \] \&\& { \[ ! -f "\$STATE\/stopped" \] || \[ "\$pullfile" -nt "\$STATE\/stopped" \]; }; then/    if [ -f "$pullfile" ]; then/' tools/launch.sh
+# the lock read across a window, not once — card:lock-test.md day one, 2026-09-03 (F019, F020's family closed as a class)
+test/test_launch.py	launch: held reads the lock once, the raw flock -n true (F019, F020)	sed -i 's/^held() { ! flock -w "\${2:-0.2}" "\$1" true 2>\/dev\/null; }/held() { ! flock -n "$1" true 2>\/dev\/null; }/' tools/launch.sh
+test/test_panel.py	panel: _lock_held reads the lock once (its window is 0)	sed -i 's/^LOCK_WINDOW = 0.1$/LOCK_WINDOW = 0/' tools/panel.py
 # tools/launch.sh, the hold — card:hold.md day one, 2026-08-29
 test/test_launch.py	launch: a hold never restarts anything from serve	sed -i 's/^    elif holds=\$(holds_for) \&\& \[ -n "\$holds" \]; then/    elif false; then/' tools/launch.sh
 test/test_launch.py	launch: a death is hammered — a hold older than it restarts too	sed -i 's/\[ "\$h" -nt "\$STATE\/stopped" \] \&\& want=/true \&\& want=/' tools/launch.sh

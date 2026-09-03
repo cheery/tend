@@ -25,9 +25,74 @@ blob only the scratch repository holds — into the tree's own commit,
 which died on "invalid object" after the gates had passed.  So the git
 fixture drops every variable that would point a fixture's git at a
 repository it did not build.
+
+And for a lock (card:lock-test.md, 2026-09-03): the tree asks "is this
+lock held?" by taking the lock, and two such tests collide — F019 and F020
+were that on two sides, each reproduced from scratch harnesses over a
+morning.  So the suite carries the two instruments those mornings built:
+`hammer`, a loop of the readers that collide (a raw `flock -n FILE true`
+read is wrong about half the time under it, measured), and `hold`, a
+process that holds a lock for a window, shared or exclusive, so a test can
+put a real holder or a momentary contender in front of the code it means.
 """
+import contextlib
 import os
+import subprocess
+import time
 import pytest
+
+HAMMER = 'echo hammering; while :; do flock -n "$1" true; done'
+HOLDER = 'exec 9<>"$1"; flock $2 9 || exit 3; echo held; exec sleep "$3"'
+
+
+@contextlib.contextmanager
+def _hammer(path):
+    """Readers colliding on PATH's lock: a tight loop of `flock -n PATH true`,
+    the exact shape of the tree's raw lock reads, in the background until
+    the block ends.  Under it a single raw read says held of a free lock
+    about half the time; a read across a window does not (F019, F020).
+    Yields once the loop is up and its first reader has had time to fork
+    (the shell says so; 10 ms is ten forks).  A reader holds the lock for
+    a fraction of each ~1 ms round, so a probe of the hammer spreads its
+    reads over many rounds, never a burst inside one."""
+    p = subprocess.Popen(["sh", "-c", HAMMER, "_", str(path)], stdout=subprocess.PIPE)
+    try:
+        assert p.stdout.readline() == b"hammering\n", f"the hammer did not start on {path}"
+        time.sleep(0.01)
+        yield p
+    finally:
+        p.kill()
+        p.wait()
+
+
+@contextlib.contextmanager
+def _hold(path, seconds=30, shared=False):
+    """A process holding PATH's lock — exclusive like a runner on run.lock,
+    or `shared=True` like a puller on its edge — for SECONDS, or until the
+    block ends.  Yields once the lock is held (the holder says so on its
+    stdout; no lock test is made), so the code under test meets a holder
+    and never a race with the fixture.  `exec sleep`, so killing the
+    holder drops the lock: `flock FILE sleep` leaves the sleep holding an
+    inherited fd after flock is killed (measured, F020's day one)."""
+    p = subprocess.Popen(["sh", "-c", HOLDER, "_", str(path), "-s" if shared else "", str(seconds)],
+                         stdout=subprocess.PIPE)
+    try:
+        assert p.stdout.readline() == b"held\n", f"the holder did not take {path}"
+        yield p
+    finally:
+        if p.poll() is None:
+            p.kill()
+        p.wait()
+
+
+@pytest.fixture
+def hammer():
+    return _hammer
+
+
+@pytest.fixture
+def hold():
+    return _hold
 
 
 @pytest.fixture(autouse=True)

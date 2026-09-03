@@ -192,7 +192,17 @@ between two workable cards is Henri's.
     across a few tries (one success is free) to replace the raw
     `flock -n true` reads, and a test helper — a hammer and a
     hold-for-a-window — so the next such flake is a written test, not a
-    morning of scratch harnesses; the tiebreak is his.*
+    morning of scratch harnesses; the tiebreak is his.  Day one landed the
+    same evening, the 18:14 sitting, at his "aloita lock-testistä" — and
+    measured before written: a raw read said held of a free lock 22 of 40
+    times under a loop of the tree's own readers, a read that waits a
+    window 0 of 40, so the primitive is a window, not a retry
+    (`held PATH [WINDOW]` in `tools/launch.sh`, `_lock_held`'s window in
+    `tools/panel.py`); then measured under load, which moved the window
+    from 50 ms to 200 ms — a 50 ms wait was wrong 7 of 200 with every
+    core burning, 100 ms 0 of 200.  Every raw read in `tools/` is on it,
+    `hammer` and `hold` are fixtures in `test/conftest.py`, the F020 test
+    their first caller, and both breaks are at `tools/mutate.sh`'s foot.*
 
 *`grant`, `pull` and `cords` are the three waypoints Henri named on
 2026-08-25 ("they are excellent waypoints"), in the order a session

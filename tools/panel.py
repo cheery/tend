@@ -102,6 +102,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from collections import namedtuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -228,21 +229,38 @@ def tick_line(t, held):
     return f"tick  last {ago} ago, every {t.every} s"
 
 
-def _lock_held(path):
-    """The runner's lock, tested the way `flock -n LOCK true` tests it — taken
-    for an instant and let go.  A lock file that is not there is a node that
-    never ran; this never creates it."""
+LOCK_WINDOW = 0.1
+
+
+def _lock_held(path, window=LOCK_WINDOW):
+    """Is the lock held?  Tested the way `flock -n LOCK true` tests it — taken
+    for an instant and let go — but across a window, not once: a test takes
+    the lock to test it, so one read collides with any other reader's and
+    says held of a free lock about half the time under a loop of readers
+    (F019, F020, card:lock-test.md — launch.sh's `held`, polled instead of
+    waited: a poll samples independent instants, where a blocking wait is
+    woken at the very instant the next reader is runnable too, and 50 ms of
+    polling read a hammered free lock as held 0 of 1200 times under load;
+    100 ms is the margin).  A momentary reader is gone within a
+    millisecond; a real holder holds for seconds.  Free the instant a try
+    succeeds; held only if every try in the window fails.  A lock file that
+    is not there is a node that never ran; this never creates it."""
     import fcntl
     try:
         fd = os.open(path, os.O_RDONLY)
     except OSError:
         return False
     try:
-        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        return False
-    except OSError:
-        return True
+        end = time.monotonic() + window
+        while True:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(fd, fcntl.LOCK_UN)
+                return False
+            except OSError:
+                if time.monotonic() >= end:
+                    return True
+                time.sleep(0.001)
     finally:
         os.close(fd)
 

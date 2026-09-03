@@ -268,9 +268,17 @@ hold_words() { grep -v '^ *#' "$1" | while IFS= read -r _l; do case "$_l" in ''|
 # the log's last line that is not warning noise — what a program said as it died
 last_said() { grep -iv 'deprecationwarning\|^ *class \|^$' "$STATE/log" 2>/dev/null | tail -1; }
 stale="${TEND_WATCH_STALE:-60}"
+# is the lock $1 held?  `flock -n FILE true` takes the lock to test it, so two such tests of one lock
+# collide for the microseconds either holds it, and one read says "held" of a free lock — about half
+# the time under a loop of such readers, measured (F019, F020, card:lock-test.md).  A momentary reader
+# is gone within a millisecond; a real holder holds for seconds.  So the test waits a window ($2) for
+# the lock: free the instant it is free, held only if held across the whole window.  200 ms, because
+# under load a "momentary" reader holds for as long as the scheduler leaves it off the CPU, and a
+# 50 ms window read a hammered free lock as held 7 of 200 times with every core burning; 100 ms 0 of 200
+held() { ! flock -w "${2:-0.2}" "$1" true 2>/dev/null; }
 # seconds the watcher has been silent while a runner holds the lock — empty when the cords are fine
 cut_for() {
-    flock -n "$lock" true 2>/dev/null && return 1
+    held "$lock" || return 1
     [ -f "$STATE/watch" ] || return 1
     _s=$(( $(date +%s) - $(stat -c %Y "$STATE/watch") ))
     [ "$_s" -ge "$stale" ] || return 1
@@ -280,7 +288,7 @@ cut_line() { echo "$name: runner up, watcher silent $(( $1 / 60 )) min — the c
 # the edge (card:edge.md).  A pulled node's runner asks: is anyone pulling me?  — a file under
 # $STATE/pulled/ that some process holds a flock on; the filename is the puller.  An unlocked file
 # is a trace of an edge that was, like `stopped`
-pulled_by() { for _f in "$STATE"/pulled/*; do [ -f "$_f" ] || continue; flock -n "$_f" true 2>/dev/null || basename "$_f"; done; }
+pulled_by() { for _f in "$STATE"/pulled/*; do [ -f "$_f" ] || continue; held "$_f" && basename "$_f"; done; }
 # does following `pull` lines from directory $1 reach the node $2?  (card:hold.md rule 4: A pulls B
 # pulls A with no canvas behind them is the bounded party setting its own boundary — refused at the door)
 reaches_back() {
@@ -427,7 +435,7 @@ check)
     # the third verdict: whether anything listens on a connect port is the other node's, at run
     for c in $connects; do printf '  · %s\n' "connect $c — keep lets the program talk to that port; whether anything listens there is the other node's business, at run"; done
     if [ -n "$port" ]; then
-        if ! flock -n "$lock" true 2>/dev/null; then ok "bind $port — $name is running and the port is its"
+        if held "$lock"; then ok "bind $port — $name is running and the port is its"
         elif "$py" -c 'import socket,sys; s=socket.socket(); s.bind(("127.0.0.1", int(sys.argv[1])))' "$port" 2>/dev/null; then ok "bind $port is free"
         else bad "bind $port is in use by something that is not $name's runner"; fi
     fi
@@ -595,17 +603,17 @@ pull)
     printf '%s %s\n' "$(date +%s)" "$*" >> "$pullfile" || { echo "launch: cannot append to $pullfile" >&2; exit 1; }
     if [ -n "${TEND_FENCED:-}" ]; then
         echo "launch: pull recorded — inside the fence the runner is the resolver's to start (tools/resolve.sh --hook)" >&2
-    elif flock -n "$lock" true 2>/dev/null; then
+    elif ! held "$lock"; then
         setsid -f sh "$0" "$NODE" run >/dev/null 2>&1 </dev/null
         # wait until the runner holds the lock — or has already come and gone: a
         # runner that dies at the loader takes and drops the lock inside one poll,
         # and its `stopped` (newer than this pull) is the only trace (F005)
-        n=0; while flock -n "$lock" true 2>/dev/null && ! [ "$STATE/stopped" -nt "$pullfile" ] && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+        n=0; while ! held "$lock" && ! [ "$STATE/stopped" -nt "$pullfile" ] && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
         echo "launch: started $name (idle ${IDLE}s); it stops by itself when pulls stop" >&2
     fi
     exit 0 ;;
 status)
-    if flock -n "$lock" true 2>/dev/null; then echo "$name: not running"
+    if ! held "$lock"; then echo "$name: not running"
     elif silent=$(cut_for); then cut_line "$silent"
     else echo "$name: running"; fi
     for h in $(holds_for); do echo "held: $(hold_words "$h") ($h)"; done
@@ -671,13 +679,11 @@ serve)
     # lock test — `status`, a panel read, the runner's own start — and read a free lock as held, because
     # the test takes the lock to test it (F019's family).  Here that false positive leaves a pulled node
     # unstarted and its puller hung (F020, the die-serve flake).  So conclude "up" only if the lock stays
-    # held across a few tries — one success is a free lock — and when in doubt start: a redundant runner
-    # is refused by run's own `flock -w 2` (75)
-    _up=1; _n=0
-    while [ "$_n" -lt 10 ]; do if flock -n "$lock" true 2>/dev/null; then _up=0; break; fi; sleep 0.02; _n=$((_n + 1)); done
-    [ "$_up" -eq 1 ] && exit 0
+    # held across a window (`held`; the wrong answer here hangs a puller), and when in doubt start: a
+    # redundant runner is refused by run's own `flock -w 2` (75)
+    held "$lock" && exit 0
     setsid -f sh -c "exec '$here/leash.sh' -- sh '$0' '$NODE' run" >> "$STATE/log" 2>&1 </dev/null
-    n=0; while flock -n "$lock" true 2>/dev/null && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
+    n=0; while ! held "$lock" && [ "$n" -lt 600 ]; do sleep 0.05; n=$((n + 1)); done
     echo "launch: $name $want and no runner — started one (under the leash); $STATE/log" >&2
     exit 0 ;;
 *) echo "launch: unknown verb \`$verb\` — run, pull, status, grant, check, serve" >&2; exit 2 ;;

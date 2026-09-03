@@ -1,6 +1,6 @@
 # lock-test — the tree tests a lock by taking it, so two tests of one lock collide, and every such collision is a latent flake nobody has found yet
 
-    status   open
+    status   doing
     because  Henri, 2026-09-03, after F019 and F020: "flaket olivat todella
              aikaa vieviä. mitä seuraavalla kerralla voidaan tehdä?"  The
              two flakes that ate a sitting were one root: the tree asks "is
@@ -113,6 +113,87 @@ primitive does not — and the F020-shaped hold-the-lock test as its
 deterministic sibling.  The measurement is the shake: a site read through
 `held`, hammered, goes from flaky to 0, the way F019 and F020 did, but now
 in one place for the whole family.
+
+## Day one — landed 2026-09-03, the 18:14 sitting, at his "aloita lock-testistä"
+
+**Measured before written.**  A scratch harness put three hammers on a
+free lock and read it forty times each way.  A raw `flock -n FILE true`
+read said *held* of the free lock **19 of 40** times under a tight
+lock/unlock loop and **22 of 40** under a loop of `flock -n true` readers
+— the exact shape of the tree's own contenders, and the worse of the two.
+`flock -w 0.05 FILE true` — wait up to 50 ms for the lock — said held
+**0 of 40** under either, and held 10 of 10 against a real holder.  So
+the primitive is not the proposed retry-a-few-times but a **window**: a
+momentary reader is gone within a millisecond and a real holder holds for
+seconds, and a read that waits tells them apart with no sampling gaps —
+free the instant the lock is free, held only if held across the whole
+window.  The cost is paid only on a held lock.
+
+**And measured again under load, which changed the number.**  The shake
+of the new `status` test — thirty runs with every core burning — failed
+**9 of 30** at a 50 ms window, `status` saying *running* of a free lock.
+Under load a "momentary" reader holds the lock for as long as the
+scheduler leaves it off the CPU, whole timeslices, and a blocking wait is
+woken at the very instant the next reader is runnable too, so it loses
+that race more often than an independent sample would.  Two hundred reads
+of each shape under eight burners and the hammer: a 50 ms wait wrong
+**7 of 200**, a 100 ms wait **0 of 200**, a 200 ms wait **0 of 200**; the
+panel's polled read (a try every millisecond) at 50 ms was **0 of 1200**,
+because a poll samples independent instants.  The cliff is between 50
+and 100 ms on this machine, so `held`'s default is **200 ms** — twice the
+margin — and the panel's is 100 ms.  This is the card's own "what would
+make it wrong" met halfway: the hammer with the scheduler's help *can*
+hold across a short window, and the answer was a wider one, not a
+lock-free signal — yet.  A heavier load than eight burners would move the
+cliff, and the shake is where that would show.
+
+**The primitive.**  `held PATH [WINDOW]` in `tools/launch.sh` — one line,
+`! flock -w "${2:-0.2}" "$1" true` — and `_lock_held(path,
+window=LOCK_WINDOW)` in `tools/panel.py`, a loop of non-blocking tries a
+millisecond apart across 100 ms.  Every raw read is on it now:
+`cut_for`, `pulled_by`, `check`'s bind line, `status`, `pull`'s guard and
+its wait, serve's guard and wait, and `lead.sh`'s "up and not yet
+answering" read (inline `flock -w 0.2`, since `lead.sh` cannot call the
+function).  serve's guard — F020's inline ten tries at 20 ms — is `held`
+at the same 200 ms.  No raw `flock -n FILE true` read is left in
+`tools/`; the runner's own `flock -w 2 9` is a take, not a read, and
+stays.  The card's "must not become a test that blocks" is kept in the
+bounded sense: a read waits the window and never longer, so `status` on a
+running node answers 0.4 s later than it did (its own read and
+`cut_for`'s), and the panel 0.1 s per running pin, not forever.
+
+**The instrument.**  `test/conftest.py` carries `hammer(path)` — a
+background loop of `flock -n PATH true`, the readers that collide, up and
+forking before it yields — and `hold(path, seconds, shared=)` — a process
+holding the lock exclusive like a runner or shared like a puller, yielding
+once it says it holds (no lock test in the fixture), `exec sleep` so a
+kill drops the lock.  Both are pytest fixtures; a test asks for them by
+name.  The F020 test is the first caller of `hold` — its two Popen
+holders and an in-process `fcntl` became two `with` lines.  The first
+probe of the hammer taught the hammer's shape: forty in-process reads in
+a burst fit inside one of its ~1 ms rounds and saw nothing, so a probe
+spreads its reads over many rounds, and the docstring says so.
+
+**Red first.**  Two regression tests carry the class:
+`test_launch.py::test_status_reads_a_free_lock_as_free_under_a_hammer_of_readers`
+asserts the raw idiom wrong under the hammer (so the instrument is known
+to bite), then `status` right twenty times; and
+`test_panel.py::test_lock_held_reads_a_free_lock_as_free_under_a_hammer_and_a_held_one_as_held`
+does the same for the panel with `window=0` as the old single read, then
+a real holder read as held.  `tools/mutate.sh` has both breaks at its
+foot: `held` put back to the raw read fails three tests (the two above and
+the ask node's death read — a third detector nobody wrote for this), and
+the panel's window at 0 fails one; both intact copies green.  **The
+measurement the card asked for**, the shake with every core burning: the
+`status` test 9 of 30 at the 50 ms window, **0 of 30** at 200 ms; the
+panel test 0 of 30; the F020 serve test, now on `held` and `hold`, 0 of
+20.
+
+**What it did not do.**  The test suite's own raw reads — `_lock_holder`
+and `_hung_runner`'s fixture polls — are tolerant loops already and
+stay; `locked()` in `test_launch.py` reads through the window now.  The
+lock-free signals F020 put in the watcher (`run.pid`, `stopped`) are
+untouched, as the card said they should be.
 
 ## Where it sits
 
