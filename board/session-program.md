@@ -1602,3 +1602,19 @@ turn that is itself under keep.
 
 What stays this card's: the node's sitting against a loop longer than
 ten minutes, and `finish_reason` on propose's not-a-completion line.
+
+### 13:18 — the live kept door turn, from his shell
+
+Henri's shell, twenty minutes after the commit: `lead.sh llm --kept
+--door llm` said the node was not up and what it last said; `launch.sh
+llm pull`; then the same command waited at the door's `/health`, ran
+under keep, and drafted — `proposals/2026-09-04-1318-draft-a-schema-
+for-a-standing-rule-deriv.md`, the account beside it.  Pick on the
+shelf (`kaizen-ingestion.md`), the task a few lines, the draft a schema
+with provenance in it.  So the kept loopback door works live, first
+try.  What it did not exercise: the tools loop.  The account has no
+`C:` line — the digest was in the prompt and gemma4 called nothing, as
+§"06:58" measured — so whether the executor's own keep runs inside a
+kept turn is still unrun.  The reading that would say: the same
+command with the digest held back, which `lead.sh` has no knob for
+today.
