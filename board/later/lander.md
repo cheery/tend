@@ -168,3 +168,29 @@ see whether `wait=` ever exceeds a sitting's length.  If it does not, the
 lamp is the whole card and the actor is not built; if it does, the actor
 is the card's second half.  Real, and not being worked until the log is
 read.
+
+## Read 2026-09-04 — the log's week, whole
+
+`~/.local/state/tend/lander.log`, 2026-08-29 14:22 to 2026-09-03 19:23,
+read by `awk` and not by eye:
+
+| rows | longest wait | when | waits over 15 min | waits over 120 min |
+|---|---|---|---|---|
+| 24 | 7093 s (1 h 58 min), behind=2 | 2026-09-03 08:41 | 3 | 0 |
+
+The sittings that week were granted between 10 and 120 minutes
+(`sittings.log`).  Twenty-three of the twenty-four rows are a lamp lit
+inside the sitting that made the drift, and paid by his install before
+it ended.  The one that is not: the drift began 06:43 on 2026-09-03,
+in the 05:39 sitting (120 min), and was paid in the 08:41 sitting (20
+min) — it outlived the sitting that made it, by about an hour, on the
+one morning with a gap between sittings.  So the criterion above ("if
+the drift never outlives a sitting") is not met by one row in a week,
+and the tree's rule for one sighting is a note, not a mechanism
+(`F021`'s first sighting; `card:flake.md`).  The lamp did its job every
+time: no wait crossed a day, and every one ended with his hand.
+
+*(question, his call — one drift in a week outlived its sitting by an
+hour, on a morning with a gap between sittings.  Is that the actor's
+second half, or a note until it happens again?  The card waits on this
+now, not on the log.)*
