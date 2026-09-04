@@ -182,6 +182,15 @@ between two workable cards is Henri's.
     word that grants a read and tells the program where — and day one
     is a measurement, the 16:29 question cold and with material; the
     tiebreak is his.*
+14. **[meter](meter.md)** — the trees are getting better, and the only
+    instrument that says so is a feeling: the tree keeps a kaizen per
+    sitting, an F-number per defect, a date on every card and a line
+    per red, and nothing reads any of it back over time.  *Placed last
+    by the session that wrote it on 2026-09-04 at Henri's "tehdään
+    tästä kortti ja sitten toteutetaan se, laitetaan mittari keeper.md
+    -dokumenttiin"; day one is `tools/meter.py`, one row per week read
+    from files and git, keeper.md's third act, and the first run kept
+    verbatim in `doc/`; the tiebreak is his.*
 
 ## Finished
 
