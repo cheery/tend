@@ -1984,3 +1984,36 @@ right in that sense: the longest card is the one a mind at 4k per
 read can least finish, and the measurement it was for — the draft
 against the `because` — needs a card the mind can hold.  `meter.md`
 is 96 lines.  The next twelve turns are his, on a card that fits.
+
+### 17:1x–17:30 — twelve turns on `meter.md`, and the reading against its `because`
+
+His shell: six gemma4 kept through the llm door, six hy3 through the
+openrouter door at `TEND_MAXTOK=8000 TEND_READCHARS=4000`, all twelve
+drafting.  `meter.md` is 96 lines; its `because` is his sentence
+(the trees get better and only a feeling sees it; the tree writes
+everything a number would be made of and reads none of it back; the
+audit went 7 to 8 pieces and could not say which because no earlier
+run was kept).  Off the accounts and the drafts:
+
+| arm | calls | the task, six times | lines | small thing? | past line 70? |
+|---|---|---|---|---|---|
+| gemma4 ×6 | 0 ×6 | "implement a versioned storage for audit results in gestate/" ×6 (one says `audit_history/`, one JSON snapshots) | 19–33 | no — a build, for the other tree, aimed at the `because`'s example and not its problem | no — the card's own day one (`tools/meter.py`, the first run kept verbatim in `doc/`) is that storage, and it read nothing |
+| hy3 ×6 | 14, 15, 14, 18, 16, 12 | `--diff` for `tools/meter.py` against a kept run ×4 (one as a 64-line card, `meter-diff`, with a `because`); a keeper.md act-3 paragraph on saving and diffing runs ×1; "the one small thing, in one line" ×1 — the ask's placeholder, echoed | 7–64 | four of six yes: a few lines the card implies and nothing builds ("kept verbatim so the next can be diffed") | yes — it read the card whole and `keeper.md`, and named the run file by its date |
+
+So on the measure this form was for: **gemma4 zero of six, hy3 four
+of six**, on the same card in the same hour.  gemma4 with a card in
+hand reads nothing (0 calls, six times, as with the digest) and
+proposes a build for the wrong tree from the `because`'s last
+sentence; hy3 reads the card and the keeper's page and proposes the
+card's own next line, four times in four wordings, once as a card.
+The difference is a draft's difference now, which is what the talk
+above asked the setup to make it.  hy3's one bad turn is the setup's
+and is fixed in this commit: it answered the ask's placeholder as its
+task (`TASK: the one small thing, in one line`) and lead.sh drafted
+from it; the placeholder's words are no task, and the cord is pulled.
+
+What is his: the four `--diff` drafts are the same proposal, and the
+64-line one (`proposals/2026-09-04-1726-…`) is card-shaped; landing
+one by hand, or not, is the person's half of brick 3.  The twelve
+turns are the milestone's sentence measured on a card he can read in
+a minute — and the answer to *which mind* is on the last column.

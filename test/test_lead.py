@@ -396,6 +396,17 @@ def test_a_handed_card_is_the_turns_input_and_the_mind_writes_the_task_not_the_p
     assert seen3 == []
 
 
+def test_a_task_that_echoes_the_prompts_placeholder_is_no_task(board, tmp_path):
+    """2026-09-04 17:20: hy3 answered `TASK: the one small thing, in one
+    line` — the ask's own placeholder — and the turn drafted a built
+    thing.  The placeholder's words are no task: the cord is pulled."""
+    r, seen = lead("CARD: lander.md\nTASK: The one small thing, in one line\nWHY: w", board, tmp_path)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(seen) == 1, "no draft was asked for"
+    assert "andon:" in r.stdout and "no CARD/TASK shape" in r.stdout, r.stdout
+    assert not list((tmp_path / "proposals").glob("*.md")), "nothing was drafted"
+
+
 def test_a_seeded_tools_turn_carries_the_digest_and_the_tools_and_seed_alone_is_refused(board, tmp_path):
     """--seed (2026-09-04): compare.py's third arm on the node's loop — the
     digest in the ask AND the door's tools in the request, unkept here so

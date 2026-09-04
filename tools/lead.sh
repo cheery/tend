@@ -336,6 +336,10 @@ fi
 field() { printf '%s\n' "$reply" | sed -n "s/^[[:space:]]*$1:[[:space:]]*//p" | head -1; }
 card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
 [ -z "$given" ] || card=$given   # handed, not picked: a CARD: line the mind writes anyway is not read
+# the shape echoed is no task: hy3 answered `TASK: the one small thing, in one line` — the prompt's own
+# placeholder — on 2026-09-04 17:20, and drafted a thing the card says is built.  A task that is the
+# placeholder's words is read as no shape, and the cord is pulled as for any shapeless reply
+case "$(printf '%s' "$task" | tr 'A-Z' 'a-z')" in *"the one small thing"*) task="" ;; esac
 # the prompt's own typography, echoed (13:57, live: `CARD: <canvas-script.md>`; 18:01: `CARD: canvas.md ===`,
 # the digest's fence): the filename is the one thing the open shelf judges, whatever the model wraps it in —
 # the first word ending in .md, and an invented card so wrapped is still a pull
