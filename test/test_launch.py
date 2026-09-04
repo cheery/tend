@@ -1306,6 +1306,9 @@ def ask_nodes(tmp_path, port, connect=True):
     """The tree's `ask`, copied, its edge pointed at a scratch `llm` and its talk at the stand-in's port."""
     llm = tmp_path / "llm"; (llm / "state").mkdir(parents=True)
     (llm / "grant").write_text("program true\n")
+    # the tree's ask carries `material ../board/README.md` standing (card:material.md, 2026-09-04),
+    # so the scratch tree has a board for the path to resolve to — five reds on 2026-09-04 13:13
+    (tmp_path / "board").mkdir(); (tmp_path / "board" / "README.md").write_text("# board — a scratch one\n")
     ask = tmp_path / "ask"
     shutil.copytree(ROOT / "ask", ask, ignore=shutil.ignore_patterns("state", "__pycache__"))
     g = (ask / "grant").read_text().replace("\npull llm\n", "\npull ../llm\n")
