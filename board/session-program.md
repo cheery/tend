@@ -1844,3 +1844,16 @@ reader knows a page of thinking from a draft.  For a door mind that
 reasons by default the knob is `TEND_MAXTOK=2000` on the command, as
 `deliver.sh` already defaults; his shell's, and one more turn says
 whether hy3's draft is then a draft.
+
+### 15:42 — at `TEND_MAXTOK=2000`, hy3's draft is a draft
+
+One turn, his shell: three cards read, `kaizen-ingestion.md`, the task
+"draft the one-line format for an ingested.md promotion entry", and a
+draft of one line in the content channel — the format, exactly the
+task, nothing about itself.  So the hy3 arm has both halves now: a
+pick among cards it read, and a draft a person can read beside
+gemma4's six.  The cap was the whole of F026's second face; the door
+mind's default reasoning needs the courier's cap, not the node's 600,
+and the number is on the command until someone wants it on the door
+file (a `maxtok` line beside `readchars` is the shape, and nothing
+needs it today).
