@@ -351,6 +351,12 @@ def test_a_tools_turn_holds_the_digest_back_and_the_mind_reads_the_board_under_k
     sys_text = "\n".join(m["content"] for m in first["messages"] if m["role"] == "system")
     assert "a commit waits on a hand" not in sys_text, "the digest was held back"
     assert "board/*.md" in sys_text, sys_text
+    # the pick's own text names no card: six live turns picked tools.md five times with "tools" in the ask
+    pick_text = next(m["content"] for m in first["messages"] if m["role"] == "system" and "board/*.md" in m["content"])
+    cards = [p.stem for p in (ROOT / "board").glob("*.md") if p.stem != "README"]
+    named = [c for c in cards if c in pick_text.lower()]
+    assert not named, f"the pick text names a card: {named}"
+    assert "three" in pick_text, pick_text
     assert len(seen) == 3, "the pick's two rounds and the draft"   # call round, reply round, propose
     assert "probe: refused" in r.stdout + r.stderr, r.stdout + r.stderr
     accounts = list((tmp_path / "proposals" / "lead").glob("*.md"))

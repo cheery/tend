@@ -1715,3 +1715,14 @@ used 2) but the ask: a prompt that names no card-shaped word and asks
 for the `because` of more than one card before the pick — which is a
 change to the system text and measurable the same way, six turns and
 the `C:` lines.  His shell's turns again, at his word.
+
+### 15:0x — the ask without the word, at his "tee se prompti ilman tools-sanaa"
+
+The pick's system text says nothing that is a card's name — the test
+reads the open shelf and refuses a text that carries any card's first
+word — and asks for at least three cards opened and compared before
+the pick.  What still carries the word: the courier's own seat line
+(`deliver.sh`, "You have the tools read ls grep …"), which every tooled
+turn gets and which is not this card's to move; and the tool manifest
+itself.  So the variable is the pick text alone, and the reading is the
+same six turns and the same `C:` count, his shell's.

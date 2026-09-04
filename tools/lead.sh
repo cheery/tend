@@ -207,14 +207,18 @@ fi
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
 if [ -n "$tools" ]; then
-    # the digest held back: the board is named and the tools are the way to it
+    # the digest held back: the board is named and nothing about it is said.  No word in this
+    # text is a card's name — six turns on 2026-09-04 picked tools.md five times with "tools"
+    # four times in the ask (card:session-program.md §"14:5x") — and it asks for three cards
+    # opened before the pick, because one card read of sixteen listed is a card, not a board
     sys="You are leading one turn of work on the tend project's board.  The
 open cards are the files board/*.md — never board/README.md, and never
-done/ or later/, which are not open work.  Read the board with your
-tools: ls board/, then read the cards you need; each card's problem is
-its \`because\` field.  Pick ONE card and ONE small thing that could be
-drafted for it now — a few lines, not a build.  Answer in exactly this
-shape, three lines, nothing else:
+done/ or later/, which are not open work.  Nothing about them is in
+this message: list board/ and open the cards yourself; each card's
+problem is its \`because\` field, near the top.  Open at least three
+cards and compare their problems before you choose.  Pick ONE card and
+ONE small thing that could be drafted for it now — a few lines, not a
+build.  Answer in exactly this shape, three lines, nothing else:
 CARD: the filename only, one word ending in .md, from board/
 TASK: the one small thing, in one line
 WHY: one line
