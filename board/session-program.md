@@ -1726,3 +1726,49 @@ the pick.  What still carries the word: the courier's own seat line
 turn gets and which is not this card's to move; and the tool manifest
 itself.  So the variable is the pick text alone, and the reading is the
 same six turns and the same `C:` count, his shell's.
+
+### 15:1x — six turns on the ask without the word, and the count
+
+His shell, 15:05 to 15:14, `proposals/lead/2026-09-04-15{05,07,09,10,12,13}.md`,
+counted off the `C:` lines:
+
+| turn | calls | cards opened before the pick, in order | picked | the pick was read |
+|---|---|---|---|---|
+| 15:05 | 11 | 1 — `edge.md`, whole, ten reads of 4k | edge.md | yes |
+| 15:07 | 4 | 3 — canvas, edge, flake | flake.md | yes, the last opened |
+| 15:09 | 4 | 3 — canvas, edge, flake | flake.md | yes, the last opened |
+| 15:10 | 4 | 3 — canvas, edge, hold | hold.md | yes, the last opened |
+| 15:12 | 4 | 3 — canvas, edge, flake | flake.md | yes, the last opened |
+| 15:13 | 4 | 3 — canvas, edge, hold | hold.md | yes, the last opened |
+
+Against the six with the word (§"14:5x"): **`tools.md` five of six
+became zero of six**, so the word was the steer.  What steers now is
+in the table: five of six opened exactly the three the ask said "at
+least", the three are the first entries of `ls board` in sorted order
+(`canvas`, `edge`, then `flake` or `hold` — the third and fourth
+files), and **the pick is the last card opened, five of five**.  The
+sixth turn opened one card and read it whole — ten continuations,
+660 lines — and picked it, which is the 14:55 turn's shape again.
+The pick a card it read, six of six, as before.
+
+The tasks say what a 4k read of a 500-line card sees: "the schema for
+a line in the failure ledger" (`flake.md`, built 2026-08-29,
+`tools/suite.py`), "the `<name>.hold` file format" (`hold.md`, day one
+landed 2026-08-29, in the file past line 70), "a day-two section for
+the courier" (`edge.md`).  Each is a proposal to specify a thing the
+card's later sections say is built; the mind read the `because` and
+the first seventy lines and not the rest, and the cut line told it so.
+
+So the reading, in one sentence: **without the word the mind reads
+what `ls` shows first and picks what it read last; the ask sets how
+many, the listing sets which, and the recency sets the pick.**  A
+prompt cannot fix the listing.  What the 08-31 measurement on the
+door already found (§"2026-09-01, 15:40": the digest arm picks from
+7.5k chars and cannot go deeper, the tools arm reads and drowns, and
+the arm the card should have had is *seeded* — the digest in the
+prompt and the tools in the request) is the next knob here too:
+`--tools` with the digest, so the pick is from every card's `because`
+and the reads go where the pick needs them.  That is a line in
+`lead.sh` and six more turns of his; not built at this hour, because
+the sitting has an hour left and a kaizen to write, and the number is
+his to want.
