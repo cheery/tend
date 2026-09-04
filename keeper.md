@@ -1,4 +1,4 @@
-# keeper.md — standard work for the person, and today it is two acts
+# keeper.md — standard work for the person, and today it is three acts
 
 *Written 2026-09-01 at Henri's ask — "I need a keeper.md -file that
 describes the act of seeking the self-shaped -records and marking them
@@ -8,9 +8,12 @@ second arrived the same afternoon, when `card:questions.md`'s day one
 turned out to be the same mechanism pointed the other way.
 `~/gestate/keeper.md` is the same page in the older tree and has six
 acts; this one has two, because a piece arrives when something needs it.
-The rest come when they are asked for.*
+The rest come when they are asked for.  The third came on 2026-09-04,
+at Henri's "laitetaan mittari keeper.md -dokumenttiin" — the day he
+said the trees were getting better and only a feeling could see it
+(`card:meter.md`).*
 
-**Both acts are the same two minutes of the same skill**: run one grep,
+**The first two acts are the same two minutes of the same skill**: run one grep,
 read what a session wrote, write one line beginning `henri:` under it.
 A mark is a session saying *I wrote a rule, read it*; a question marked
 `his call` is a session saying *I do not know and it is yours*.  If you
@@ -136,6 +139,53 @@ Answer the same way as a mark, on the line under it:
 
 A question you answer stays where it is with your answer under it,
 exactly as a struck mark does.
+
+---
+
+## 3. Read the meter, and write your own number first
+
+**About a minute, when you want to know — and one digit at the end
+of a sitting.**  On 2026-09-04 you said the trees were getting better
+and that only your feeling could see it.  The tree keeps a kaizen per
+sitting, an F-number per defect, a date on every card and a line per
+red, and nothing read any of it back over time; `tools/meter.py` does
+(`card:meter.md`).  It reads files and git and prints one row per
+week:
+
+    tools/meter.py
+    tools/meter.py --by day
+
+**The columns, one line each.**  *sittings* is kaizen files; *commits*
+is `git log`; *wrong* is the count a `**Wrong, mine.**` paragraph opens
+with, and how many kaizens it could read that way; *recurs* is how many
+of the week's ingested kaizens `doc/ingested.md` called an old lesson;
+*F* and *cards* are opened and closed, with the median days between;
+*reds* is the failure ledger, the gate's and a hand's, never the
+shake's; *henri* is yours.  Under the table it says what it could not
+count from where it sits — read that line before the numbers.  The
+column that answers your sentence is *recurs*: a tree that teaches has
+fewer of last week's lessons in this week's kaizens.  It is also the
+column a session writes the verdict for, so it is the one to distrust
+first.  The first run is `doc/meter-2026-09-04.md`, kept verbatim so
+the next can be diffed against it.
+
+**Your number is one line in the sitting's kaizen, written before you
+look at the table.**  One digit, 1 to 5, on your own scale, in the same
+voice as a struck mark:
+
+    henri: 4 — the tree caught it before I did
+
+The digit is the only part the meter reads; the words are for the
+session that reads the kaizen.  Blind on purpose: written before the
+table, so that later the two can be laid side by side and the
+mechanical column that moves with yours can be found — or none does,
+and the card says which columns you would have counted instead.  Not
+a target, not a lamp, nothing fails on it, and a week you skip is a
+blank in the column and not a mark against anything.  A session may
+ask for the digit at the end of a sitting, the way it says it wrote a
+mark; it never writes it for you.
+*(self-shaped, 2026-09-04 — a session wrote how the person scores the
+sessions' week, which is a session choosing the scale it is read on.)*
 
 ---
 

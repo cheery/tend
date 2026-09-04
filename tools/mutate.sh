@@ -265,6 +265,11 @@ test/test_deliver.py	deliver: a door turn is recorded without the door's name	se
 test/test_deliver.py	deliver: a door turn is a pull, and would start the local node	sed -i 's/^if \[ -n "\$q" \] \&\& \[ -n "\$door" \]; then$/if false; then/' tools/deliver.sh
 test/test_panel.py	panel: talk names a door and sends the turn to the node	sed -i 's/^    if door is not None:$/    if False:/' tools/panel.py
 test/test_door.py	door: --use takes an id the door does not list	sed -i 's/^listed() { .*/listed() { true; }/' tools/door.sh
+# the meter — 2026-09-04, Henri: "Me tarvittaisiin numeroita mittaamaan että kehitystä tapahtuu" (card:meter.md)
+test/test_meter.py	meter: a kaizen it cannot read is a zero, not a blank	sed -i 's/^    return None$/    return 0/' tools/meter.py
+test/test_meter.py	meter: a shake's reds are counted as a hand's	sed -i 's/hand = sum(c\["hand"\]/hand = sum(c["hand"] + c["shake"]/' tools/meter.py
+test/test_meter.py	meter: an F-number's move to resolved/ is read as its arrival	sed -i 's/or day < arrived\[stem\]:/or day > arrived[stem]:/' tools/meter.py
+test/test_meter.py	meter: git is not asked and the entry's own `seen` date is believed	sed -i 's/if line.strip() and day:/if line.strip() and False:/' tools/meter.py
 ROWS
 }
 
