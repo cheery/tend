@@ -6,4 +6,9 @@
 allow ask.py
 pull llm
 connect 18080
+# the board in hand, standing (card:material.md, closed 2026-09-04 at Henri's "tee nuo"): the
+# measurement said material changes the answer from a dictionary entry to the tree's own sentence,
+# and README alone is what answered; vision.md stays off the grant, 7.6k chars the answer did not use
+material ../board/README.md
 program /usr/bin/python3 $NODE/ask.py
+material ../board/README.md

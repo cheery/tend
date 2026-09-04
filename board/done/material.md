@@ -1,6 +1,6 @@
 # material — a node that asks the llm about tend gets the dictionary, because it may read nothing of the tree
 
-    status   open
+    status   done — 2026-09-04
     because  Henri, 2026-09-02 16:4x, after the first conversation over an
              edge: "hmm. ask voisi kyllä olla jotenkin järjestetty siten
              että se voi lukea puuta."  The `ask` node asked the llm
@@ -141,6 +141,19 @@ seuraavaksi"; the day-one arms both ran, cold on `card:edge.md` and
 material in `ask/state/answer`.  Whether `ask` carries the two `material`
 lines as a standing grant, and whether this card closes here or goes on
 to the feature and the digest-vs-tool question, is his call.)*
+
+## Closed 2026-09-04 — the three decisions, at Henri's "tee nuo"
+
+1. **A standing grant.**  `ask/grant` carries `material ../board/README.md`
+   — README alone: the 16:29 answer was README's own sentence, and
+   `vision.md`'s 7.6k chars were handed and not used.
+2. **The cap.**  `ASK_TOKENS` defaults to 2000 when the node has material
+   and 800 when it asks cold; set by hand it wins either way.
+3. **The card closes.**  Its `because` is answered — a grant word puts
+   the tree in front of the mind, and the mind uses it, measured on
+   2026-09-03.  The digest-versus-tool question is `card:tools.md`'s and
+   stays there; the courier's digest as the shape for a node is not
+   built, because nothing needed it.
 
 ## Where it sits
 

@@ -174,15 +174,7 @@ between two workable cards is Henri's.
     runs from his shell, the third answered in 52 s from edge to
     `ask/state/answer`, the pulled node coming up at the lock and not
     at the tick.*
-13. **[material](material.md)** — a node that asks the llm about tend
-    gets the dictionary, because what a node knows is what its grant
-    lets it read and no grant word names a tree file.  *Placed last by
-    the session that wrote it on 2026-09-02 at Henri's "tee siitä
-    kortti", as the afternoon closed; the shape is `pull NODE`'s — a
-    word that grants a read and tells the program where — and day one
-    is a measurement, the 16:29 question cold and with material; the
-    tiebreak is his.*
-14. **[meter](meter.md)** — the trees are getting better, and the only
+13. **[meter](meter.md)** — the trees are getting better, and the only
     instrument that says so is a feeling: the tree keeps a kaizen per
     sitting, an F-number per defect, a date on every card and a line
     per red, and nothing reads any of it back over time.  *Placed last
@@ -194,7 +186,7 @@ between two workable cards is Henri's.
 
 ## Finished
 
-Sixteen cards are on `done/`, each closed with its `because` answered.
+Seventeen cards are on `done/`, each closed with its `because` answered.
 What the board said as each one closed is in `journal.md` ("The board's
 closing notes"), moved there on 2026-09-03 at Henri's word: a closing
 note is what happened, and what happened goes in the journal.
@@ -202,7 +194,7 @@ note is what happened, and what happened goes in the journal.
 - `gates` 2026-08-24; `grant`, `pull` 2026-08-25; `arrival`, `keep`,
   `resolver`, `self` 2026-08-26; `cords`, `fence`, `green`, `install`
   2026-08-27; `andon-panel`, `node-install` 2026-08-28; `lost-write`,
-  `trees` 2026-08-31; `lock-test` 2026-09-03.
+  `trees` 2026-08-31; `lock-test` 2026-09-03; `material` 2026-09-04.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.  `swe-bench` went there on

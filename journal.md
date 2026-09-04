@@ -287,3 +287,18 @@ same evening (`sudo tend-install`, a7961f6).  What it left: one whole
 suite run red on the die flow test with its traceback lost to the
 session's own `tail`, green on the second and shaken 0 of 25 — on the
 ledger, the next sighting read whole.
+
+`material` finished 2026-09-04, at Henri's "laita kortti suositusten
+mukaan hyllylle kun 1 ja 2 on tehty. eli 'tee nuo'"
+(`done/material.md`), opened 2026-09-02 as the afternoon closed and
+measured 2026-09-03.  A node asking the llm about tend got the
+dictionary, because no grant word named a tree file; `material PATH`
+is that word — the shape of `pull NODE`, a read granted and its place
+told — and the measurement was the 16:29 question again, cold and with
+the board in hand: the dictionary entry became the tree's own sentence
+about the enforcement boundary, quoted back.  What closed it: `ask`
+carries `material ../board/README.md` standing (README alone; vision's
+7.6k chars were handed and not used), `ASK_TOKENS` is 2000 for a node
+with material and 800 cold, and the digest-versus-tool question stays
+on `card:tools.md`, where it was.  Not built: the courier's digest as a
+node's shape, because nothing needed it.

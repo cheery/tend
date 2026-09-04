@@ -83,7 +83,10 @@ while True:
     time.sleep(1)
 # 800 tokens, not 200: the first live answer (15:41) was 200 tokens of gemma4's thinking under --jinja and an
 # empty `content` — the cap was spent before the answer began, and ask said "ask: " and exited 0
-cap = int(os.environ.get("ASK_TOKENS", "800"))
+# 2000 when the node reads the tree (card:material.md, closed 2026-09-04): reasoning over ~12k tokens of
+# material plus the answer did not fit in 800 — the right sentence was cut at "jossa" — and 2000 finished it.
+# A cold ask keeps 800.  ASK_TOKENS set by hand wins either way
+cap = int(os.environ.get("ASK_TOKENS", "2000" if material else "800"))
 body = json.dumps({"messages": [{"role": "user", "content": asked}],
                    "max_tokens": cap, "temperature": 0}).encode()
 req = urllib.request.Request(url + "/v1/chat/completions", data=body, headers={"Content-Type": "application/json"})
