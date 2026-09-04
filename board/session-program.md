@@ -1857,3 +1857,15 @@ mind's default reasoning needs the courier's cap, not the node's 600,
 and the number is on the command until someone wants it on the door
 file (a `maxtok` line beside `readchars` is the shape, and nothing
 needs it today).
+
+### 15:50 — a third hy3 turn, at his "ihan ok-näköinen kortti"
+
+The same three reads in the same order (`kaizen-ingestion`, `flake`,
+`meter`), the same pick, a task of one line, and a draft of one line:
+`R10 — measure, don't assert — 25-0828, 25-1424, 25-1530` — the
+card's own example promotion, in the card's own citation form, the
+three sittings the card names.  Grounded in the material and not
+invented; and it is the third hy3 turn to read exactly those three
+cards, so the seeded arm on hy3 has a fixed point too — three cards
+whose `because` speaks of counting — which is a fact about the digest
+and the mind together, and the reading of it is his.
