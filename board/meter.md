@@ -45,6 +45,7 @@ underneath what it could not count from where it sits:
 | F opened / resolved | the `fixme/` file's first commit; its `status` date | defects found, and closed, and how long that took |
 | cards opened / done | the `asked` date; the `status` date | lead time |
 | reds | `failed.log`, `gate` and `hand` lines | what the suite refused, and what a hand ran red |
+| for him | keeper.md's two greps; the mark's date or git's blame; his `henri:` date | the keeper's queue: placed, struck, and how many wait — added at his "laita mittariin tuo sarake samantien", 2026-09-04 |
 | henri | a `henri: N` line in the sitting's kaizen | his own number, 1–5, blind to the rest |
 
 The **recurs** share is the one that answers the `because` directly:

@@ -161,7 +161,11 @@ with, and how many kaizens it could read that way; *recurs* is how many
 of the week's ingested kaizens `doc/ingested.md` called an old lesson;
 *F* and *cards* are opened and closed, with the median days between;
 *reds* is the failure ledger, the gate's and a hand's, never the
-shake's; *henri* is yours.  Under the table it says what it could not
+shake's; *for him* is your own queue — the marks and `his call`
+questions acts 1 and 2 find, placed and struck, and the footer says how
+many wait and since when (added at your "laita mittariin tuo sarake
+samantien", the morning you said the keeper's role needs one to be
+awake and well); *henri* is yours.  Under the table it says what it could not
 count from where it sits — read that line before the numbers.  The
 column that answers your sentence is *recurs*: a tree that teaches has
 fewer of last week's lessons in this week's kaizens.  It is also the
@@ -185,7 +189,8 @@ blank in the column and not a mark against anything.  A session may
 ask for the digit at the end of a sitting, the way it says it wrote a
 mark; it never writes it for you.
 *(self-shaped, 2026-09-04 — a session wrote how the person scores the
-sessions' week, which is a session choosing the scale it is read on.)*
+sessions' week, which is a session choosing the scale it is read on.
+henri: approved 2026-09-04)*
 
 ---
 

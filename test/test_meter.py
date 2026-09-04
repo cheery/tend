@@ -60,10 +60,16 @@ def tree(tmp_path):
     bd = root / "board"
     (bd / "done").mkdir(parents=True)
     (bd / "later").mkdir()
-    (bd / "README.md").write_text("# board\n")
+    (bd / "README.md").write_text(
+        "# board\n\n**A rule.**  Sessions do this.\n"
+        "*(self-shaped, 2026-08-24 — a session wrote this rule about sessions.\n"
+        "henri: approved 2026-08-26)*\n\n"
+        "**Another.**  Left standing.\n"
+        "*(self-shaped, 2026-08-27 — a session wrote this one too.)*\n")
     (bd / "x.md").write_text(
         "# x\n\n    status   open\n    because  a problem\n"
-        "    asked    Henri, 2026-08-24 — \"card it\"\n")
+        "    asked    Henri, 2026-08-24 — \"card it\"\n\n"
+        "*(question, his call — which of the two, and why?)*\n")
     (bd / "done" / "y.md").write_text(
         "# y\n\n    status   done — 2026-08-26\n    because  a problem\n"
         "    asked    Henri, 2026-08-24 — \"card it\"\n")
@@ -107,6 +113,7 @@ def test_it_parses():
 
 def test_the_first_week_reads_every_column_from_a_file(tree):
     out = meter(tree)
+    print(out.stdout)   # shown whole on a red — pytest's assertion repr cuts the table
     assert out.returncode == 0, out.stderr
     week = row(out.stdout, "2026-08-24")
     assert week[1:] == [
@@ -117,8 +124,11 @@ def test_the_first_week_reads_every_column_from_a_file(tree):
         "+2 −1 (2 d)",       # F000 arrived 08-24 by git (not `seen`'s 08-25); F001 08-24 → 08-26
         "+3 −1 (2 d)",       # x and y asked 08-24, z 08-27 (a shelf is not a close); y done 08-26
         "1/1",               # one gate red, one hand red; the shake is left out
+        "+3 −1 (2 d)",       # two marks by their own dates (08-24 struck 08-26, 08-27 standing) and a
+                             # question with no date, placed by git's blame of its line (08-24)
         "4.0",               # his line
     ]
+    assert "for him: 2 waiting for his hand, the oldest since 2026-08-24 (board/x.md:7)" in out.stdout
 
 
 def test_a_paragraph_that_opens_with_prose_is_not_counted_and_not_zero(tree):
@@ -127,7 +137,8 @@ def test_a_paragraph_that_opens_with_prose_is_not_counted_and_not_zero(tree):
     week = row(out, "2026-08-31")
     assert week[3] == "0 (1 read)", "`None caught by a fence` is a zero, read from the first word"
     assert week[4] == "·", "nothing in that week has been ingested"
-    assert week[8] == "·", "no henri line is a blank, never a number"
+    assert week[9] == "·", "no henri line is a blank, never a number"
+    assert week[8] == "+0 −0", "nothing was placed for him or struck that week"
     assert "2 of 4 kaizens have no verdict" in out
 
 

@@ -21,6 +21,14 @@ A kaizen with no such paragraph is *not counted*, never zero.  The
 `henri` column is his: a line `henri: N` (1–5) in the sitting's kaizen,
 written before this is run.
 
+`for him` is the keeper's queue (Henri, 2026-09-04: "Alan ymmärtää miten
+vaikeaa keeperin rolli on.  Se vaatii että on hereillä ja hyvin") — the
+self-shaped marks and `his call` questions keeper.md's two greps find,
+placed by the date the mark carries or git's blame of its line, struck
+by the date in his `henri:` answer; the footer says how many wait and
+since when.  A mark waiting is a session's boundary nobody has stood
+behind yet, which is what the tree looks like when he is not there.
+
 Card: `card:meter.md`.  What this is not: a target, a lamp, a gate.
 """
 
@@ -44,6 +52,11 @@ HENRI = re.compile(r"^henri:\s*([1-5])\b", re.M)
 PAREN = re.compile(r"\((\d+)\)")
 DOTTED = re.compile(r"(?:^|\s)(\d+)\.\s")
 LEDGER = re.compile(r"^(\d{4}-\d{2}-\d{2}) \d\d:\d\d\s+(\w+)\s")
+#: keeper.md's two greps, as one: a mark or a question that is his to answer
+#: a mark carries its date in its form; a question does not, and a date quoted in its
+#: text is not its placing (edge.md:224 asks about a 2026-08-19 line) — git's blame is
+FOR_HIM = re.compile(r"^\*\((?:self-shaped, (\d{4}-\d{2}-\d{2})|question, his call)\b")
+VERDICT = re.compile(r"\bhenri:\s*(.+?)\s*\)?\*?\s*$", re.M)
 WORDS = {"none": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
          "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
 
@@ -114,10 +127,50 @@ def git(root, *args):
     return out.stdout if out.returncode == 0 else ""
 
 
+def blamed(root, path, lineno):
+    """The day a line was committed, by git's blame; None for an uncommitted line."""
+    out = git(root, "blame", "-L", f"{lineno},{lineno}", "--porcelain", "--", str(path))
+    found = re.search(r"^author-time (\d+)$", out, re.M)
+    if not found:
+        return None
+    return datetime.datetime.fromtimestamp(int(found.group(1))).date()
+
+
+def for_him(root):
+    """[{placed, struck, where}] — every mark and his-call question keeper.md's greps find."""
+    files = sorted(root.glob("*.md"))
+    for name in ("board", "spec", "doc", "fixme"):
+        files += sorted((root / name).rglob("*.md"))
+    out = []
+    for path in files:
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        for i, line in enumerate(lines):
+            found = FOR_HIM.match(line)
+            if not found:
+                continue
+            end = i
+            while end < len(lines) and ")*" not in lines[end]:
+                end += 1
+            text = "\n".join(lines[i:end + 1])
+            placed = (date(found.group(1)) if found.group(1)
+                      else blamed(root, path.relative_to(root), i + 1))
+            struck = None
+            said = VERDICT.search(text)
+            if said:
+                struck = first_date(said.group(1)) or blamed(root, path.relative_to(root), i + 1 + text[:said.start()].count("\n"))
+            if placed:
+                out.append({"placed": placed, "struck": struck,
+                            "where": f"{path.relative_to(root)}:{i + 1}"})
+    return out
+
+
 def gather(root):
     root = Path(root)
     k = {"kaizens": [], "fixme": [], "cards": [], "commits": collections.Counter(),
-         "reds": collections.defaultdict(collections.Counter)}
+         "reds": collections.defaultdict(collections.Counter), "him": for_him(root)}
 
     verdicts = {}
     ingested = root / "doc" / "ingested.md"
@@ -204,6 +257,10 @@ def rows(k, by):
             keys.add(period(x["done"], by))
     for d in list(k["commits"]) + list(k["reds"]):
         keys.add(period(d, by))
+    for x in k["him"]:
+        keys.add(period(x["placed"], by))
+        if x["struck"]:
+            keys.add(period(x["struck"], by))
     out = []
     for p in sorted(keys):
         ks = [x for x in k["kaizens"] if period(x["date"], by) == p]
@@ -218,7 +275,10 @@ def rows(k, by):
         commits = sum(n for d, n in k["commits"].items() if period(d, by) == p)
         gate = sum(c["gate"] for d, c in k["reds"].items() if period(d, by) == p)
         hand = sum(c["hand"] for d, c in k["reds"].items() if period(d, by) == p)
+        h_placed = sum(1 for x in k["him"] if period(x["placed"], by) == p)
+        h_struck = [x for x in k["him"] if x["struck"] and period(x["struck"], by) == p]
         out.append({
+            "him": f"+{h_placed} −{len(h_struck)}" + _days([(x["struck"] - x["placed"]).days for x in h_struck]),
             "period": p,
             "sittings": len(ks),
             "commits": commits,
@@ -242,17 +302,23 @@ def footer(k):
     yield f"not counted from here: {unread} of {len(k['kaizens'])} kaizens have no `Wrong, mine` paragraph that opens with a count"
     yield f"not counted from here: {not_ingested} of {len(k['kaizens'])} kaizens have no verdict in doc/ingested.md yet"
     yield "not counted from here: a `--no-verify` commit leaves no line the tree can read (F021 was two)"
+    waiting = sorted((x for x in k["him"] if not x["struck"]), key=lambda x: x["placed"])
+    if waiting:
+        yield (f"for him: {len(waiting)} waiting for his hand, the oldest since {waiting[0]['placed']} "
+               f"({waiting[0]['where']}) — keeper.md's two greps")
+    else:
+        yield "for him: nothing waiting for his hand"
     yield "days on F and cards are the median from the file's first commit, or `asked`, to the `status` date; `shake` reds are a deliberate act and are left out"
 
 
 def render(k, by):
     head = ["week" if by == "week" else "day", "sittings", "commits", "wrong",
-            "recurs", "F +/−", "cards +/−", "reds gate/hand", "henri"]
+            "recurs", "F +/−", "cards +/−", "reds gate/hand", "for him +/−", "henri"]
     lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for r in rows(k, by):
         lines.append("| " + " | ".join(str(r[c]) for c in
                      ("period", "sittings", "commits", "wrong", "recurs",
-                      "fixme", "cards", "reds", "henri")) + " |")
+                      "fixme", "cards", "reds", "him", "henri")) + " |")
     lines.append("")
     lines.extend(footer(k))
     return "\n".join(lines) + "\n"

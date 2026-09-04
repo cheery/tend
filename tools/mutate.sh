@@ -270,6 +270,9 @@ test/test_meter.py	meter: a kaizen it cannot read is a zero, not a blank	sed -i 
 test/test_meter.py	meter: a shake's reds are counted as a hand's	sed -i 's/hand = sum(c\["hand"\]/hand = sum(c["hand"] + c["shake"]/' tools/meter.py
 test/test_meter.py	meter: an F-number's move to resolved/ is read as its arrival	sed -i 's/or day < arrived\[stem\]:/or day > arrived[stem]:/' tools/meter.py
 test/test_meter.py	meter: git is not asked and the entry's own `seen` date is believed	sed -i 's/if line.strip() and day:/if line.strip() and False:/' tools/meter.py
+# the keeper's queue — 2026-09-04, Henri: "laita mittariin tuo sarake samantien"
+test/test_meter.py	meter: a struck mark is never read as struck	sed -i 's/^            if said:$/            if False:/' tools/meter.py
+test/test_meter.py	meter: a question with no date is not placed by git's blame, and vanishes	sed -i 's/else blamed(root, path.relative_to(root), i + 1))/else None)/' tools/meter.py
 ROWS
 }
 
