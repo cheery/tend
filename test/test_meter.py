@@ -107,6 +107,20 @@ def row(out, key):
     raise AssertionError(f"no row for {key} in:\n{out}")
 
 
+def test_waiting_lists_the_marks_with_no_henri_line_and_nothing_else(tree):
+    """Henri, 2026-09-04: the keeper's grep shows every mark, struck ones too,
+    because his `henri:` line is inside the mark.  `--waiting` is the same
+    list the footer counts: the unstruck mark and the question, oldest
+    first, with the file:line the grep would print — and not the struck one."""
+    r = meter(tree, "--waiting")
+    assert r.returncode == 0, r.stderr
+    lines = r.stdout.splitlines()
+    assert len(lines) == 2, r.stdout
+    assert lines[0].startswith("2026-08-24  board/x.md:7  *(question, his call"), lines[0]   # placed by git's blame, the day of the first commit
+    assert lines[1].startswith("2026-08-27  board/README.md:8  *(self-shaped, 2026-08-27"), lines[1]   # line 8: counted off the fixture above
+    assert "2026-08-24 —" not in r.stdout, "the struck mark is not on the list"
+
+
 def test_it_parses():
     assert subprocess.run([sys.executable, "-m", "py_compile", str(METER)]).returncode == 0
 

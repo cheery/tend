@@ -163,8 +163,19 @@ def for_him(root):
                 struck = first_date(said.group(1)) or blamed(root, path.relative_to(root), i + 1 + text[:said.start()].count("\n"))
             if placed:
                 out.append({"placed": placed, "struck": struck,
-                            "where": f"{path.relative_to(root)}:{i + 1}"})
+                            "where": f"{path.relative_to(root)}:{i + 1}", "line": line})
     return out
+
+
+def waiting(k):
+    """--waiting: the marks and his-call questions with no `henri:` line, oldest first —
+    keeper.md's two greps with the struck ones left out (Henri, 2026-09-04: "henri: approved
+    rivit voisi merkata jotenkin ettei ne pomppaa kun hakee (self-shaped").  The grep stays
+    the definition of a mark; this is the same list the meter's `for him` footer counts."""
+    rows = sorted((x for x in k["him"] if not x["struck"]), key=lambda x: (x["placed"], x["where"]))
+    if not rows:
+        return "for him: nothing waiting for his hand\n"
+    return "".join(f"{x['placed']}  {x['where']}  {x['line']}\n" for x in rows)
 
 
 def gather(root):
@@ -328,7 +339,12 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--by", choices=("week", "day"), default="week")
     ap.add_argument("--root", default=str(ROOT))
+    ap.add_argument("--waiting", action="store_true",
+                    help="list the marks and his-call questions with no henri: line, oldest first, instead of the table")
     args = ap.parse_args(argv)
+    if args.waiting:
+        sys.stdout.write(waiting({"him": for_him(Path(args.root))}))
+        return 0
     sys.stdout.write(render(gather(args.root), args.by))
     return 0
 

@@ -48,12 +48,23 @@ say at the end of a sitting if it wrote one.
 
 ### Find them
 
+    tools/meter.py --waiting
+
+One line per mark or question still waiting — oldest first, the
+`file:line` to open, the mark's own first line — and nothing that
+already has your `henri:` line under it.  Marks and questions come out
+on the same list, since both acts are the same two minutes.  *(Your
+words, 2026-09-04: "henri: approved rivit voisi merkata jotenkin ettei
+ne pomppaa kun hakee (self-shaped" — the struck ones kept jumping out
+of the grep, because your line is inside the mark.)*  The grep is
+still what a mark **is**, and it shows every one, struck or not:
+
     grep -rn -A2 '^\*(self-shaped' *.md board/ spec/ doc/
 
 Every hit is a mark and nothing else is — the bracket and the anchor
 were both chosen by measurement (`manifesto.md` §"How a practice gets
 adopted").  The ones still waiting are those with no `henri:` line
-under them.
+under them, which is exactly what `--waiting` reads.
 
 ### Read the rule, not the mark
 
@@ -114,7 +125,8 @@ changes is the line under it.
 ## 2. Read the questions that are yours
 
 **About a minute**, at one question.  Same shape as act 1, and answered
-the same way — that is the point of both.
+the same way — that is the point of both.  `tools/meter.py --waiting`
+lists these with the marks; the grep is the definition:
 
     grep -rn -A2 '^\*(question, his call' *.md board/ fixme/ spec/ doc/
 
