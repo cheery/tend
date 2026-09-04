@@ -377,6 +377,22 @@ should work, and if they don't, then we need to fix that.
 The file restriction clash that broke worktrees was corrected several days ago.
 I think they should work again, but one needs to check.
 
+*Checked 2026-09-04, 14:2x, at his "tehdään se worktree tarkistus", from
+inside the fence.*  In a clone first, then on this tree: `git worktree
+add` on a branch, a commit inside the linked worktree, a rebase inside
+it, `worktree remove` and the branch deleted — `core.bare` read after
+every step and `false` every time, `git status` on main empty every
+time, HEAD unmoved, the hooks running in the worktree's commit as they
+do here.  One thing did refuse, and it is not the worktree: a commit in
+the *clone* failed with `failed to write commit object`, because the
+global git config signs every commit with `~/.ssh/id_ed25519.pub` and
+the fence's home has no such file — this tree's `.git/config` says
+`commit.gpgsign=false` locally, a clone does not inherit it.
+`-c commit.gpgsign=false` and the clone commits.  So: worktrees work
+again, from this seat, on both; the paragraph above stays as the day
+the tax was measured, and the rule it carries is now *a worktree is
+fine, and a clone signs nothing unless told*.
+
 *(question, his call — should this paragraph carry a `(self-shaped` mark
 too? henri: yes 2026-09-01)*
 
