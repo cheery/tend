@@ -1646,3 +1646,30 @@ node held — whether gemma4 at `readchars 4000` reads the board and
 picks is what the account will say.
 
 The worktree check is on `board/README.md` under his sentence.
+
+### 14:41 — the live tools turn: gemma4 read the board itself and picked from it
+
+Henri's shell, twenty minutes after the commit: `launch.sh llm pull`,
+then `lead.sh llm --kept --door llm --tools`.  Under keep, through the
+door, the digest held back: two calls — `ls board → 16 entries`,
+`read board/tools.md → 4.0k chars, cut at line 69 of 944` — then
+`CARD: tools.md`, a task of one line ("draft a section defining the
+executor's grant as the boundary of a tool's reach"), a `WHY:` that
+quotes the card's own `because`, and a draft on the shelf; the whole
+exchange in `proposals/lead/2026-09-04-1441-tools/`.  So the road's
+milestone-shaped sentence from 2026-09-01 — *gemma4 led turns at
+`readchars 4000`* — has its first turn: the mind at 4B active read
+one card at 4k and acted on it, in shape, on the shelf, with the
+executor's own keep inside the turn's keep.
+
+What one turn does not say, written so the next reading looks: it
+read **one** card of the sixteen it listed and picked that one — the
+pick is from what it read, not from the board — and the card it chose
+shares its name with the word the prompt used four times ("tools").
+Whether that is the prompt's word steering the read is a question for
+the next few turns, not this one.
+
+*(question, measure — over N turns of `--tools`, how many cards does
+gemma4 read before it picks, and is the pick ever a card it did not
+read; and does the pick follow a word in the prompt?  The turns are his
+shell's; the count is off the accounts' `C:` lines.)*
