@@ -113,6 +113,22 @@ def test_a_want_needs_a_reason(tmp_path):
     assert "say why" in out.stderr
 
 
+def test_list_names_the_commits_the_next_kaizen_covers_oldest_first(tmp_path):
+    """2026-09-04: a kaizen's hashes are read off `kaizen.sh list`, not off
+    memory — one kaizen named the lamp's own hash as the sitting's first
+    commit.  The list is the commits since the last kaizen, oldest first,
+    hash and subject; the kaizen's own commit is not on it."""
+    r = Repo(tmp_path)
+    r.commit(); r.kaizen(); r.commit(); r.commit()
+    out = r.lamp("list")
+    assert out.returncode == 0, out.stderr
+    lines = out.stdout.splitlines()
+    assert len(lines) == 2 and lines[0].endswith(" c3") and lines[1].endswith(" c4"), out.stdout
+    assert all(len(l.split()[0]) >= 7 for l in lines), "each line opens with a hash"
+    r.kaizen()
+    assert r.lamp("list").stdout == "", "nothing since the last kaizen"
+
+
 def test_it_parses():
     assert subprocess.run(["sh", "-n", str(LAMP)]).returncode == 0
 

@@ -275,6 +275,26 @@ says.
 *(self-shaped, 2026-09-04 — a session wrote this rule about sessions.
 henri: approved 2026-09-04)*
 
+**The close is a call, and the person's answer goes where the mark
+reads it.**  Two rules from one afternoon, 2026-09-04, proposed by a
+session from that day's six kaizens and graded by Henri five of five
+each ("Mietin ja harkitsin joka ehdotusta").  First: at his close the
+sitting's kaizen is committed and then `tools/limit.sh stop "his
+close"` is called — the one call the limit lets a session make — so
+the next prompt starts a fresh clock and the lamp names the next file
+right; twice that day (`2026-09-04-1330`, `-1421`) a sitting began on
+the previous one's clock because the close was words and the clock
+never heard them.  Second: when he answers a `his call` question in
+talk, the session writes his answer into the mark as a `henri:` line,
+his words verbatim with the date, in the same commit that records the
+talk — `card:edge.md` carried three of his answers as prose beside the
+questions for two days, and `tools/meter.py --waiting` counted them
+as waiting, because the line inside the mark is the only form the
+tree reads.  The mechanism, where it exists, is `limit.sh stop` and
+the meter's list; what neither can do — hear a close, read prose — is
+the session's to do.
+*(self-shaped, 2026-09-04 — a session wrote this rule about sessions.)*
+
 **A mechanism a session cannot test is proposed, not declared** —
 three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
 counting itself "the third time in two days"), promoted by the second

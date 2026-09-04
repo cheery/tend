@@ -4,6 +4,7 @@
 # tools/kaizen.sh — the lamp for the practice that ends a sitting.
 #
 #     tools/kaizen.sh                commits since the last kaizen; a lamp, never a refusal
+#     tools/kaizen.sh list           those commits, oldest first, hash and subject — for the kaizen's first paragraph
 #     tools/kaizen.sh want "why"     a session says it wants a kaizen now, and why
 #     tools/kaizen.sh --hook         the lamp as a UserPromptSubmit hook: its line reaches the session
 #
@@ -97,6 +98,7 @@ extended)
     printf '%s\n' "$head" > "$EXT"
     echo "kaizen extended at $(git -C "$root" log -1 --format=%h "$head"), $(date +%H:%M): the sitting's kaizen is the one this commit extends"
     exit 0 ;;
+list) mode=list ;;   # the commits the next kaizen covers, one per line — pasted into its first paragraph, never typed
 -h|--help) sed -n '2,60p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 *) echo "kaizen: unknown argument \`$1\`" >&2; exit 2 ;;
 esac
@@ -153,6 +155,14 @@ if [ -f "$WANT" ]; then
 fi
 
 n=$(git -C "$root" log --oneline "$range" 2>/dev/null | wc -l | tr -d ' ')
+# `list` (2026-09-04, Henri's 5/5 on a session's proposal from the day's kaizens): the hashes a
+# kaizen names are read off this, not off memory — a kaizen copied the lamp's own "since the
+# last kaizen (…)" hash as the sitting's first commit (2026-09-04-1331), and its correction's
+# first draft carried a hash on no log at all.  Oldest first, the order a kaizen tells them in
+if [ "${mode:-}" = list ]; then
+    git -C "$root" log --reverse --format='%h %s' "$range" 2>/dev/null
+    exit 0
+fi
 if [ "$n" -eq 0 ] && [ -z "$wanted" ]; then
     exit 0
 fi
