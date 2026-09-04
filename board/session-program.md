@@ -1572,3 +1572,33 @@ edge is then the puller's, `pull NODE`, and the cycle check is at
 that door.  What flows is out of band — the pulled node's port or
 state — which is what a kanban card is: the signal travels, the parts
 travel beside it.  Talk, not a card, until he says the word.
+
+## 2026-09-04, 13:0x — the kept loopback door, built
+
+At Henri's *"tee session-program"*, the 12:56 sitting, thirty minutes.
+The card's own next line since 2026-09-02 (§"his call", above): keep's
+`--connect` is one loopback port and `doors/llm/door` is a loopback
+port, so `--kept` with a door whose url is 127.0.0.1 is the refusal in
+`lead.sh` lifted for that one case.  Lifted: `lead.sh NODE --kept --door
+llm` re-execs under keep as the kept node turn does — the tree
+readable, proposals/, the node's state and the andon record writable,
+one `--connect` to the door's port — plus one read outside the tree,
+the door's key file, which `door.sh` insists on and the node never
+checks.  Health is read at the door's base, not the node's port.  A
+door that calls out is still refused under `--kept`, in the same
+words: keep has no word for "anywhere".
+
+The gate is `test_lead.py::test_a_kept_turn_through_a_loopback_door_
+runs_under_keep_and_one_that_calls_out_is_refused`: both asks through
+the loopback stub under keep, the board's probe write refused, a draft
+on the shelf; then the same turn through a door at `door.invalid`,
+refused with nothing sent.  The old refusal test went, its assertion
+inside the new one.  Red against the previous `lead.sh` by its first
+half's exit code, reasoned and not run — the sitting is thirty minutes.
+Not run from this seat: the live form, `tools/lead.sh llm --kept --door
+llm` from his shell with the node held; its first turn says whether the
+tools loop's executor, one process under keep per call, runs inside a
+turn that is itself under keep.
+
+What stays this card's: the node's sitting against a loop longer than
+ten minutes, and `finish_reason` on propose's not-a-completion line.

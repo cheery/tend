@@ -80,17 +80,29 @@ fi
 # sent through a door instead of the node's port.  No health, no start —
 # the door's side is up or it is not — and never under keep: keep's
 # --connect is one loopback port and a door calls out.
-model=""; keyfile=""
+model=""; keyfile=""; loopback=""
 if [ -n "$door" ]; then
-    if [ -n "$kept" ]; then
-        echo "lead: a kept turn through a door is not built — keep's --connect is one loopback port, and a door calls out; the turn through $door runs on the person's side, unkept, until a leader's reach is a grant row (card:session-program.md)" >&2
-        exit 1
-    fi
     d=$(sh "$here/door.sh" "$door") || exit $?
     CHAT=$(printf '%s\n' "$d" | sed -n 1p); model=$(printf '%s\n' "$d" | sed -n 2p); keyfile=$(printf '%s\n' "$d" | sed -n 3p)
     # F015: a door at the node's own port says `thinking  template`, and the loader knob goes out beside the model
     knob=$(sh "$here/door.sh" "$door" --tools | sed -n 5p) || exit $?
     export TEND_DOOR="$door"
+    # A door at a loopback url is a node at its own port (doors/llm/door), and keep's one
+    # --connect reaches it — so a kept turn through *that* door is the same confinement as a
+    # kept turn on the node, plus a read of the door's key file.  2026-09-04, at Henri's
+    # 2026-09-02 answer on card:session-program.md: "in practice the commands should
+    # probably be possible to run kept by the model's decision.  It's the mechanism to
+    # limit blast radius".  A door that calls out is still refused under --kept: keep has
+    # no word for "anywhere", and a leader's reach is a grant row this card has not built.
+    case "$CHAT" in
+        http://127.0.0.1:*|http://localhost:*)
+            loopback=1
+            [ -n "${TEND_LLM_HEALTH:-}" ] || HEALTH="${CHAT%/v1/chat/completions}/health" ;;
+    esac
+    if [ -n "$kept" ] && [ -z "$loopback" ]; then
+        echo "lead: a kept turn through a door that calls out is not built — keep's --connect is one loopback port; the turn through $door runs on the person's side, unkept, until a leader's reach is a grant row (card:session-program.md)" >&2
+        exit 1
+    fi
 fi
 : "${knob:=}"
 
@@ -118,6 +130,8 @@ if [ -n "$kept" ]; then
         fi
     fi
     extra=""; case "$board" in "$root"/*) ;; *) extra="--allow $board" ;; esac
+    # through a loopback door the key file is the one read outside the tree: door.sh insists on it, the node checks none
+    [ -z "$keyfile" ] || extra="$extra --allow $keyfile --allow ${TEND_DOOR_DIR:-$root/doors}"
     TEND_LEAD_KEPT= TEND_NO_START=1 TEND_LEAD_IN_KEEP=1 \
         exec "$py" "$here/keep.py" --allow "$root" $extra --write "$propdir" --write "$STATE" --write "$andon_state" --write /dev/null \
              --connect "$cport" -- sh "$0" "$NODE"

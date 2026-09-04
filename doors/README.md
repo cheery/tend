@@ -33,9 +33,11 @@ channel under an account line that said "thinking off" (F015).
 `tools/lead.sh NODE --door NAME` and `TEND_DOOR=NAME tools/propose.sh …`
 run the same turn through the door instead of the node's port, on the
 person's side; the account and the proposal say which door.  A kept
-turn through a door is not built (keep's `--connect` is one loopback
-port; a door calls out) and says so.  The node with no door named is
-the loop as it was: gemma, local, under keep.
+turn through a door that calls out is not built (keep's `--connect` is
+one loopback port) and says so; through a door at 127.0.0.1 — a node at
+its own port, `llm/` — `--kept` is that one port, since 2026-09-04
+(card:session-program.md).  The node with no door named is the loop as
+it was: gemma, local, under keep.
 
 Opened 2026-08-29 at Henri's "build capability for both gemma and
 claude, also I'm thinking about subscribing to openrouter".  The model

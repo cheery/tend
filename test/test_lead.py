@@ -301,6 +301,36 @@ def test_a_door_that_says_thinking_template_sends_the_nodes_knob_with_the_model(
         assert "reasoning" not in body
 
 
+@pytest.mark.skipif(_landlock_abi() < 4 or not Path("/usr/bin/python3").exists(),
+                    reason="the kept turn needs Landlock ABI 4 and a system python3 for keep")
+def test_a_kept_turn_through_a_loopback_door_runs_under_keep_and_one_that_calls_out_is_refused(board, tmp_path):
+    """card:session-program.md, Henri 2026-09-02: "in practice the commands
+    should probably be possible to run kept by the model's decision.  It's
+    the mechanism to limit blast radius".  A door at 127.0.0.1 is a node at
+    its own port, which keep's one --connect reaches: the turn runs under
+    keep, both asks go through the door, the board stays unwritable.  A
+    door that calls out is refused under --kept before anything is sent."""
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: one line\nWHY: w", board, tmp_path,
+                           TEND_LEAD_KEPT="1", TEND_KEPT_PROBE=str(board / "lander.md"))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(seen) == 2, "the pick and the draft both went through the loopback door, under keep"
+    assert "probe: refused" in r.stdout + r.stderr, r.stdout + r.stderr
+    assert list((tmp_path / "proposals").glob("*.md")), "the kept door turn still drafts"
+    assert (board / "lander.md").read_text().startswith("# lander"), "the board is untouched under keep"
+    # the same turn through a door that calls out: refused, nothing sent
+    out = tmp_path / "doors2" / "outward"; out.mkdir(parents=True)
+    key = tmp_path / "keys" / "openrouter.key"
+    (out / "door").write_text(f"url  http://door.invalid/v1/chat/completions\nmodel  vendor/some-model\nkey  {key}\n"
+                              "admitted  the test, for the refusal\n")
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path), "TEND_DOOR_DIR": str(tmp_path / "doors2"),
+           "TEND_DOOR": "outward", "TEND_LEAD_KEPT": "1", "TEND_PROPOSAL_DIR": str(tmp_path / "proposals2"),
+           "TEND_ANDON_STATE": str(tmp_path / "andon"), "TEND_BOARD_DIR": str(board),
+           "TEND_STATE_DIR": str(tmp_path / "state")}
+    r2 = subprocess.run(["sh", str(LEAD), str(NODE)], capture_output=True, text=True, env=env, timeout=60)
+    assert r2.returncode != 0 and "calls out" in r2.stderr, r2.stdout + r2.stderr
+    assert not (tmp_path / "proposals2").exists(), "nothing was drafted through the outward door"
+
+
 def test_a_door_key_others_can_read_is_refused_before_anything_is_sent(board, tmp_path):
     r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, key_mode=0o644)
     assert r.returncode == 2 and "readable by others" in r.stderr, r.stderr
@@ -310,12 +340,6 @@ def test_a_door_key_others_can_read_is_refused_before_anything_is_sent(board, tm
 def test_a_door_key_inside_the_tree_is_refused(board, tmp_path):
     r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, key_path=ROOT / "doors" / "no-such.key")
     assert r.returncode == 2 and "inside the tree" in r.stderr, r.stderr
-    assert seen == []
-
-
-def test_a_kept_turn_through_a_door_is_refused_honestly(board, tmp_path):
-    r, seen, _ = door_turn("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_LEAD_KEPT="1")
-    assert r.returncode == 1 and "not built" in r.stderr, r.stderr
     assert seen == []
 
 

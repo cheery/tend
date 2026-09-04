@@ -43,10 +43,12 @@
 #
 # The node is the default door and needs none of this: `lead.sh NODE` with
 # no door speaks to the node's port as it always did.  A door is named by
-# `--door NAME` or TEND_DOOR, and the turn runs on the person's side —
-# unkept, as every turn did before `--kept` existed — because keep's
-# `--connect` is one loopback port and a door calls out.  A leader's reach
-# as a grant row is the build that ends that (card:session-program.md).
+# `--door NAME` or TEND_DOOR, and a door that calls out runs the turn on
+# the person's side — unkept, as every turn did before `--kept` existed —
+# because keep's `--connect` is one loopback port.  A door at 127.0.0.1 is
+# a node at its own port, and `--kept` through it is that one port, since
+# 2026-09-04 (card:session-program.md).  A leader's reach as a grant row is
+# the build that ends the rest.
 #
 # **The key never leaves this side.**  It is refused when it lives inside
 # the tree (every session reads the tree) or when anyone but its owner can
