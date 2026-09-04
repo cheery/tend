@@ -1,7 +1,7 @@
 #!/bin/sh
 #: asked-by: Henri, 2026-08-28 — "take session-program" (card:session-program.md, §11:10: "a node that leads work is these three under a loop with the cords")
 #
-# tools/lead.sh NODE [--kept] [--door NAME] [--tools]
+# tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]]
 #
 # One led turn.  The three bricks — deliver, consult, propose — put under
 # a loop with the cords: the node reads the open board, names one card
@@ -59,17 +59,27 @@ ctxchars="${TEND_CTXCHARS:-30000}"   # the digest's budget in characters, sized 
 # has to fit inside is the `-c` on llm/grant's program line, and that is the number that moves —
 # so test_lead.py reads `-c` from the grant and goes red if either end moves without the other,
 # which is the only part of this comment that cannot go stale the way 5000 did.
-kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}; tools=${TEND_LEAD_TOOLS:-}
+kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}; tools=${TEND_LEAD_TOOLS:-}; seed=${TEND_LEAD_SEED:-}
 shift
 while [ $# -gt 0 ]; do
     case $1 in
         --kept) kept=1 ;;
         --door) door=${2:-}; [ -n "$door" ] || { echo "lead: --door NAME" >&2; exit 2; }; shift ;;
         --tools) tools=1 ;;
-        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME] [--tools]" >&2; exit 2 ;;
+        --seed) seed=1 ;;
+        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]]" >&2; exit 2 ;;
     esac
     shift
 done
+# --seed (2026-09-04, at Henri's "tee se seeded"): the tools turn with the digest in the ask —
+# compare.py's third arm (card:tools.md, 2026-09-01) on the node's own loop.  Six turns without
+# the digest read the first three of `ls` and picked the last opened (card:session-program.md
+# §"15:1x"); seeded, the pick is from every card's because and the reads go where it needs them
+if [ -n "$seed" ] && [ -z "$tools" ]; then
+    echo "lead: --seed is the tools turn with the digest in hand; it needs --tools" >&2
+    exit 2
+fi
+[ -z "$seed" ] || export TEND_LEAD_SEED=1
 # --tools (2026-09-04, card:session-program.md §"13:18" — the 13:18 live turn had no C: line because
 # the digest was in the prompt): the pick rides tools/deliver.sh, the courier, with the door's
 # tools in the request and the digest held back — the mind reads the board itself, every call
@@ -206,7 +216,22 @@ if [ -z "$door" ] && [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/
 fi
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
-if [ -n "$tools" ]; then
+if [ -n "$tools" ] && [ -n "$seed" ]; then
+    # seeded: the digest in the ask, and the cards open to read further
+    sys="You are leading one turn of work on the tend project's board.  Below
+are the open cards: each one's title and the problem it names.  You may
+open any card for more before you choose — the files are board/*.md and
+a card's later sections say what is already built — and you may pick
+from the list alone.  Pick ONE card and ONE small thing that could be
+drafted for it now — a few lines, not a build.  Answer in exactly this
+shape, three lines, nothing else:
+CARD: the filename only, one word ending in .md, from the list below
+TASK: the one small thing, in one line
+WHY: one line
+If you cannot decide, or need the person, answer instead with one line:
+ANDON: your question for the person
+$digest"
+elif [ -n "$tools" ]; then
     # the digest held back: the board is named and nothing about it is said.  No word in this
     # text is a card's name — six turns on 2026-09-04 picked tools.md five times with "tools"
     # four times in the ask (card:session-program.md §"14:5x") — and it asks for three cards
@@ -312,7 +337,11 @@ fi
     printf '# %s led one turn — %s\n\n' "$name" "$now"
     [ -n "$door" ] && printf '    door     %s (%s)\n' "$door" "$model"
     if [ -n "$tools" ]; then
-        printf '    arm      tools — the digest held back; the door'"'"'s tools in the request, every call under keep (the exchange is in %s/)\n' "$(basename "$tstate")"
+        if [ -n "$seed" ]; then
+            printf '    arm      tools, seeded — the digest in the ask AND the door'"'"'s tools in the request, every call under keep (the exchange is in %s/)\n' "$(basename "$tstate")"
+        else
+            printf '    arm      tools — the digest held back; the door'"'"'s tools in the request, every call under keep (the exchange is in %s/)\n' "$(basename "$tstate")"
+        fi
         printf '    read     the board itself, %s call(s):\n' "$(printf '%s' "$calls" | grep -c '^C: ' || true)"
         [ -z "$calls" ] || printf '%s\n' "$calls" | sed 's/^/             /'
     else

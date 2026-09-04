@@ -371,6 +371,24 @@ def test_a_tools_turn_holds_the_digest_back_and_the_mind_reads_the_board_under_k
     assert seen2 == []
 
 
+def test_a_seeded_tools_turn_carries_the_digest_and_the_tools_and_seed_alone_is_refused(board, tmp_path):
+    """--seed (2026-09-04): compare.py's third arm on the node's loop — the
+    digest in the ask AND the door's tools in the request, unkept here so
+    the test is the request's shape and not keep's."""
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: one line\nWHY: w", board, tmp_path, stub=_tool_stub,
+                           door_lines="tools  ls read\ncalls 4\n", TEND_LEAD_TOOLS="1", TEND_LEAD_SEED="1")
+    assert r.returncode == 0, r.stdout + r.stderr
+    first = seen[0]
+    assert first.get("tools"), "the tools ride the seeded request"
+    sys_text = "\n".join(m["content"] for m in first["messages"] if m["role"] == "system")
+    assert "a commit waits on a hand" in sys_text, "the digest rides the seeded ask"
+    acc = next((tmp_path / "proposals" / "lead").glob("*.md")).read_text()
+    assert "arm      tools, seeded" in acc and "C: ls board/" in acc, acc
+    r2, seen2 = lead("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_LEAD_SEED="1")
+    assert r2.returncode == 2 and "needs --tools" in r2.stderr, r2.stderr
+    assert seen2 == []
+
+
 @pytest.mark.skipif(_landlock_abi() < 4 or not Path("/usr/bin/python3").exists(),
                     reason="the kept turn needs Landlock ABI 4 and a system python3 for keep")
 def test_a_kept_turn_through_a_loopback_door_runs_under_keep_and_one_that_calls_out_is_refused(board, tmp_path):

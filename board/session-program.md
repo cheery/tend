@@ -1772,3 +1772,27 @@ and the reads go where the pick needs them.  That is a line in
 `lead.sh` and six more turns of his; not built at this hour, because
 the sitting has an hour left and a kaizen to write, and the number is
 his to want.
+
+### 15:2x — `--seed`, at his "tee se seeded", and his question
+
+`lead.sh NODE --door llm --tools --seed`: the digest in the ask and
+the door's tools in the request — `compare.py`'s third arm on the
+node's own loop.  The ask says the list is enough to pick from and the
+cards are open for more; the account says `arm  tools, seeded`.  Gate
+in `test_lead.py`, unkept, the request's shape.
+
+His question with the ask: *"onko gemma4 tarpeeksi iso malli että sitä
+varten kannattaa tehdä näitä ominaisuuksia?"* — is gemma4 big enough
+to be worth building these for.  The card's answer: the features are
+the loop's and the courier's, not the mind's — `--tools` and `--seed`
+are a door line away from any model, and the same command through the
+openrouter door runs hy3 in the same loop for cents.  gemma4 is the
+free local mind that costs wall-clock, and the node whose boundary
+this tree exists to hold.  Whether it is *enough to lead* is this
+card's milestone question, and today's twelve turns say: in shape,
+yes (twelve of twelve on the shelf, in three lines, reading with the
+continuation); in judgement, not yet (the pick by recency, five of
+five).  The cheapest reading of *mind or ask* is the same six turns on
+hy3 through the openrouter door, `--tools --seed`, beside gemma4's:
+if hy3 picks the last card opened too, it is the ask; if not, it is
+the size, with a number.  Twelve turns, his shell, at his word.
