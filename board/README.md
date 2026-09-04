@@ -256,6 +256,24 @@ and on 2026-08-26 thirty-nine sessions each wrote one; kept as a
 correction rather than rewritten, because the surplus is what
 `kaizen-ingestion` is reading.
 
+**The person's close is the end of the sitting.**  A commit after his
+"close" is the next sitting's first commit, on a fresh clock — never
+"one more small thing" on the old one — and a sitting's kaizen is
+written after its last commit, not after the words that ended it.
+Four faces in two days, 2026-08-29 to 2026-08-30 (`2048` item 4,
+`2100` item 5, `0730`, `1852`), promoted by the tenth ingestion batch
+(`doc/ingested.md`, 2026-09-04): six kaizen files for one evening, a
+sitting run twelve minutes past the clock on a task called small, and
+a two-commit tail owed overnight because the kaizen went in at his
+words and the commits followed it.  The neighbour of the clock rule
+above and not the same: that one is *read the clock*, this one is
+*the close ends the sitting*.  The mechanism, where it exists, is the
+lamp: it lights on the first commit after a kaizen, which is the new
+sitting's first, and names a new file.  What it cannot tell — an
+extension from a close — is the session's to keep, as the clock rule
+says.
+*(self-shaped, 2026-09-04 — a session wrote this rule about sessions.)*
+
 **A mechanism a session cannot test is proposed, not declared** —
 three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
 counting itself "the third time in two days"), promoted by the second

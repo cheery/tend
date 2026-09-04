@@ -524,3 +524,60 @@ batches on.  The weekly three lines were answered on 2026-09-01 and
 the next draw is a week from then.  And this batch adds one mark to
 his grep — the clock rule in `board/README.md`.
 
+
+## Batch 10 — read 2026-09-04, the next ten (2026-08-29-2031 → 2026-08-30-1852)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-29-2031 | a rule carried across a boundary it does not cross: the fence's rule for restraints was applied to a lamp, and the tree held the proof (six days of the hook line unedited) — before calling a thing enforcement, ask whether it refuses | `rule` — spec/kaizen.md and spec/kanban.md, in his words: "the session implements it, not the author" |
+| 2026-08-29-2048 | the failure ledger's first catch was the session's own flake, and it caught it because the session had filtered the gate's output to nothing twice in an hour — the ledger covered for a rule the session broke | `promoted` — memory `suite-output-to-file`, written this sitting on the strand's sixth face ([[2026-08-28-1313]] rule 1, this ×2, [[2026-08-29-2100]], [[2026-09-03-1904]], and 2026-09-04 morning's die flow red); the ledger half is `rule` at card:flake.md and tools/suite.py |
+| 2026-08-29-2100 | the defect ledger asked for the minute it was needed, with its first four entries already written in the wrong places; a resolution names its gate or confesses | `rule` — fixme/README.md, test/test_fixme.py; the citation test wrote its own rule (another tree's number carries its tree) before the session read gestate's proposal of it |
+| 2026-08-30-0523 | question first, and the second time it was a memory that had died in the fenced home; the record's `V:` line said who answered when the person thought he was talking to another mind | `rule` — memory `question-first`; tools/deliver.sh's `V:` line; card:model-acceptance.md's because met in its plainest form (a 1B model that sorted first in `ls`) |
+| 2026-08-30-0730 | a sitting ran twelve minutes past the clock on "one more small thing" after the close; small was true of the code and not of the two test rounds and two gate runs | `promoted` — board/README.md §"What the days taught", *the close is the end*: four faces ([[2026-08-29-2048]] item 4, [[2026-08-29-2100]] item 5, this, [[2026-08-30-1852]]) |
+| 2026-08-30-0902 | both defects were read before they were fixed and both `suspected` guesses were wrong — the ticks instrument cost eight seconds where the guesses had cost three gate refusals; `ps` at one instant is not a reading | `rule` — fixme/README.md ("marked suspected until it is measured"); memory `background-task-done`; the fixture rule's fifth face recognised on sight (a burster that burns wall time is idle on a loaded box) |
+| 2026-08-30-0952 | a patch script checks every anchor before it writes any file, and no `cd` in a compound command; two gates spent on a partial stage the drift rule refuses in a second | `rule` — memory `patch-anchors-first` (promoted by batch 6 that same sitting); "read the mechanism before reasoning about it" at manifesto |
+| 2026-08-30-1624 | a rule was read as a budget by the mind it was written for within the hour, and the fix went where that mind reads — the seat line, nine words, held by a test at 95 of 150 | `once` — the seat line's test holds it; the grep-anchored-on-a-line-start face is the anchor strand's, already a memory |
+| 2026-08-30-1741 | four commits in one background command, the fourth killed at the harness's cap, and edits under a running hook; a pathspec commit form nobody asked for tripped F006 | `rule` — memory `commit-one-per-command`; F006 resolved with its gate; journal.md begun the same evening at his "what happened" |
+| 2026-08-30-1852 | the sitting's kaizen was written at the person's words and two commits followed inside the same sitting, leaving a two-commit tail owed overnight | `promoted` — the same paragraph as [[2026-08-30-0730]]: a sitting's kaizen is written after its last commit, not after the words |
+
+**What batch 10 showed.**  Ten kaizens from the evening of 2026-08-29
+to the evening of 2026-08-30 — six kaizen files for one desk-evening,
+the defect ledger born, the first tooled turns, `readchars`, and a
+journal begun.  Six `rule`, one `once`, and **two promotions**, one of
+them a memory and one a paragraph.
+
+The promoted strand is **the close**: [[2026-08-29-2048]] item 4 said
+"the person's close is the end and nothing after it gets a file of its
+own"; [[2026-08-29-2100]] item 5 said it again as the sixth file of the
+evening; [[2026-08-30-0730]] ran twelve minutes past the clock on one
+more small thing after the close, and named it — "the clock is the
+person's, and 'one more small thing' after the close is how it stops
+being his"; [[2026-08-30-1852]] wrote the kaizen at his words and had
+two commits follow it.  Four faces in two days, each writing the rule
+into its own last section and none into the tree.  It is the
+neighbour of batch 9's promotion (the sitting's clock) and not the
+same: that one is *read the clock*; this one is *the close ends the
+sitting* — a commit after the person's close is the next sitting's
+first, on a fresh clock, and a sitting's kaizen goes after its last
+commit.  One paragraph in `board/README.md` §"What the days taught",
+with a mark, because a session wrote it about sessions.
+
+The second promotion is the gate-output strand, and it is the batch
+reading its own morning: [[2026-08-29-2048]] broke the 13:37 rule twice
+in an hour, [[2026-08-29-2100]] once more, [[2026-09-03-1904]] read a
+whole-suite red through `tail -6` and lost the traceback, and the
+session reading this batch did the same thing to the same test at
+05:23 today and had to run the sighting a second time.  The memory
+`suite-output-to-file` was written this sitting, before this batch was
+read; the reading counts the faces and says what the memory is not — a
+mechanism.  A `tools/suite.py` that refuses to be piped is the shape
+of one, and that is a card's decision, not a line's.
+
+One count moved without a verdict: **`sudo tend-install` owed** is in
+five of the ten ([[2026-08-30-0523]], [[2026-08-30-0902]],
+[[2026-08-30-0952]], [[2026-08-30-1741]], [[2026-08-30-1852]]), every
+one a launcher commit vetted and not in force.  That is `card:lander.md`'s
+because, and its week of log was read this morning: one drift in
+twenty-four outlived its sitting.  The five faces here are the same
+week seen from the kaizens' side, and the card's question to him
+stands.
