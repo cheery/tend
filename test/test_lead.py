@@ -371,6 +371,29 @@ def test_a_tools_turn_holds_the_digest_back_and_the_mind_reads_the_board_under_k
     assert seen2 == []
 
 
+def test_a_handed_card_is_the_turns_input_and_the_mind_writes_the_task_not_the_pick(board, tmp_path):
+    """--card (2026-09-04, Henri: "en antaisi kummankaan johtaa … asettelu
+    voi olla pielessä"): the card is handed, as ask/ is handed a question.
+    The ask carries that card's because whole and no other card's, the
+    reply has no CARD line and the account says `given`; a card not on
+    the shelf, and --seed with --card, are refused before anything is
+    sent."""
+    r, seen = lead("TASK: one line for the lamp\nWHY: w", board, tmp_path, TEND_LEAD_CARD="lander.md")
+    assert r.returncode == 0, r.stdout + r.stderr
+    sys_text = seen[0]["messages"][0]["content"]
+    assert "a commit waits on a hand" in sys_text and "the cord needs a row" not in sys_text, sys_text
+    assert "handed to you" in sys_text and "CARD:" not in sys_text, sys_text
+    acc = next((tmp_path / "proposals" / "lead").glob("*.md")).read_text()
+    assert "given    lander.md — by the person, not picked" in acc and "picked" not in acc.split("given")[0], acc
+    assert list((tmp_path / "proposals").glob("*.md")), "the handed card still drafts"
+    r2, seen2 = lead("TASK: x\nWHY: y", board, tmp_path, TEND_LEAD_CARD="nowhere.md")
+    assert r2.returncode == 2 and "not on the open board" in r2.stderr, r2.stderr
+    assert seen2 == []
+    r3, seen3 = lead("TASK: x\nWHY: y", board, tmp_path, TEND_LEAD_CARD="lander.md", TEND_LEAD_TOOLS="1", TEND_LEAD_SEED="1")
+    assert r3.returncode == 2 and "the card is the seed" in r3.stderr, r3.stderr
+    assert seen3 == []
+
+
 def test_a_seeded_tools_turn_carries_the_digest_and_the_tools_and_seed_alone_is_refused(board, tmp_path):
     """--seed (2026-09-04): compare.py's third arm on the node's loop — the
     digest in the ask AND the door's tools in the request, unkept here so

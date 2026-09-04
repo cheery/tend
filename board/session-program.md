@@ -1931,3 +1931,22 @@ not need.  The card's own "what would make this wrong" holds: the
 node needs its cords, and a node with a card in hand needs them as
 much as a node choosing one.  The next build, at his word, is the
 input: a card, not the board.
+
+### 2026-09-04, 17:0x — `--card NAME`, built at his "1."
+
+`lead.sh NODE --card NAME [--door D] [--tools] [--kept]`: the card is
+handed.  The ask carries that card's title and its `because` whole —
+never cut at eight lines, never another card's — and says the card was
+handed by the person; the mind answers `TASK:` and `WHY:` (or `ANDON:`),
+a `CARD:` line it writes anyway is not read; with `--tools` it may open
+the card and the shelf for more; `--seed` with it is refused, the card
+is the seed; a name off the open shelf is refused before anything is
+sent.  The account says `given NAME — by the person, not picked` and
+`read the card in hand, its because whole`.  Gate in `test_lead.py`,
+two mutate rows red.  The measurement it is for: the same card to
+gemma4 and to hy3, six turns each, and the drafts read against the
+card's `because` — did it do the small thing, and did it say anything
+the card's first seventy lines do not.  His shell, his card:
+
+    for i in 1 2 3 4 5 6; do tools/lead.sh llm --kept --door llm --tools --card NAME; done
+    for i in 1 2 3 4 5 6; do TEND_MAXTOK=2000 TEND_READCHARS=4000 tools/lead.sh llm --door openrouter --tools --card NAME; done

@@ -1,7 +1,7 @@
 #!/bin/sh
 #: asked-by: Henri, 2026-08-28 — "take session-program" (card:session-program.md, §11:10: "a node that leads work is these three under a loop with the cords")
 #
-# tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]]
+# tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]] [--card NAME]
 #
 # One led turn.  The three bricks — deliver, consult, propose — put under
 # a loop with the cords: the node reads the open board, names one card
@@ -59,7 +59,7 @@ ctxchars="${TEND_CTXCHARS:-30000}"   # the digest's budget in characters, sized 
 # has to fit inside is the `-c` on llm/grant's program line, and that is the number that moves —
 # so test_lead.py reads `-c` from the grant and goes red if either end moves without the other,
 # which is the only part of this comment that cannot go stale the way 5000 did.
-kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}; tools=${TEND_LEAD_TOOLS:-}; seed=${TEND_LEAD_SEED:-}
+kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}; tools=${TEND_LEAD_TOOLS:-}; seed=${TEND_LEAD_SEED:-}; given=${TEND_LEAD_CARD:-}
 shift
 while [ $# -gt 0 ]; do
     case $1 in
@@ -67,10 +67,27 @@ while [ $# -gt 0 ]; do
         --door) door=${2:-}; [ -n "$door" ] || { echo "lead: --door NAME" >&2; exit 2; }; shift ;;
         --tools) tools=1 ;;
         --seed) seed=1 ;;
-        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]]" >&2; exit 2 ;;
+        --card) given=${2:-}; [ -n "$given" ] || { echo "lead: --card NAME" >&2; exit 2; }; shift ;;
+        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME] [--tools [--seed]] [--card NAME]" >&2; exit 2 ;;
     esac
     shift
 done
+# --card NAME (2026-09-04, at Henri's "1." after "en antaisi kummankaan johtaa … asettelu voi olla
+# pielessä", card:session-program.md §"Talk — 2026-09-04"): the card is handed to the mind, as a
+# question is handed to ask/ — the pick is the person's (board/README.md §"The priority"), and it
+# was the weakest step of nineteen turns at every size.  The mind's work is the TASK and the
+# draft; the account says `given`, never `picked`.  The card must be on the open shelf, and
+# --seed with it is refused: the card is the seed
+if [ -n "$given" ]; then
+    given=$(basename "$given")
+    if [ "$given" = README.md ] || [ ! -f "$board/$given" ]; then
+        echo "lead: --card $given is not on the open board ($board) — a card is handed from the open shelf" >&2; exit 2
+    fi
+    if [ -n "$seed" ]; then
+        echo "lead: --card with --seed: the card is the seed; --tools alone lets the mind read further" >&2; exit 2
+    fi
+    export TEND_LEAD_CARD="$given"
+fi
 # --seed (2026-09-04, at Henri's "tee se seeded"): the tools turn with the digest in the ask —
 # compare.py's third arm (card:tools.md, 2026-09-01) on the node's own loop.  Six turns without
 # the digest read the first three of `ls` and picked the last opened (card:session-program.md
@@ -166,9 +183,11 @@ for c in "$board"/*.md; do
     [ -f "$c" ] || continue
     b=$(basename "$c")
     case $b in README.md) continue ;; esac
+    [ -z "$given" ] || [ "$b" = "$given" ] || continue   # a handed card: the digest is that card alone
     _all=$(sed -n '1p; /^    because/,/^    asked/p' "$c" | grep -v '^    asked')
     _n=$(printf '%s\n' "$_all" | wc -l)
     _keep=$(printf '%s\n' "$_all" | head -8)
+    [ -z "$given" ] || { _keep=$_all; _n=0; }   # and its because whole, never cut
     # F009 (2026-09-01): the eight lines are a *summary* of the because, and
     # until today they were an unmarked one — 9 of the 13 open cards ended
     # mid-sentence with nothing said.  A because that stops mid-sentence names
@@ -216,7 +235,22 @@ if [ -z "$door" ] && [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/
 fi
 
 stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
-if [ -n "$tools" ] && [ -n "$seed" ]; then
+if [ -n "$given" ]; then
+    # a card in hand: no pick — the task and the why, for this card
+    _more=""; [ -z "$tools" ] || _more="  You may open the card
+itself (board/$given) and any other file under board/ for more before
+you answer; the card's later sections say what is already built."
+    sys="You are working one turn on ONE card of the tend project's board,
+handed to you by the person.  Below is its title and the problem it
+names.$_more  Say ONE small thing that could be drafted for it now — a
+few lines, not a build — that answers the problem and is not already
+done.  Answer in exactly this shape, two lines, nothing else:
+TASK: the one small thing, in one line
+WHY: one line
+If you cannot, or need the person, answer instead with one line:
+ANDON: your question for the person
+$digest"
+elif [ -n "$tools" ] && [ -n "$seed" ]; then
     # seeded: the digest in the ask, and the cards open to read further
     sys="You are leading one turn of work on the tend project's board.  Below
 are the open cards: each one's title and the problem it names.  You may
@@ -297,6 +331,7 @@ fi
 
 field() { printf '%s\n' "$reply" | sed -n "s/^[[:space:]]*$1:[[:space:]]*//p" | head -1; }
 card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
+[ -z "$given" ] || card=$given   # handed, not picked: a CARD: line the mind writes anyway is not read
 # the prompt's own typography, echoed (13:57, live: `CARD: <canvas-script.md>`; 18:01: `CARD: canvas.md ===`,
 # the digest's fence): the filename is the one thing the open shelf judges, whatever the model wraps it in —
 # the first word ending in .md, and an invented card so wrapped is still a pull
@@ -345,9 +380,11 @@ fi
         printf '    read     the board itself, %s call(s):\n' "$(printf '%s' "$calls" | grep -c '^C: ' || true)"
         [ -z "$calls" ] || printf '%s\n' "$calls" | sed 's/^/             /'
     else
-        printf '    read     the open board, as a digest: %s\n' "$(cd "$board" && ls *.md | grep -v README.md | tr '\n' ' ')"
+        if [ -n "$given" ]; then printf '    read     the card in hand, its because whole: %s\n' "$given"
+        else printf '    read     the open board, as a digest: %s\n' "$(cd "$board" && ls *.md | grep -v README.md | tr '\n' ' ')"; fi
     fi
-    printf '    picked   %s\n' "${card:-—}"
+    if [ -n "$given" ]; then printf '    given    %s — by the person, not picked\n' "$given"
+    else printf '    picked   %s\n' "${card:-—}"; fi
     printf '    task     %s\n' "${task:-—}"
     printf '    why      %s\n' "${why:-—}"
     printf '    outcome  %s — %s\n' "$outcome" "$result"

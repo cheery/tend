@@ -287,6 +287,9 @@ test/test_meter.py	meter: a bold verdict is no verdict	sed -i "s/VERDICT_CELL = 
 # tools/propose.sh through a door — F026, 2026-09-04: both reasoning spellings read, and a wordless refusal says what the body had
 test/test_propose.py	propose: the door's reasoning spelling is not read	sed -i "s|(.reasoning_content // .reasoning // \"\")|(.reasoning_content // \"\")|" tools/propose.sh
 test/test_propose.py	propose: a reply with no error and no draft is refused with nothing said	sed -i "/_e=\$(printf .%s. \"\$out\" | jq -r .\\.choices\[0\] \/\/ {} |/d" tools/propose.sh
+# tools/lead.sh --card — 2026-09-04, the card handed, never picked (card:session-program.md §"Talk — 2026-09-04")
+test/test_lead.py	lead: a handed card's ask still carries the whole board	sed -i "/a handed card: the digest is that card alone/d" tools/lead.sh
+test/test_lead.py	lead: the handed card is not the turn's card	sed -i "/handed, not picked: a CARD: line the mind writes anyway is not read/d" tools/lead.sh
 ROWS
 }
 
