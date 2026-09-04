@@ -277,6 +277,10 @@ test/test_meter.py	meter: a question with no date is not placed by git's blame, 
 test/test_propose.py	propose: the material is cut and the mind is not told	sed -i 's/^    material="$kept$/    material="$kept"; : "/' tools/propose.sh
 test/test_consult.py	consult: the mind is not told, only the person	sed -i '/^\[… cut at $ctxchars chars of $before, at line $at of $lines of the material\.  The rest/d' tools/consult.sh
 test/test_compare.py	compare: the pick path's draft is cut in silence again	sed -i 's/^            material += cut_notice(material, whole, got\["card"\])$/            pass/' tools/compare.py
+# tools/lead.sh --tools — 2026-09-04, card:session-program.md §"14:xx": the pick rides the courier with the digest held back
+test/test_lead.py	lead: the tools turn's calls are not on the account	sed -i "s|C: /C: /p|C: /X: /p|" tools/lead.sh
+test/test_lead.py	lead: the digest rides the tools prompt too	sed -i "s|^ANDON: your question for the person\"\$|ANDON: your question for the person\\n\$digest\"|" tools/lead.sh
+test/test_lead.py	lead: --tools with no door is not refused	sed -i "s|^if \[ -n \"\$tools\" \] \&\& \[ -z \"\$door\" \]; then\$|if false; then|" tools/lead.sh
 ROWS
 }
 

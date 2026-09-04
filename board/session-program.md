@@ -1618,3 +1618,31 @@ try.  What it did not exercise: the tools loop.  The account has no
 kept turn is still unrun.  The reading that would say: the same
 command with the digest held back, which `lead.sh` has no knob for
 today.
+
+### 14:2x — `--tools`: the knob, built, and the worktree check beside it
+
+At Henri's *"tehdään se worktree tarkistus. ja session-program:in
+nuppi"*, the 14:2x sitting.  The knob first, since it is this card's.
+The 13:18 account had no `C:` line because `lead.sh`'s pick is one
+curl with the digest in the prompt; the tools loop lives in the
+courier, `tools/deliver.sh`, and `compare.py`'s arms ride it.  So
+`lead.sh NODE --door llm --tools` rides the pick on the courier: the
+system text names `board/*.md` and the tools as the way to it and
+carries no digest; the door's `tools` line goes in the request; every
+call runs under keep as the courier's do; the exchange sits in
+`proposals/lead/<stamp>-tools/` beside the account, and the account
+says `arm  tools`, the count of calls, and each `C:` line.  The flag
+rides the kept re-exec as `TEND_LEAD_TOOLS`; with no door it is refused
+at the door (`exit 2`, the node's port carries no tools line).  The
+gate is `test_lead.py::test_a_tools_turn_holds_the_digest_back_and_
+the_mind_reads_the_board_under_keep_inside_a_kept_turn`: a streaming
+stub that calls `ls board/` first, the executor's own keep run inside
+the outer keep from this seat, the board's probe write refused, the
+`C:` line on the account.  Three mutate rows at `tools/mutate.sh`'s
+foot, each red.  **So the executor-inside-a-kept-turn question of
+§"13:18" is answered from this seat**: nested keep runs the call.
+The live form is his: `tools/lead.sh llm --kept --door llm --tools`,
+node held — whether gemma4 at `readchars 4000` reads the board and
+picks is what the account will say.
+
+The worktree check is on `board/README.md` under his sentence.

@@ -243,11 +243,43 @@ def test_a_pick_decorated_with_the_digests_own_fence_is_read_by_its_filename(boa
 # --- the door: where a model other than the node's is admitted (card:session-program.md, card:model-acceptance.md, 2026-08-29 —
 #     Henri: "build capability for both gemma and claude, also I'm thinking about subscribing to openrouter") ---
 
-def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openrouter", door_lines="", **extra):
+def _tool_stub(reply):
+    """A door that streams, as the courier's wire does, and calls one tool
+    first: the pick's first round is `ls board/`, the second the reply;
+    propose's draft ask is not streamed and gets a plain completion."""
+    class H(http.server.BaseHTTPRequestHandler):
+        seen = []
+        heads = []
+        def log_message(self, *a): pass
+        def do_GET(self):
+            self.send_response(200); self.end_headers(); self.wfile.write(b"ok")
+        def _sse(self, deltas):
+            self.send_response(200); self.send_header("Content-Type", "text/event-stream"); self.end_headers()
+            for d in deltas:
+                self.wfile.write(("data: " + json.dumps({"choices": [{"delta": d}]}) + "\n\n").encode())
+            self.wfile.write(b"data: [DONE]\n\n")
+        def do_POST(self):
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            H.seen.append(body); H.heads.append({k.lower(): v for k, v in self.headers.items()})
+            if not body.get("stream"):
+                out = {"choices": [{"message": {"role": "assistant", "content": "DRAFT: some proposed lines."}}]}
+                self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+                self.wfile.write(json.dumps(out).encode()); return
+            rounds = sum(1 for m in body["messages"] if m["role"] == "assistant" and m.get("tool_calls"))
+            if rounds == 0 and body.get("tools"):
+                args = json.dumps({"dir": "board/"})
+                self._sse([{"tool_calls": [{"index": 0, "id": "call_0", "type": "function", "function": {"name": "ls", "arguments": ""}}]},
+                           {"tool_calls": [{"index": 0, "function": {"arguments": args}}]}])
+            else:
+                self._sse([{"content": reply[:4]}, {"content": reply[4:]}])
+    return H
+
+
+def door_turn(reply, board, tmp_path, key_mode=0o600, key_path=None, door="openrouter", door_lines="", stub=None, **extra):
     """One turn through a door: the door names the stub's url, a model, and
     a key file outside the tree; the stub records what arrived.
     `door_lines` are appended to the door file (F015: `thinking  template`)."""
-    H = _stub(reply)
+    H = (stub or _stub)(reply)
     srv = http.server.HTTPServer(("127.0.0.1", 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{srv.server_address[1]}"
@@ -299,6 +331,38 @@ def test_a_door_that_says_thinking_template_sends_the_nodes_knob_with_the_model(
         assert body["model"] == "vendor/some-model"
         assert body["chat_template_kwargs"] == {"enable_thinking": False}, body
         assert "reasoning" not in body
+
+
+@pytest.mark.skipif(_landlock_abi() < 4 or not Path("/usr/bin/python3").exists(),
+                    reason="the kept turn needs Landlock ABI 4 and a system python3 for keep")
+def test_a_tools_turn_holds_the_digest_back_and_the_mind_reads_the_board_under_keep_inside_a_kept_turn(board, tmp_path):
+    """card:session-program.md §"13:18" (2026-09-04): the live kept turn had
+    no C: line because the digest was in the prompt.  `--tools` rides the
+    pick on the courier with the door's tools and no digest: the first
+    request carries tools and no card's because, the mind's `ls board/`
+    runs under keep — inside a turn that is itself under keep — and the
+    account carries the C: line; the draft follows as before."""
+    r, seen, _ = door_turn("CARD: lander.md\nTASK: one line\nWHY: w", board, tmp_path, stub=_tool_stub,
+                           door_lines="tools  ls read\ncalls 4\n", TEND_LEAD_KEPT="1", TEND_LEAD_TOOLS="1",
+                           TEND_KEPT_PROBE=str(board / "lander.md"))
+    assert r.returncode == 0, r.stdout + r.stderr
+    first = seen[0]
+    assert first.get("tools") and first["tools"][0]["function"]["name"] in ("ls", "read"), first
+    sys_text = "\n".join(m["content"] for m in first["messages"] if m["role"] == "system")
+    assert "a commit waits on a hand" not in sys_text, "the digest was held back"
+    assert "board/*.md" in sys_text, sys_text
+    assert len(seen) == 3, "the pick's two rounds and the draft"   # call round, reply round, propose
+    assert "probe: refused" in r.stdout + r.stderr, r.stdout + r.stderr
+    accounts = list((tmp_path / "proposals" / "lead").glob("*.md"))
+    assert len(accounts) == 1, accounts
+    acc = accounts[0].read_text()
+    assert "arm      tools" in acc and "C: ls board/" in acc, acc
+    assert "picked   lander.md" in acc, acc
+    assert list((tmp_path / "proposals").glob("*.md")), "the tools turn still drafts"
+    # the flag with no door is refused before anything is sent
+    r2, seen2 = lead("CARD: lander.md\nTASK: x\nWHY: y", board, tmp_path, TEND_LEAD_TOOLS="1")
+    assert r2.returncode == 2 and "needs a door" in r2.stderr, r2.stderr
+    assert seen2 == []
 
 
 @pytest.mark.skipif(_landlock_abi() < 4 or not Path("/usr/bin/python3").exists(),

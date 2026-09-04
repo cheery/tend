@@ -1,7 +1,7 @@
 #!/bin/sh
 #: asked-by: Henri, 2026-08-28 — "take session-program" (card:session-program.md, §11:10: "a node that leads work is these three under a loop with the cords")
 #
-# tools/lead.sh NODE [--kept]
+# tools/lead.sh NODE [--kept] [--door NAME] [--tools]
 #
 # One led turn.  The three bricks — deliver, consult, propose — put under
 # a loop with the cords: the node reads the open board, names one card
@@ -59,16 +59,27 @@ ctxchars="${TEND_CTXCHARS:-30000}"   # the digest's budget in characters, sized 
 # has to fit inside is the `-c` on llm/grant's program line, and that is the number that moves —
 # so test_lead.py reads `-c` from the grant and goes red if either end moves without the other,
 # which is the only part of this comment that cannot go stale the way 5000 did.
-kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}
+kept=${TEND_LEAD_KEPT:-}; door=${TEND_DOOR:-}; tools=${TEND_LEAD_TOOLS:-}
 shift
 while [ $# -gt 0 ]; do
     case $1 in
         --kept) kept=1 ;;
         --door) door=${2:-}; [ -n "$door" ] || { echo "lead: --door NAME" >&2; exit 2; }; shift ;;
-        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME]" >&2; exit 2 ;;
+        --tools) tools=1 ;;
+        *) echo "lead: usage: tools/lead.sh NODE [--kept] [--door NAME] [--tools]" >&2; exit 2 ;;
     esac
     shift
 done
+# --tools (2026-09-04, card:session-program.md §"13:18" — the 13:18 live turn had no C: line because
+# the digest was in the prompt): the pick rides tools/deliver.sh, the courier, with the door's
+# tools in the request and the digest held back — the mind reads the board itself, every call
+# under keep and a C: line on the account.  Only a door carries a tools line, and the node at
+# its own port is doors/llm/door.  The flag rides the kept re-exec as TEND_LEAD_TOOLS.
+if [ -n "$tools" ] && [ -z "$door" ]; then
+    echo "lead: --tools needs a door: the node's port carries no tools line, and the node at its own port is a door — tools/lead.sh $name --door llm --tools" >&2
+    exit 2
+fi
+[ -z "$tools" ] || export TEND_LEAD_TOOLS=1
 
 if [ -n "${TEND_FENCED:-}" ]; then
     echo "lead: inside the fence the node's port is unreachable (--unshare-net) — run tools/lead.sh $name outside the fence" >&2
@@ -194,7 +205,23 @@ if [ -z "$door" ] && [ -z "${TEND_NO_START:-}" ] && ! curl -sf -m 2 "$HEALTH" >/
         sleep 2; _n=$((_n + 2)); done
 fi
 
-sys="You are leading one turn of work on the tend project's board.  Below
+stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
+if [ -n "$tools" ]; then
+    # the digest held back: the board is named and the tools are the way to it
+    sys="You are leading one turn of work on the tend project's board.  The
+open cards are the files board/*.md — never board/README.md, and never
+done/ or later/, which are not open work.  Read the board with your
+tools: ls board/, then read the cards you need; each card's problem is
+its \`because\` field.  Pick ONE card and ONE small thing that could be
+drafted for it now — a few lines, not a build.  Answer in exactly this
+shape, three lines, nothing else:
+CARD: the filename only, one word ending in .md, from board/
+TASK: the one small thing, in one line
+WHY: one line
+If you cannot decide, or need the person, answer instead with one line:
+ANDON: your question for the person"
+else
+    sys="You are leading one turn of work on the tend project's board.  Below
 are the open cards: each one's title and the problem it names.  Pick ONE
 card and ONE small thing that could be drafted for it now — a few lines,
 not a build.  Answer in exactly this shape, three lines, nothing else:
@@ -204,8 +231,24 @@ WHY: one line
 If you cannot decide, or need the person, answer instead with one line:
 ANDON: your question for the person
 $digest"
+fi
+calls=""; tstate=""
+if [ -n "$tools" ]; then
+    # the courier's turn, in its own state beside the account so the raw exchange is one file
+    tstate="$propdir/lead/$stamp-tools"; _k=2
+    while [ -e "$tstate" ]; do tstate="$propdir/lead/$stamp-tools-$_k"; _k=$((_k + 1)); done
+    mkdir -p "$tstate"
+    hist=$(jq -cn --arg s "$sys" '[{role:"system",content:$s}]')
+    TEND_HISTORY="$hist" TEND_STATE_DIR="$tstate" TEND_NO_START=1 TEND_DOOR="$door" \
+        sh "$here/deliver.sh" "$NODE" "Pick." > "$tstate/courier.out" 2>&1 || {
+        echo "lead: the courier did not bring a pick — $(grep -v 'DeprecationWarning\|^ *class ' "$tstate/courier.out" | tail -1)" >&2; exit 1; }
+    # the reply is what follows the A: marker in the one exchange; the calls are its C: lines
+    reply=$(awk '!p && / A: / { p = 1; sub(/^[^A]* A: /, "") } p' "$tstate/replies")
+    calls=$(sed -n 's/^[0-9-]* [0-9:]* C: /C: /p' "$tstate/replies")
+fi
 # the node's loader knob (chat_template_kwargs) stays on the node's side; a door gets the model it names —
 # and a door that says `thinking  template` is the node's wire behind a door and gets both (F015)
+if [ -z "$tools" ]; then
 body=$(jq -cn --arg s "$sys" --arg q "Pick." --arg m "$model" --arg knob "$knob" \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2}
      + (if $m == "" then {} else {model:$m} end)
@@ -221,6 +264,7 @@ else
 fi
 reply=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null) || {
     echo "lead: the node's reply was not a completion:" >&2; printf '%s\n' "$out" | head -3 >&2; exit 1; }
+fi
 
 field() { printf '%s\n' "$reply" | sed -n "s/^[[:space:]]*$1:[[:space:]]*//p" | head -1; }
 card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
@@ -229,7 +273,6 @@ card=$(field CARD); task=$(field TASK); why=$(field WHY); andon=$(field ANDON)
 # the first word ending in .md, and an invented card so wrapped is still a pull
 card=$(printf '%s' "$card" | grep -o '[A-Za-z0-9_][A-Za-z0-9_.-]*\.md' | head -1 || true)
 
-stamp=$(date '+%Y-%m-%d-%H%M'); now=$(date '+%Y-%m-%d %H:%M')
 mkdir -p "$propdir/lead" "$STATE"
 # one account per turn: two turns in one minute (13:48, the first live ones) must not share a file
 account="$propdir/lead/$stamp.md"; _k=2
@@ -264,7 +307,13 @@ fi
     printf '     The node'"'"'s own account of what it did; a person reads it (card:session-program.md, the lamp). -->\n\n'
     printf '# %s led one turn — %s\n\n' "$name" "$now"
     [ -n "$door" ] && printf '    door     %s (%s)\n' "$door" "$model"
-    printf '    read     the open board: %s\n' "$(cd "$board" && ls *.md | grep -v README.md | tr '\n' ' ')"
+    if [ -n "$tools" ]; then
+        printf '    arm      tools — the digest held back; the door'"'"'s tools in the request, every call under keep (the exchange is in %s/)\n' "$(basename "$tstate")"
+        printf '    read     the board itself, %s call(s):\n' "$(printf '%s' "$calls" | grep -c '^C: ' || true)"
+        [ -z "$calls" ] || printf '%s\n' "$calls" | sed 's/^/             /'
+    else
+        printf '    read     the open board, as a digest: %s\n' "$(cd "$board" && ls *.md | grep -v README.md | tr '\n' ' ')"
+    fi
     printf '    picked   %s\n' "${card:-—}"
     printf '    task     %s\n' "${task:-—}"
     printf '    why      %s\n' "${why:-—}"
