@@ -1302,13 +1302,17 @@ class _Llm:
         self.srv.shutdown()
 
 
+SCRATCH_BOARD = "# board — a scratch one\n"   # what the scratch tree's board/README.md says; the tests count it, never quote its length
+HANDED = f"README.md ({len(SCRATCH_BOARD)} chars)"   # ask.py's own record of what it handed
+
+
 def ask_nodes(tmp_path, port, connect=True):
     """The tree's `ask`, copied, its edge pointed at a scratch `llm` and its talk at the stand-in's port."""
     llm = tmp_path / "llm"; (llm / "state").mkdir(parents=True)
     (llm / "grant").write_text("program true\n")
     # the tree's ask carries `material ../board/README.md` standing (card:material.md, 2026-09-04),
-    # so the scratch tree has a board for the path to resolve to — five reds on 2026-09-04 13:13
-    (tmp_path / "board").mkdir(); (tmp_path / "board" / "README.md").write_text("# board — a scratch one\n")
+    # so the scratch tree has a board for the path to resolve to — five reds on 2026-09-04 13:13 (F024)
+    (tmp_path / "board").mkdir(); (tmp_path / "board" / "README.md").write_text(SCRATCH_BOARD)
     ask = tmp_path / "ask"
     shutil.copytree(ROOT / "ask", ask, ignore=shutil.ignore_patterns("state", "__pycache__"))
     g = (ask / "grant").read_text().replace("\npull llm\n", "\npull ../llm\n")
@@ -1329,8 +1333,10 @@ def test_the_ask_node_pulls_the_llm_talks_to_it_over_the_edge_and_lets_go(tmp_pa
         r = launch(ask, "run", "Say", "hi", state=ask / "state", timeout=60)
         log = (ask / "state" / "log").read_text()
         assert r.returncode == 0, (r.stderr, log)
-        assert "ask: ANSWER to: Say hi" in log, log
-        assert (ask / "state" / "answer").read_text() == "Say hi\n---\nANSWER to: Say hi\n"
+        # the ask goes out with the material in hand and the question after it (card:material.md; F024)
+        asked = f"=== README.md ===\n{SCRATCH_BOARD}\n\n---\nSay hi"
+        assert "ask: ANSWER to: === README.md ===" in log, log
+        assert (ask / "state" / "answer").read_text() == f"Say hi\n---material: {HANDED}---\n---\nANSWER to: {asked}\n"
         edge = llm / "state" / "pulled" / "ask"
         assert edge.exists() and wait(lambda: not locked(edge)), "the edge was not let go"   # tolerate a reader's momentary flock -n (F019)
     finally:
@@ -1382,7 +1388,7 @@ def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_
 @needs_syspy
 def test_a_partial_answer_the_token_cap_cut_is_said_and_not_passed_off_as_whole(tmp_path):
     """card:material.md, 2026-09-03: gemma4's answer was cut mid-sentence at
-    the 800-token cap and ask wrote the partial content as if it were the
+    the 800-token cap (2000 now that the node reads the tree, F024) and ask wrote the partial content as if it were the
     whole.  A reply whose finish_reason is `length` is unfinished — ask says
     so, in the answer file and on the screen, so a cut does not read as an
     answer (the F010 family: a cut that says nothing)."""
@@ -1394,7 +1400,7 @@ def test_a_partial_answer_the_token_cap_cut_is_said_and_not_passed_off_as_whole(
         assert r.returncode == 0, (r.stderr, log)
         answer = (ask / "state" / "answer").read_text()
         assert "Tend on ymparisto jossa" in answer, answer
-        assert "cut" in answer and "800" in answer, answer   # the file says the cap ended it, unfinished
+        assert "cut" in answer and "ASK_TOKENS=2000" in answer, answer   # the file says the cap ended it, unfinished — 2000, the cap with material
         assert "cut" in log or "unfinished" in log, log      # and the screen does too
     finally:
         llm_stub.close()
@@ -1414,6 +1420,6 @@ def test_an_answer_that_is_all_thinking_is_said_as_no_answer_and_kept(tmp_path):
         assert r.returncode == 0, (r.stderr, log)
         assert "ask: no answer — the llm thought for 5 words" in log, log
         ans = (ask / "state" / "answer").read_text()
-        assert ans.startswith("THINK about tend\n---\n\n---thinking (5 words)---\nhmm what is tend really\n"), ans
+        assert ans.startswith(f"THINK about tend\n---material: {HANDED}---\n---\n\n---thinking (5 words)---\nhmm what is tend really\n"), ans
     finally:
         llm_stub.close()
