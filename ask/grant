@@ -11,4 +11,3 @@ connect 18080
 # and README alone is what answered; vision.md stays off the grant, 7.6k chars the answer did not use
 material ../board/README.md
 program /usr/bin/python3 $NODE/ask.py
-material ../board/README.md
