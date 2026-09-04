@@ -1830,3 +1830,17 @@ What this leaves the card: the milestone's sentence has its measured
 form now.  A 4B-active mind leads a turn in shape; the judgement in
 the turn is a stronger mind's, and the loop, the boundary and the
 account are the same for both — which is what the cords were for.
+
+### 15:36 — F026 run live: the draft is the thinking, and the banner says so
+
+One hy3 turn after the fix, his shell: pick in shape (three cards
+read, `kaizen-ingestion.md`, a task of one line), and a draft file —
+whose text begins "The user wants me to draft the shape of a promoted
+lesson entry…": the reasoning channel, read as the draft, because the
+600-token cap (`TEND_MAXTOK`) was spent thinking and the content came
+back empty.  So F026's suspected shape was the shape.  The banner now
+says which channel the text came from and the finish reason, so a
+reader knows a page of thinking from a draft.  For a door mind that
+reasons by default the knob is `TEND_MAXTOK=2000` on the command, as
+`deliver.sh` already defaults; his shell's, and one more turn says
+whether hy3's draft is then a draft.

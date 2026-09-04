@@ -111,6 +111,11 @@ fi
 # door came back "not a completion" with nothing said, and this line read one spelling)
 draft=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // .reasoning // "") end' 2>/dev/null) || {
     echo "propose: the node's reply was not a completion:" >&2; printf '%s\n' "$out" | head -3 >&2; exit 1; }
+# a draft that is the reasoning is the mind's thinking under a banner, and the banner says so
+# (2026-09-04 15:36, the first hy3 draft after F026: "The user wants me to draft…" — the cap of
+# $maxtok spent thinking, content empty; TEND_MAXTOK is the knob for a door mind that reasons)
+channel=$(printf '%s' "$out" | jq -r '.choices[0].message | if ((.content // "") | length) > 0 then "content" else "reasoning" end' 2>/dev/null)
+finish=$(printf '%s' "$out" | jq -r '.choices[0].finish_reason // "unsaid"' 2>/dev/null)
 # an empty draft is not a draft: `jq -e` reads "" as true, so a JSON error body (llama-server
 # loading, a door's 429) came through here as an empty string and was written under a banner —
 # seventeen times in three seconds on 2026-09-02 (F016).  One line, its code and its words.
@@ -140,6 +145,7 @@ fi
     printf '     NOT tree content until a person reads it and lands it by hand.\n'
     printf '     Task: %s\n' "$task"
     [ $# -gt 0 ] && printf '     Material: %s\n' "$*"
+    [ "$channel" = reasoning ] && printf '     Text: from the reasoning channel — the content came back empty (finish_reason %s): the mind'"'"'s thinking, not a draft, unless it reads as one; TEND_MAXTOK is the cap it spent.\n' "$finish"
     printf '     The model proposes; the person applies (card:session-program.md, brick 3). -->\n\n'
     printf '%s\n' "$draft"
 } > "$file"

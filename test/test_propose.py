@@ -115,6 +115,7 @@ def test_a_draft_in_the_doors_reasoning_spelling_is_the_draft_and_an_empty_body_
     assert r.returncode == 0, r.stdout + r.stderr
     files = list(pd.glob("*.md"))
     assert len(files) == 1 and "the draft, in the reasoning channel" in files[0].read_text(), files
+    assert "from the reasoning channel" in files[0].read_text(), "the banner says which channel the text came from"
     r2 = propose(NODE, "SPENT: draft one line", str(ROOT / "board" / "README.md"), stub=stub, propdir=pd, TEND_NO_START="1")
     assert r2.returncode == 1, r2.stdout + r2.stderr
     assert "finish_reason length, content 0 chars, reasoning 0 chars" in r2.stderr, r2.stderr
