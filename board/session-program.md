@@ -1673,3 +1673,45 @@ the next few turns, not this one.
 gemma4 read before it picks, and is the pick ever a card it did not
 read; and does the pick follow a word in the prompt?  The turns are his
 shell's; the count is off the accounts' `C:` lines.)*
+
+*Answered 2026-09-04 14:41–14:57, six turns (§"14:5x" below): one card
+read before the pick in all six; the pick a card it read in all six;
+`tools.md` five of six, the sixth `edge.md` read twice.*
+
+### 14:5x — five more turns from his shell, and the count
+
+Henri's shell, `for i in 1 2 3 4 5; do tools/lead.sh llm --kept --door
+llm --tools; done`, 14:51 to 14:57, the node held.  Six accounts with
+the 14:41 one, `proposals/lead/2026-09-04-14{41,51,52,53,55,56}.md`,
+counted off their `C:` lines and nothing else:
+
+| turn | calls | cards read before the pick | picked | the pick was read |
+|---|---|---|---|---|
+| 14:41 | 2 | 1 (`tools.md`) | tools.md | yes |
+| 14:51 | 2 | 1 (`tools.md`) | tools.md | yes |
+| 14:52 | 2 | 1 (`tools.md`) | tools.md | yes |
+| 14:53 | 2 | 1 (`tools.md`) | tools.md | yes |
+| 14:55 | 3 | 1 (`edge.md`, twice: lines 1 and 73) | edge.md | yes |
+| 14:56 | 2 | 1 (`tools.md`) | tools.md | yes |
+
+So, on the question above: **one card read before the pick, six of
+six; the pick a card it read, six of six; `tools.md` five of six**, with
+a task that is the same sentence four times at temperature 0.2.  The
+sixth turn is the one that says the read is not fixed: it opened
+`edge.md`, read past the cut with the continuation (`read path 73`),
+and picked that.  What the six do not say is *why* `tools.md` — the
+prompt uses the word four times and the card is the fifteenth of the
+sixteen entries in sorted order (counted: fourteen files, `done/`,
+`later/`), so the word is the likelier steer, and the honest
+reading is that a 4B-active mind with sixteen names and one read
+picks the name it has just been primed with.
+
+What it means for the card: the milestone's sentence, *gemma4 leads a
+turn at `readchars 4000`*, is met in its smallest form — read, pick on
+the shelf, task of a line, draft — and the pick is a one-card pick.
+A leader that reads one card of sixteen is not reading the board; it
+is reading a card.  The next knob is not more calls (it had 16 and
+used 2) but the ask: a prompt that names no card-shaped word and asks
+for the `because` of more than one card before the pick — which is a
+change to the system text and measurable the same way, six turns and
+the `C:` lines.  His shell's turns again, at his word.
