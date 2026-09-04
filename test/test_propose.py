@@ -32,6 +32,14 @@ class _Draft(http.server.BaseHTTPRequestHandler):
         if "LOADING" in task:   # llama-server while the model loads: a JSON error, no choices
             self.send_response(503); self.send_header("Content-Type", "application/json"); self.end_headers()
             self.wfile.write(json.dumps({"error": {"code": 503, "message": "Loading model", "type": "unavailable_error"}}).encode()); return
+        if "REASONS" in task:   # F026: a door mind that put the draft in OpenRouter's `reasoning`, content empty
+            out = {"choices": [{"finish_reason": "stop", "message": {"role": "assistant", "content": "", "reasoning": "the draft, in the reasoning channel"}}]}
+            self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(json.dumps(out).encode()); return
+        if "SPENT" in task:     # F026: the cap spent on thinking that did not come back — nothing in either channel
+            out = {"choices": [{"finish_reason": "length", "message": {"role": "assistant", "content": ""}}]}
+            self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(json.dumps(out).encode()); return
         content = f"DRAFT for: {task}\n\nsome proposed lines."
         if "ECHOSYS" in task:   # F010's test: the draft is the system prompt the model was handed
             content = " || ".join(m["role"] + ":" + m["content"] for m in body["messages"])
@@ -93,6 +101,24 @@ def test_a_reply_with_no_completion_writes_no_proposal(tmp_path, stub):
     assert r.returncode == 1, r.stdout + r.stderr
     assert "not a completion" in r.stderr and "Loading model" in r.stderr, r.stderr
     assert not list(propdir.glob("*.md")), "no banner with nothing under it"
+
+
+def test_a_draft_in_the_doors_reasoning_spelling_is_the_draft_and_an_empty_body_says_what_it_had(tmp_path, stub):
+    """F026 (2026-09-04): six hy3 drafts through the openrouter door came
+    back "not a completion" with nothing after the dash.  A reply whose
+    content is empty and whose `reasoning` (OpenRouter's spelling) is not
+    is a draft, as deliver.sh already reads it; and a reply with nothing
+    in either channel is refused with its finish_reason and the channels'
+    lengths on the line, never a bare refusal."""
+    pd = tmp_path / "proposals"
+    r = propose(NODE, "REASONS: draft one line", str(ROOT / "board" / "README.md"), stub=stub, propdir=pd, TEND_NO_START="1")
+    assert r.returncode == 0, r.stdout + r.stderr
+    files = list(pd.glob("*.md"))
+    assert len(files) == 1 and "the draft, in the reasoning channel" in files[0].read_text(), files
+    r2 = propose(NODE, "SPENT: draft one line", str(ROOT / "board" / "README.md"), stub=stub, propdir=pd, TEND_NO_START="1")
+    assert r2.returncode == 1, r2.stdout + r2.stderr
+    assert "finish_reason length, content 0 chars, reasoning 0 chars" in r2.stderr, r2.stderr
+    assert len(list(pd.glob("*.md"))) == 1, "nothing was written for the empty reply"
 
 
 def test_it_never_writes_a_tracked_file(tmp_path, stub):

@@ -284,6 +284,9 @@ test/test_lead.py	lead: --tools with no door is not refused	sed -i "s|^if \[ -n 
 # tools/meter.py's ledger read — F025, 2026-09-04: the verdict is the last cell's first backticked word, bold or not
 test/test_meter.py	meter: the verdict read off the third cell, not the last	sed -i "s/VERDICT_CELL.match(cells\[-1\])/VERDICT_CELL.match(cells[2])/" tools/meter.py
 test/test_meter.py	meter: a bold verdict is no verdict	sed -i "s/VERDICT_CELL = re.compile(r\"\\\\\*\*\x60/VERDICT_CELL = re.compile(r\"\x60/" tools/meter.py
+# tools/propose.sh through a door — F026, 2026-09-04: both reasoning spellings read, and a wordless refusal says what the body had
+test/test_propose.py	propose: the door's reasoning spelling is not read	sed -i "s|(.reasoning_content // .reasoning // \"\")|(.reasoning_content // \"\")|" tools/propose.sh
+test/test_propose.py	propose: a reply with no error and no draft is refused with nothing said	sed -i "/_e=\$(printf .%s. \"\$out\" | jq -r .\\.choices\[0\] \/\/ {} |/d" tools/propose.sh
 ROWS
 }
 

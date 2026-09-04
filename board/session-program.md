@@ -1796,3 +1796,37 @@ five).  The cheapest reading of *mind or ask* is the same six turns on
 hy3 through the openrouter door, `--tools --seed`, beside gemma4's:
 if hy3 picks the last card opened too, it is the ask; if not, it is
 the size, with a number.  Twelve turns, his shell, at his word.
+
+### 15:3x — twelve seeded turns, six on gemma4 and six on hy3, and the count
+
+His shell, 15:22 to 15:30: six `--kept --door llm --tools --seed` and
+six `--door openrouter --tools --seed` at `TEND_READCHARS=4000`, the
+accounts in `proposals/lead/2026-09-04-152{2..7}.md` and
+`-1528{,-2,-3}.md`, `-1529{,-2}.md`, `-1530.md`.  Off the `C:` lines:
+
+| arm | calls | cards opened | picked | pick = last opened | draft |
+|---|---|---|---|---|---|
+| gemma4, six turns | 0, 0, 0, 0, 0, 0 | none — the digest alone | kaizen-ingestion.md ×6, one task six times | — | 6 of 6 |
+| hy3, six turns | 3, 3, 2, 3, 3, 2 | 2–3, no `ls`: kaizen-ingestion, meter, flake | kaizen-ingestion ×4, meter ×2, a different task each time | **0 of 6** | 0 of 6 — F026 |
+
+So, on *mind or ask*: **seeded, gemma4 reads nothing and picks the
+digest's card — the same card six times with the same task — and hy3
+reads two or three cards and picks among them, never the last opened.**
+Without the digest (§"15:1x") gemma4 read three and picked the last;
+with it, it read none.  The recency pick was the ask's; the not-reading
+is the mind's, and it is the same mind that at 4B active reads one
+card and acts on it.  hy3's six tasks are six different sentences
+about the same card, each specific (a promotion entry's one-line
+format, the meter's row contract); gemma4's is one sentence six times
+at temperature 0.2.
+
+The draft half of hy3's arm did not happen: `propose.sh` through the
+door said "not a completion" six times with nothing after the dash —
+F026, the reasoning read in one spelling and the refusal line
+wordless, fixed here with its gate and not run live.  His next six
+turns through the openrouter door say whether the fix was the failure.
+
+What this leaves the card: the milestone's sentence has its measured
+form now.  A 4B-active mind leads a turn in shape; the judgement in
+the turn is a stronger mind's, and the loop, the boundary and the
+account are the same for both — which is what the cords were for.

@@ -106,14 +106,21 @@ else
     out=$(curl -sS -m 240 -H 'Content-Type: application/json' -d "$body" "$CHAT") || {
         echo "propose: the node did not answer at $CHAT — is it up? (tools/launch.sh $name check / pull)" >&2; exit 1; }
 fi
-draft=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // "") end' 2>/dev/null) || {
+# the reasoning is read in both spellings — llama-server's `reasoning_content`, OpenRouter's
+# `reasoning` — as deliver.sh reads it (F026, 2026-09-04: six hy3 drafts through the openrouter
+# door came back "not a completion" with nothing said, and this line read one spelling)
+draft=$(printf '%s' "$out" | jq -er '.choices[0].message | (.content // "") as $c | if ($c|length)>0 then $c else (.reasoning_content // .reasoning // "") end' 2>/dev/null) || {
     echo "propose: the node's reply was not a completion:" >&2; printf '%s\n' "$out" | head -3 >&2; exit 1; }
 # an empty draft is not a draft: `jq -e` reads "" as true, so a JSON error body (llama-server
 # loading, a door's 429) came through here as an empty string and was written under a banner —
 # seventeen times in three seconds on 2026-09-02 (F016).  One line, its code and its words.
 if [ -z "$draft" ]; then
     _e=$(printf '%s' "$out" | jq -r 'select(.error) | .error | if type == "object" then "\(.code // .status // .type // "error") \(.message // .msg // tostring)" else tostring end' 2>/dev/null)
-    echo "propose: the ${door:-node}'s reply was not a completion${_e:+ — $_e}" >&2; exit 1
+    # no error and no draft: say what the body had — the finish reason and the channels' lengths —
+    # so a cap spent on thinking reads as that and not as silence (F026)
+    [ -n "$_e" ] || _e=$(printf '%s' "$out" | jq -r '.choices[0] // {} | "finish_reason \(.finish_reason // "unsaid"), content \((.message.content // "") | length) chars, reasoning \((.message.reasoning_content // .message.reasoning // "") | length) chars"' 2>/dev/null)
+    [ -n "$_e" ] || _e="a body with no choices and no error: $(printf '%s' "$out" | head -c 200)"
+    echo "propose: the ${door:-node}'s reply was not a completion — $_e" >&2; exit 1
 fi
 
 # the boundary, in one place: propose writes ONLY under propdir, never a
