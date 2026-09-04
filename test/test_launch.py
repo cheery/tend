@@ -8,6 +8,7 @@ at a scratch directory with TEND_STATE_DIR and run as a person's shell
 (TEND_FENCED unset) unless the test is about the fence.
 """
 
+import fcntl
 import json
 import os
 import pathlib
@@ -1130,9 +1131,19 @@ def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(t
     env = dict(os.environ, TEND_STATE_DIR=str(sol / "state"), TEND_ANDON_STATE=str(tmp_path / "andon"),
                TEND_CANVAS=str(tmp_path / "canvas"), TEND_IDLE="0.5"); env.pop("TEND_FENCED", None)
     p = subprocess.Popen(["sh", str(LAUNCH), str(sol), "run"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    mine = None
     try:
         edge = die / "state" / "pulled" / "solitaire"
         assert wait(lambda: edge.exists() and locked(edge), cap=8), "the solitaire's process never took the edge"
+        # The whole flow — edge taken, die served, rolled, read, let go — is 0.67 s at idle, and since
+        # card:lock-test.md a `status` costs two 200 ms windows, so one read can return after the state
+        # it was asked about has ended: the die up, rolled and idled out before status ever said
+        # "pulled by" (F022, 2026-09-04).  So the test holds the edge too — a shared lock on the same
+        # file, the puller's own shape — while it reads; the pulled state then stands still under the
+        # read, and status is read from a state that cannot end mid-read.  Let go below, before the
+        # assertions about the edge being let go and the die idling out.
+        mine = os.open(edge, os.O_RDONLY)
+        fcntl.flock(mine, fcntl.LOCK_SH)
         # poll status: a single read can catch the edge between the puller grabbing it and holding it, or be
         # fooled by another reader's momentary lock (F020's family); the puller's hold is persistent, so status
         # shows it once it is real
@@ -1142,15 +1153,23 @@ def test_a_process_pull_brings_the_die_up_and_lets_it_idle_out_when_it_lets_go(t
         # (Henri, 2026-09-02: "pystyisikö vedetty solmu käynnistymään heti vedon jälkeen?") — so a serve
         # by hand here finds a runner up, or the die already served, and starts nothing
         assert p.wait(timeout=30) == 0, "the solitaire did not get its roll — nothing served the die at the lock"
-        assert "die is pulled by solitaire and no runner — started one" in (sol / "state" / "log").read_text(), (sol / "state" / "log").read_text()
+        # serve's report lands after it has seen the runner hold the lock across `held`'s window (200 ms,
+        # card:lock-test.md), and an idle die rolls and is read in less — so the line arrives late, after
+        # the puller has gone, not never.  Read at the instant the puller exited, the log was missing it
+        # four runs of four on 2026-09-04 (F022); the report is waited for like the status line above
+        assert wait(lambda: "die is pulled by solitaire and no runner — started one" in (sol / "state" / "log").read_text(), cap=5), \
+            (sol / "state" / "log").read_text()
         log = (sol / "state" / "log").read_text()
         assert re.search(r"solitaire: die rolled [1-6]$", log, re.M), log
+        os.close(mine); mine = None   # the test lets go; the puller already has
         assert wait(lambda: not locked(edge)), "the edge was not let go"   # a reader's momentary flock -n is not the puller holding it (F019)
         assert wait(lambda: (die / "state" / "stopped").exists(), cap=10), "the die did not idle out after the pull was let go"
         assert (die / "state" / "stopped").read_text().startswith("idle:"), (die / "state" / "stopped").read_text()
         again = launch(die, "serve", state=die / "state", idle="0.5")
         assert again.returncode == 0 and again.stderr == "", "an edge that was let go restarted the die"
     finally:
+        if mine is not None:
+            os.close(mine)
         if p.poll() is None:
             p.kill(); p.wait()
 
