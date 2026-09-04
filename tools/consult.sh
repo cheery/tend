@@ -54,7 +54,14 @@ done
 trimmed=""
 before=$(printf '%s' "$material" | wc -c)
 if [ "$before" -gt "$ctxchars" ]; then
-    material=$(printf '%s' "$material" | head -c "$ctxchars")
+    # F010: the mind is told too, in the material — until 2026-09-04 only the person's
+    # line below said so, and the model answered from trimmed material believing it
+    # whole.  Wording and line arithmetic as tools/compare.py's cut_notice
+    kept=$(printf '%s' "$material" | head -c "$ctxchars")
+    at=$(( $(printf '%s' "$kept" | tr -cd '\n' | wc -c) + 1 ))
+    lines=$(printf '%s' "$material" | grep -c '')
+    material="$kept
+[… cut at $ctxchars chars of $before, at line $at of $lines of the material.  The rest is not available in this turn — there is no way to ask for it.]"
     trimmed=" (material trimmed to $ctxchars chars of $before — the node's context is small; name one card, not the board)"
 fi
 

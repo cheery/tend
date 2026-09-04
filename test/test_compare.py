@@ -460,3 +460,34 @@ def test_the_refusal_string_is_the_couriers_own_and_they_still_agree(tmp_path):
     # and the refusals are still on the record, because the person
     # watches the model act — F012 is not about hiding them
     assert txt.count("out of calls") >= 2, txt
+
+
+def test_the_normal_turns_draft_carries_the_cut_notice_too(tmp_path):
+    """F010: `one_turn`'s draft was the silent arm — `material[:MATERIAL_CHARS]`
+    with nothing said, the second copy of propose.sh's cut — while the
+    `--draft` turn had the notice.  Now the pick path's draft is handed the
+    cut notice whenever it cut, and nothing when the card fits."""
+    b = board(tmp_path)
+    (b / "long.md").write_text("# long — a card\n\n    status   open\n    because  x\n    asked    Henri\n"
+                               + "\n".join(f"body line {i}" for i in range(800)) + "\n")
+
+    class FakeClient:
+        def __init__(self, card):
+            self.seen = []; self.card = card; self.messages = self
+
+        def create(self, **kw):
+            self.seen.append(kw)
+            text = f"CARD: {self.card}\nTASK: do the thing\nWHY: because" if len(self.seen) == 1 else "a draft"
+            return type("R", (), {
+                "content": [type("T", (), {"type": "text", "text": text})()],
+                "usage": type("U", (), {"input_tokens": 1, "output_tokens": 2})(),
+                "stop_reason": "end_turn"})()
+
+    c = FakeClient("long.md")
+    compare.one_turn(c, "m", b, tmp_path / "p")
+    system = c.seen[1]["system"]
+    assert f"cut at {compare.MATERIAL_CHARS} chars of" in system and "no way to ask for it" in system, system[-400:]
+    assert "body line 799" not in system
+    c = FakeClient("silent-cord.md")
+    compare.one_turn(c, "m", b, tmp_path / "p2")
+    assert "cut at" not in c.seen[1]["system"], "a card that fits is handed whole, with no notice"

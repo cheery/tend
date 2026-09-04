@@ -470,9 +470,15 @@ def one_turn(client, model, board, propdir, thinking=False):
     draft = ""; r2 = None
     if got["card"]:
         card = Path(board) / got["card"]
-        material = f"\n=== {card} ===\n" + card.read_text()
+        whole = f"\n=== {card} ===\n" + card.read_text()
+        # F010: the normal path's draft was the silent arm — cut at MATERIAL_CHARS with
+        # nothing said to the mind, the second copy of propose.sh's cut.  It carries the
+        # notice now, as the draft turn's told arm does and as every cut in the tree says
+        material = whole[:MATERIAL_CHARS]
+        if len(material) < len(whole):
+            material += cut_notice(material, whole, got["card"])
         r2 = client.messages.create(model=model, max_tokens=draft_max,
-                                    system=DRAFT_SYS + material[:MATERIAL_CHARS],
+                                    system=DRAFT_SYS + material,
                                     messages=[{"role": "user", "content": got["task"]}], **mode)
         draft = _text(r2)
     now = datetime.datetime.now()

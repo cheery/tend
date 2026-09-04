@@ -10,6 +10,7 @@ the boundary and that the draft is written.
 """
 import http.server
 import json
+import re
 import subprocess
 import threading
 from pathlib import Path
@@ -31,8 +32,10 @@ class _Draft(http.server.BaseHTTPRequestHandler):
         if "LOADING" in task:   # llama-server while the model loads: a JSON error, no choices
             self.send_response(503); self.send_header("Content-Type", "application/json"); self.end_headers()
             self.wfile.write(json.dumps({"error": {"code": 503, "message": "Loading model", "type": "unavailable_error"}}).encode()); return
-        out = {"choices": [{"message": {"role": "assistant",
-               "content": f"DRAFT for: {task}\n\nsome proposed lines."}}]}
+        content = f"DRAFT for: {task}\n\nsome proposed lines."
+        if "ECHOSYS" in task:   # F010's test: the draft is the system prompt the model was handed
+            content = " || ".join(m["role"] + ":" + m["content"] for m in body["messages"])
+        out = {"choices": [{"message": {"role": "assistant", "content": content}}]}
         self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
         self.wfile.write(json.dumps(out).encode())
 
@@ -117,6 +120,28 @@ def test_inside_the_fence_it_refuses(tmp_path, stub):
     propdir = tmp_path / "proposals"
     r = propose(NODE, "x", stub=stub, propdir=propdir, TEND_FENCED="1")
     assert r.returncode != 0 and "fence" in (r.stdout + r.stderr).lower()
+
+
+def test_a_cut_material_tells_the_model_what_it_lost_and_that_nothing_can_fetch_it(tmp_path, stub):
+    """F010: the draft was written from material cut at TEND_CTXCHARS with
+    nothing said to the mind — a byte cut, mid-word.  Now the cut is a line
+    in the material, in tools/compare.py's cut_notice wording: chars of chars,
+    the first line not shown of the lines there are, and that there is no way
+    to ask for the rest.  A material that fits carries no such line."""
+    doc = tmp_path / "m.md"
+    doc.write_text("\n".join(f"line {i} of the ground truth" for i in range(1, 41)) + "\n")
+    propdir = tmp_path / "proposals"
+    r = propose(NODE, "ECHOSYS", str(doc), stub=stub, propdir=propdir, TEND_CTXCHARS="300")
+    assert r.returncode == 0, r.stdout + r.stderr
+    text = list(propdir.glob("*.md"))[0].read_text()
+    assert "[… cut at 300 chars of " in text and "no way to ask for it" in text, text
+    assert re.search(r"at line \d+ of 4[12] of the material", text), text   # the cut line, of the lines there are
+    assert "line 40 of the ground truth" not in text, "the tail is cut, and the notice says so"
+    # a material that fits is handed whole, with no notice
+    propdir2 = tmp_path / "p2"
+    propose(NODE, "ECHOSYS", str(doc), stub=stub, propdir=propdir2, TEND_CTXCHARS="6000")
+    text = list(propdir2.glob("*.md"))[0].read_text()
+    assert "line 40 of the ground truth" in text and "cut at" not in text, text
 
 
 def test_a_missing_material_file_is_refused(tmp_path, stub):

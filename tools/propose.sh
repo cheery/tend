@@ -58,8 +58,17 @@ for f in "$@"; do
 === $f ===
 $(cat "$f")"
 done
-if [ -n "$material" ] && [ "$(printf '%s' "$material" | wc -c)" -gt "$ctxchars" ]; then
-    material=$(printf '%s' "$material" | head -c "$ctxchars")
+before=$(printf '%s' "$material" | wc -c)
+if [ -n "$material" ] && [ "$before" -gt "$ctxchars" ]; then
+    # F010: a cap is a gate and a gate says what it cut — to the mind, in the material, not
+    # only to the person.  The wording is tools/compare.py's cut_notice (executor.py:139's,
+    # with its offer removed: a draft turn has no tools, so nothing can ask for the rest).
+    # Lines counted the executor's way: `at` is the first line not shown
+    kept=$(printf '%s' "$material" | head -c "$ctxchars")
+    at=$(( $(printf '%s' "$kept" | tr -cd '\n' | wc -c) + 1 ))
+    lines=$(printf '%s' "$material" | grep -c '')
+    material="$kept
+[… cut at $ctxchars chars of $before, at line $at of $lines of the material ($*).  The rest is not available in this turn — there is no way to ask for it.]"
 fi
 
 wait_ready() {

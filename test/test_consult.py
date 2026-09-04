@@ -64,6 +64,19 @@ def test_it_defaults_to_the_board_readme_when_no_file_is_named(tmp_path, stub):
     assert "one file per task" in r.stdout.lower() or "board" in r.stdout.lower()
 
 
+def test_a_cut_material_tells_the_model_and_still_tells_the_person(tmp_path, stub):
+    """F010: the trim notice went to the person's stdout only, and the model
+    answered from trimmed material believing it whole.  The material the
+    model is given now ends in the same cut notice the tree's other cuts
+    say — and the person's line stays."""
+    doc = tmp_path / "long.md"
+    doc.write_text("\n".join(f"fact {i}" for i in range(1, 101)) + "\n")
+    r = consult(NODE, "What is fact 100?", str(doc), stub=stub, TEND_CTXCHARS="200")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "[… cut at 200 chars of " in r.stdout and "no way to ask for it" in r.stdout, r.stdout   # in the prompt the stub echoed
+    assert "material trimmed to 200 chars of" in r.stdout, r.stdout   # the person's line, kept
+
+
 def test_a_missing_file_is_refused_out_loud(tmp_path, stub):
     r = consult(NODE, "anything", str(tmp_path / "nope.md"), stub=stub)
     assert r.returncode != 0 and "no such" in (r.stdout + r.stderr).lower()
