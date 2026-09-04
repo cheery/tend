@@ -272,7 +272,8 @@ lamp: it lights on the first commit after a kaizen, which is the new
 sitting's first, and names a new file.  What it cannot tell — an
 extension from a close — is the session's to keep, as the clock rule
 says.
-*(self-shaped, 2026-09-04 — a session wrote this rule about sessions.)*
+*(self-shaped, 2026-09-04 — a session wrote this rule about sessions.
+henri: approved 2026-09-04)*
 
 **A mechanism a session cannot test is proposed, not declared** —
 three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
@@ -371,6 +372,11 @@ if the tree itself is what runs (a fresh clone with no install), which
 it is the day the tax was measured, and the reason the install exists.
 *(self-shaped, 2026-09-01 — a session wrote this rule about sessions.)*
 
+2026-09-04: Henri's feedback on this one above: I think the worktrees
+should work, and if they don't, then we need to fix that.
+The file restriction clash that broke worktrees was corrected several days ago.
+I think they should work again, but one needs to check.
+
 *(question, his call — should this paragraph carry a `(self-shaped` mark
 too? henri: yes 2026-09-01)*
 
@@ -420,7 +426,8 @@ again from the sittings log before it is believed.  And an extension is
 a continuation: until the lamp learns that from `tools/limit.sh`, the
 rule is the session's to keep — no kaizen at the clock when the person
 has said they will sit on.
-*(self-shaped, 2026-09-02 — a session wrote this rule about sessions.)*
+*(self-shaped, 2026-09-02 — a session wrote this rule about sessions.
+henri: approved 2026-09-04)*
 
 ## A word left for you
 
