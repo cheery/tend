@@ -171,6 +171,26 @@ def test_a_cut_material_tells_the_model_what_it_lost_and_that_nothing_can_fetch_
     assert "line 40 of the ground truth" in text and "cut at" not in text, text
 
 
+def test_a_cut_of_a_material_past_the_pipes_buffer_says_nothing_but_the_notice(tmp_path, stub):
+    """F027 (2026-09-04): `propose.sh: 67: printf: I/O error` on every draft
+    from a 90k card — head closes the pipe once it has its bytes and dash's
+    printf reports the EPIPE.  A cut is the intended one and says only its
+    notice; the material here is past a pipe's 64k buffer on purpose."""
+    doc = tmp_path / "big.md"
+    doc.write_text("".join(f"line {i} of a long card, padded to make it long enough to matter\n" for i in range(1, 2001)))
+    assert doc.stat().st_size > 70000, doc.stat().st_size
+    propdir = tmp_path / "proposals"
+    # under keep.py SIGPIPE is ignored (python's default, not restored across its exec), so a
+    # printf past a closed pipe gets EPIPE and reports it; under a shell it dies silently.  The
+    # test builds the side it means: SIGPIPE ignored, as the kept turn has it
+    env = {"PATH": "/usr/bin:/bin", "TEND_PROPOSAL_DIR": str(propdir), "TEND_CTXCHARS": "300", **stub}
+    r = subprocess.run(["sh", str(PROPOSE), str(NODE), "ECHOSYS", str(doc)], capture_output=True, text=True,
+                       env=env, restore_signals=False)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "I/O error" not in r.stderr and "printf" not in r.stderr, r.stderr
+    assert "[… cut at 300 chars of " in list(propdir.glob("*.md"))[0].read_text()
+
+
 def test_a_missing_material_file_is_refused(tmp_path, stub):
     propdir = tmp_path / "proposals"
     r = propose(NODE, "x", str(tmp_path / "nope.md"), stub=stub, propdir=propdir)

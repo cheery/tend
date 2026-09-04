@@ -1950,3 +1950,37 @@ the card's first seventy lines do not.  His shell, his card:
 
     for i in 1 2 3 4 5 6; do tools/lead.sh llm --kept --door llm --tools --card NAME; done
     for i in 1 2 3 4 5 6; do TEND_MAXTOK=2000 TEND_READCHARS=4000 tools/lead.sh llm --door openrouter --tools --card NAME; done
+
+### 17:0x — twelve turns on a handed card, and his "taisi mennä valinta pieleen"
+
+His card: `session-program.md` — this one, 1952 lines, the longest
+on the board.  Six gemma4 turns kept through the llm door, then hy3
+through the openrouter door, stopped at the fourth.  Off the accounts:
+
+| arm | calls | outcome |
+|---|---|---|
+| gemma4 ×6 | 0, 0, 0, 0, 0, 0 | five `ANDON: what are the specific "cords" required…`; one draft, "define the cords interface in spec/session.md" |
+| hy3 ×4 | 18, ?, ?, ? | one draft, "the cold-arm tree — imperative commandments, as Henri described", after reading the card to line 955 of 1952 and running out of calls; three `no CARD/TASK shape` — the reply was the thinking: *'The person says "Pick." This is a terse instruction. They handed me the card…'* |
+
+What was the setup's, and is fixed in this commit: **the user line
+still said "Pick."** — the system text said the card was handed and
+the user line asked for a pick, and hy3 stopped to reconcile the two;
+it says the task now.  And `propose.sh` printed `printf: I/O error`
+on the one gemma4 draft (F027, a pipe closed by `head` on a 90k
+card).  What was the setup's and is not fixed: hy3's cap — 2000
+tokens, sixteen reads of a 1952-line card, and the reasoning ate the
+answer three times of four; `TEND_MAXTOK=8000` is the number for a
+tooled hy3 on a long card, his shell's.  And gemma4 with `--tools`
+made no call in six — the 06:58 finding again: with content in the
+ask it reads nothing — so its five andons asked for what the card's
+own §"cords" names, seventy lines below the `because` it was handed.
+
+What was the card's: both real drafts propose a thing the card's
+later sections say is built — the cords on `llm/grant`, the cold arm
+in `doc/cold/` — because a 4k read reaches line 71 and the build
+notes sit past line 800.  A handed card is read from its top, and
+this card's top is 2026-08-26.  His "taisi mennä valinta pieleen" is
+right in that sense: the longest card is the one a mind at 4k per
+read can least finish, and the measurement it was for — the draft
+against the `because` — needs a card the mind can hold.  `meter.md`
+is 96 lines.  The next twelve turns are his, on a card that fits.

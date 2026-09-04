@@ -383,6 +383,8 @@ def test_a_handed_card_is_the_turns_input_and_the_mind_writes_the_task_not_the_p
     sys_text = seen[0]["messages"][0]["content"]
     assert "a commit waits on a hand" in sys_text and "the cord needs a row" not in sys_text, sys_text
     assert "handed to you" in sys_text and "CARD:" not in sys_text, sys_text
+    user_text = seen[0]["messages"][-1]["content"]
+    assert "in hand" in user_text and "Pick." not in user_text, user_text   # the user line asks for the task, not the pick
     acc = next((tmp_path / "proposals" / "lead").glob("*.md")).read_text()
     assert "given    lander.md — by the person, not picked" in acc and "picked" not in acc.split("given")[0], acc
     assert list((tmp_path / "proposals").glob("*.md")), "the handed card still drafts"

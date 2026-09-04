@@ -64,7 +64,9 @@ if [ -n "$material" ] && [ "$before" -gt "$ctxchars" ]; then
     # only to the person.  The wording is tools/compare.py's cut_notice (executor.py:139's,
     # with its offer removed: a draft turn has no tools, so nothing can ask for the rest).
     # Lines counted the executor's way: `at` is the first line not shown
-    kept=$(printf '%s' "$material" | head -c "$ctxchars")
+    # printf's stderr closed: past the pipe's buffer head closes early and dash's printf says
+    # "I/O error" on a cut that is the intended one (F027, 2026-09-04: a 90k card cut at 30000)
+    kept=$(printf '%s' "$material" 2>/dev/null | head -c "$ctxchars")
     at=$(( $(printf '%s' "$kept" | tr -cd '\n' | wc -c) + 1 ))
     lines=$(printf '%s' "$material" | grep -c '')
     material="$kept

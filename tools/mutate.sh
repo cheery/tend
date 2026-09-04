@@ -290,6 +290,8 @@ test/test_propose.py	propose: a reply with no error and no draft is refused with
 # tools/lead.sh --card — 2026-09-04, the card handed, never picked (card:session-program.md §"Talk — 2026-09-04")
 test/test_lead.py	lead: a handed card's ask still carries the whole board	sed -i "/a handed card: the digest is that card alone/d" tools/lead.sh
 test/test_lead.py	lead: the handed card is not the turn's card	sed -i "/handed, not picked: a CARD: line the mind writes anyway is not read/d" tools/lead.sh
+# tools/propose.sh's cut past a pipe's buffer — F027, 2026-09-04: printf's EPIPE is not an error line
+test/test_propose.py	propose: the cut of a long material reports printf's I/O error	sed -i "s|kept=\$(printf .%s. \"\$material\" 2>/dev/null \| head -c|kept=\$(printf \"%s\" \"\$material\" \| head -c|" tools/propose.sh
 ROWS
 }
 

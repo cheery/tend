@@ -88,6 +88,10 @@ if [ -n "$given" ]; then
     fi
     export TEND_LEAD_CARD="$given"
 fi
+# the user line: "Pick." asks for the pick; a handed card asks for the task — hy3 read "Pick."
+# as the instruction and stopped to reconcile it with the card in hand (17:04, three of four
+# turns: 'The person says "Pick." This is a terse instruction. They handed me the card…')
+ask_line="Pick."; [ -z "$given" ] || ask_line="The card $given is in hand; say the TASK: and the WHY:."
 # --seed (2026-09-04, at Henri's "tee se seeded"): the tools turn with the digest in the ask —
 # compare.py's third arm (card:tools.md, 2026-09-01) on the node's own loop.  Six turns without
 # the digest read the first three of `ls` and picked the last opened (card:session-program.md
@@ -303,7 +307,7 @@ if [ -n "$tools" ]; then
     mkdir -p "$tstate"
     hist=$(jq -cn --arg s "$sys" '[{role:"system",content:$s}]')
     TEND_HISTORY="$hist" TEND_STATE_DIR="$tstate" TEND_NO_START=1 TEND_DOOR="$door" \
-        sh "$here/deliver.sh" "$NODE" "Pick." > "$tstate/courier.out" 2>&1 || {
+        sh "$here/deliver.sh" "$NODE" "$ask_line" > "$tstate/courier.out" 2>&1 || {
         echo "lead: the courier did not bring a pick — $(grep -v 'DeprecationWarning\|^ *class ' "$tstate/courier.out" | tail -1)" >&2; exit 1; }
     # the reply is what follows the A: marker in the one exchange; the calls are its C: lines
     reply=$(awk '!p && / A: / { p = 1; sub(/^[^A]* A: /, "") } p' "$tstate/replies")
@@ -312,7 +316,7 @@ fi
 # the node's loader knob (chat_template_kwargs) stays on the node's side; a door gets the model it names —
 # and a door that says `thinking  template` is the node's wire behind a door and gets both (F015)
 if [ -z "$tools" ]; then
-body=$(jq -cn --arg s "$sys" --arg q "Pick." --arg m "$model" --arg knob "$knob" \
+body=$(jq -cn --arg s "$sys" --arg q "$ask_line" --arg m "$model" --arg knob "$knob" \
     '{messages:[{role:"system",content:$s},{role:"user",content:$q}],max_tokens:160,temperature:0.2}
      + (if $m == "" then {} else {model:$m} end)
      + (if $m == "" or $knob == "template" then {chat_template_kwargs:{enable_thinking:false}} else {} end)')
