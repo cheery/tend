@@ -129,7 +129,7 @@ the card closes pointing at what the right one would be.
 
 *(self-shaped, 2026-09-01 — a session wrote the card that scores whether
 sessions are helped by this tree, which is the party the measurement is
-about.)*
+about. henri: approved 2026-09-04)*
 
 ## Shelved 2026-09-02, at Henri's word — and what it waits on
 
