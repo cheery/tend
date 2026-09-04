@@ -418,6 +418,27 @@ def test_check_resolves_the_program_as_keep_would_and_says_when_keep_would_skip_
     assert r.returncode == 1 and f"✗ program {home / name} is there, and keep would refuse it" in r.stdout, r.stdout
 
 
+def test_check_says_a_wrapper_is_a_script_and_does_not_vouch_for_what_it_runs(tmp_path):
+    """F023, 2026-09-03 morning: /usr/local/bin/llama-server became a wrapper
+    script and llm's check said ✓ with no "loads" line — true of the wrapper,
+    silent about the binary, and silence is the one verdict a check may not
+    give.  The third verdict: a script gets a `·` line that names what it
+    execs when its exec line says, and says it is not checked from here."""
+    d = tmp_path / "bin"; d.mkdir()
+    target = d / "real-thing"; target.write_text("#!/bin/sh\nexit 0\n"); target.chmod(0o755)
+    wrap = d / "wrapped"; wrap.write_text(f'#!/bin/sh\nexport X=1\nexec "{target}" "$@"\n'); wrap.chmod(0o755)
+    n = tmp_path / "n"; n.mkdir()
+    (n / "grant").write_text(f"allow {d}\nprogram {wrap}\n")
+    r = launch(n, "check", state=tmp_path / "st")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert f"· program {wrap} is a script" in r.stdout and f"({target}) is not checked from here" in r.stdout, r.stdout
+    assert "loads" not in r.stdout, r.stdout
+    # a wrapper whose exec line names nothing this can read: the verdict still says script, and names nothing
+    wrap.write_text('#!/bin/sh\nexit 0\n')
+    r = launch(n, "check", state=tmp_path / "st")
+    assert f"· program {wrap} is a script" in r.stdout and "what it runs is not checked from here" in r.stdout, r.stdout
+
+
 def test_material_is_a_grant_word_that_reads_a_tree_file_and_names_it(tmp_path):
     """card:material.md day one: a node reads a tree file only through a grant
     word.  `material PATH` grants the read (keep --allow) and names the path in

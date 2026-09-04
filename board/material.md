@@ -146,6 +146,3 @@ to the feature and the digest-vs-tool question, is his call.)*
 
 Placed last by the session that wrote it, at his "tee siitä kortti", as
 the sitting closed; the tiebreak is his.
-
-Placed last by the session that wrote it, at his "tee siitä kortti", as
-the sitting closed; the tiebreak is his.

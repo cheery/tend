@@ -397,6 +397,14 @@ check)
             if [ -z "$outside" ]; then ok "program loads — every shared library it names is found, where keep lets it read"
             else bad "program loads for you, and keep would refuse it — shared libraries outside the grant, under: $outside(an \`allow\` line for the directory, or the runtime where keep's SYSTEM_READ looks)"; fi
         fi
+    elif [ -n "$bin" ] && [ "$(head -c 2 "$bin" 2>/dev/null)" = '#!' ]; then
+        # A script is a wrapper, and the loader's line belongs to what it execs, not to it.
+        # 2026-09-03 morning: /usr/local/bin/llama-server became a script and llm's check said
+        # ✓ with no "loads" — true of the wrapper, silent about the binary (F023).  The third
+        # verdict, printed: what the wrapper runs is named when its exec line says, and is not
+        # checked from here either way
+        target=$(sed -n 's/^[[:space:]]*exec[[:space:]]*"\{0,1\}\([^" ]*\).*/\1/p' "$bin" 2>/dev/null | tail -1)
+        printf '  · program %s is a script — ldd has nothing to read; what it runs%s is not checked from here\n' "$bin" "${target:+ ($target)}"
     fi
     for kv in $paths; do
         k=${kv%%=*}; v=${kv#*=}
