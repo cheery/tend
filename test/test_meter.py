@@ -121,6 +121,26 @@ def test_waiting_lists_the_marks_with_no_henri_line_and_nothing_else(tree):
     assert "2026-08-24 —" not in r.stdout, "the struck mark is not on the list"
 
 
+def test_every_form_the_ledger_writes_a_verdict_in_is_read(tree):
+    """F025 (2026-09-04): the ledger writes `rule`, `open — card:x.md` with
+    the where inside the backticks, and **`promoted` — …** in bold; the
+    meter read only the first and called five rows of 110 unread — and
+    two more had a bare pipe in the phrase, a fourth cell.  All four of
+    the fixture's kaizens get a row, one per form, and none is unread;
+    the recurs share is read off the same rows."""
+    (tree / "doc" / "ingested.md").write_text(
+        "# Ingested\n\n| kaizen | the lesson | verdict |\n|---|---|---|\n"
+        "| 2026-08-24-1000 | a heredoc again | `recurs` — [[x]] |\n"
+        "| 2026-08-25-0900 | the clock | `once` |\n"
+        "| 2026-08-26-0900 | the flake | `open — card:flake.md` for the refusal read as a flake |\n"
+        "| 2026-09-01-0800 | the mark, and a bare pipe | in the phrase | **`promoted` — `board/README.md` §\"What the days taught\"**, four faces |\n")
+    r = meter(tree)
+    assert r.returncode == 0, r.stderr
+    assert "0 of 4 kaizens have no verdict" in r.stdout, r.stdout
+    assert row(r.stdout, "2026-08-24")[4] == "1 of 3", r.stdout   # the week's three ingested, one recurs
+    assert row(r.stdout, "2026-08-31")[4] == "0 of 1", r.stdout   # the promoted one is read, and is not a recurs
+
+
 def test_it_parses():
     assert subprocess.run([sys.executable, "-m", "py_compile", str(METER)]).returncode == 0
 

@@ -47,7 +47,13 @@ ROOT = Path(__file__).resolve().parent.parent
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 KAIZEN = re.compile(r"^(\d{4}-\d{2}-\d{2})-\d{4}\.md$")
 FIELD = re.compile(r"^ {4}(\w+)\s{2,}(.*)$")
-INGESTED = re.compile(r"^\| (\d{4}-\d{2}-\d{2}-\d{4}) \|.*\| `(\w+)`")
+# a ledger row: the kaizen's name in the first cell; the verdict is the first backticked word of
+# the LAST cell — `rule`, `open — card:x.md` (the where inside the backticks), **`promoted` — …**
+# (bold first) — and the last cell because a phrase has carried a bare pipe twice, which makes a
+# fourth cell.  F025 (2026-09-04): the first form of this wanted `word` closed by a backtick right
+# after the third cell's pipe, and seven of 110 rows were counted as never ingested
+INGESTED = re.compile(r"^\| (\d{4}-\d{2}-\d{2}-\d{4}) \|(.*)$")
+VERDICT_CELL = re.compile(r"\**`(\w+)")
 HENRI = re.compile(r"^henri:\s*([1-5])\b", re.M)
 PAREN = re.compile(r"\((\d+)\)")
 DOTTED = re.compile(r"(?:^|\s)(\d+)\.\s")
@@ -189,7 +195,10 @@ def gather(root):
         for line in ingested.read_text(encoding="utf-8").splitlines():
             found = INGESTED.match(line)
             if found:
-                verdicts[found.group(1)] = found.group(2)
+                cells = [c.strip() for c in found.group(2).strip().strip("|").split("|")]
+                said = VERDICT_CELL.match(cells[-1]) if cells else None
+                if said:
+                    verdicts[found.group(1)] = said.group(1)
 
     for path in sorted((root / "doc" / "kaizen").glob("*.md")):
         found = KAIZEN.match(path.name)

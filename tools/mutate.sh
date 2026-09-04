@@ -281,6 +281,9 @@ test/test_compare.py	compare: the pick path's draft is cut in silence again	sed 
 test/test_lead.py	lead: the tools turn's calls are not on the account	sed -i "s|C: /C: /p|C: /X: /p|" tools/lead.sh
 test/test_lead.py	lead: the digest rides the tools prompt too	sed -i "s|^ANDON: your question for the person\"\$|ANDON: your question for the person\\n\$digest\"|" tools/lead.sh
 test/test_lead.py	lead: --tools with no door is not refused	sed -i "s|^if \[ -n \"\$tools\" \] \&\& \[ -z \"\$door\" \]; then\$|if false; then|" tools/lead.sh
+# tools/meter.py's ledger read — F025, 2026-09-04: the verdict is the last cell's first backticked word, bold or not
+test/test_meter.py	meter: the verdict read off the third cell, not the last	sed -i "s/VERDICT_CELL.match(cells\[-1\])/VERDICT_CELL.match(cells[2])/" tools/meter.py
+test/test_meter.py	meter: a bold verdict is no verdict	sed -i "s/VERDICT_CELL = re.compile(r\"\\\\\*\*\x60/VERDICT_CELL = re.compile(r\"\x60/" tools/meter.py
 ROWS
 }
 
