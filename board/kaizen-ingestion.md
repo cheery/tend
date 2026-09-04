@@ -118,7 +118,8 @@ session reads ten, and what each reading produces is one line.
 | 8 | Thu 2026-09-03 | 27-1714 27-1723 28-0545 28-0702 28-0758 28-0848 28-0910 28-1004 28-1017 28-1029 |
 | 9 | Wed 2026-09-02 (was Fri 09-04; read at Henri's "aloita kaizen ingestion -kortilla") | 28-1105 28-1300 28-1313 28-1401 28-1830 29-0734 29-1337 29-1918 29-1934 29-2016 |
 | 10 | Fri 2026-09-04 | 29-2031 29-2048 29-2100 30-0523 30-0730 30-0902 30-0952 30-1624 30-1741 30-1852 |
-| 11… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
+| 11 | Fri 2026-09-04 (the same day as 10, at Henri's "aloita erästä 11") | 31-0444 31-0547 31-1346 31-1616 01-0615 01-0735 01-0857 01-1011 01-1348 01-1544 |
+| 12… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -502,3 +503,40 @@ batches on.  The three lines at random were answered on 2026-09-01 and
 the next draw is a week from then.  This batch adds one mark to his
 grep.
 
+## 2026-09-04 — batches 10 and 11 read, one in the morning and one in the afternoon
+
+Batch 10 is in `doc/ingested.md`, read in the 05:05 sitting: six `rule`,
+one `once`, two promotions — the close paragraph in `board/README.md`
+§"What the days taught" (four faces in two days), and the
+gate-output strand into the memory `suite-output-to-file` on its sixth
+face.  That sitting wrote the ledger and the board and not this card;
+the row above was already filled, so the card is brought current here.
+
+Batch 11, read this afternoon at Henri's "aloita erästä 11" while he
+ran `--tools` turns from his shell: nine `rule`, one `recurs`, no
+promotion.  The two days it covers are the days most of a session's
+starting memories were written — count before you write it, commit by
+path, own pace, the lamp's clock in the hook — so the reading mostly
+named where each lesson already lives.  The open strand is *a
+measurement and its subject must both be still*, two faces in one
+sitting by opposite doors (`2026-09-01-1348`, `-1544`) and no third
+since; it is named in the ledger so the third is counted rather than
+re-learned.
+
+**The mark's first count**, owed by `2026-09-01-1011` item 2: eight
+marks struck by his hand since the form existed — four on the day they
+were written, three today while a session worked — and one still
+waiting, the one a session argued should carry no mark and he said
+should.  So marks do come off, and the one that has not is the one the
+mechanism exists for.
+
+**The count**: 124 kaizens in `doc/kaizen/` today; 110 read;
+14 unread — two batches at the level, with the newest written
+this afternoon.  Two batches on one day is the burst the plan warns
+about; it happened because batch 10 was two days early and the
+afternoon had a reader with nothing else in hand while the person ran
+turns.  The next batch is Monday's unless the same shape recurs.
+
+**Henri's half**: the three lines at random were last answered on
+2026-09-01; the next draw is due 2026-09-08.  Batch 1's self-shaped
+strand is his still, and it is now measured on the card above.

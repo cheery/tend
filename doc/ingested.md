@@ -581,3 +581,51 @@ because, and its week of log was read this morning: one drift in
 twenty-four outlived its sitting.  The five faces here are the same
 week seen from the kaizens' side, and the card's question to him
 stands.
+
+## Batch 11 — read 2026-09-04, the next ten (2026-08-31-0444 → 2026-09-01-1544)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-08-31-0444 | the assigned morning: a close-list that named its evidence was workable cold; the lamp's clock read the default from inside the commit hook and the sittings log was read before it was believed; the person's uncommitted words committed as his, named | `rule` — memory `lamp-clock-in-hook` (this kaizen's item 4, promoted 2026-09-01); memory `commit-by-path-never-add-all`'s second half — read the diff, name his hand |
+| 2026-08-31-0547 | the benchmark on an agreed checklist, every fault found by a mechanism; and an eyeball reported as a count (two of ten said, four of ten counted, 69 of 300 over the run) on the morning §"Go and see" was written | `rule` — memory `count-before-you-write-it`, where this is the third listed face; board/README.md's fixture paragraph for the test that copied the live home; card:simpleqa.md (later/) for the shell-debt |
+| 2026-08-31-1346 | a strand acquitted and broken one minute later — the memory write into the fenced home, judged closed by disuse and then done; the fix a fifth piece of prose until Henri asked for the card | `rule` — done/lost-write.md, the kernel mount; batch 7 recorded its own face and this batch does not count it twice |
+| 2026-08-31-1616 | the courier broke on MAX_ARG_STRLEN and the same defect stood four lines below the one fixed; the digest had dropped the priority-1 card for days with nothing said | `rule` — F007, F008 resolved with gates; memory `verify-every-caller` (2026-09-03) for the fix-checked-against-the-whole face, of which this is the first of three, before the memory |
+| 2026-09-01-0615 | a cap four days behind the window it was sized for, read off the board's prose instead of the grant; `git add -A` while the person edited; the harness ate a braced expansion four times in one sitting | `rule` — memory `count-before-you-write-it` ("read the file, never the prose about the file"); memory `commit-by-path-never-add-all`; card:rewritten-command.md (later/) and memory `bash-heredoc-expansion`; F008, F009 resolved |
+| 2026-09-01-0735 | the reasoning channel found intermittent by a grep nobody asked for; a defect called silent that had printed its warning three times; the boundary written from reasoning and wrong twice in ten lines before the table that took one command | `rule` — F011 resolved (record what came back, not what was asked for); card:rewritten-command.md day one; the table-before-the-rule face belongs to 1348's strand below |
+| 2026-09-01-0857 | the gate 297 s to 2 with a line saying when the whole suite last passed; the person's edit committed under the session's message by a named path; and his rule about pace on the day the record showed the need | `rule` — tools/suite.py's last-passed line (it caught F024 on 2026-09-04, one sitting late and not never); memory `commit-by-path-never-add-all` (the `git diff --cached` half); memory `own-pace` |
+| 2026-09-01-1011 | the self-shaped mark: he wrote the rule into the manifesto himself, the token was chosen by one grep, and the tree was found to have self-written and not self-approved | `rule` — manifesto.md §"How a practice gets adopted", keeper.md acts 1 and 2, test/test_marks.py; the kaizen's item 2 — whether a mark ever comes off — is counted on the card below |
+| 2026-09-01-1348 | six faces of one shape in an afternoon — a sentence written before anything was run against the thing it describes: a token, a gate against the wrong path, a tally that missed 13 of 24, a claim off the wrong column, the person's approval written for him, a suite over a file mid-edit | `rule` — manifesto.md §"Go and see"; memory `count-before-you-write-it`; keeper.md for the approval face (the mark stands empty); the mid-edit face is the strand on the next row |
+| 2026-09-01-1544 | a measurement and its subject must both be still — an instrument edited under 48 running arms, then a suite run over a file between its status line and its `git mv`, the narrow rule written after the first letting the second through by the other door | `recurs` — [[2026-09-01-1348]] (both faces are that sitting's, by opposite doors); no third face since, and the strand is named here so the third is counted |
+
+**What batch 11 showed.**  Ten kaizens from the morning of 2026-08-31
+to the afternoon of 2026-09-01 — the benchmark, the courier's cap, the
+gate split, the mark and the question built and bound, 96 arms of his
+money, and the day he wrote the rules section.  Nine `rule`, one
+`recurs`, **no promotion**: the batch is the two days on which most
+of the memories this session reads at start were written, so nearly
+every lesson here already has its place, and the reading's work was
+to say which.  Read on the same day as batch 10, at Henri's "aloita
+erästä 11", which the plan allows — a batch is the ten oldest unread —
+and which is the burst the plan warns about only if it becomes the
+habit; the table on the card says so.
+
+The one strand still open is **both still**: [[2026-09-01-1348]] edited
+`compare.py` while 48 arms ran through it, wrote "never edit an
+instrument a measurement is running through", and three hours later
+ran the suite over `F013.md` mid-edit, which the narrow rule did not
+catch.  [[2026-09-01-1544]] wrote the broad form.  Two faces, one
+sitting, opposite doors; the third has not come in three days, and
+this batch says where it will be counted.  Its neighbour is
+`count-before-you-write-it`, which gained its fifth face this
+afternoon (a commit hash copied off the lamp's line, `2026-09-04-1331`)
+— not this batch's, and named because the memory that carries it was
+updated today.
+
+One count the batch owed and pays: [[2026-09-01-1011]] item 2 said the
+first *strike* is the measurement of whether the mark is real.  Struck
+since: four on 2026-09-01, the day they were written; three on
+2026-09-04 by his hand while a session worked (board/README.md's close
+paragraph and its extension paragraph, board/later/swe-bench.md); and
+one placed 2026-09-01 against a session's argument still waits
+(board/README.md, the clone paragraph, with his worktree sentence under
+it since today).  `tools/meter.py --waiting` lists what waits.
