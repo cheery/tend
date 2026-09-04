@@ -1869,3 +1869,65 @@ invented; and it is the third hy3 turn to read exactly those three
 cards, so the seeded arm on hy3 has a fixed point too — three cards
 whose `because` speaks of counting — which is a fact about the digest
 and the mind together, and the reading of it is his.
+
+## Talk — 2026-09-04, after the nineteen turns: "en antaisi kummankaan johtaa"
+
+Asked, at the end of the 14:2x sitting, which mind he would let lead
+after reading the seven seeded drafts side by side, Henri said:
+*"hmm. en antaisi kummankaan johtaa. mutta minusta tässä voi nyt olla
+asettelu pielessä."* — he would let neither lead, and the setup may
+be wrong.  And then: *"tai sitten liian pieni malli molemmilla
+puolilla. mutta eikö hy3 pitäisi olla ihan hyvä malli?"* — or the
+model is too small on both sides; but shouldn't hy3 be a decent model?
+
+A talk, not a card, at his word.  What the tree has against the two
+sentences, so the next sitting starts from the thing:
+
+**The setup.**  The turn's shape asks the mind to pick, and the pick
+is the person's: `board/README.md` §"The priority" — *the tiebreak
+between two workable cards is Henri's.*  Every one of the nineteen
+turns measured the pick, and the pick was the weakest step in every
+form — steered by a word, by the listing's order, by recency, by the
+digest — and the step nobody had asked a mind for.  Once a card was
+in hand, the draft was fine as soon as the mind was hy3 or larger and
+the cap was the courier's: one line, the card's own example, in the
+card's own form.  The tree's other node already has the shape the
+other way round: `ask/` is pulled, carries one question, answers, and
+lets go — the 15:13 sitting on `card:edge.md`, 52 s from edge to
+answer.  His own 2026-09-02 sentence on this card (§"Talk") says the
+same about the whole: nodes depending on nodes, programs starting as
+needed, the canvas at the end — a stream in which no node leads.  So
+the setup that is off is *a node chooses*; the one that works is *a
+node is handed a card*.  The turn's input would be a card — the pull's
+words, as `ask` takes a question, or `--card NAME` — the mind's work
+the `TASK:` and the draft, and the measure the draft against the
+card's `because`: did it do the small thing, and did it say anything
+the card's first seventy lines do not.  Then gemma4's and hy3's
+difference is a draft's difference, and "lead" is the wrong word for
+a station a card is brought to.
+
+**The size.**  hy3 is a good model by this tree's numbers: 24 of 24
+turns in shape at `readchars 4000` on 2026-09-01, 24 of 24 with the
+fields cold on 2026-09-02, three of three specific tasks and grounded
+one-line drafts today.  And the tree already measured the pick at the
+top of the size range: §"2026-08-28, 18:27" — Sonnet 5 and Opus 5 on
+the same pick turn, *"the pick is a small thing"*, both choosing
+`canvas.md`, the digest's first card that evening — the listing steer
+gemma4 showed today without the word, at every size.  What size
+bought showed in the draft (Opus's one-line death notice was the
+thing it named; Sonnet's draft hit the cap), never in the pick.  So
+"too small on both sides" does not fit the evidence for the pick, and
+fits gemma4 for the draft — six turns, one outline six times.  If he
+wants the size question closed by a number rather than by 08-28, the
+anthropic door needs a `tools` line (his, on the door file) and six
+seeded turns of Sonnet 5 at `TEND_MAXTOK=2000`; if it reads the same
+three cards and picks the same, size is out.
+
+**What this leaves the card.**  The milestone's sentence — *gemma4
+finishes a card and we can tell it from gemma4 with no tree* — was
+the conditioning question he moved to the far future on 2026-09-02,
+and today's nineteen turns built its pick half a measurement it did
+not need.  The card's own "what would make this wrong" holds: the
+node needs its cords, and a node with a card in hand needs them as
+much as a node choosing one.  The next build, at his word, is the
+input: a card, not the board.
