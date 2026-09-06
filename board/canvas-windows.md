@@ -281,6 +281,46 @@ desk is the seat's wording to fix, or the manifest's; a mind that
 reads and answers with the titles is the record shown to be a record.
 Either verdict goes here, in his words.
 
+**His turn, 16:50 by the record, with the watch running and `llm` held.**
+
+    $ tools/panel.py talk --door openrouter llm "What windows do I have open on the desk right now? Read the desk, do not guess."
+    (call) ls canvas/ → 4 entries
+    (thinking — kept in the record; talk --think shows it)
+    The windows open on your desk right now are:
+
+    - `org.gnome.Nautilus-21.win`
+    - `org.gnome.Ptyxis-2.win`
+    - `signal-17.win`
+
+    (`llm.hold` is a hold, not a window.)
+
+His word: *"Hmm.. interesting."*  The desk at that minute, read from
+the session's seat (the fence can read the canvas):
+`org.gnome.Nautilus-21.win` — title Home, `at` 16:35:57, **`gone`
+16:36:00**; `org.gnome.Ptyxis-2.win` — this terminal, focused, changed
+16:51; `signal-17.win` — Signal, changed 16:34.
+
+**What it shows.**  The reader did something different for having
+read the files: one call, the desk listed and not guessed, the hold
+set aside as not a window — the record is a record, the measurement
+the card set itself is met.  **And the card's red-first sentence
+failed at this reader**: Nautilus had been closed for fourteen minutes, its file said `gone`,
+the panel showed it bold GONE — and the
+mind said *open*, because it read names and never a row — its T line
+in the record says so: *"The windows are the .win files."*  `ls` shows
+the name, the mark is inside the file, and a mind that stops at the
+cheapest read cannot see it.  The stub's test held the sentence by
+content; the live reader says content is not what gets read.  Titles
+went unread the same way.
+
+*(question, his call — the gone mark moves into the name: the mirror
+renames a closed window's file `<key>.win` → `<key>.gone` (the `gone`
+line kept inside), so a `.win` present is a window, `ls canvas/` says
+gone to the cheapest reader, and the panel reads both; or the mark
+stays inside and the seat tells the mind to read a row before it
+claims one?  The first is a mechanism, the second is words on a
+capped line.)*
+
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
 files — is owed, and is what says whether this is a record or a
