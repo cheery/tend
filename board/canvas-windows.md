@@ -338,6 +338,27 @@ it is his again, the same command; what to read is whether `ls
 canvas/` now shows `org.gnome.Nautilus-21.gone` and the mind leaves
 it out.
 
+**His second turn, 17:03 by the record, the watch restarted on the new code.**
+
+    $ tools/panel.py talk --door openrouter llm "What windows do I have open on the desk right now? Read the desk, do not guess."
+    (call) ls canvas/ → 4 entries
+    (thinking — kept in the record; talk --think shows it)
+    The windows open on your desk right now are:
+
+    - `org.gnome.Ptyxis-2.win`
+    - `signal-17.win`
+
+    (`org.gnome.Nautilus-21` is now `.gone`, and `llm.hold` is a hold, not a window.)
+
+The same mind, the same one call, the same four names — and the
+closed window left out, by its name.  The card's red-first sentence,
+*a `.win` with no window behind it reads as gone and never as a
+window*, now holds at the cheapest reader there is, which is the one
+that found it false thirteen minutes earlier.  The mechanism was a
+rename; the words in the seat were never written.  Titles are still
+unread by a mind that stops at `ls`, and that is the next wrinkle
+when someone asks a question the names cannot answer.
+
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
 files — is owed, and is what says whether this is a record or a
