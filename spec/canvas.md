@@ -104,7 +104,17 @@ What that decides, read against what the tree has:
    On this laptop the placing hand is the GNOME extension reading the
    canvas; the compositor of his own is the far end.
 
-## Where two readings still differ — his call, one line each
+8. **One file, one window — the rule that holds.**  From his last
+   three answers, about 17:45: a file maps one window; the file, in a
+   way, starts a process, and the process may draw the window — the
+   mechanism is the session's to choose, the rule is not.  Legacy
+   GNOME windows stay as they were, and are not on the canvas.  And
+   `.gone` is "perhaps a somewhat useless concept" — interesting, and
+   not the concept's; it and the mirror of every window are the read
+   half of a desk the concept does not claim, and their retirement is
+   a card's decision, not this file's.  Every mark below is answered.
+
+## Where two readings differed — his call, answered the same sitting
 
 *(question, his call — whose command creates the file: the person's
 hand only (`panel.py pin`'s shape), or any program — a terminal's
@@ -120,7 +130,7 @@ henri: layout sääntö voisi asettaa sen ensimmäisellä kertaa, jos paikkaa ei
 *(question, his call — the frame and the contents: one file the
 manager and the app both write, or two — the manager's row for the
 frame and the app's own beside it, as `card:canvas-windows.md` proposed?
-henri: )*
+henri: Yksi tiedosto kartoittaa yhden ikkunan. tiedosto tavallaan käynnistää prosessin, ja prosessi voi piirtää ikkunan. Tai miten sinä sen haluatkaan toteuttaa. Kuitenkin - yksi tiedosto, yksi ikkuna, tämä sääntö kestää. 2026-09-06)*
 
 *(question, his call — on close the file disappears: removed by the
 manager at the window's close, so that closing by the window's own X
@@ -131,7 +141,7 @@ henri: Kyllä, se on sama kuin jos käyttäjä kirjoittaa 'rm' ja poistaa tiedos
 *(question, his call — the restart after shutdown is the resolver's:
 the file says which node runs in the window, and a window with no node
 behind it — a foreign program's — is placed but not started?
-henri: )*
+henri: legacy gnome-ikkunat olisivat samalla tapaa kuin ennenkin, eivät kanvasissa. 2026-09-06)*
 
 *(question, his call — on this laptop, the placing hand is the GNOME
 extension (it can move, resize and raise a window it sees) reading
@@ -140,7 +150,7 @@ henri: juu, tuo sopii minulle. 2026-09-06)*
 
 *(question, his call — today's `.gone`: dropped now, or kept until the
 write half exists and the mirror is retired?
-henri: )*
+henri: .gone on kenties vähän turha konsepti. Se oli kyllä mielenkiintoista. 2026-09-06)*
 
 ## What this file is not
 
