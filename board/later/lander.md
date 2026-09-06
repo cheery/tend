@@ -193,4 +193,5 @@ time: no wait crossed a day, and every one ended with his hand.
 *(question, his call — one drift in a week outlived its sitting by an
 hour, on a morning with a gap between sittings.  Is that the actor's
 second half, or a note until it happens again?  The card waits on this
-now, not on the log.)*
+now, not on the log.
+henri: it is a note, the card stays shelved for now. 2026-09-06)*
