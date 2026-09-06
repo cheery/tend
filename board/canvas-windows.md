@@ -234,7 +234,8 @@ a record or a status page.
 nautilus, and signal as well as the terminal" — three apps on the
 panel from the loop on the `Changed` signal, not from a hand's
 `--once`.  Whether a closed window's row turned GONE on the live desk
-is not yet said; the stub says it does.*
+was his next line, closing the card's red-first sentence on the live desk
+and not only on the stub: "yup, it shows it's gone."*
 
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
