@@ -942,3 +942,8 @@ obvious when the question was written down as
 `*(question, measure — …)*` next to the others, which is
 `card:questions.md` earning its place on its first afternoon.
 
+*2026-09-06 — the desk is a part: `canvas/` in `tools/executor.py`
+names the canvas directory and the courier grants it read-only, so a
+mind at the door reading the desk is now a `read` over the canvas as
+this card said; built as the windows reader, `card:canvas-windows.md`
+§"The reader".*

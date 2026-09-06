@@ -237,6 +237,50 @@ panel from the loop on the `Changed` signal, not from a hand's
 was his next line, closing the card's red-first sentence on the live desk
 and not only on the stub: "yup, it shows it's gone."*
 
+## The reader — the same sitting, at his "ok. lets do the windows reader."
+
+Asked "what next in line?", the answer was the measurement this card
+set itself: a reader shown to do something different for having read
+the files.  The nearest reader in the tree is a mind at the door —
+`card:tools.md` already said *a mind at the door reading the desk is a
+`read` over the canvas* — and it could not: the executor served the
+tree's parts and the courier granted nothing else.
+
+**What landed.**  `canvas/` is a part in `tools/executor.py`: the
+name resolves to the canvas directory (TEND_CANVAS, else
+`~/.local/state/tend/canvas`, outside the tree), `ls .` lists it when
+it exists, `ls canvas/` is the desk, `read canvas/<file>` a row, and
+`grep` walks it with the rest.  `tools/deliver.sh` grants the
+directory to each call read-only beside the tree's parts, hands the
+executor the path, and the seat line names it — *canvas/, the desk:
+what the person is holding, as files (pins, holds, windows)*.  With
+no grant the kernel refuses it like any other path, and with no
+canvas the name says *not there*, never an empty desk.  Two tests,
+one of them under keep both ways; three mutate rows red.
+
+**One wrong, mine, and the fixture rule's face at the executor.**
+Two existing tests went red the moment the desk became a part: they
+had built a tree and no desk, and the real `~/.local/state/tend/canvas`
+— the one `.win` Henri had mirrored minutes before — appeared as
+`canvas/` in `ls .` and as *1 unreadable* in a kept `grep`.  The
+panel met the same face on 2026-09-02 with the real `die`.  The
+helpers now give every test a desk that is not there unless it
+passes its own, and the comment above them says why.
+
+**The measurement is his turn.**  From his shell, through the
+openrouter door (tencent/hy3, `tools read ls grep`), with the mirror
+running:
+
+    tools/panel.py talk --door openrouter llm "What windows do I have open on the desk right now? Read the desk, do not guess."
+
+(the `llm` row must be on the canvas — `tools/panel.py pin llm llm`
+if it is not).  Read: whether the mind calls `ls canvas/` and reads a
+`.win` before answering, and whether its answer names the titles the
+panel shows.  A mind that answers from the tree without reaching the
+desk is the seat's wording to fix, or the manifest's; a mind that
+reads and answers with the titles is the record shown to be a record.
+Either verdict goes here, in his words.
+
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
 files — is owed, and is what says whether this is a record or a

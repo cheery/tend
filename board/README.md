@@ -201,7 +201,9 @@ between two workable cards is Henri's.
     rows; the extension's run is his hand — install, a log-in, enable —
     and it ran at 16:29 the same day, one window on his panel ("it
     seems to be working"); the reader measurement the card set itself
-    is owed.*
+    is the same sitting's second stretch — `canvas/` a part in
+    `tools/executor.py`, granted read-only by the courier, so a door
+    mind can read the desk — and the turn that measures it is his.*
 
 ## Finished
 
