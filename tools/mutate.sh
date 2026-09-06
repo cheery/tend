@@ -297,6 +297,11 @@ test/test_meter.py	meter: --diff prints this run's own numbers, not the delta	se
 test/test_meter.py	meter: a week the kept run had and this one lacks is silent	sed -i "s/gone = \[p for p in old if p not in seen\]/gone = []/" tools/meter.py
 # tools/panel.py talk — 2026-09-06, card:private.md day one, first bullet: the thinking is a state by default, text on ask
 test/test_panel.py	panel: the CLI prints the reasoning text without --think	sed -i 's/^                    if think is True:$/                    if True:/' tools/panel.py
+# tools/windows.py — 2026-09-06, Henri: "time to start the work on windowing system?" (card:canvas-windows.md)
+test/test_windows.py	windows: a closed window's file is never marked gone	sed -i 's/^        with open(path, "a") as f:$/        with open(os.devnull, "a") as f:/' tools/windows.py
+test/test_windows.py	windows: a file the mirror did not write is marked gone like its own	sed -i 's/^        if not _mine(path):$/        if False:/' tools/windows.py
+test/test_windows.py	windows: the first gone line is moved by every pass	sed -i 's/^        if _has_gone(path):$/        if False:/' tools/windows.py
+test/test_windows.py	windows: a shell that does not answer is read as a desk with no windows	sed -i 's/^        return 1$/        mirror([], canvas); return 1/' tools/windows.py
 ROWS
 }
 

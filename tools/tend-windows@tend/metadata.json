@@ -1,0 +1,7 @@
+{
+  "uuid": "tend-windows@tend",
+  "name": "tend windows",
+  "description": "Publishes the window list on the session bus as org.tend.Windows, so tools/windows.py can mirror it into the canvas (card:canvas-windows.md). Reads the desk; changes nothing on it.",
+  "shell-version": ["50"],
+  "version": 1
+}
