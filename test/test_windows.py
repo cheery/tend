@@ -118,8 +118,9 @@ def test_a_window_that_closed_leaves_its_file_marked_gone_and_the_first_mark_is_
     (desk / "list.json").write_text(json.dumps([TERM]))
     r = run("--once")
     assert r.returncode == 0, r.stderr
-    doc = desk / "canvas" / "org.gnome.TextEditor-13.win"
-    assert doc.exists(), "the file outlives the window"
+    doc = desk / "canvas" / "org.gnome.TextEditor-13.gone"
+    assert doc.exists(), "the file outlives the window — under the name that says so"
+    assert not (desk / "canvas" / "org.gnome.TextEditor-13.win").exists(), "a .win present is a window"
     got = fields(doc)
     assert got["gone"].isdigit() and got["title"] == "lander.md", got
     assert "gone" not in fields(desk / "canvas" / "org.gnome.Terminal-12.win")
@@ -142,7 +143,7 @@ def test_a_file_the_mirror_did_not_write_is_never_touched(desk):
     assert r.returncode == 0, r.stderr
     assert own.read_text().startswith("app lander") and "gone" not in own.read_text()
     assert int(os.stat(own).st_mtime) == 1788600000
-    assert "gone" in fields(canvas / "org.gnome.Terminal-12.win")
+    assert "gone" in fields(canvas / "org.gnome.Terminal-12.gone")
 
 
 def test_a_shell_that_does_not_answer_leaves_the_files_alone_and_says_so(desk):
@@ -153,7 +154,7 @@ def test_a_shell_that_does_not_answer_leaves_the_files_alone_and_says_so(desk):
     assert r.returncode == 1
     assert "org.tend.Windows" in r.stderr and "tend-windows@tend" in r.stderr and "ServiceUnknown" in r.stderr, r.stderr
     for p in (desk / "canvas").iterdir():
-        assert "gone" not in fields(p), p
+        assert "gone" not in fields(p) and p.suffix == ".win", p
 
 
 def test_watch_mirrors_at_start_and_on_every_signal_and_says_when_the_shell_goes_away(desk):
@@ -166,8 +167,25 @@ def test_watch_mirrors_at_start_and_on_every_signal_and_says_when_the_shell_goes
     assert any(l.startswith("monitor --session --dest org.tend.Windows --object-path /org/tend/Windows") for l in seen), seen
     assert sum(1 for l in seen if l.startswith("call ")) >= 2, seen
     canvas = desk / "canvas"
-    assert "gone" in fields(canvas / "org.gnome.Terminal-12.win"), "the second list had no terminal"
+    assert "gone" in fields(canvas / "org.gnome.Terminal-12.gone"), "the second list had no terminal"
     assert "gone" not in fields(canvas / "org.gnome.TextEditor-13.win")
+
+
+def test_a_file_of_the_old_shape_marked_inside_is_renamed_on_the_next_pass(desk):
+    """Before 2026-09-06 16:50 the mark was a line inside `.win`; hy3 through
+    the door read names, never a row, and called a closed Nautilus open.
+    Henri: "do the rename into .gone".  A file of the mirror's own that
+    already says gone inside gets the name, and no second gone line."""
+    canvas = desk / "canvas"; canvas.mkdir()
+    old = canvas / "org.gnome.Nautilus-21.win"
+    old.write_text(windows.MINE + "\napp org.gnome.Nautilus\ntitle Home\nfocus no\nframe 0 0 1 1\nat 1788701757\ngone 1788701760\n")
+    (desk / "list.json").write_text("[]")
+    r = run("--once")
+    assert r.returncode == 0, r.stderr
+    assert not old.exists() and (canvas / "org.gnome.Nautilus-21.gone").exists()
+    text = (canvas / "org.gnome.Nautilus-21.gone").read_text()
+    assert text.count("gone ") == 1 and "gone 1788701760" in text, text
+    assert "0 windows" in r.stdout and "1 gone" in r.stdout, r.stdout
 
 
 def test_the_gdbus_text_is_read_as_the_string_it_carries():

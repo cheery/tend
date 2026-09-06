@@ -319,7 +319,24 @@ line kept inside), so a `.win` present is a window, `ls canvas/` says
 gone to the cheapest reader, and the panel reads both; or the mark
 stays inside and the seat tells the mind to read a row before it
 claims one?  The first is a mechanism, the second is words on a
-capped line.)*
+capped line.
+henri: ok, do the rename into .gone 2026-09-06)*
+
+**Built the same hour, at his word.**  The mirror renames a closed
+window's file `<key>.win` → `<key>.gone` in the pass that finds it
+missing, the `gone` line still inside; a file of the old shape — a
+`.win` that already says gone inside, which is what Nautilus-21 was
+on his desk — gets the name on the next pass and no second line; a
+`.gone` is counted and never touched again.  A `.win` present is a
+window.  The panel reads both names: `.gone` is GONE at its line's
+time, or at the file's own when a hand renamed it with no line, and
+a `.win` that says gone inside is GONE still, for an app's own row.
+Red first — six tests red before the rename, then green — and the
+recorded rows re-run: the row for the old inside-only check became
+*a closed window's file keeps its .win name*.  The turn that closes
+it is his again, the same command; what to read is whether `ls
+canvas/` now shows `org.gnome.Nautilus-21.gone` and the mind leaves
+it out.
 
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the

@@ -22,13 +22,18 @@ pins and holds, read by the same readers:
     focus  yes
     frame  0 32 1280 688
     at     1788700000          the window's last change, epoch seconds
-    gone   1788700900          only once the window has closed: when
+    gone   1788700900          only once the window has closed: when — and then
+                               the file is `<app>-<seq>.gone`
 
-**Presence is the claim** — a file means a window was held; **the file
-outlives the window** and says so with a `gone` line, as a hold's row
-outlives a death, so the panel reads a `.win` with no window behind it
-as *gone* and never as a window.  The first `gone` is the moment it
-went; a later pass does not move it.  **Who writes**: the mirror writes
+**Presence is the claim** — a `.win` present is a window; **the file
+outlives the window** and says so twice, with a `gone` line inside
+and with its name: the mirror renames it `<key>.gone`, so `ls` says
+gone to the cheapest reader.  The name came second: the mark was a
+line inside until 2026-09-06 16:50, when hy3 through the door read
+`ls canvas/`, never a row, and called a Nautilus closed fourteen
+minutes open — Henri: "do the rename into .gone".  The panel reads
+both names and shows GONE for either.  The first `gone` is the moment
+it went; a `.gone` is never touched again.  **Who writes**: the mirror writes
 the shallow row for every window and touches only files whose first
 line is its own — a tend app's richer row beside it, in its own name,
 is the app's, and the two never write each other's file.
@@ -48,8 +53,9 @@ all; this runs on the person's side, from his shell, and the session
 sees the files.
 
 **What it does not do.**  Move, close or focus a window: it reads the
-desk and writes files.  Sweep: a gone file is the person's to remove
-(or the app's whose window it was).  Keep itself alive: `--watch` is
+desk and writes files.  Sweep: a `.gone` is the person's to remove
+(or the app's whose window it was), and a window that returns under
+an old key gets a fresh `.win` beside the old `.gone`.  Keep itself alive: `--watch` is
 the loop, a carrier for it is the tick's question and not day one's.
 And it does not know a window across a shell restart — the sequence
 starts over, and a new window may take an old file's name; the `at`
@@ -162,16 +168,22 @@ def mirror(rows, canvas=None, at=None):
         os.replace(tmp, path)
     gone = 0
     for name in sorted(os.listdir(d)):
+        path = os.path.join(d, name)
+        if name.endswith(".gone"):
+            if _mine(path):
+                gone += 1     # marked on an earlier pass; never touched again
+            continue
         if not name.endswith(".win") or name in present:
             continue
-        path = os.path.join(d, name)
         if not _mine(path):
             continue          # somebody else's row: never touched from here
-        if _has_gone(path):
-            gone += 1
-            continue
-        with open(path, "a") as f:
-            f.write(f"gone {int(at if at is not None else time.time())}\n")
+        if not _has_gone(path):
+            with open(path, "a") as f:
+                f.write(f"gone {int(at if at is not None else time.time())}\n")
+        # the mark into the name (Henri, 2026-09-06: "do the rename into .gone"): a .win present is a
+        # window, and ls says gone to the cheapest reader — the one that read names and called a
+        # closed Nautilus open
+        os.replace(path, path[:-len(".win")] + ".gone")
         gone += 1
     return len(present), gone
 

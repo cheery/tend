@@ -888,7 +888,7 @@ WIN = ("# tools/windows.py — the shell's shallow row; an app's own row is anot
 def test_a_win_is_a_row_beside_the_pins_and_a_gone_one_says_so_not_a_window(tmp_path):
     canvas = tmp_path / "canvas"; canvas.mkdir()
     (canvas / "org.gnome.Terminal-12.win").write_text(WIN)
-    (canvas / "org.gnome.TextEditor-13.win").write_text(
+    (canvas / "org.gnome.TextEditor-13.gone").write_text(
         WIN.replace("org.gnome.Terminal", "org.gnome.TextEditor").replace("focus yes", "focus no")
            .replace("llm's log — tend", "lander.md") + "gone 1788700900\n")
     ws = panel.read_windows(canvas)
@@ -902,6 +902,14 @@ def test_a_win_is_a_row_beside_the_pins_and_a_gone_one_says_so_not_a_window(tmp_
     assert "GONE" in line and "lander.md" in line and "open" not in line, line
     assert panel._win_counts(ws) == "1 open, 1 gone"
     assert panel.read_windows(tmp_path / "none") == []
+    # the mark in the name alone (a hand's rename, no line inside) is gone at the file's time; the mark
+    # inside alone (an app's own .win that says so) is gone too — the panel reads both, GONE either way
+    bare = canvas / "org.gnome.Nautilus-21.gone"; bare.write_text(WIN.replace("org.gnome.Terminal", "org.gnome.Nautilus"))
+    os.utime(bare, (1788701760, 1788701760))
+    inside = canvas / "org.gnome.Nautilus-22.win"; inside.write_text(WIN + "gone 1788701800\n")
+    got = {w.key: w for w in panel.read_windows(canvas)}
+    assert got["org.gnome.Nautilus-21"].gone == 1788701760 and "GONE" in panel.win_line(got["org.gnome.Nautilus-21"])
+    assert got["org.gnome.Nautilus-22"].gone == 1788701800 and "GONE" in panel.win_line(got["org.gnome.Nautilus-22"])
     # an app's own row, in its own name and without the mirror's first line, is read the same way
     (canvas / "lander.win").write_text("app lander\ntitle the lamp, as lander sees it\nfocus no\nat 1788600000\n")
     assert [w.key for w in panel.read_windows(canvas)][0] == "lander"
@@ -909,7 +917,7 @@ def test_a_win_is_a_row_beside_the_pins_and_a_gone_one_says_so_not_a_window(tmp_
 
 def test_the_panel_without_a_terminal_lists_the_windows_under_the_pins(tmp_path):
     canvas = tmp_path / "canvas"; canvas.mkdir()
-    (canvas / "org.gnome.Terminal-12.win").write_text(WIN + "gone 1788700900\n")
+    (canvas / "org.gnome.Terminal-12.gone").write_text(WIN + "gone 1788700900\n")
     write(tmp_path)
     r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
                        capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))

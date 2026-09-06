@@ -48,8 +48,9 @@ the andon's own lines, one timeline.  It shows; it never rings for a death
 thing held, and `tools/windows.py` mirrors the shell's list into
 `<app>-<seq>.win` beside the pins — app, title, focus, frame, the time
 of its last change — and marks a closed window's file `gone` rather
-than removing it, as a hold's row outlives a death.  The panel shows
-one row per `.win`; a gone one is bold and says GONE, never a window.
+than removing it — renamed `<app>-<seq>.gone`, as a hold's row
+outlives a death.  The panel shows one row per `.win` or `.gone`; a
+gone one is bold and says GONE, never a window.
 The panel reads; the mirror writes; and an app's own `.win` in its own
 name is read the same way.
 
@@ -541,14 +542,16 @@ def read_pin_state(name, node, state, canvas_dir=None):
 
 # --- the windows: a window is a thing held, and its file is on the canvas (card:canvas-windows.md, 2026-09-06) ---
 # `<app>-<seq>.win`, written by tools/windows.py from the shell's list, or by a tend app in its
-# own name beside it.  Presence is the claim; a `gone` line is the window closed and the file
-# kept, read here as GONE and never as a window.  The panel never writes one.
+# own name beside it.  Presence is the claim; a window closed is the file kept and renamed
+# `<key>.gone` (a `gone` line inside says when; a `.win` that says gone inside is gone too),
+# read here as GONE and never as a window.  The panel never writes one.
 
 Win = namedtuple("Win", "key app title focus frame at gone path")
 
 
 def _read_win(path):
-    key = os.path.basename(path)[:-len(".win")]
+    name = os.path.basename(path)
+    key = name[:-len(".gone")] if name.endswith(".gone") else name[:-len(".win")]
     got = {}
     with open(path) as f:
         for line in f:
@@ -563,16 +566,19 @@ def _read_win(path):
             return int(got[word])
         except (KeyError, ValueError):
             return None
+    gone = epoch("gone")
+    if gone is None and name.endswith(".gone"):
+        gone = int(os.stat(path).st_mtime)   # the name says gone and the file does not say when: its own time
     return Win(key, got.get("app", ""), got.get("title", ""), got.get("focus", "").lower() in ("yes", "true", "1"),
-               got.get("frame", ""), epoch("at"), epoch("gone"), path)
+               got.get("frame", ""), epoch("at"), gone, path)
 
 
 def read_windows(canvas_dir=None):
-    """Every `*.win` on the canvas, in name order; a missing canvas is none."""
+    """Every `*.win` and `*.gone` on the canvas, in name order; a missing canvas is none."""
     d = _canvas_dir(canvas_dir)
     wins = []
     try:
-        names = sorted(n for n in os.listdir(d) if n.endswith(".win"))
+        names = sorted(n for n in os.listdir(d) if n.endswith((".win", ".gone")))
     except OSError:
         return wins
     for n in names:
