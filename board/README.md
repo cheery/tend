@@ -205,6 +205,16 @@ between two workable cards is Henri's.
     `tools/executor.py`, granted read-only by the courier, so a door
     mind can read the desk — and the turn that measures it is his.*
 
+15. **[done-when](done-when.md)** — work was done on a spec nobody had
+    written, and the card form has no place for what done looks like:
+    on 2026-09-06 fifteen commits landed on the windows card before
+    the concept was written and showed them to be the read half of a
+    thing that runs the other way.  *Placed last by the session that
+    wrote it at Henri's "tee sille kortti. Ja kortti itse noudattaa
+    omaa sääntöänsä"; its `done` line is a session's draft and
+    unsigned, so by its own rule nothing on it is built until his
+    line is there; the tiebreak is his.*
+
 ## Finished
 
 Seventeen cards are on `done/`, each closed with its `because` answered.
