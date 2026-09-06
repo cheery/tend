@@ -229,7 +229,8 @@ henri: ok. I think it means for the origin. 2026-09-06)*
 *(question, his call — may a puller's grant set a parameter of the
 pulled node that is not a boundary, such as its port or a program
 argument, or may it only narrow the boundary words, with every
-parameter belonging to the conversation after the pull?)*
+parameter belonging to the conversation after the pull?
+henri: puller may add parameters and freedoms to a node. Lets keep the mechanism unbuilt. 2026-09-06)*
 
 **The rest of what was "in the air" in `spec/os.md`**, read out at the
 close of the morning and left for this sitting at his *"ne jääkööt
