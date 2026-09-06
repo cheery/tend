@@ -24,6 +24,13 @@ it cannot.
 > missä ne olivat ennen sammutusta. -> Käyttäjä sulkee ikkunan,
 > tiedosto katoaa kanvasista.
 
+The same sitting, about 17:35, with the four answers below (the fifth
+line of his reply, said to no question):
+
+> Meidän ei tarvitse kaikkia ikkunoita seurata.  Riittää että
+> ominaisuudet toimivat ikkunoissa joissa on tend-rajapinta, eli
+> tend-yhteensopivissa ohjelmissa.
+
 Earlier words this file gathers, kept where they were said and cited
 here: 2026-08-30, "a window manager that works as a 'canvas', where
 windows themselves record their state" (`card:canvas-windows.md`);
@@ -78,18 +85,37 @@ What that decides, read against what the tree has:
    is the picture of it.  This is the sentence the whole card list
    under `canvas` serves, and the one nowhere written until now.
 
+6. **Only tend-compatible programs.**  *We need not track every
+   window; it is enough that the properties work in windows that have
+   the tend interface, in tend-compatible programs.*  So the canvas
+   is not a record of the desk, it is the desk of programs that speak
+   tend — and today's mirror of every window the shell has is more
+   than the concept asks for.  A foreign window is not the canvas's.
+   This bears on the questions on the frame-and-contents file and on
+   a window with no node behind it, below, without answering them:
+   a program with the tend interface can write its own state, and a
+   window with no node behind it may simply not be on the canvas.
+
+7. **From his four answers, the same minute.**  Writing the canvas is
+   the user's; a launch command may write what the file needs.  A
+   layout rule places a window the first time when the file gives no
+   place, and after that the file says.  A close from the window's X
+   is the same act as `rm`, or as moving the file out of the canvas.
+   On this laptop the placing hand is the GNOME extension reading the
+   canvas; the compositor of his own is the far end.
+
 ## Where two readings still differ — his call, one line each
 
 *(question, his call — whose command creates the file: the person's
 hand only (`panel.py pin`'s shape), or any program — a terminal's
 `open lander.md` writing `canvas/lander.win` — with the hand as one
 writer among them?
-henri: )*
+henri: canvasiin kirjoittaminen olisi käyttäjän homma, mutta sitä varten voisi olla käynnistyskomento joka kirjoittaa kanvasiin tarvittavat asiat. 2026-09-06)*
 
 *(question, his call — "ennaltamäärättyyn kohtaan": the file names the
 place and the window goes there; or a layout rule places it and the
 file records where it landed?
-henri: )*
+henri: layout sääntö voisi asettaa sen ensimmäisellä kertaa, jos paikkaa ei ole annettu tiedostossa. 2026-09-06)*
 
 *(question, his call — the frame and the contents: one file the
 manager and the app both write, or two — the manager's row for the
@@ -100,7 +126,7 @@ henri: )*
 manager at the window's close, so that closing by the window's own X
 is the same act as `rm`; or only by the command, so that a window
 closed from its X comes back?
-henri: )*
+henri: Kyllä, se on sama kuin jos käyttäjä kirjoittaa 'rm' ja poistaa tiedoston, tai siirtää sen ulos kanvasista. 2026-09-06)*
 
 *(question, his call — the restart after shutdown is the resolver's:
 the file says which node runs in the window, and a window with no node
@@ -110,7 +136,7 @@ henri: )*
 *(question, his call — on this laptop, the placing hand is the GNOME
 extension (it can move, resize and raise a window it sees) reading
 the canvas; the compositor of his own stays the far end?
-henri: )*
+henri: juu, tuo sopii minulle. 2026-09-06)*
 
 *(question, his call — today's `.gone`: dropped now, or kept until the
 write half exists and the mirror is retired?
