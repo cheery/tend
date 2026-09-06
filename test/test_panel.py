@@ -870,3 +870,48 @@ def test_a_node_a_process_pulls_is_on_the_canvas_with_no_pin(tmp_path):
         assert [r.name for r in rows] == ["die"] and rows[0].pulled_by == ("solitaire",)
     finally:
         os.close(fd)
+
+
+# --- the windows: a `.win` beside the pins, and a gone one says so (card:canvas-windows.md, 2026-09-06) ---
+#
+# A window is a thing held, and nothing on the person's side recorded it;
+# `tools/windows.py` mirrors the shell's list into `<app>-<seq>.win` and
+# marks a closed window's file `gone` rather than removing it.  The panel
+# reads the files: one row per window, and a `.win` with no window behind
+# it reads GONE — never as a window.  Bold, like every row that is not
+# what it claims.
+
+WIN = ("# tools/windows.py — the shell's shallow row; an app's own row is another file\n"
+       "app org.gnome.Terminal\ntitle llm's log — tend\nfocus yes\nframe 0 32 1280 688\nat 1788700000\n")
+
+
+def test_a_win_is_a_row_beside_the_pins_and_a_gone_one_says_so_not_a_window(tmp_path):
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "org.gnome.Terminal-12.win").write_text(WIN)
+    (canvas / "org.gnome.TextEditor-13.win").write_text(
+        WIN.replace("org.gnome.Terminal", "org.gnome.TextEditor").replace("focus yes", "focus no")
+           .replace("llm's log — tend", "lander.md") + "gone 1788700900\n")
+    ws = panel.read_windows(canvas)
+    assert [w.key for w in ws] == ["org.gnome.Terminal-12", "org.gnome.TextEditor-13"]
+    term, doc = ws
+    assert term.focus and term.gone is None and term.at == 1788700000 and term.title == "llm's log — tend"
+    line = panel.win_line(term)
+    assert "focused" in line and "llm's log" in line and "GONE" not in line, line
+    assert doc.gone == 1788700900 and not doc.focus
+    line = panel.win_line(doc)
+    assert "GONE" in line and "lander.md" in line and "open" not in line, line
+    assert panel._win_counts(ws) == "1 open, 1 gone"
+    assert panel.read_windows(tmp_path / "none") == []
+    # an app's own row, in its own name and without the mirror's first line, is read the same way
+    (canvas / "lander.win").write_text("app lander\ntitle the lamp, as lander sees it\nfocus no\nat 1788600000\n")
+    assert [w.key for w in panel.read_windows(canvas)][0] == "lander"
+
+
+def test_the_panel_without_a_terminal_lists_the_windows_under_the_pins(tmp_path):
+    canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "org.gnome.Terminal-12.win").write_text(WIN + "gone 1788700900\n")
+    write(tmp_path)
+    r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
+                       capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))
+    assert r.returncode == 0, r.stderr
+    assert "windows — 0 open, 1 gone" in r.stdout and "GONE" in r.stdout and "llm's log" in r.stdout, r.stdout

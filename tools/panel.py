@@ -44,6 +44,15 @@ dies (tools/launch.sh, card:canvas.md day two) in the log column beside
 the andon's own lines, one timeline.  It shows; it never rings for a death
 (the panel's rule: not a second andon).
 
+**The windows** (card:canvas-windows.md, 2026-09-06).  A window is a
+thing held, and `tools/windows.py` mirrors the shell's list into
+`<app>-<seq>.win` beside the pins — app, title, focus, frame, the time
+of its last change — and marks a closed window's file `gone` rather
+than removing it, as a hold's row outlives a death.  The panel shows
+one row per `.win`; a gone one is bold and says GONE, never a window.
+The panel reads; the mirror writes; and an app's own `.win` in its own
+name is read the same way.
+
 **The person's hand** (card:hold.md, 2026-08-29 — Henri: "the andon
 panel should have a tool to insert .pin and .hold files to the canvas,
 and allow one to remove the .hold … and the resolver is called after the
@@ -528,6 +537,68 @@ def read_pin_state(name, node, state, canvas_dir=None):
         note = f"state {state} is not the state the resolver runs ({os.path.join(node, 'state')}); not honoured yet"
     return Pin(name, node, state, running, cut, last_pull, last_stop, reason, dead, said, held, held_at, None, note,
                pulled_by, read_pulls(node))
+
+
+# --- the windows: a window is a thing held, and its file is on the canvas (card:canvas-windows.md, 2026-09-06) ---
+# `<app>-<seq>.win`, written by tools/windows.py from the shell's list, or by a tend app in its
+# own name beside it.  Presence is the claim; a `gone` line is the window closed and the file
+# kept, read here as GONE and never as a window.  The panel never writes one.
+
+Win = namedtuple("Win", "key app title focus frame at gone path")
+
+
+def _read_win(path):
+    key = os.path.basename(path)[:-len(".win")]
+    got = {}
+    with open(path) as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            k, _, v = line.partition(" ")
+            got[k] = v.strip()
+
+    def epoch(word):
+        try:
+            return int(got[word])
+        except (KeyError, ValueError):
+            return None
+    return Win(key, got.get("app", ""), got.get("title", ""), got.get("focus", "").lower() in ("yes", "true", "1"),
+               got.get("frame", ""), epoch("at"), epoch("gone"), path)
+
+
+def read_windows(canvas_dir=None):
+    """Every `*.win` on the canvas, in name order; a missing canvas is none."""
+    d = _canvas_dir(canvas_dir)
+    wins = []
+    try:
+        names = sorted(n for n in os.listdir(d) if n.endswith(".win"))
+    except OSError:
+        return wins
+    for n in names:
+        try:
+            wins.append(_read_win(os.path.join(d, n)))
+        except OSError:
+            continue
+    return wins
+
+
+def _win_counts(wins):
+    gone = sum(1 for w in wins if w.gone is not None)
+    return f"{len(wins) - gone} open, {gone} gone"
+
+
+def win_line(w):
+    """A window's row, as one line: GONE is a file with no window behind it."""
+    state = "GONE" if w.gone is not None else ("focused" if w.focus else "open")
+    bits = [w.key.ljust(28), state.ljust(7), w.title or "(no title)"]
+    if w.app and not w.key.startswith(w.app):
+        bits.append(f"({w.app})")
+    if w.at:
+        bits.append(f"changed {_when(w.at)}")
+    if w.gone is not None:
+        bits.append(f"gone {_when(w.gone)}")
+    return "  ".join(bits)
 
 
 def read_canvas(canvas_dir=None, tree=None):
@@ -1204,6 +1275,12 @@ def _tui(stdscr, canvas=None):
         held = any(p.held is not None for p in pins)
         t = read_tick(canvas_dir)
         put(row, 4, tick_line(t, held), curses.A_BOLD if tick_loud(t, held) else curses.A_DIM); row += 1
+        # the windows: what the desk holds, as the files the mirror leaves (card:canvas-windows.md)
+        wins = read_windows(canvas_dir)
+        if wins:
+            put(row, 2, f"windows — {_win_counts(wins)}", curses.A_BOLD); row += 1
+            for wn in wins:
+                put(row, 4, win_line(wn), curses.A_BOLD if wn.gone is not None else 0); row += 1
         row += 1
         if not st.pending:
             put(row, 2, "nothing pending — the floor is quiet."); row += 1
@@ -1345,6 +1422,11 @@ def main(argv):
         for p in pins:
             print("  " + row_line(p))
         print("  " + tick_line(read_tick(canvas), any(p.held is not None for p in pins)))
+        wins = read_windows(canvas)
+        if wins:
+            print(f"windows — {_win_counts(wins)}")
+            for wn in wins:
+                print("  " + win_line(wn))
         for e in read_log(None, pins)[-5:]:
             print("  " + event_line(e))
         return 0

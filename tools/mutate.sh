@@ -302,6 +302,9 @@ test/test_windows.py	windows: a closed window's file is never marked gone	sed -i
 test/test_windows.py	windows: a file the mirror did not write is marked gone like its own	sed -i 's/^        if not _mine(path):$/        if False:/' tools/windows.py
 test/test_windows.py	windows: the first gone line is moved by every pass	sed -i 's/^        if _has_gone(path):$/        if False:/' tools/windows.py
 test/test_windows.py	windows: a shell that does not answer is read as a desk with no windows	sed -i 's/^        return 1$/        mirror([], canvas); return 1/' tools/windows.py
+# tools/panel.py's .win rows — 2026-09-06, card:canvas-windows.md day one: a file with no window behind it reads GONE
+test/test_panel.py	panel: a gone window reads as open	sed -i 's/^    state = "GONE" if w.gone is not None else/    state = "open" if w.gone is not None else/' tools/panel.py
+test/test_panel.py	panel: the panel without a terminal does not list the windows	sed -i 's/^        wins = read_windows(canvas)$/        wins = []/' tools/panel.py
 ROWS
 }
 
