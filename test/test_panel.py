@@ -682,6 +682,28 @@ def test_talk_can_ask_the_model_to_think_and_shows_the_thinking_beside_the_answe
     assert rc == 0 and out.out.strip() == "echo<from a shell>" and "(thinking) think<from a shell>" in out.err
 
 
+def test_the_thinking_is_a_state_by_default_and_text_only_on_ask(tmp_path, model, capsys, monkeypatch):
+    """card:private.md day one, first bullet, landed 2026-09-06 from hy3's six
+    drafts of it: "the thinking box should not show the user anything else
+    except that the session is thinking" (Henri, 2026-08-30).  The model
+    thinks by the environment's word and the shell did not ask with
+    `--think`: stderr says thinking happened and carries no word of it;
+    the record has it whole.  The talk screen holds the same line for its
+    two `(thinking)` blocks, behind the [k] toggle."""
+    node = dead_node(tmp_path); canvas = tmp_path / "canvas"; canvas.mkdir()
+    (canvas / "llm.pin").write_text(f"node {node}\n")
+    monkeypatch.setenv("TEND_THINK", "1")
+    rc = panel.main(["x", "--canvas", str(canvas), "talk", "llm", "quietly"])
+    out = capsys.readouterr()
+    assert rc == 0 and out.out.strip() == "echo<quietly>"
+    assert "think<quietly>" not in out.err, "the reasoning text is never shown unasked"
+    assert "(thinking — kept in the record; talk --think shows it)" in out.err, "the state is shown"
+    assert panel.read_replies(str(node / "state"))[-1].thinking == "think<quietly>", "kept whole"
+    talk_src = inspect.getsource(panel._talk_screen)
+    assert "if e.thinking and think:" in talk_src and "if thinking_so_far and think:" in talk_src
+    assert "(thinking — [k] shows it)" in talk_src
+
+
 def test_talk_can_go_through_a_door_and_the_exchange_says_so(tmp_path, model, capsys, monkeypatch):
     """Henri, 2026-08-30: "I now have the openrouter available for use."
     `door="openrouter"` (the [d] cycle, `--door`, TEND_DOOR) sends the

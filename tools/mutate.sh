@@ -295,6 +295,8 @@ test/test_propose.py	propose: the cut of a long material reports printf's I/O er
 # tools/meter.py --diff — 2026-09-06, hy3's proposal landed (doc/specimens/2026-09-04-hy3-meter-diff.md)
 test/test_meter.py	meter: --diff prints this run's own numbers, not the delta	sed -i "s/float(x) - float(y):+g/float(x):+g/" tools/meter.py
 test/test_meter.py	meter: a week the kept run had and this one lacks is silent	sed -i "s/gone = \[p for p in old if p not in seen\]/gone = []/" tools/meter.py
+# tools/panel.py talk — 2026-09-06, card:private.md day one, first bullet: the thinking is a state by default, text on ask
+test/test_panel.py	panel: the CLI prints the reasoning text without --think	sed -i 's/^                    if think is True:$/                    if True:/' tools/panel.py
 ROWS
 }
 
@@ -306,3 +308,4 @@ while IFS=$'\t' read -r test label cmd; do
 done <<< "$(rows)"
 echo; echo "mutate: $survived survived"
 [ "$survived" -eq 0 ]
+

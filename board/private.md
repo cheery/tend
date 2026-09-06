@@ -131,3 +131,32 @@ on ask, always — *out of sight* is a default, not a lock.
 Written 2026-08-30 at Henri's "also make a card:private.md", uncommitted
 at his "Do not commit that yet though"; a new card arrives unplaced
 and the tiebreak is his.
+
+## 2026-09-06 — day one's first bullet landed: the thinking is a state
+
+At Henri's "let's land hy3's change. that private.md's day one", after
+twelve led turns on this card the same hour (`card:session-program.md`
+§"2026-09-06, 13:18–13:26"): hy3 proposed this change six of six, two
+turns naming the lines, once as a card; gemma4 made no call and
+proposed a spec that puts the private place in the tree.  Landed by a
+session's hand from those drafts, brick 3's route, the second time in
+a day.
+
+**What is built.**  `tools/panel.py talk` from a shell prints the
+answer, and on stderr either the reasoning text — only when `--think`
+was given — or one line, `(thinking — kept in the record; talk --think
+shows it)`, when the model thought unasked (the environment's
+`TEND_THINK`).  The talk screen's two `(thinking)` blocks — past
+exchanges and the turn in flight — render the text only while `[k]`
+is on; off, a past exchange that had thinking shows `(thinking — [k]
+shows it)` and the turn in flight shows what it already showed, `… is
+thinking (N s)`.  `tools/deliver.sh` is unchanged and the record keeps
+the T line whole, as the rule says.  Red first: the CLI test ran with
+the model thinking by the environment and no `--think`, and read the
+text on stderr before the guard; one mutate row.  The screen's two
+guards are held by a source assertion, not a render — the curses loop
+is not driven by any test in the file, which is the file's standing
+limit and not this bullet's.
+
+**What is not built**: the private place and the scratchpad, day one's
+second and third bullets — untouched, and the card stays open on them.

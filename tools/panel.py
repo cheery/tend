@@ -943,8 +943,10 @@ def _talk_screen(stdscr, name, canvas_dir):
             lines += [(l, curses.A_BOLD) for l in _wrap(f"{e.stamp}  you: {e.question}", w - 4)]
             for c in e.calls:
                 lines += [(l, curses.A_DIM) for l in _wrap(f"[call] {c}", w - 4)]
-            if e.thinking:
+            if e.thinking and think:       # card:private.md: the text on ask ([k]), a state otherwise
                 lines += [(l, curses.A_DIM) for l in _wrap(f"(thinking) {e.thinking}", w - 4)]
+            elif e.thinking:
+                lines.append(("(thinking — [k] shows it)", curses.A_DIM))
             lines += [(l, 0) for l in _wrap(f"{e.via.split(' ')[0] if e.via else name}: {e.answer}", w - 4)]
             lines.append(("", 0))
         if turn is not None and turn["done"]:
@@ -957,7 +959,7 @@ def _talk_screen(stdscr, name, canvas_dir):
             calls_so_far = read_calls(row.state)
             for c in calls_so_far:
                 lines += [(l, curses.A_DIM) for l in _wrap(f"[call] {c}", w - 4)]
-            if thinking_so_far:
+            if thinking_so_far and think:   # the state line below says "thinking (N s)" either way
                 lines += [(l, curses.A_DIM) for l in _wrap("(thinking) " + thinking_so_far, w - 4)]
             who = turn["door"] or name
             if answer_so_far:
@@ -1299,8 +1301,12 @@ def main(argv):
                 for c in (ex[-1].calls if ex else []):
                     sys.stderr.write("(call) " + c + "\n")
                 if ex and ex[-1].thinking:
-                    # the thinking beside the answer, on stderr: a pipe gets the answer alone
-                    sys.stderr.write("(thinking) " + ex[-1].thinking + "\n")
+                    # card:private.md, day one: the thinking is shown on ask (--think) and never by
+                    # default — the record keeps it either way.  On stderr: a pipe gets the answer alone
+                    if think is True:
+                        sys.stderr.write("(thinking) " + ex[-1].thinking + "\n")
+                    else:
+                        sys.stderr.write("(thinking — kept in the record; talk --think shows it)\n")
                 print(answer_text)
                 return 0
             except ValueError as e:
