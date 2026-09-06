@@ -293,7 +293,7 @@ as waiting, because the line inside the mark is the only form the
 tree reads.  The mechanism, where it exists, is `limit.sh stop` and
 the meter's list; what neither can do — hear a close, read prose — is
 the session's to do.
-*(self-shaped, 2026-09-04 — a session wrote this rule about sessions.)*
+*(self-shaped, 2026-09-04 — a session wrote this rule about sessions. henri: approved 2026-09-06)*
 
 **A mechanism a session cannot test is proposed, not declared** —
 three kaizens on 2026-08-25 (`07:53`, `08:03`, `08:28`, the last
@@ -390,7 +390,7 @@ clone is then for a change to the *installed* mechanism's tests only
 if the tree itself is what runs (a fresh clone with no install), which
 `tools/fence.sh` says on every prompt.  The paragraph above is kept:
 it is the day the tax was measured, and the reason the install exists.
-*(self-shaped, 2026-09-01 — a session wrote this rule about sessions.)*
+*(self-shaped, 2026-09-01 — a session wrote this rule about sessions. henri: see the feedback below 2026-09-06)*
 
 2026-09-04: Henri's feedback on this one above: I think the worktrees
 should work, and if they don't, then we need to fix that.

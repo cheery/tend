@@ -145,7 +145,7 @@ the sentence.
 
 *(question, his call — are these six roles as he sees them, and which of
 them are really faces of one of his seven rather than roles of their
-own?)*
+own? henri: yes 2026-09-06)*
 
 2026-09-02, on the seventh again, asked what he carries and what the
 tree carries: *"Yksi roolini on toimia oppaana ja suunnannäyttäjänä.
