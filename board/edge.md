@@ -449,7 +449,8 @@ would be the store.
 
 *(question, his call — is identity state a declared property of a
 node — a grant word, absent by default — or a property of every node
-that the person may leave empty?)*
+that the person may leave empty?
+henri: declared, absent by default — huh. olet oikeassa. tietokanta tosiaan on solmu, jossa tila, ja se on syvällä verkossa. 2026-09-02, confirmed 2026-09-06)*
 
 **His answer, 14:27**: *"huh. olet oikeassa.  tietokanta tosiaan on
 solmu, jossa tila, ja se on syvällä verkossa.  Tässä on vain kysymys
