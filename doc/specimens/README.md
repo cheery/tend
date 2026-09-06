@@ -70,3 +70,5 @@ content in its ask and not about the card.  And that a mind reading a
 card can tell built from unbuilt past what it read: this card fits
 one read; the same turn on `session-program.md` proposed things its
 later sections say are done.
+
+*Landed 2026-09-06 as `tools/meter.py --diff`, by a session at Henri's word, three tests and two mutate rows red; `card:meter.md` §"2026-09-06" says what it does and what it does not.*

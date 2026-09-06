@@ -292,6 +292,9 @@ test/test_lead.py	lead: a handed card's ask still carries the whole board	sed -i
 test/test_lead.py	lead: the handed card is not the turn's card	sed -i "/handed, not picked: a CARD: line the mind writes anyway is not read/d" tools/lead.sh
 # tools/propose.sh's cut past a pipe's buffer — F027, 2026-09-04: printf's EPIPE is not an error line
 test/test_propose.py	propose: the cut of a long material reports printf's I/O error	sed -i "s|kept=\$(printf .%s. \"\$material\" 2>/dev/null \| head -c|kept=\$(printf \"%s\" \"\$material\" \| head -c|" tools/propose.sh
+# tools/meter.py --diff — 2026-09-06, hy3's proposal landed (doc/specimens/2026-09-04-hy3-meter-diff.md)
+test/test_meter.py	meter: --diff prints this run's own numbers, not the delta	sed -i "s/float(x) - float(y):+g/float(x):+g/" tools/meter.py
+test/test_meter.py	meter: a week the kept run had and this one lacks is silent	sed -i "s/gone = \[p for p in old if p not in seen\]/gone = []/" tools/meter.py
 ROWS
 }
 

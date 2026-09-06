@@ -5,6 +5,8 @@
     tools/meter.py                 one row per ISO week, oldest first
     tools/meter.py --by day        one row per day
     tools/meter.py --root PATH     another tree (the test's fixture)
+    tools/meter.py --diff [PATH]   this run minus a kept one (doc/meter-*.md, newest
+                                   by name, or PATH), one delta per number in each cell
 
 Reads, and never writes: `doc/kaizen/` (a file per sitting), the
 `**Wrong, mine.**` paragraph in each, `doc/ingested.md`'s verdict per
@@ -28,6 +30,16 @@ placed by the date the mark carries or git's blame of its line, struck
 by the date in his `henri:` answer; the footer says how many wait and
 since when.  A mark waiting is a session's boundary nobody has stood
 behind yet, which is what the tree looks like when he is not there.
+
+`--diff` is the lesson of `doc/seedaudit-2026-08-31.md`, where one piece
+moved from 7 to 8 and no earlier run was kept to say which: the first
+run was kept at `doc/meter-2026-09-04.md` so the next could be diffed,
+and this flag is the diff — every cell of the kept table is read by
+this program, never by eye.  Proposed by tencent/hy3 through the
+openrouter door on 2026-09-04, handed `card:meter.md`
+(`doc/specimens/2026-09-04-hy3-meter-diff.md`); landed by a session at
+Henri's word on 2026-09-06 — the first door mind's draft to become
+tree content by `card:session-program.md`'s brick 3.
 
 Card: `card:meter.md`.  What this is not: a target, a lamp, a gate.
 """
@@ -332,15 +344,91 @@ def footer(k):
 
 
 def render(k, by):
-    head = ["week" if by == "week" else "day", "sittings", "commits", "wrong",
-            "recurs", "F +/−", "cards +/−", "reds gate/hand", "for him +/−", "henri"]
+    head = list(HEAD)
+    head[0] = "week" if by == "week" else "day"
     lines = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for r in rows(k, by):
-        lines.append("| " + " | ".join(str(r[c]) for c in
-                     ("period", "sittings", "commits", "wrong", "recurs",
-                      "fixme", "cards", "reds", "him", "henri")) + " |")
+        lines.append("| " + " | ".join(str(r[c]) for c in KEYS) + " |")
     lines.append("")
     lines.extend(footer(k))
+    return "\n".join(lines) + "\n"
+
+
+NUM = re.compile(r"\d+(?:\.\d+)?")
+HEAD = ["week", "sittings", "commits", "wrong", "recurs", "F +/−", "cards +/−",
+        "reds gate/hand", "for him +/−", "henri"]
+KEYS = ("period", "sittings", "commits", "wrong", "recurs", "fixme", "cards", "reds", "him", "henri")
+
+
+def newest_kept(root):
+    """The newest `doc/meter-*.md` by name — the run the person kept, never a session's pick."""
+    kept = sorted(Path(root).glob("doc/meter-*.md"))
+    return kept[-1] if kept else None
+
+
+def kept_table(path, by):
+    """(header, {period: {column: cell}}) of a kept run's `## By week` (or day) table.
+
+    The first table after that heading, or the first table in the file
+    when the heading is absent (a raw run kept as it was printed).  Cells
+    are kept as text; `delta` reads the numbers out of them.
+    """
+    text = Path(path).read_text(encoding="utf-8")
+    want = f"## By {by}"
+    section = text.split(want, 1)[1] if want in text else text
+    head, table = None, {}
+    for line in section.splitlines():
+        if not line.startswith("|"):
+            if table:
+                break
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if head is None:
+            head = cells
+        elif not all(set(c) <= set("-:") for c in cells):
+            table[cells[0]] = dict(zip(head, cells))
+    return head or [], table
+
+
+def delta(cur, old):
+    """This cell minus the kept one, one signed number per number in the cell, in order.
+
+    `·` when either side has no number or they do not have the same
+    count — `3 (2 read)` against `·` is not a delta.  A kept cell of
+    None (a week the kept run did not have) is zeros, so a born week
+    reads as its own numbers with a `+`.
+    """
+    a = NUM.findall(cur)
+    if not a:
+        return "·"
+    b = ["0"] * len(a) if old is None else NUM.findall(old)
+    if len(a) != len(b):
+        return "·"
+    return " ".join(f"{float(x) - float(y):+g}" for x, y in zip(a, b))
+
+
+def render_diff(k, by, kept):
+    head_old, old = kept_table(kept, by)
+    head = list(HEAD)
+    head[0] = "week" if by == "week" else "day"
+    lines = [f"this run minus {Path(kept).name}, one delta per number in the cell; "
+             "`new` is a column the kept run lacks, `·` a cell that is not a number on both sides",
+             "", "| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
+    seen = set()
+    for r in rows(k, by):
+        p = str(r["period"])
+        seen.add(p)
+        was = old.get(p)
+        cells = [p]
+        for name, key in zip(head[1:], KEYS[1:]):
+            if name not in head_old:
+                cells.append("new")
+            else:
+                cells.append(delta(str(r[key]), was.get(name) if was is not None else None))
+        lines.append("| " + " | ".join(cells) + " |")
+    gone = [p for p in old if p not in seen]
+    lines.append("")
+    lines.append(f"{head[0]}s in the kept run and not in this one: {', '.join(gone) if gone else 'none'}")
     return "\n".join(lines) + "\n"
 
 
@@ -350,9 +438,19 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--waiting", action="store_true",
                     help="list the marks and his-call questions with no henri: line, oldest first, instead of the table")
+    ap.add_argument("--diff", nargs="?", const="PREV", metavar="PATH",
+                    help="print this run minus a kept one: the newest doc/meter-*.md by name, or PATH")
     args = ap.parse_args(argv)
     if args.waiting:
         sys.stdout.write(waiting({"him": for_him(Path(args.root))}))
+        return 0
+    if args.diff:
+        kept = newest_kept(args.root) if args.diff == "PREV" else Path(args.diff)
+        if kept is None or not kept.is_file():
+            sys.stderr.write("meter: no kept run to diff against — none under doc/meter-*.md\n"
+                             if kept is None else f"meter: no kept run at {kept}\n")
+            return 2
+        sys.stdout.write(render_diff(gather(args.root), args.by, kept))
         return 0
     sys.stdout.write(render(gather(args.root), args.by))
     return 0

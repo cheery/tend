@@ -194,6 +194,61 @@ def test_by_day_gives_a_row_per_date(tree):
     assert row(out, "2026-08-26")[5] == "+0 −1 (2 d)", "F001's move to resolved/ is not a second arrival"
 
 
+def test_diff_reads_the_newest_kept_run_and_prints_this_run_minus_it(tree):
+    """hy3's proposal, 2026-09-04, landed 2026-09-06: a kept run and a fresh one
+    are not comparable until one is read against the other by the program.
+    The first run is kept under `## By week` as `doc/meter-2026-09-04.md` is;
+    then a kaizen arrives in the second week, and `--diff` says what moved —
+    per number in the cell, in the cell's own order — and that nothing else did."""
+    kept = tree / "doc" / "meter-2026-08-27.md"
+    kept.write_text("# kept\n\n## By week\n\n" + meter(tree).stdout)
+    (tree / "doc" / "meter-2026-08-20.md").write_text("# an older kept run\n\n## By week\n\n| week | sittings |\n|---|---|\n| 2026-08-24 | 99 |\n")
+    (tree / "doc" / "kaizen" / "2026-09-02-0900.md").write_text(
+        "# Kaizen\n\n**Wrong, mine.**  Three.  A, b, c.\n")
+    r = meter(tree, "--diff")
+    print(r.stdout)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.startswith("this run minus meter-2026-08-27.md"), "the newest kept run by name, not the older one"
+    assert row(r.stdout, "2026-08-24")[1:] == ["+0", "+0", "+0 +0", "+0 +0", "+0 +0 +0", "+0 +0 +0", "+0 +0", "+0 +0 +0", "+0"], (
+        "nothing moved in the first week, and every number says so")
+    week = row(r.stdout, "2026-08-31")
+    assert week[1] == "+1", "one sitting more"
+    assert week[2] == "+0"
+    assert week[3] == "+3 +1", "`0 (1 read)` became `3 (2 read)`"
+    assert week[9] == "·", "no henri line on either side is not a zero"
+    assert "weeks in the kept run and not in this one: none" in r.stdout
+
+
+def test_diff_against_a_path_tolerates_the_first_runs_nine_columns_and_says_which_weeks_are_gone(tree):
+    """`doc/meter-2026-09-04.md` was kept before the `for him` column existed:
+    a column the kept run lacks reads `new`, never a delta against nothing;
+    a week this run lacks is named in the footer, not silent; and a week the
+    kept run lacks is delta'd against zero, so a born week reads as +."""
+    kept = tree / "doc" / "first.md"
+    kept.write_text(
+        "# the first run\n\n## By week\n\n"
+        "| week | sittings | commits | wrong | recurs | F +/− | cards +/− | reds gate/hand | henri |\n"
+        "|---|---|---|---|---|---|---|---|---|\n"
+        "| 2026-08-10 | 1 | 1 | · | · | +0 −0 | +0 −0 | 0/0 | · |\n"
+        "| 2026-08-24 | 1 | 2 | 5 (2 read) | 1 of 2 | +2 −1 (2 d) | +3 −1 (2 d) | 1/1 | 2.0 |\n")
+    r = meter(tree, "--diff", str(kept))
+    print(r.stdout)
+    assert r.returncode == 0, r.stderr
+    week = row(r.stdout, "2026-08-24")
+    assert week[1] == "+2", "three sittings against one"
+    assert week[8] == "new", "the kept run had no `for him` column"
+    assert week[9] == "+2", "his 4.0 against 2.0"
+    assert row(r.stdout, "2026-08-31")[1:3] == ["+1", "+0"], "a week the kept run lacks is delta'd against zero"
+    assert "weeks in the kept run and not in this one: 2026-08-10" in r.stdout
+
+
+def test_diff_with_nothing_kept_refuses_and_says_so(tree):
+    r = meter(tree, "--diff")
+    assert r.returncode == 2
+    assert "no kept run" in r.stderr
+    assert r.stdout == ""
+
+
 def test_the_tree_itself_has_a_first_week():
     out = meter(ROOT)
     assert out.returncode == 0, out.stderr

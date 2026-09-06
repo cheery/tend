@@ -94,3 +94,25 @@ under the sitting's kaizen.  The first run to `doc/meter-2026-09-04.md`.
 
 Placed last by the session that wrote it, at his "tehdään tästä
 kortti"; the tiebreak is his.
+
+## 2026-09-06 — `--diff` landed, from a door mind's draft
+
+At Henri's "do as much as you can, in that priority order you have",
+with hy3's proposal second on the list after the ingestion.
+`tools/meter.py --diff [PATH]` prints this run minus a kept one — the
+newest `doc/meter-*.md` by name, or the path given — one signed
+delta per number in each cell, in the cell's own order; `new` for a
+column the kept run lacks (the first run has no `for him`), `·` where
+either side is not a number; a week the kept run lacks is delta'd
+against zero, and a week this run lacks is named in the footer.  Run
+on the tree the same minute against `doc/meter-2026-09-04.md`: the
+week of 08-31 reads +7 sittings, +50 commits, +15 wrong (+6 read),
++6 F opened and +7 resolved, +6 hand reds; the week of 09-06 is born
+with +7 commits.  Three tests in `test/test_meter.py`, two mutate rows
+red (the delta printed as this run's own numbers; a gone week
+silenced).  Landed by a session's hand, which is brick 3's route
+(`card:session-program.md`): the draft is kept whole at
+`doc/specimens/2026-09-04-hy3-meter-diff.md`, and the flag's docstring
+names its author.  What is not done: no run is kept today — the
+proposal says the first diff is kept verbatim beside the first run at
+the next week's reading, and that is Monday's or later.
