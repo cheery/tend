@@ -39,19 +39,30 @@ def a_tree(tmp_path):
     return t
 
 
+# A test builds the side it means; it never reads the live tree.  The desk is
+# a part of the root when it exists (card:canvas-windows.md), and on
+# 2026-09-06 the real ~/.local/state/tend/canvas — one .win Henri had just
+# mirrored — appeared as `canvas/` in two tests that had built no desk,
+# the panel's 2026-09-02 face at the executor.  Every test's desk is a
+# path that is not there unless it passes its own.
+NO_DESK = "/nonexistent/tend-canvas"
+
+
 def bare(*args, tree=None, **extra):
-    env = {"PATH": "/usr/bin:/bin", **({"TEND_TREE": str(tree)} if tree else {}), **extra}
+    env = {"PATH": "/usr/bin:/bin", "TEND_CANVAS": NO_DESK, **({"TEND_TREE": str(tree)} if tree else {}), **extra}
     return subprocess.run([sys.executable, "-B", str(EXEC), *args], capture_output=True, text=True, env=env)
 
 
-def kept(*args, tree, **extra):
+def kept(*args, tree, canvas=None, **extra):
     """The call as the courier runs it: keep's flags built from tree_parts, no net, no write."""
     flags = ["--allow", str(ROOT / "tools")]   # the executor's own directory, as the courier grants it
     for p in parts():
         if (tree / p).exists():
             flags += ["--allow", str(tree / p)]
+    if canvas:
+        flags += ["--allow", str(canvas)]   # the desk, when the courier grants it (card:canvas-windows.md)
     flags += ["--no-net", "--write", "/dev/null"]
-    env = {"PATH": "/usr/bin:/bin", "TEND_TREE": str(tree), **extra}
+    env = {"PATH": "/usr/bin:/bin", "TEND_CANVAS": NO_DESK, "TEND_TREE": str(tree), **extra}
     return subprocess.run([sys.executable, str(KEEP), *flags, "--", "/usr/bin/python3", "-B", str(EXEC), *args],   # the courier's python: the venv is outside the grant
                           capture_output=True, text=True, env=env)
 
@@ -180,3 +191,59 @@ def test_the_courier_grants_the_fences_own_parts_and_never_a_write_or_the_net():
     assert "bench" not in parts() and "proposals" not in parts(), \
         "Henri, 2026-08-31, before the 150: bench/ holds every gold answer and proposals/ holds each " \
         "account's target — a part named here is handed to every tooled turn, and the benchmark cheats"
+
+
+# --- the desk: the canvas as a part the mind may read (card:canvas-windows.md, 2026-09-06 — the windows reader) ---
+#
+# A window's state is a file on the person's side, and a mind at the door
+# reading the desk is a `read` over the canvas (card:tools.md).  `canvas/`
+# is the executor's name for the canvas directory — TEND_CANVAS, else
+# ~/.local/state/tend/canvas, outside the tree — a part of the root when
+# it exists, granted by the courier read-only like the tree's parts.  The
+# measurement the windows card set itself is a reader shown to do
+# something different for having read the files; this is the reader's
+# reach, and the turn from Henri's shell is the measurement.
+
+WIN = ("# tools/windows.py — the shell's shallow row; an app's own row is another file\n"
+       "app org.gnome.Ptyxis\ntitle henri@carbon: ~/tend\nfocus yes\nframe 0 32 1280 688\nat 1788700000\n")
+
+
+def a_desk(tmp_path):
+    c = tmp_path / "state" / "canvas"; c.mkdir(parents=True)
+    (c / "org.gnome.Ptyxis-2.win").write_text(WIN)
+    (c / "llm.pin").write_text("node llm\n")
+    return c
+
+
+def test_the_desk_is_a_part_the_mind_may_read_by_the_name_canvas(tmp_path):
+    t = a_tree(tmp_path); c = a_desk(tmp_path)
+    env = {"TEND_CANVAS": str(c)}
+    assert said(bare("ls", "canvas/", tree=t, **env)) == {"c": "ls canvas/ → 2 entries", "result": "llm.pin\norg.gnome.Ptyxis-2.win"}
+    r = said(bare("read", "canvas/org.gnome.Ptyxis-2.win", tree=t, **env))
+    assert r["c"] == f"read canvas/org.gnome.Ptyxis-2.win → {len(WIN)} chars" and r["result"] == WIN
+    assert "canvas/" in said(bare("ls", ".", tree=t, **env))["result"].splitlines(), "the desk is a part of the root"
+    r = said(bare("grep", "Ptyxis", ".", tree=t, **env))
+    assert "canvas/org.gnome.Ptyxis-2.win:2: app org.gnome.Ptyxis" in r["result"], r
+    r = said(bare("grep", "title", "canvas", tree=t, **env))
+    assert r["result"] == "canvas/org.gnome.Ptyxis-2.win:3: title henri@carbon: ~/tend", r
+    # no canvas: not a part, and the name says not there — never an empty desk
+    gone = {"TEND_CANVAS": str(tmp_path / "none")}
+    assert "canvas/" not in said(bare("ls", ".", tree=t, **gone))["result"]
+    assert said(bare("ls", "canvas/", tree=t, **gone))["c"] == "ls canvas/ → not there"
+    # the manifest says where the desk is
+    ls_line = [x["function"]["description"] for x in json.loads(bare("--manifest").stdout) if x["function"]["name"] == "ls"][0]
+    assert "canvas/" in ls_line, ls_line
+
+
+def test_under_keep_the_desk_is_served_only_when_the_courier_grants_it(tmp_path):
+    t = a_tree(tmp_path); c = a_desk(tmp_path)
+    env = {"TEND_CANVAS": str(c)}
+    assert said(kept("read", "canvas/org.gnome.Ptyxis-2.win", tree=t, **env))["c"].endswith("→ refused by keep"), "no grant, no desk"
+    r = said(kept("read", "canvas/org.gnome.Ptyxis-2.win", tree=t, canvas=c, **env))
+    assert r["result"] == WIN
+    assert said(kept("ls", "canvas/", tree=t, canvas=c, **env))["result"] == "llm.pin\norg.gnome.Ptyxis-2.win"
+    # the courier grants it the same way, read-only, tells the executor where it is, and names it in the seat
+    src = DELIVER.read_text()
+    assert "--allow $canvas" in src, "the canvas is granted to the call"
+    assert 'TEND_CANVAS="$canvas"' in src, "the executor is told where the desk is"
+    assert "canvas/" in src.split("seat=")[1].split("\n")[0], "the seat names the desk"

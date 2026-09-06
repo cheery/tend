@@ -305,6 +305,10 @@ test/test_windows.py	windows: a shell that does not answer is read as a desk wit
 # tools/panel.py's .win rows — 2026-09-06, card:canvas-windows.md day one: a file with no window behind it reads GONE
 test/test_panel.py	panel: a gone window reads as open	sed -i 's/^    state = "GONE" if w.gone is not None else/    state = "open" if w.gone is not None else/' tools/panel.py
 test/test_panel.py	panel: the panel without a terminal does not list the windows	sed -i 's/^        wins = read_windows(canvas)$/        wins = []/' tools/panel.py
+# the desk as a part — 2026-09-06, card:canvas-windows.md, the windows reader: canvas/ is the canvas directory, granted read-only
+test/test_executor.py	executor: the desk is not a part of the root	sed -i 's/^    if os.path.isdir(CANVAS):$/    if False:/' tools/executor.py
+test/test_executor.py	executor: canvas/ is a directory under the tree, not the desk	sed -i 's/^    if p == "canvas" or p.startswith("canvas\/"):$/    if False:/' tools/executor.py
+test/test_executor.py	deliver: the desk is not granted to the call	sed -i '/--allow \$canvas/d' tools/deliver.sh
 ROWS
 }
 

@@ -127,14 +127,16 @@ mkdir -p "$STATE" 2>/dev/null || true
 # and the system line says the seat and nothing about the tree
 py=/usr/bin/python3; [ -x "$py" ] || py=$(command -v python3) || { echo "deliver: no python3 for keep" >&2; exit 127; }
 tree="${TEND_TREE:-$(CDPATH= cd -- "$here/.." && pwd)}"
+canvas="${TEND_CANVAS:-${HOME:-}/.local/state/tend/canvas}"   # the desk (card:canvas-windows.md): what the person holds, as files — a part when it exists
 manifest='[]'; keepflags=""; sysmsgs='[]'
 if [ -n "$tools_word" ]; then
     manifest=$("$py" "$here/executor.py" --manifest $tools_word) || exit 2
     for p in $(sed -n 's/^tree_parts="\(.*\)"/\1/p' "$here/sandbox.sh"); do
         [ -e "$tree/$p" ] && keepflags="$keepflags --allow $tree/$p"
     done
+    [ -d "$canvas" ] && keepflags="$keepflags --allow $canvas"
     keepflags="--allow $here$keepflags --no-net --write /dev/null"   # the executor's own directory (the tree's tools/, or the installed set), then the parts
-    seat="You are answering a person who works on the tend tree at $tree. You have the tools $tools_word over the tree's documents — board/, tools/, spec/, doc/ and the root files — read-only; a path outside them is refused by keep. At most $calls_cap calls this turn; every call is shown to the person as it happens. Read the tree whenever the answer may be in it — a call costs little, a guess costs the record. If you need to know how the tree works, read board/README.md."
+    seat="You are answering a person who works on the tend tree at $tree. You have the tools $tools_word over the tree's documents — board/, tools/, spec/, doc/ and the root files — and over canvas/, the desk: what the person is holding, as files (pins, holds, windows) — read-only; a path outside them is refused by keep. At most $calls_cap calls this turn; every call is shown to the person as it happens. Read the tree whenever the answer may be in it — a call costs little, a guess costs the record. If you need to know how the tree works, read board/README.md."
     sysmsgs=$(jq -cn --arg s "$seat" '[{role:"system",content:$s}]')
 fi
 
@@ -232,7 +234,7 @@ run_call() {
     fi
     ncalls=$((ncalls + 1))
     _err="$STATE/.turn.err"
-    if _out=$(TEND_TREE="$tree" TEND_READCHARS="$readchars" "$py" "$here/keep.py" $keepflags -- "$py" -B "$here/executor.py" "$_name" "$_arg" 2>"$_err") \
+    if _out=$(TEND_TREE="$tree" TEND_CANVAS="$canvas" TEND_READCHARS="$readchars" "$py" "$here/keep.py" $keepflags -- "$py" -B "$here/executor.py" "$_name" "$_arg" 2>"$_err") \
        && printf '%s' "$_out" | jq -e '.c' >/dev/null 2>&1; then
         _c=$(printf '%s' "$_out" | jq -r '.c'); printf '%s' "$_out" | jq -j '.result' > "$rfile"
     else

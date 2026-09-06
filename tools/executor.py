@@ -39,6 +39,20 @@ reaches for the root — so `ls .` answers the parts, `grep` walks them,
 reaches outside.  The list is `tools/sandbox.sh`'s `tree_parts`, read
 beside this file — one list with the fence; no fence file beside the
 executor, and the root keeps the old refusal.
+
+**The desk is a part** (card:canvas-windows.md, 2026-09-06 — the
+windows reader).  `canvas/` names the canvas directory — TEND_CANVAS,
+else `~/.local/state/tend/canvas`, outside the tree — where the
+person's pins, holds and the mirror's `.win` files are: what the
+person is holding, as files.  It is one of the root's parts when it
+exists, so `ls .` lists it, `ls canvas/` is the desk and `read
+canvas/<file>` a row; the courier grants it read-only beside the
+tree's parts and hands the path down, and without that grant the
+kernel refuses it like any other.  A mind at the door reading the
+desk is a `read` over the canvas (card:tools.md), and the measurement
+the windows card set itself — a reader shown to do something different
+for having read the files — is a turn through here from the person's
+shell.
 """
 import json
 import os
@@ -48,11 +62,12 @@ import sys
 ROOT = os.environ.get("TEND_TREE") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 READCHARS = int(os.environ.get("TEND_READCHARS") or 12000)
 GREPLINES = int(os.environ.get("TEND_GREPLINES") or 200)
+CANVAS = os.environ.get("TEND_CANVAS") or os.path.join(os.path.expanduser("~"), ".local", "state", "tend", "canvas")
 
 # name → (one sentence, the parameters in order, the required ones)
 TOOLS = {
     "read": ("a file under the tree's parts, by path; a cut says the line where read(path, line) continues", ("path", "line"), ("path",)),
-    "ls": ("a directory under the tree's parts; the open board is ls board/", ("dir",), ("dir",)),
+    "ls": ("a directory under the tree's parts; the open board is ls board/, the desk (pins, holds, windows) is ls canvas/", ("dir",), ("dir",)),
     "grep": ("lines matching a regex under a path in the tree's parts, as path:line: text", ("pattern", "path"), ("pattern", "path")),
 }
 
@@ -71,6 +86,8 @@ def manifest(names=()):
 
 def _where(p):
     p = os.path.expanduser(p or "")
+    if p == "canvas" or p.startswith("canvas/"):
+        return os.path.normpath(os.path.join(CANVAS, p[len("canvas/"):]))   # the desk, by name
     return p if os.path.isabs(p) else os.path.join(ROOT, p)
 
 
@@ -95,7 +112,10 @@ def _tops(path):
     parts = _parts()
     if parts is None:
         return None
-    return [(p, os.path.join(ROOT, p)) for p in parts if os.path.exists(os.path.join(ROOT, p))]
+    tops = [(p, os.path.join(ROOT, p)) for p in parts if os.path.exists(os.path.join(ROOT, p))]
+    if os.path.isdir(CANVAS):
+        tops.append(("canvas", CANVAS))   # the desk is a part of the root when it exists
+    return tops
 
 
 def _size(n):
