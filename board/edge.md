@@ -223,7 +223,8 @@ for a word that a puller may set and that is not a restraint.
 
 *(question, his call — "sieltä mistä se tulikin": did the 2026-08-19
 line mean the origin a node was fetched from (a), the puller that pulls
-it (b), or both — and if both, which does the tree build first?)*
+it (b), or both — and if both, which does the tree build first?
+henri: ok. I think it means for the origin. 2026-09-06)*
 
 *(question, his call — may a puller's grant set a parameter of the
 pulled node that is not a boundary, such as its port or a program
