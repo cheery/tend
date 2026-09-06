@@ -183,6 +183,16 @@ between two workable cards is Henri's.
     -dokumenttiin"; day one is `tools/meter.py`, one row per week read
     from files and git, keeper.md's third act, and the first run kept
     verbatim in `doc/`; the tiebreak is his.*
+14. **[canvas-windows](canvas-windows.md)** — a window is a thing held,
+    and nothing on the person's side records it: the windows are state
+    in the compositor's memory, and a session that could say what is
+    open has no file to say it from.  *Woken from `later/` on
+    2026-09-06 at Henri's "time to start the work on windowing system?
+    So that we put this finally into practise and start steamrolling
+    the wrinkles straight" — the first wrinkle measured from his shell
+    the same minute (GNOME 50.1 refuses the window list to a plain
+    caller, so day one is a thin shell extension and a mirror in the
+    tree); placed last; the tiebreak is his.*
 
 ## Finished
 
