@@ -192,7 +192,14 @@ between two workable cards is Henri's.
     the wrinkles straight" — the first wrinkle measured from his shell
     the same minute (GNOME 50.1 refuses the window list to a plain
     caller, so day one is a thin shell extension and a mirror in the
-    tree); placed last; the tiebreak is his.*
+    tree); placed last; the tiebreak is his.  Day one landed the same
+    afternoon, the 15:59 sitting: `tools/tend-windows@tend` publishing
+    the list from inside the shell as `org.tend.Windows`,
+    `tools/windows.py` mirroring it into `canvas/<app>-<seq>.win` and
+    keeping a closed window's file marked `gone`, the panel's `.win`
+    rows with GONE in bold; red first on a stub of `gdbus`, six mutate
+    rows; the extension's run is his hand — install, a log-in, enable —
+    and the reader measurement the card set itself is owed.*
 
 ## Finished
 

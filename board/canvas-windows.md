@@ -148,3 +148,79 @@ that says so.  Then the measurement the `blocked` line named: a
 reader shown to do something different for having read the files.
 
 Placed last on the board, at 14, below `meter`; the tiebreak is his.
+
+## Day one landed — 2026-09-06, the 15:59 sitting, at Henri's "shall we start?"
+
+Three commits, the shape the wake set and nothing past it.
+
+**The extension** — `tools/tend-windows@tend/`, two files, installed
+by his hand under `~/.local/share/gnome-shell/extensions/`.  It owns
+`org.tend.Windows` on the session bus at `/org/tend/Windows`: `List()`
+returns the windows as JSON (id, stable sequence, app id or class,
+title, focus, frame, and `at` — the epoch second of the window's last
+change the extension saw, since the compositor keeps no wall clock
+for that), and `Changed` fires on a window created, retitled, moved,
+resized, focused or unmanaged.  Windows the shell hides from the
+taskbar and windows that are not `NORMAL` are left out.  It reads the
+desk and changes nothing on it, and nothing inside the fence can
+reach it — a session sees files.
+
+**The mirror** — `tools/windows.py`: `--once` asks the list over
+`gdbus` (on every GNOME desk; python's `gi` is not on this one) and
+writes `canvas/<app>-<seq>.win`, one file per window, in the hold
+card's shape — `app`, `title`, `focus`, `frame`, `at` — under a first
+line that names the writer.  Presence is the claim, and **the file
+outlives the window**: a window not in the list gets a `gone EPOCH`
+line and is kept, the first `gone` is the moment it went and a later
+pass does not move it.  The mirror touches only files whose first
+line is its own, so an app's richer row beside it, in its own name,
+is never written from here — the two never write each other's file,
+and the panel reads both.  `--watch` mirrors now and again on every
+`Changed`, a burst coalesced into one pass, and exits 1 saying so
+when the monitor ends (the shell went away, or the extension was
+disabled).  A shell that does not answer is not a desk with no
+windows: nothing is marked gone, the line says which name did not
+answer and which extension is not enabled, exit 1.  `--install`
+copies the two files and prints what his hand does next; `--check`
+gives three verdicts — installed ✓/✗, and from a seat with no session
+bus a `·` line for enabled and answering, which it cannot see.
+
+**The panel** — `tools/panel.py` shows a `windows — N open, M gone`
+section under the tick line, one row per `.win`: key, `focused` /
+`open` / `GONE`, the title, when it last changed, when it went.  A
+gone row is bold, like every row that is not what it claims.  Red
+first: a `.win` with no window behind it reads GONE and never as a
+window, the card's own sentence.
+
+**Measured from this seat.**  The test's shell is a stub of `gdbus`
+that prints what `gdbus` prints — GVariant's text form, a Python
+literal for strings — the way the door's tests stand in for
+llama-server: the first run was red with no tool, the closed window's
+file was red before the `gone` line existed, nine tests and two on
+the panel are green, six mutate rows are red (a closed window never
+marked gone; another hand's file marked gone; the first `gone` moved
+by every pass; a silent shell read as an empty desk; GONE shown as
+open; the no-terminal panel listing no windows).  The extension
+parses as the module GNOME 45+ loads (`node --check`) and names the
+interface the mirror calls, which is what a test can hold of code
+that runs inside the shell.  **What has not run**: the extension,
+in a shell — the fence has no session bus, and the third verdict is
+the honest one.
+
+**His hand, next** — from his shell:
+
+    tools/windows.py --install
+    (log out and in — on Wayland the shell loads an extension at login)
+    gnome-extensions enable tend-windows@tend
+    tools/windows.py --check
+    tools/windows.py --once && tools/panel.py --canvas ~/.local/state/tend/canvas
+
+**Not day one, and said so.**  The measurement the `waited` line
+named — a reader shown to do something different for having read the
+files — is owed, and is what says whether this is a record or a
+status page.  A carrier for `--watch` (a user unit, as the tick has)
+is the tick's question again.  A sweep of gone files is the person's
+or the app's, not the mirror's.  A window across a shell restart is
+not known: the sequence starts over and a new window may take an old
+file's name; `at` and `gone` are what says which.  And the
+compositor of his own stays weeks and stays not first.
