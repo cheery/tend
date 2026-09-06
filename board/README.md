@@ -497,7 +497,7 @@ built on one sighting is building what nothing needs (manifesto rule
 (`card:flake.md`) and the fixme ledger; what neither can do —
 recognise the second sighting of something that was only prose — is
 the session's, which is why the first note names its own recurrence.
-*(self-shaped, 2026-09-06 — a session wrote this rule about sessions.)*
+*(self-shaped, 2026-09-06 — a session wrote this rule about sessions. henri: approved 2026-09-06)*
 
 
 ## A word left for you
