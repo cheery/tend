@@ -2037,3 +2037,41 @@ he chose to land it); or anything about gemma4, which proposed nothing
 landable on the same card.  The next twelve turns are still his, on a
 card that fits a read; `card:meter.md` now carries a `--diff` section
 a mind handed it could read back.
+
+### 2026-09-06, 13:18–13:26 — twelve turns on `private.md`, a card that fits two reads
+
+His shell, at a session's three lines: `launch.sh llm pull`, six
+gemma4 kept through the llm door, six hy3 through the openrouter door
+at `TEND_MAXTOK=8000 TEND_READCHARS=4000`, all twelve drafting, no
+setup fault.  `private.md` is 133 lines and was chosen as the shortest
+open card with nothing built on it, so a draft against its `because`
+has no built section to miss.  Its `because` is his sentence of 08-30
+(the talk screen shows the thinking; a mind has no private place; "the
+thinking box should not show the user anything else except that the
+session is thinking … private is private!").  Off the accounts and the
+drafts, checked against `tools/panel.py` before this was written:
+
+| arm | calls | the task, six times | lines | small thing? | the card's own? |
+|---|---|---|---|---|---|
+| gemma4 ×6 | 0 ×6 | "define a `.tend/memory/` directory structure in `spec/` for session-local scratchpads" ×6 (one says "to hold session-specific scratchpads") | 29–37 | no — a spec document, `spec/memory.md`, with a directory tree and four "implementation requirements" | no — it puts the private place *inside the tree* (`.tend/memory/`), which the card's rule forbids in its second bullet ("never in the tree"), and its draft quotes the card's own `$SCRATCH`, `mktemp -d` and `~/.local/state/tend/private/` back at it from the material while contradicting them; 0 calls, so it read none of that as a card |
+| hy3 ×6 | 6, 7, 10, 7, 8, 6 | gate the `(thinking)` text in `tools/panel.py`'s talk screen behind `think`, so a talk without `--think` shows the state line and no reasoning — ×6, in six wordings, two naming the lines (~946, ~960) and one the CLI branch's `sys.stderr.write("(thinking) …")` | 14–40 | yes — two `if think:` around two blocks, plus one on the CLI path | yes — it is day one's first bullet, verbatim in effect, and it is **unbuilt**: `panel.py:946` and `:960` render `(thinking)` whenever the exchange has thinking, and `think` (line 849) only decides whether the model is *asked* to think; `:1301` prints it on stderr for the CLI.  Every turn read the card in two cuts (71 of 133, then the rest), then `panel.py`, `deliver.sh`, a grep for `think`; the 13:22 draft is a 40-line card, `talk-thinking`, with a `because` that cites the rule and a red-first line |
+
+So on the measure this form is for: **gemma4 zero of six, hy3 six of
+six**, on the same card in the same nine minutes — the third pair of
+sixes, and the widest.  The 17:1x reading on `meter.md` was zero and
+four; here the card has nothing built and hy3 found the one thing the
+card says to build first and the lines to build it at, and gemma4,
+reading nothing, drafted a spec that breaks the card's rule while
+quoting it.  What was the setup's: nothing this time — the user line
+said the task, no placeholder was echoed, `propose.sh` said nothing
+about a pipe, and 8000 tokens held the answer six of six.  What was the
+card's: it fits two reads, which is the shape the 09-04 reading asked
+for, and hy3 read both.
+
+What is his: six drafts of one change, and the change is
+`card:private.md`'s day one, first bullet — brick 3's route, landable
+in a sitting with its red-first test ("a talk without `--think` prints
+no line of the reasoning").  And the question the three pairs of sixes
+now put plainly, for `card:model-acceptance.md`: gemma4 with a card in
+hand has made no call in eighteen of eighteen turns across three
+cards; the door is open, and what walks through it reads nothing.
