@@ -215,6 +215,21 @@ the honest one.
     tools/windows.py --check
     tools/windows.py --once && tools/panel.py --canvas ~/.local/state/tend/canvas
 
+**Run by his hand, 16:29 the same day.**  After the install, a
+log-out and in, and the enable, his shell's panel showed
+
+    windows — 1 open, 0 gone
+      org.gnome.Ptyxis-2            focused  henri@carbon: ~/tend  changed 16:29
+
+His words: *"it seems to be working."*  So: the extension loads in
+GNOME Shell 50.1, `org.tend.Windows` answers, the mirror wrote the
+file, the panel read it — the record without the manager exists on
+this laptop, one window because the desk had just come up from the
+log-in.  This is the mechanism shown working, and not the measurement
+the card set itself: a reader shown to do something different for
+having read the files is still owed, and is what says whether this is
+a record or a status page.
+
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
 files — is owed, and is what says whether this is a record or a

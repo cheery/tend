@@ -199,7 +199,9 @@ between two workable cards is Henri's.
     keeping a closed window's file marked `gone`, the panel's `.win`
     rows with GONE in bold; red first on a stub of `gdbus`, six mutate
     rows; the extension's run is his hand — install, a log-in, enable —
-    and the reader measurement the card set itself is owed.*
+    and it ran at 16:29 the same day, one window on his panel ("it
+    seems to be working"); the reader measurement the card set itself
+    is owed.*
 
 ## Finished
 
