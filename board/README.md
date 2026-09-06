@@ -464,6 +464,31 @@ rule is the session's to keep — no kaizen at the clock when the person
 has said they will sit on.
 *(self-shaped, 2026-09-02 — a session wrote this rule about sessions.
 henri: approved 2026-09-04)*
+**One sighting is a note; the second is a mechanism** — three
+sittings, 2026-09-03 to 2026-09-04 (`0850`, `1904`, `0532`), promoted
+by the twelfth ingestion batch (`doc/ingested.md`, 2026-09-06).  The
+marks gate went falsely red when a 66-line move shifted an approved
+rule's line numbers, and the morning sitting wrote it down as "an
+F-number if it recurs, not carded on one sighting"; the evening's
+journal move tripped it again and it became `F021`, with a fixture
+that holds the defect.  The next morning the die flow's ledger line
+was read whole on its next sighting, as the evening had said it would
+be, and was the lock family (`F022`); and the lander's one drift in
+twenty-four that outlived its sitting went to Henri as a question and
+not a verdict — his answer, 2026-09-06: *"it is a note, the card stays
+shelved for now."*  The rule was already the tree's in two places
+without a sentence of its own: `card:flake.md`'s `because` ("each real
+once counted") and the fixme ledger's shape.  What it says: a first
+sighting is written where it was seen, in words that make the second
+one recognisable — what it would look like, and where it will be
+counted; the second is an F-number, a gate, or a card; and a mechanism
+built on one sighting is building what nothing needs (manifesto rule
+1).  The mechanism, where it exists, is the ledger the suite writes
+(`card:flake.md`) and the fixme ledger; what neither can do —
+recognise the second sighting of something that was only prose — is
+the session's, which is why the first note names its own recurrence.
+*(self-shaped, 2026-09-06 — a session wrote this rule about sessions.)*
+
 
 ## A word left for you
 

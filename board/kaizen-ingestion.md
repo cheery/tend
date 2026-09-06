@@ -119,7 +119,8 @@ session reads ten, and what each reading produces is one line.
 | 9 | Wed 2026-09-02 (was Fri 09-04; read at Henri's "aloita kaizen ingestion -kortilla") | 28-1105 28-1300 28-1313 28-1401 28-1830 29-0734 29-1337 29-1918 29-1934 29-2016 |
 | 10 | Fri 2026-09-04 | 29-2031 29-2048 29-2100 30-0523 30-0730 30-0902 30-0952 30-1624 30-1741 30-1852 |
 | 11 | Fri 2026-09-04 (the same day as 10, at Henri's "aloita erästä 11") | 31-0444 31-0547 31-1346 31-1616 01-0615 01-0735 01-0857 01-1011 01-1348 01-1544 |
-| 12… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
+| 12 | Sun 2026-09-06 (was Mon 09-07; read at Henri's "do as much as you can, in that priority order you have") | 01-1621 02-0557 02-1256 02-1516 02-1827 03-0529 03-0543 03-0850 03-1904 04-0532 |
+| 13… | Mon 2026-09-07 → | the ten oldest unread, whatever has arrived since |
 
 **A batch is the ten oldest unread**, so the table is what is known
 today and a session extends it the day it reads.  Kaizens arrive at
@@ -540,3 +541,27 @@ turns.  The next batch is Monday's unless the same shape recurs.
 **Henri's half**: the three lines at random were last answered on
 2026-09-01; the next draw is due 2026-09-08.  Batch 1's self-shaped
 strand is his still, and it is now measured on the card above.
+
+## 2026-09-06 — batch 12 read, a day before its Monday
+
+At Henri's "do as much as you can, in that priority order you have",
+with the queue for his hand empty for the first time since the meter
+was built.  Seven `rule`, three `promoted`, one promotion: *one
+sighting is a note; the second is a mechanism* — a paragraph in
+`board/README.md` §"What the days taught" with a mark, cited to the
+three sittings of 09-03 and 09-04 that said it, applied it, and
+applied it twice more, and to his own "it is a note" on the lander's
+question this morning.  Batch 11's open strand, *both still*, got its
+third face by the fixture door and is not promoted on its own; the
+ledger says why.  The reading≠applying strand is at nine faces and
+stays `recurs` on the reason every batch has given.
+
+**The count**: 126 kaizens in `doc/kaizen/`; 120 read; 6 unread, all
+of 2026-09-04's afternoon and evening (`1306` → `1652`).  Batch 13 is
+Monday's and is six, not ten — the level holds and a short day reads
+what there is.  The 16:5x kaizen of 09-04 said "fourteen unread"; the
+ledger's count that afternoon was fourteen, and two more were written
+after it that day.
+
+**Henri's half**: the three lines at random were last answered on
+2026-09-01; the next draw is due 2026-09-08.

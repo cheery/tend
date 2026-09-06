@@ -629,3 +629,66 @@ paragraph and its extension paragraph, board/later/swe-bench.md); and
 one placed 2026-09-01 against a session's argument still waits
 (board/README.md, the clone paragraph, with his worktree sentence under
 it since today).  `tools/meter.py --waiting` lists what waits.
+
+## Batch 12 — read 2026-09-06, the next ten (2026-09-01-1621 → 2026-09-04-0532)
+
+| kaizen | the lesson, in a phrase | verdict |
+|---|---|---|
+| 2026-09-01-1621 | the cold arm defined by him and not by the party it measures, and two of the tree's rules have no imperative form; asked what is in line, the reply ordered the board — "that's autocomplete proposing" | `rule` — board/README.md §"The priority" (the tiebreak is his; a session's reading of the board is offered as a preference and looks like one); the arm and its findings went to later/ with card:swe-bench.md on 09-02 |
+| 2026-09-02-0557 | three stretches in one file: a commit count in prose wrong five times running with the memory read that morning; a test task too easy for its question — countable and load-bearing are different properties; the talk written from the tree's state under each of his sentences, and the tree got its picture | `rule` — memory `count-before-you-write-it` (the kaizen names this its sharpest case); memory `lamp-clock-in-hook`; spec/author.md theory 1; vision.md §"What comes first now" for the testing set aside; the reading≠applying faces are counted below |
+| 2026-09-02-1256 | a fix to a guard read only for the line it replaced, and the fence handed to him restarted his GPU on the next tick; the panel's tests read the live tree and his die walked into five of them; a state directory where nothing should have run is a finding | `rule` — memory `verify-every-caller` (the guard face, before the memory existed); board/README.md's fixture paragraph, its mechanism here the autouse empty tree in test/test_panel.py; the pull-file-through-the-fence test, red first |
+| 2026-09-02-1516 | the read-only edge built and not read across — ask waited 300 s with the death readable beside it; a node written from the solitaire's shape met the llm's two recorded faults again; the process read after two rounds of theory about the lock | `rule` — board/README.md's 2026-08-30 line, read the tree whenever the answer may be in it, and manifesto.md §"Go and see"; the mechanisms are ask's own (it reads the pulled node's `stopped`, both reply fields) |
+| 2026-09-02-1827 | no build: the danger is small and only a counter sees a thing that size — one line in vision.md at his word; his doubt outranked his instruction when both arrived in one message; the heredoc reached for with the memory read, refused by the fence before a byte | `rule` — vision.md §"Tend as a working platform", spec/author.md §"What the danger is"; card:rewritten-command.md day one (the fence's refusal) and memory `bash-heredoc-expansion`; the heredoc faces are counted below |
+| 2026-09-03-0529 | `check` resolved the program from the shell's seat while keep's `execvp` stepped over a wrapper it could not read — the third call site to get the third verdict, and the one the README paragraph said would come; one timing red run alone and not through the shake, said so | `rule` — F018 resolved with its gate; board/README.md §"A check has three verdicts" (its named next face, arrived); card:flake.md's shake, not kept once and the F-entry says it |
+| 2026-09-03-0543 | two flakes, one root — the tree tested a lock by taking it; the watcher fix verified against the die and caught spinning the ask stub by the whole suite; the material measurement, cold against with the tree in hand; the heredoc twice more | `rule` — done/lock-test.md (the class, closed 09-03 evening); memory `verify-every-caller` (its own face); done/material.md; F018, F019, F020 resolved |
+| 2026-09-03-0850 | the retrospective read off the record — eleven lock-taking sites grepped, the class carded; four cards shelved as an assessment first and moved only at his word; the marks gate's false red on a 66-line move written down as "an F-number if it recurs, not carded on one sighting" | `promoted` — board/README.md §"What the days taught", "One sighting is a note; the second is a mechanism": the first face, the rule said in words at the first sighting |
+| 2026-09-03-1904 | the primitive measured before it was written and its number sent back to the bench by the shake; the line-shift red's second sighting became F021 as the morning said; the die flow's next sighting to be read whole; the suite read through `tail -6` and the traceback lost | `promoted` — the same paragraph, second face (F021 on the second sighting); memories `shake-before-declaring` and `suite-output-to-file` for the rest |
+| 2026-09-04-0532 | the meter built and read against the tree before it was trusted; F022 read whole on the next sighting and it was the lock family; the lander's one drift in twenty-four sent to him as a question, not a verdict; `tail -6` again the morning after it was named | `promoted` — the same paragraph, third and fourth faces (F022 read whole; the lander's one row as a question, answered by him 2026-09-06: "it is a note"); memory `suite-output-to-file` (its own face); memory `two-counts-before-prose` for the eyeballed fixture numbers |
+
+**What batch 12 showed.**  Ten kaizens from the afternoon of 2026-09-01
+to the morning of 2026-09-04 — the cold arm, the 09-02 talk that gave
+the tree its picture and the edge that landed on it, the first
+conversation over an edge, the lock class opened and closed, the meter.
+Seven `rule`, three `promoted`, **one promotion**: *one sighting is a
+note; the second is a mechanism*, said in words on the morning of 09-03,
+applied that evening (F021), applied twice the next morning (F022 read
+whole; the lander's single drift sent up as a question), and applied by
+Henri himself on 2026-09-06 when he answered the lander's question with
+"it is a note".  The rule was already the tree's in `card:flake.md`'s
+`because` and in the shape of the fixme ledger, and had no sentence of
+its own in §"What the days taught"; it has one now, with a mark.  Read
+on Sunday, a day before the table's Monday, at Henri's "do as much as
+you can, in that priority order you have" — one batch, not two.
+
+**The open strand from batch 11 — both still — got its third face and
+is not promoted on its own**: [[2026-09-02-1256]]'s panel tests read
+the live tree while the real die was pulled from his shell mid-suite,
+and five of them changed under the run.  The face came in at the
+fixture door, and the fixture rule (board/README.md, "a test builds the
+side it means; it never copies the live thing as it is") already gates
+it — the sitting's mechanism was an autouse empty tree, which is that
+rule's and not a new one.  The broad form — an instrument and its
+subject both still — keeps the two faces it had and stays a session's
+care until a face arrives that no existing gate covers.
+
+**The reading≠applying strand, at six faces since batch 9, has three
+more here** and stays `recurs` on the reason every batch has given:
+[[2026-09-02-0557]] wrote a count five times with `count-before-you-
+write-it` read that morning; [[2026-09-02-1827]] and
+[[2026-09-03-0543]] reached for a heredoc three times with
+`bash-heredoc-expansion` read at the start of each turn.  Nine faces.
+Every one stopped at a mechanism — a `git log | wc -l`, the fence's
+refusal — at the cost of one round.  The heredoc faces are worth their
+own count: since `card:rewritten-command.md`'s day one on 2026-09-01
+the fence has refused the heredoc-that-writes at least four times in
+these ten kaizens and once more in the session reading them, every
+time at exit non-zero before a byte was written.  That is the card's
+day one measured, and it is not the event the card waits on (a commit
+message found corrupted); it is noted here and not on the card.
+
+**Two strands at one face, watched, not counted**: *a fix to a guard is
+read for the guard it removes* ([[2026-09-02-1256]], the tick that
+restarted his GPU), and *a new node inherits the record of the node it
+pulls* ([[2026-09-02-1516]], the tick's environment and the thinking
+field met a second time).  Both are go-and-see in a specific shape;
+a second face of either gets a sentence.
