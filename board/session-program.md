@@ -2017,3 +2017,23 @@ What is his: the four `--diff` drafts are the same proposal, and the
 one by hand, or not, is the person's half of brick 3.  The twelve
 turns are the milestone's sentence measured on a card he can read in
 a minute — and the answer to *which mind* is on the last column.
+
+## 2026-09-06 — brick 3 closed once: hy3's `--diff` draft is tree content
+
+The person's half of brick 3, left standing above ("landing one by
+hand, or not, is the person's half"), was taken at Henri's "do as much
+as you can, in that priority order you have" with the draft second on
+the list: `tools/meter.py --diff` landed at `cad2618` by a session's
+hand, from the 64-line card-shaped draft hy3 wrote on 2026-09-04
+(`doc/specimens/2026-09-04-hy3-meter-diff.md`, kept whole), with three
+tests and two mutate rows red, and the flag's docstring names the mind
+that proposed it and the session that landed it.  That is the first
+time a door mind's draft became tree content by this card's route —
+the model proposes, the person applies — with a session standing in
+for the person's hand at his word, which is the substitution
+`keeper.md` allows and the mark does not.  What it does not say: that
+the flag was wanted over `diff` (the specimen README's caveat stands;
+he chose to land it); or anything about gemma4, which proposed nothing
+landable on the same card.  The next twelve turns are still his, on a
+card that fits a read; `card:meter.md` now carries a `--diff` section
+a mind handed it could read back.
