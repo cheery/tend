@@ -31,6 +31,38 @@ line of his reply, said to no question):
 > ominaisuudet toimivat ikkunoissa joissa on tend-rajapinta, eli
 > tend-yhteensopivissa ohjelmissa.
 
+About 18:10, at the session's three questions at the close (the
+material of the value stream; the first tend-compatible program; the
+kaizen's shape):
+
+> 2. panel.py käännettynä ikkunaksi voisi olla ensimmäinen
+> tend-yhteensopiva ohjelma.  Toinen voisi olla työkirja-tyylinen
+> terminaali.  .ipynb -tyyliin.  Mutta tässä taas pitää olla varovainen
+> mitä oikeastaan määrittelee.  Miltä nämä kuulostavat?
+> 1. arvovirta on tavallaan kuin prosessikartta, mikä ohjelma riippuu
+> mistäkin.  Ohjelma vetää tarvitsemansa muut ohjelmat ylös, ja ne
+> sammuvat kun niitä ei enää tarvita.  Pahoittelen, tämä on mielestäni
+> vielä epäselvää ja pitäisi tutkia miten tämä idea oikeastaan nyt
+> toteutuu, ja mikä sen loogisesti johdonmukainen versio olisi?
+> 3. Mielestäni minä olen tehnyt tässä pitkän ajan kuluessa virheen.
+> En ole tarpeeksi puhunut kanssasi toteutuksesta.
+
+*A session's reading, the same minute.*  The first tend-compatible
+program is `tools/panel.py` turned into a window — the smallest, since
+its state is already files (the canvas, the record).  The second is a
+notebook-shaped terminal in the `.ipynb` manner, with his own caution
+that what defines it is the risk — and it fits the concept's fourth
+sentence exactly: a notebook is a file that *is* the window's
+contents.  The value stream is "a kind of process map: which program
+depends on which; a program pulls up the programs it needs, and they
+go down when no longer needed" — which is `card:edge.md`'s mechanism
+as built (the die and the solitaire, the lock dropped at exit, idle
+taking the node), so the consistent version exists in the tree
+already; what is unclear, by his word, is how it is meant and how it
+looks on the screen, and that is a study before a card.  And his
+third: "I have made a mistake over a long time here: I have not
+talked with you enough about the implementation" — recorded as said.
+
 Earlier words this file gathers, kept where they were said and cited
 here: 2026-08-30, "a window manager that works as a 'canvas', where
 windows themselves record their state" (`card:canvas-windows.md`);
