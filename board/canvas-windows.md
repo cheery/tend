@@ -132,7 +132,8 @@ route on GNOME 50.
 
 *(question, his call — day one as a thin shell extension publishing
 the window list over D-Bus, with the mirror in the tree; or wait for
-the compositor?)*
+the compositor?
+henri: code inside compositor's process is ok.. 2026-09-06)*
 
 **Day one, when it is built** (next sitting, not this one — 45
 minutes and a kaizen owed is the README's "one more small thing"):
