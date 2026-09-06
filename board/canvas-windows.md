@@ -230,6 +230,12 @@ the card set itself: a reader shown to do something different for
 having read the files is still owed, and is what says whether this is
 a record or a status page.
 
+*Then `--watch` from his shell, a few minutes later: "it seems to see
+nautilus, and signal as well as the terminal" — three apps on the
+panel from the loop on the `Changed` signal, not from a hand's
+`--once`.  Whether a closed window's row turned GONE on the live desk
+is not yet said; the stub says it does.*
+
 **Not day one, and said so.**  The measurement the `waited` line
 named — a reader shown to do something different for having read the
 files — is owed, and is what says whether this is a record or a
