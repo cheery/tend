@@ -37,3 +37,36 @@ by a stranger; the board is the proof.
 
 It addresses its successor.  That is whoever is reading
 `board/README.md`.
+
+## 2026-09-04-hy3-meter-diff.md
+
+A proposal kept whole at Henri's "talleta hy3:n diff ehdotus", the
+evening of 2026-09-04: one turn of `tools/lead.sh llm --door openrouter
+--tools --card meter.md` at `TEND_MAXTOK=8000 TEND_READCHARS=4000` —
+tencent/hy3 through the openrouter door, the card handed and not
+picked, eighteen calls (the card whole, `keeper.md`, the meter's first
+run), the account at `proposals/lead/2026-09-04-1726.md`.  Copied in
+byte-for-byte, the courier's banner included.  Not tree content: a
+proposal stays a proposal until a person lands it, and this one is
+kept for what it shows whether or not it lands.
+
+**What it shows.**  A door mind, handed a 96-line card, wrote the
+card's own next line in the tree's own shape: `status`, `because`,
+`asked`, `see`, a "What it is" and a test that builds its own tree —
+the form `board/README.md` §"What a card is" prescribes, read off the
+card it was handed and the board's README, unprompted.  Its `because`
+is `meter.md`'s in different words and cites the audit's 7-to-8, and
+its `see` names the seedaudit kept verbatim, which is the sentence the
+meter card starts from.  Four of six turns that hour proposed this
+same flag in four wordings (`card:session-program.md` §"17:1x"); this
+is the one that proposed it as a card.
+
+**What it does not show.**  That the flag is wanted: the meter card
+says the first run is kept "so the next can be diffed", and nothing
+says by a flag rather than by `diff`.  That gemma4 could not: on the
+same card in the same hour it made no call and proposed a build for
+the other tree six times, which is a fact about a 4B-active mind with
+content in its ask and not about the card.  And that a mind reading a
+card can tell built from unbuilt past what it read: this card fits
+one read; the same turn on `session-program.md` proposed things its
+later sections say are done.
