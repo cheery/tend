@@ -80,8 +80,10 @@ line before it counts.  The same two pieces, one step earlier.
   not clarity.  And "do X" said in talk with no card: the session's
   first reply is the spec in three lines — what will exist, what will
   not, how it is measured from his shell — and waits one round.  That
-  is a session's rule, self-shaped, for the README and his approval;
-  no hook can see it.
+  is a ceremony and not a mechanism (Henri, 18:1x: "mekanismit toimivat
+  joka kerta kun seremonia voi pettää") — it failed today and is
+  not proposed as a rule; where it fails again it becomes a gate or an
+  F-number.  No hook can see it.
 
 ## Day one — proposed, not built until the line above is his
 

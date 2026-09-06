@@ -549,6 +549,20 @@ work like a tortoise rather than hare. Don't stress or overburden yourself.
 I feel like you sometimes have done so. I don't intend to stop that,
 but I remind you here, that going at your own pace is ok.
 
+2026-09-06: Henri, at the end of a sitting that built for an hour and
+specified after: Mitä minä olen pistänyt merkille.. Meillä on täällä
+eräänlaisia seremonioita. mietin että mekanismit on se olennainen juttu
+eikä seremoniat. Koska mekanismit toimivat joka kerta kun seremonia voi
+pettää.  *(A session's reading, marked as one: what I have noticed is
+that we have a kind of ceremonies here; I think the mechanisms are the
+essential thing and not the ceremonies, because a mechanism works every
+time where a ceremony can fail.  The paragraphs above each end with
+"the mechanism, where it exists" for this reason; the day's evidence is
+`card:done-when.md`, where a rule that lived as prose in gestate did
+not travel and a gate is proposed in its place, and the questions gate
+that refused a mark of this session's without a question mark in it,
+on the first run.)*
+
 ## What this tree does not have yet
 
 What the audit lists, and each absence is now a card or a shelf
