@@ -121,6 +121,28 @@ def test_waiting_lists_the_marks_with_no_henri_line_and_nothing_else(tree):
     assert "2026-08-24 —" not in r.stdout, "the struck mark is not on the list"
 
 
+def test_a_mark_placed_with_an_empty_henri_line_is_waiting(tree):
+    """F028, 2026-09-07: a mark is placed with its answer line already in it,
+    `henri: )*`, so he writes into the mark and not beside it — and the meter
+    read the bare `)` as his answer.  Six marks waited that morning, one of
+    them a day old, and `--waiting` said nothing did.  The second face, the
+    same hour: a mark whose prose says `henri:` before the empty line was
+    read as answered by the prose — the answer is the last `henri:`."""
+    (tree / "board" / "w.md").write_text(
+        "# w\n\n    status   open\n    because  a problem\n"
+        "    asked    Henri, 2026-08-28 — \"card it\"\n\n"
+        "*(question, his call — the `done` line above: sign it, change it,\n"
+        "or refuse it?  Nothing is built until a `henri:` line is here.\n"
+        "henri: )*\n")
+    git(tree, "add", "board")
+    git(tree, "commit", "-q", "-m", "three", day="2026-08-28")
+    r = meter(tree, "--waiting")
+    assert r.returncode == 0, r.stderr
+    lines = r.stdout.splitlines()
+    assert any(x.startswith("2026-08-28  board/w.md:7  *(question, his call") for x in lines), r.stdout
+    assert len(lines) == 3, r.stdout
+
+
 def test_every_form_the_ledger_writes_a_verdict_in_is_read(tree):
     """F025 (2026-09-04): the ledger writes `rule`, `open — card:x.md` with
     the where inside the backticks, and **`promoted` — …** in bold; the

@@ -273,6 +273,8 @@ test/test_meter.py	meter: git is not asked and the entry's own `seen` date is be
 # the keeper's queue — 2026-09-04, Henri: "laita mittariin tuo sarake samantien"
 test/test_meter.py	meter: a struck mark is never read as struck	sed -i 's/^            if said:$/            if False:/' tools/meter.py
 test/test_meter.py	meter: a question with no date is not placed by git's blame, and vanishes	sed -i 's/else blamed(root, path.relative_to(root), i + 1))/else None)/' tools/meter.py
+test/test_meter.py	meter: an empty henri: line is read as his answer (F028)	sed -i 's/if said and not EMPTY.match(said.group(1)):/if said:/' tools/meter.py
+test/test_meter.py	meter: the first henri: in a mark is read as the answer, prose included (F028)	sed -i 's/said = answers\[-1\] if answers else None/said = answers[0] if answers else None/' tools/meter.py
 # F010 — 2026-09-04, Henri: "tee F010 pois alta": the three cuts say what they cut, to the mind
 test/test_propose.py	propose: the material is cut and the mind is not told	sed -i 's/^    material="$kept$/    material="$kept"; : "/' tools/propose.sh
 test/test_consult.py	consult: the mind is not told, only the person	sed -i '/^\[… cut at $ctxchars chars of $before, at line $at of $lines of the material\.  The rest/d' tools/consult.sh

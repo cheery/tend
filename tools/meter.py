@@ -75,6 +75,9 @@ LEDGER = re.compile(r"^(\d{4}-\d{2}-\d{2}) \d\d:\d\d\s+(\w+)\s")
 #: text is not its placing (edge.md:224 asks about a 2026-08-19 line) — git's blame is
 FOR_HIM = re.compile(r"^\*\((?:self-shaped, (\d{4}-\d{2}-\d{2})|question, his call)\b")
 VERDICT = re.compile(r"\bhenri:\s*(.+?)\s*\)?\*?\s*$", re.M)
+#: a mark is placed with its answer line already in it — `henri: )*` — and VERDICT's
+#: lazy group then holds the bare `)`.  F028 (2026-09-07): six marks read as struck
+EMPTY = re.compile(r"^\)?\*?\s*$")
 WORDS = {"none": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
          "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
 
@@ -176,8 +179,11 @@ def for_him(root):
             placed = (date(found.group(1)) if found.group(1)
                       else blamed(root, path.relative_to(root), i + 1))
             struck = None
-            said = VERDICT.search(text)
-            if said:
+            #: the last one: the answer closes the mark, and the prose above it may say
+            #: `henri:` too (card:done-when.md's did — F028's second face)
+            answers = list(VERDICT.finditer(text))
+            said = answers[-1] if answers else None
+            if said and not EMPTY.match(said.group(1)):
                 struck = first_date(said.group(1)) or blamed(root, path.relative_to(root), i + 1 + text[:said.start()].count("\n"))
             if placed:
                 out.append({"placed": placed, "struck": struck,
