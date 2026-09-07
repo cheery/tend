@@ -17,7 +17,7 @@
              whose definition of done Henri has not signed, and this
              card's own build was the first one refused for it.
              (a session's draft, 2026-09-06, naming no function —
-             gestate's rule for the line; unsigned)
+             gestate's rule for the line; henri: signed 2026-09-07)
     asked    Henri, 2026-09-06, ~17:55 — "Hmm.. tee sille kortti. Ja
              kortti itse noudattaa omaa sääntöänsä."
     see      card:canvas-windows.md (the day), spec/canvas.md (the
@@ -33,7 +33,7 @@
 *(question, his call — the `done` line above: sign it as it stands,
 change it, or refuse it?  Nothing on this card is built until a
 `henri:` line is here, which is the card keeping its own rule.
-henri: )*
+henri: signed 2026-09-07)*
 
 ## Where it came from
 

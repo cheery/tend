@@ -23,7 +23,7 @@
              GNOME window is on neither the canvas nor the panel, so
              `ls canvas/` shows nothing he did not put there.
              (a session's draft, 2026-09-07, from spec/canvas.md's
-             seven arrows and his sixth sentence; unsigned)
+             seven arrows and his sixth sentence; henri: signed 2026-09-07)
     asked    Henri, 2026-08-30, ~10:40 — "put these into later/ as cards"
     waited   (shelved 2026-08-30 to 2026-09-06) on two things, in order.  A measurement: a daemon
              that mirrors the window list into `canvas/*.win` (the
@@ -52,7 +52,7 @@ the shell wrote and nobody's command did is what the last clause
 rules out — so signing it is the retirement `spec/canvas.md` left to
 a card's decision, and the build that follows is the write half, not
 the mirror's day two.
-henri: )*
+henri: signed 2026-09-07)*
 
 ## What it is, when it comes
 
@@ -387,3 +387,90 @@ or the app's, not the mirror's.  A window across a shell restart is
 not known: the sequence starts over and a new window may take an old
 file's name; `at` and `gone` are what says which.  And the
 compositor of his own stays weeks and stays not first.
+
+## Day two — the chain, 2026-09-07, at his "implement that chain I described with ->, if it can be implemented already"
+
+It can, on this laptop, in the shape below — and the first thing it
+ran into was the rule he had signed seventeen minutes earlier
+(`card:done-when.md`, `henri: signed 2026-09-07`): the chain is this
+card's work and this card's `done` line was a session's draft.  No
+gate refuses that yet — done-when's day one is not built — so the
+rule was the session's to keep, and it was: the section below was
+written first, so that the line he signed names what follows from it,
+and the build waited.  His line came at 12:5x — "I signed the
+canvas-windows done field" — and is in the field above, his words
+copied from the mark.
+
+**Arrow by arrow**, his 17:25 sentence (`spec/canvas.md`) against the
+tree:
+
+1. *käyttäjä haluaa avata ikkunan → hänen komentonsa luo canvas/
+   hakemistoon tiedoston.*  `tools/windows.py open NAME -- COMMAND…`
+   writes `canvas/NAME.win` — one file, one window — and nothing else:
+
+       # canvas/panel.win — one file, one window (spec/canvas.md); his command wrote it
+       run tools/panel.py
+
+   No frame yet: the file says what runs, and where is the layout
+   rule's until the window has been somewhere.  The first route, his
+   18:25: a terminal running the panel, "jotta nähdään mitä tiedoston
+   pitää sisältää".
+
+2. *→ ikkuna avautuu ruudulle ennaltamäärättyyn kohtaan.*  The
+   extension (`tools/tend-windows@tend`, already in his shell) watches
+   the canvas directory; a `.win` with a `run` line and no window of
+   its own is started — `ptyxis --title=tend:NAME -- sh -c 'RUN'`, a
+   command implying its own instance (`man ptyxis`) — and **the window
+   whose title begins `tend:NAME` is the file's window**: the tend
+   interface at its smallest, a window says which file it is.  A
+   window with no such title is a legacy window, on neither the canvas
+   nor the panel (his line, 17:45).  Placed at the file's `frame` if
+   it has one, else by the layout rule — a cascade, forty pixels on
+   from the last placed — and the frame is written back.
+
+3. *→ kun käyttäjä siirtää ikkunaa tai muokkaa sen sisältöä, sen
+   ikkunan tilanne muuttuu tiedostossa.*  A move or a resize of a
+   matched window rewrites `frame X Y W H` and `at` in its file; and
+   the other way, a `frame` edited by hand moves the window, the same
+   monitor.  Contents: not this pass — the panel's contents are files
+   already, and what a notebook cell writes is `spec/canvas.md`'s
+   18:35, the next card.
+
+4. *→ käyttäjä voi sammuttaa koneen ja käynnistää sen uudelleen …
+   käynnistyvät uudelleen niihin kohtiin missä ne olivat.*  At the
+   extension's enable — the shell coming up at log-in — every `.win`
+   on the canvas is started at its frame.  A window going down with
+   the shell is not a close: the extension marks its own disable
+   before the windows go, and removes no file after it.
+
+5. *→ käyttäjä sulkee ikkunan, tiedosto katoaa kanvasista.*  A
+   matched window closed from its X removes its file; and his answer
+   of 17:35 read the other way, a file removed (`rm`, or moved out
+   of the canvas) closes its window.  No `.gone`: close is delete.
+
+**What goes**, by the signed line's last clause (`ls canvas/` shows
+nothing he did not put there): `--once` and `--watch`, the mirror of
+every window, six of its tests and four mutate rows; `.gone` and the
+panel's GONE rows.  The panel's `.win` row becomes what the file says
+— name, `run`, *placed at* or *opening*, changed when.  `--list` stays
+(the shell's list, printed, for `--check` and a reader), `List()` on
+the bus stays, and the `.win` files the mirror wrote on his desk are
+his to `rm`; the extension starts nothing that has no `run` line and
+says so in its log.
+
+**Measured from this seat**: `open` writes the file and refuses a name
+the panel's hand would; the panel reads it; the extension parses and
+names what it watches.  **The chain's run is his hand**, as day one's
+was: `tools/windows.py --install`, a log-out and in (the extension
+reloads at log-in), then
+
+    tools/windows.py open panel -- tools/panel.py
+    (the window opens; move it)
+    cat ~/.local/state/tend/canvas/panel.win
+    (close it from its X)
+    ls ~/.local/state/tend/canvas/
+    (log out and in: it is back where it was)
+
+Each arrow's verdict goes here in his words.  **Not this pass**: a
+window's contents in its file; more than one canvas; a program with
+several cells.
