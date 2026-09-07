@@ -20,6 +20,12 @@
              the .hold -files, so that there is always a place where to
              write the state, even if the internal state is removed
              after the .hold file is removed."
+    done     when what the person's side learns about a held thing —
+             the tick's last visit, the death it saw, its restarts, a
+             state line naming a place nothing runs — can be read
+             beside the hold in the canvas, for a hold whose node never
+             ran as for one that did, and goes when the hold goes.
+             (a session's draft, 2026-09-07; unsigned)
     asked    Henri, 2026-08-30, ~10:40 — "put these into later/ as cards"
     blocked  waits on the first writer with nowhere to write: the
              canvas-windows daemon (a `.win` has no `$STATE`), or the
@@ -36,6 +42,14 @@
              hand), tools/panel.py (`read_canvas`, the hand: hold, pin,
              unhold), tools/resolve.sh (`--tick`), tools/launch.sh
              (`holds_for`)
+
+*(question, his call — the `done` line above: sign it as it stands,
+change it, or refuse it?  It says "held thing" and leaves the window
+out on purpose: `spec/canvas.md`'s rule is one file, one window, and
+a mirror beside a window's file would be a second file for one
+window — unless a window's own file carries what the person's side
+learns about it and the mirror is for holds only.  Which, is his.
+henri: )*
 
 ## What it is, when it comes — Henri's shape
 

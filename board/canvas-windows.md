@@ -14,6 +14,16 @@
              no file to say it from.  Henri, 2026-08-30: "letting you
              write a window manager that works as a 'canvas', where
              windows themselves record their state."
+    done     when a window of a tend-compatible program is on his
+             screen because a file for it is in the canvas — one file,
+             one window, written by his command — comes back where it
+             was after a shutdown and a log-in, carries a move or an
+             edit into its file, and goes from the canvas when he
+             closes it from its X as it does at `rm`; and a legacy
+             GNOME window is on neither the canvas nor the panel, so
+             `ls canvas/` shows nothing he did not put there.
+             (a session's draft, 2026-09-07, from spec/canvas.md's
+             seven arrows and his sixth sentence; unsigned)
     asked    Henri, 2026-08-30, ~10:40 — "put these into later/ as cards"
     waited   (shelved 2026-08-30 to 2026-09-06) on two things, in order.  A measurement: a daemon
              that mirrors the window list into `canvas/*.win` (the
@@ -34,6 +44,15 @@
              card:tools.md (a mind at the door reading the desk is a
              `read` over the canvas), spec/os.md property 1,
              tools/panel.py
+
+*(question, his call — the `done` line above: sign it as it stands,
+change it, or refuse it?  One thing it decides that the card has not:
+today's mirror of every window and `.gone` are not in it — a `.win`
+the shell wrote and nobody's command did is what the last clause
+rules out — so signing it is the retirement `spec/canvas.md` left to
+a card's decision, and the build that follows is the write half, not
+the mirror's day two.
+henri: )*
 
 ## What it is, when it comes
 

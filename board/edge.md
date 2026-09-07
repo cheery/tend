@@ -15,6 +15,13 @@
              nodes depending on nodes, a directed acyclic graph in which
              programs start and stop as needed, the canvas at its end —
              has no edge to be made of
+    done     when a program he pulls pulls up the programs it needs and
+             they go down when no longer needed, read from his shell
+             as a lock held and let go — and a pulling cell in a
+             notebook window pulls the same way until he removes it,
+             the close dropping the lock.  (a session's draft,
+             2026-09-07 — the first half is what day one built, the
+             second his 2026-09-06 18:35; unsigned)
     asked    Henri, 2026-09-02 — "tee sille kortti", after the talk on
              card:session-program.md §"Talk — 2026-09-02"
     see      card:hold.md — rule 4 (cycles are forbidden, at the door)
@@ -32,6 +39,15 @@
              word lands and where the door is
              board/done/pull.md — the first program of tend's own, and the
              pull as it was built
+
+*(question, his call — the `done` line above: sign it as it stands,
+change it, or refuse it?  The first half is written after the build,
+which gestate's rule says makes it a description of what was built;
+it is here because the second half is not built and his 18:35 made
+this card's lock the window's mechanism ("edge card's lock olisi
+silloin sen mekanismi").  Or the cell belongs on the windows card,
+and this one closes on the die and the solitaire — his call.
+henri: )*
 
 ## What it is
 

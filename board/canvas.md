@@ -19,6 +19,15 @@
              a timing window Henri named as one "we will eventually
              revert" — it catches the failure that happened and no
              slower one, and costs every healthy pull a second
+    done     when a node's death reaches him on the panel with nobody
+             watching for it — the next 13:27, seen — and what he is
+             holding, nodes and windows alike, is one directory he can
+             edit by hand and read on one screen, a death and a cord
+             pull lines on one timeline; comes up as it was after a
+             shutdown and a start; and is one of at least two, so that
+             this desk and a server's are two directories he can switch
+             between.  (a session's draft, 2026-09-07, from the because
+             and his 2026-09-02 sentence; unsigned)
     asked    Henri, 2026-08-28 — "I think that we want a canvas where
              user 'pins' the programs+state they pull.  That could be a
              directory with name.pin -files.  Along the canvas there
@@ -48,6 +57,15 @@
              ~/.local/state/tend — where the andon record lives on the
              person's side and passes through the fence; a canvas
              directory is the same kind of place
+
+*(question, his call — the `done` line above: sign it as it stands,
+change it, or refuse it?  Day one and day two of this card are built,
+and a line written after a build is a description of what was built
+(gestate's second rule) — so this one is drawn forward from his
+2026-09-02 sentence instead and names what is still owed: the death
+seen with nobody watching, the restart into place, the second canvas.
+Whether "at least two" is this card's done or a later card's is his.
+henri: )*
 
 ## What it is
 

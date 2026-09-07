@@ -17,6 +17,14 @@
              the dependency`).  Henri, 2026-08-30: "writing a rust
              library for writing apps on this node network, such that
              they remain backward compatible with ubuntu linux."
+    done     when the contract a tend-compatible program keeps — the
+             words it is given, the pulse, the stop and its reason, the
+             canvas file its window is drawn from and written back to —
+             is one document under spec/ that the shell side and the
+             Rust side both read, and the second program written to it
+             runs on Ubuntu with tend absent.  (a session's draft,
+             2026-09-07, with the window's half added from
+             spec/canvas.md's "tend-rajapinta"; unsigned)
     asked    Henri, 2026-08-30, ~10:40 — "put these into later/ as cards"
     blocked  waits on the second program that wants the first's code —
              the library is extracted from two programs that agree, not
@@ -36,6 +44,15 @@
              writes on the person's side), spec/os.md properties 1, 2
              and 4 (bounded on its own interface; install testable;
              behaviour by types), manifesto.md rule 1
+
+*(question, his call — the `done` line above: sign it as it stands,
+change it, or refuse it?  It adds the window's file to the contract,
+which the card did not have — his "tend-yhteensopivissa ohjelmissa"
+of 2026-09-06 is this card's `because` from the other side.  And the
+card waits on the second program that wants the first's code; if
+that program is the notebook-shaped terminal of his 18:25, signing
+this line is also the wake, and he may say so or not.
+henri: )*
 
 ## What it is, when it comes
 
