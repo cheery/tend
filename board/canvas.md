@@ -354,3 +354,28 @@ person edits as a thing, and more than one of them to switch between.
 His sentence is the card's direction from here; the build waits on
 `card:edge.md`'s day one, because a canvas that pulls its programs is
 a node with edges, and the edge comes first.
+
+## Handed here from `card:canvas-windows.md` at its close — 2026-09-07
+
+Two things that card held and did not build, at Henri's "lets do
+that what you recommend":
+
+* **The pull graph drawn as a graph.**  His words, 2026-09-02, on the
+  edge card's panel rows: *"vasta graafisessa ympäristössä se voi
+  näyttää sugiyama-graafin"* — the terminal panel shows the edges as
+  rows; a layered drawing of the value stream is the canvas's screen,
+  and this card is where the value stream lives (§"Talk — 2026-09-02").
+  Not built; its `done` line above names the screen and not the
+  drawing, and whether the drawing is this card's or a card of its
+  own is his.
+* **A window's contents in its file** — the clause of the windows
+  card's signed line that did not land — waits on the notebook
+  terminal (`spec/canvas.md` §18:35: a cell is the unit a program
+  writes, and the notebook file is the window with its contents
+  inside).  That is a card not yet opened, and it is named here so
+  that the hand-on has somewhere to be read from until it is.
+
+What the windows card built stands under this one now: a
+tend-compatible window is a `.win` file the person's command writes
+and the shell places (`tools/windows.py open`, `tools/tend-windows@tend`),
+the first sentence of his chain on the desk.

@@ -1,6 +1,6 @@
 # canvas-windows — a window is a thing held, and nothing on the person's side records it
 
-    status   open
+    status   done — 2026-09-07
     because  the canvas records what the person holds only when it is a
              node: a pin is "show me", a hold is a standing pull, and
              both are files that outlive the process and can be read by
@@ -614,3 +614,39 @@ settling.  Not seen from here, as before.
 log out and in.  It should come back where he left it; if not, the
 `journalctl --user -b -g tend-windows` line *asked for … the shell
 has it at …* is the next wrinkle's first fact.
+
+## Closed — 2026-09-07, 13:3x, at his "It works! And it works very well.  Mark the canvas done, if there's nothing else in there that is unimplemented"
+
+His third run, after the settle fix: the window came back where he
+left it.  So the chain runs on his desk, arrow by arrow, by his three
+runs of the same steps — the file opens the window, a move changes the
+file, the X removes it, `rm` closes it, and after a log-out it comes
+back where it was.  The `because` — a window is a thing held, and
+nothing on the person's side records it — no longer stands: the file
+*is* the window.
+
+**The signed `done` line, clause by clause.**  A tend-compatible
+window on his screen because its file is in the canvas: holds.  Back
+where it was after a log-in: holds (a shutdown goes by login1's
+signal, the same guard, not run).  Carries a move into its file:
+holds.  *Or an edit*: not built — the panel has no contents of its
+own, and what a cell writes is the notebook terminal's.  Gone at its
+X as at `rm`: holds.  A legacy window on neither the canvas nor the
+panel, `ls canvas/` showing nothing he did not put there: holds, the
+mirror retired.
+
+**Three things this card held and did not build, handed on** at his
+"lets do that what you recommend", so that the close hides nothing:
+
+* the contents edit — the line's "or an edit" — to the notebook
+  card when it opens: `spec/canvas.md` §18:35, a cell is the unit a
+  program writes, and the notebook file is the window with its
+  contents inside;
+* the pull graph drawn layered — his 2026-09-02 "vasta graafisessa
+  ympäristössä se voi näyttää sugiyama-graafin" — to
+  `card:canvas.md`, where the value stream lives;
+* the compositor of his own — weeks, and never first — to
+  `later/compositor.md`, which says what it waits on.
+
+Closed by a session at his word; the three lines above are where each
+thing is now, and nothing else on this card is owed.

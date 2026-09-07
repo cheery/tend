@@ -302,3 +302,19 @@ carries `material ../board/README.md` standing (README alone; vision's
 with material and 800 cold, and the digest-versus-tool question stays
 on `card:tools.md`, where it was.  Not built: the courier's digest as a
 node's shape, because nothing needed it.
+
+`canvas-windows` finished 2026-09-07, at Henri's "It works! And it
+works very well.  Mark the canvas done, if there's nothing else in
+there that is unimplemented" — his chain of 2026-09-06 (`spec/canvas.md`)
+run on his desk three times the same hour, a wrinkle found and fixed
+between each: the file went at log-out (gnome-session quits every app
+while the shell still runs; the end-session dialog's signal and a
+three-second grace), then the window came back to the centre (GNOME
+places a new window as it maps; placed again at `shown`, the write-back
+settled after).  The `because` no longer stands: the file is the window
+(`done/canvas-windows.md`).  One clause of his signed `done` line is not
+built — an edit of contents into the file — and it is handed on with two
+more things the card held: the contents to the notebook card when it
+opens, the layered pull graph to `canvas`, the compositor of his own to
+`later/compositor.md`.  Woken 2026-09-06 and closed the next day, with
+the day-one mirror it built retired by the line he signed.

@@ -183,29 +183,7 @@ between two workable cards is Henri's.
     -dokumenttiin"; day one is `tools/meter.py`, one row per week read
     from files and git, keeper.md's third act, and the first run kept
     verbatim in `doc/`; the tiebreak is his.*
-14. **[canvas-windows](canvas-windows.md)** — a window is a thing held,
-    and nothing on the person's side records it: the windows are state
-    in the compositor's memory, and a session that could say what is
-    open has no file to say it from.  *Woken from `later/` on
-    2026-09-06 at Henri's "time to start the work on windowing system?
-    So that we put this finally into practise and start steamrolling
-    the wrinkles straight" — the first wrinkle measured from his shell
-    the same minute (GNOME 50.1 refuses the window list to a plain
-    caller, so day one is a thin shell extension and a mirror in the
-    tree); placed last; the tiebreak is his.  Day one landed the same
-    afternoon, the 15:59 sitting: `tools/tend-windows@tend` publishing
-    the list from inside the shell as `org.tend.Windows`,
-    `tools/windows.py` mirroring it into `canvas/<app>-<seq>.win` and
-    keeping a closed window's file marked `gone`, the panel's `.win`
-    rows with GONE in bold; red first on a stub of `gdbus`, six mutate
-    rows; the extension's run is his hand — install, a log-in, enable —
-    and it ran at 16:29 the same day, one window on his panel ("it
-    seems to be working"); the reader measurement the card set itself
-    is the same sitting's second stretch — `canvas/` a part in
-    `tools/executor.py`, granted read-only by the courier, so a door
-    mind can read the desk — and the turn that measures it is his.*
-
-15. **[done-when](done-when.md)** — work was done on a spec nobody had
+14. **[done-when](done-when.md)** — work was done on a spec nobody had
     written, and the card form has no place for what done looks like:
     on 2026-09-06 fifteen commits landed on the windows card before
     the concept was written and showed them to be the read half of a
@@ -217,7 +195,7 @@ between two workable cards is Henri's.
 
 ## Finished
 
-Seventeen cards are on `done/`, each closed with its `because` answered.
+Eighteen cards are on `done/`, each closed with its `because` answered.
 What the board said as each one closed is in `journal.md` ("The board's
 closing notes"), moved there on 2026-09-03 at Henri's word: a closing
 note is what happened, and what happened goes in the journal.
@@ -225,7 +203,8 @@ note is what happened, and what happened goes in the journal.
 - `gates` 2026-08-24; `grant`, `pull` 2026-08-25; `arrival`, `keep`,
   `resolver`, `self` 2026-08-26; `cords`, `fence`, `green`, `install`
   2026-08-27; `andon-panel`, `node-install` 2026-08-28; `lost-write`,
-  `trees` 2026-08-31; `lock-test` 2026-09-03; `material` 2026-09-04.
+  `trees` 2026-08-31; `lock-test` 2026-09-03; `material` 2026-09-04;
+  `canvas-windows` 2026-09-07.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.  `swe-bench` went there on
