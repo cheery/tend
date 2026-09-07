@@ -164,7 +164,8 @@ def test_the_extension_parses_and_holds_the_chains_five_arrows(tmp_path):
     # the five arrows, each a line the extension has
     assert "monitor_directory" in src, "→ the file in canvas/ is what opens the window"
     assert f"'{windows.TITLE}'" in src and "--title=" in src and "spawn_async" in src, "→ opens, in a terminal that says which file it is"
-    assert "move_resize_frame" in src and "writeFrame" in src, "→ placed, and a move written back"
+    assert "move_resize_frame" in src and "'shown'" in src and "settled" in src and "writeFrame" in src, \
+        "→ placed — again once shown, past GNOME's own centring — and a move written back only after that"
     assert "_closing" in src and "EndSessionDialog" in src and "PrepareForShutdown" in src and "CLOSE_GRACE" in src, \
         "→ going down with the shell is not a close: the session's end is heard before the windows go, and a close waits"
     assert ".delete(" in src, "→ closed from its X removes the file; the file removed closes the window"

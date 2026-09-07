@@ -585,3 +585,32 @@ three lines; the run is the same steps as before, from the
 **Still not seen on the live desk**: the fifth arrow itself — a file
 that survives the log-out being started at log-in, at its frame — and
 the three-second file after an X.  His next run says.
+
+## Run by his hand again — 2026-09-07, 13:19: the file survives, the window comes back — to the centre
+
+Henri: *"Now it opens on login, but it does not open where I left it.
+It opens to the center."*
+
+Read from the session's seat a minute later: `panel.win` there,
+written 13:19:06, `frame 397 206 1000 700` — the centre of his
+screen, not where he left it.  So the fifth arrow now holds in its
+first half (the file survived the log-out and was started at log-in)
+and fails in its second (where), and the file says how: **GNOME
+places a new window itself as it maps — the centre — over anything
+set before the map**, and the extension, which placed at bind and
+then wrote every move back, wrote the centre into the file over the
+frame he had left.  His frame is lost; the mechanism that lost it is
+the one that keeps it.
+
+**The fix, the same minutes**: place at bind as before, and again
+when the window's `shown` fires (with a timeout in case it does
+not), and only after a beat past that let a move write back — until
+then the window's moves are the shell's own placement and not his.
+When the shell still has it elsewhere after that, the log says what
+was asked and what the shell did.  The test names `shown` and the
+settling.  Not seen from here, as before.
+
+**His hand**: `--install`, a log-out and in, `open panel`, move it,
+log out and in.  It should come back where he left it; if not, the
+`journalctl --user -b -g tend-windows` line *asked for … the shell
+has it at …* is the next wrinkle's first fact.

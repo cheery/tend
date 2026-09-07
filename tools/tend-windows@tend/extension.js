@@ -62,6 +62,7 @@ const CASCADE = 40;                    // the layout rule: each new window forty
 const CASCADE_W = 1000, CASCADE_H = 700;
 const RELAUNCH_AFTER = 15;             // seconds before a started file with no window yet is started again
 const CLOSE_GRACE = 3;                 // seconds a close waits before its file goes: a log-out ends the shell first
+const SETTLE_MS = 600;                 // after `shown`, the beat before a window's moves are written back
 const END_SESSION_IFACE = 'org.gnome.SessionManager.EndSessionDialog';   // the shell's own dialog, on the session bus
 const END_SESSION_PATH = '/org/gnome/SessionManager/EndSessionDialog';
 const WINDOW_SIGNALS = ['notify::title', 'position-changed', 'size-changed', 'focus', 'unmanaged'];
@@ -288,7 +289,7 @@ export default class TendWindows extends Extension {
         }
         let entry = this._files.get(name);
         if (!entry) {
-            entry = {path, window: null, started: 0, frame: null};
+            entry = {path, window: null, started: 0, frame: null, settled: false, shownId: 0};
             this._files.set(name, entry);
         }
         entry.path = path;
@@ -360,9 +361,53 @@ export default class TendWindows extends Extension {
             frame = [CASCADE + CASCADE * n, CASCADE + CASCADE * n, CASCADE_W, CASCADE_H];
         }
         entry.frame = frame;
+        entry.settled = false;
         w.move_resize_frame(true, ...frame);
-        writeFrame(entry.path, {x: frame[0], y: frame[1], width: frame[2], height: frame[3]});
-        log(`${name}: placed at ${frame.join(' ')}`);
+        log(`${name}: placing at ${frame.join(' ')}`);
+        // GNOME places a new window itself as it maps — the centre — over anything set before, and
+        // a move written back then would put the centre into the file (his desk, 2026-09-07 13:19:
+        // "it opens to the center", and the file said 397 206).  So: place again once the window is
+        // shown, and let its moves write back only after that has settled.
+        try {
+            entry.shownId = w.connect('shown', () => this._settle(name, w));
+        } catch (_e) {
+            entry.shownId = 0;
+        }
+        const id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SETTLE_MS * 2, () => {
+            this._pending?.delete(id);
+            this._settle(name, w);
+            return GLib.SOURCE_REMOVE;
+        });
+        this._pending.add(id);
+    }
+
+    // The window is on the screen: put it where the file says, once more, and a beat later start
+    // writing its moves back — from then on the file follows the window.
+    _settle(name, w) {
+        const entry = this._files?.get(name);
+        if (!entry || entry.window !== w)
+            return;
+        if (entry.shownId) {
+            try { w.disconnect(entry.shownId); } catch (_e) { /* gone */ }
+            entry.shownId = 0;
+        }
+        if (entry.settled)
+            return;
+        w.move_resize_frame(true, ...entry.frame);
+        const id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SETTLE_MS, () => {
+            this._pending?.delete(id);
+            if (!this._files || this._files.get(name) !== entry || entry.window !== w)
+                return GLib.SOURCE_REMOVE;
+            entry.settled = true;
+            const r = w.get_frame_rect();
+            if (!sameFrame(r, entry.frame))
+                log(`${name}: asked for ${entry.frame.join(' ')}, the shell has it at ${r.x} ${r.y} ${r.width} ${r.height}`);
+            entry.frame = [r.x, r.y, r.width, r.height];
+            writeFrame(entry.path, r);
+            log(`${name}: placed at ${entry.frame.join(' ')}`);
+            return GLib.SOURCE_REMOVE;
+        });
+        this._pending.add(id);
     }
 
     _watch(w) {
@@ -393,6 +438,7 @@ export default class TendWindows extends Extension {
             const entry = this._files.get(name);
             if (entry && entry.window === w) {
                 entry.window = null;
+                entry.shownId = 0;         // its signal went with the window
                 if (!this._closing)
                     this._closeLater(name, entry);
             }
@@ -427,7 +473,7 @@ export default class TendWindows extends Extension {
         if (w && (what === 'position-changed' || what === 'size-changed')) {
             const name = this._byWindow.get(w);
             const entry = name === undefined ? null : this._files.get(name);
-            if (entry) {
+            if (entry && entry.settled) {
                 const r = w.get_frame_rect();
                 if (!sameFrame(r, entry.frame)) {
                     entry.frame = [r.x, r.y, r.width, r.height];
