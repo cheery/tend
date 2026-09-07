@@ -63,6 +63,59 @@ looks on the screen, and that is a study before a card.  And his
 third: "I have made a mistake over a long time here: I have not
 talked with you enough about the implementation" — recorded as said.
 
+About 18:25, after the kaizen, at the session's fork on the first
+window — a terminal running the panel placed from a file, or the
+panel drawn as its own window:
+
+> Ensimmäinen, jotta nähdään mitä tiedoston pitää sisältää.  Ja ehkä se
+> työkirja-terminaali olisi ensimmäinen osa, ja panel.py olisi sen
+> terminaalin ensimmäinen yhteensopiva sovellus.  työkirja silloin
+> kantaisi kahdenlaisia komentoja: komentoja jotka säilyvät, mutta ne
+> ajetaan (legacy terminaalikomennot), ja komennot jotka tavallaan
+> vetävät jonkin tiedon tai käyttöliittymän ruudulle.
+
+*A session's reading, the same minute.*  The first route, to see what
+the file must hold.  And the order turns: the notebook-shaped terminal
+is the first part, and the panel is that terminal's first compatible
+application.  The notebook carries two kinds of command: ones that
+persist and are run — legacy terminal commands — and ones that pull a
+piece of data or an interface onto the screen.  Read against the tree:
+the second kind is the pull as a cell — `pull llm`, `connect PORT`, a
+hold — and the panel would be the first interface a cell pulls up,
+which makes the notebook's open cells the value stream's process map
+made visible, and the notebook file the one-file-one-window rule with
+its contents inside.  The reading's question, unasked and his: does a
+pulling cell keep pulling while the window is open, the way a
+process holds an edge, so that closing the window is what lets the
+pulled thing go?  *(Written after the sitting's kaizen and left
+uncommitted on his "emme ole kellon orjia"; the next sitting's first
+commit.)*
+
+About 18:35, to the reading's question — does a pulling cell keep
+pulling while the window is open:
+
+> vetävä solu työkirjassa jatkaa vetoaan kunnes se poistetaan
+> työkirjasta.  Eli se olisi eräänlainen tekstipohjainen ikkuna jota
+> ohjelma voi päivittää lennossa, ja ohjelmalla voisi olla useita
+> tällaisia ikkunoita, joita se joko käsittelee nipussa, tai sitten
+> jakaa prosesseja niille.  edge card's lock olisi silloin sen
+> mekanismi, kyllä näin sen ymmärrän.
+
+*A session's reading, the same minute.*  A pulling cell pulls until it
+is removed from the notebook.  So a cell is a text window the pulled
+program updates as it runs; a program may have several such cells,
+handled as one batch or with a process given to each; and the edge
+card's lock is the mechanism — his word.  What that fixes for the
+first card: the notebook file is the window (one file, one window);
+a cell is the unit a program writes, and the person writes the
+command — the two writers at cell granularity, the rule the windows
+card had at file granularity; removing the cell is the close that
+drops the lock, and closing the window removes every cell's pull at
+once.  A program with several cells is a node with several rows in
+one file, which is `card:cords-crate.md`'s richer row with a place to
+go.  *(On disk after the kaizen, uncommitted; the next sitting's first
+commit with the rest.)*
+
 Earlier words this file gathers, kept where they were said and cited
 here: 2026-08-30, "a window manager that works as a 'canvas', where
 windows themselves record their state" (`card:canvas-windows.md`);

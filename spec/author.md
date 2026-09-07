@@ -23,6 +23,10 @@ assisted checking. What I am for here is to show the direction and vision
 for the project. Where it needs to go, and point out dangers and
 hazards whenever those appear, that would obliterate the project.
 
+2026-09-06: (gestate) A defect is a caller, not a verdict: it asks for
+what broke, what fixed it, and what now holds it — and nobody owes anything
+on top of that. Mistakes we catch are the best kind of mistakes.
+
 ## What I read
 
 2026-08-30: I read well-written prose, were it written by anyone.
