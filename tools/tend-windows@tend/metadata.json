@@ -1,7 +1,7 @@
 {
   "uuid": "tend-windows@tend",
   "name": "tend windows",
-  "description": "Publishes the window list on the session bus as org.tend.Windows, so tools/windows.py can mirror it into the canvas (card:canvas-windows.md). Reads the desk; changes nothing on it.",
+  "description": "The canvas placed on the screen: watches ~/.local/state/tend/canvas, opens a .win file's window in a terminal titled tend:NAME, places it at the file's frame, writes a move back, removes the file at the window's close and closes the window at rm (card:canvas-windows.md, spec/canvas.md). Publishes the window list as org.tend.Windows for tools/windows.py --list.",
   "shell-version": ["50"],
-  "version": 1
+  "version": 2
 }

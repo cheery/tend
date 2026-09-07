@@ -474,3 +474,76 @@ reloads at log-in), then
 Each arrow's verdict goes here in his words.  **Not this pass**: a
 window's contents in its file; more than one canvas; a program with
 several cells.
+
+## Day two landed — 2026-09-07, the 12:27 sitting, at his "I signed the canvas-windows done field"
+
+Built in the shape §"Day two" set and nothing past it.
+
+**The command** — `tools/windows.py open NAME -- COMMAND…` writes
+`canvas/NAME.win`: a first line saying what it is, `run` (the command
+as one shell line), `dir` (where it runs); no frame.  It refuses a
+name the panel's hand would, an empty command, and a name whose file
+is there — one file, one window — and writes nothing on a refusal.
+`--list` prints the shell's list and which file each window is;
+`--install` and `--check` as before.  `--once` and `--watch` are gone,
+and `.gone` with them: the mirror of every window is retired by the
+signed line's last clause.
+
+**The extension** — `tools/tend-windows@tend`, version 2, the placing
+hand.  It watches the canvas directory (a file monitor, moves
+included) and, for a `.win` with a `run` line and no window of its
+own, starts `ptyxis --title=tend:NAME -- sh -c RUN` in the file's
+`dir`; the window whose title begins `tend:NAME` is the file's window,
+bound when it appears or when its title arrives.  Placed at `frame`,
+else by the cascade — forty pixels on from the last, 1000 by 700 —
+and the frame written back; a move or a resize rewrites `frame` and
+`at`; a `frame` edited by hand moves the window; the window closed
+from its X removes the file; the file removed — `rm`, or moved out
+of the canvas — closes the window; at enable every `.win` on the
+canvas is started; after `disable`, or the display's `closing`,
+nothing is removed.  A file with no `run` line is left alone and
+named in the shell's log (`journalctl --user -g tend-windows`).
+`List()` on the bus gains a `file` field.
+
+**The panel** — a `.win` row is what the file says: the name, `placed
+X Y W H` or OPENING in bold, the run line, changed when; the section's
+count is *N on the canvas, M placed*.  GONE is gone from the panel.
+
+**Measured from this seat.**  Eight tests on the command and on the
+extension's text (node parses it as the module GNOME loads; each of
+the five arrows is a line it has), two on the panel, the executor's
+desk fixture in the new shape; sixty green across the three files;
+five mutate rows, every one red.  **Red first was not seen here for
+the command's tests** — they were written beside the program, not
+before it — and the rows are what says they catch a break.  **What
+has not run**: the chain, in a shell — the fence has no session bus
+and no compositor, and the extension's every line past `node --check`
+is the third verdict.
+
+**Read again before his hand**, while the first commit's hook ran,
+because nothing here can run it: a drag would have fought its own
+write-back (the write lands in the file, the monitor fires, the read
+found the window already moved on and moved it back — now a frame is
+a hand's edit only when it differs from the one written from here);
+the display's `closing` connect is guarded, so a signal that is not
+there cannot take the whole enable with it; and the title is said
+twice, the terminal's flag and an OSC the command's shell prints
+first, in case a terminal drops the flag beside a command.  Three
+things a shell would have found in its first minute, found on a
+second reading instead — the gap is still the third verdict.
+
+**His hand, next** — from his shell, arrow by arrow:
+
+    tools/windows.py --install
+    (log out and in — the shell loads the new copy at log-in)
+    tools/windows.py --check
+    rm ~/.local/state/tend/canvas/*.win ~/.local/state/tend/canvas/*.gone   # the old mirror's files, his to rm
+    tools/windows.py open panel -- tools/panel.py           # → the file; → the window opens, placed
+    (move it)  cat ~/.local/state/tend/canvas/panel.win     # → the frame changed in the file
+    (close it from its X)  ls ~/.local/state/tend/canvas/   # → the file is gone
+    tools/windows.py open panel -- tools/panel.py; (log out and in)   # → it is back where it was
+    journalctl --user -b -g tend-windows                    # what the extension said, if an arrow did not
+
+Each arrow's verdict goes here in his words.  **Not this pass**: a
+window's contents in its file, more than one canvas, a program with
+several cells, and a carrier for nothing — the extension is its own.

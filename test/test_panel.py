@@ -881,45 +881,45 @@ def test_a_node_a_process_pulls_is_on_the_canvas_with_no_pin(tmp_path):
 # it reads GONE — never as a window.  Bold, like every row that is not
 # what it claims.
 
-WIN = ("# tools/windows.py — the shell's shallow row; an app's own row is another file\n"
-       "app org.gnome.Terminal\ntitle llm's log — tend\nfocus yes\nframe 0 32 1280 688\nat 1788700000\n")
+WIN = ("# canvas/panel.win — one file, one window (spec/canvas.md); his command wrote it\n"
+       "run tools/panel.py\ndir /home/henri/tend\nframe 40 40 1000 700\nat 1788700000\n")
 
 
-def test_a_win_is_a_row_beside_the_pins_and_a_gone_one_says_so_not_a_window(tmp_path):
+def test_a_win_is_a_row_beside_the_pins_and_one_not_yet_placed_says_so(tmp_path):
+    """The file is the window (spec/canvas.md): `run` and `dir` are his
+    command's, `frame` is the shell's, written back once the window is
+    placed — so a file with no frame is a window OPENING, and a file
+    present is never gone: close is delete."""
     canvas = tmp_path / "canvas"; canvas.mkdir()
-    (canvas / "org.gnome.Terminal-12.win").write_text(WIN)
-    (canvas / "org.gnome.TextEditor-13.gone").write_text(
-        WIN.replace("org.gnome.Terminal", "org.gnome.TextEditor").replace("focus yes", "focus no")
-           .replace("llm's log — tend", "lander.md") + "gone 1788700900\n")
+    (canvas / "panel.win").write_text(WIN)
+    (canvas / "log.win").write_text("run tail -f llm/state/log\ndir /home/henri/tend\n")
     ws = panel.read_windows(canvas)
-    assert [w.key for w in ws] == ["org.gnome.Terminal-12", "org.gnome.TextEditor-13"]
-    term, doc = ws
-    assert term.focus and term.gone is None and term.at == 1788700000 and term.title == "llm's log — tend"
-    line = panel.win_line(term)
-    assert "focused" in line and "llm's log" in line and "GONE" not in line, line
-    assert doc.gone == 1788700900 and not doc.focus
-    line = panel.win_line(doc)
-    assert "GONE" in line and "lander.md" in line and "open" not in line, line
-    assert panel._win_counts(ws) == "1 open, 1 gone"
+    assert [w.key for w in ws] == ["log", "panel"]
+    log, pnl = ws
+    assert pnl.frame == "40 40 1000 700" and pnl.at == 1788700000 and pnl.run == "tools/panel.py"
+    assert pnl.dir == "/home/henri/tend"
+    line = panel.win_line(pnl)
+    assert "placed 40 40 1000 700" in line and "tools/panel.py" in line and "OPENING" not in line, line
+    assert log.frame is None and log.at is None
+    line = panel.win_line(log)
+    assert "OPENING" in line and "tail -f" in line and "placed" not in line, line
+    assert panel._win_counts(ws) == "2 on the canvas, 1 placed"
     assert panel.read_windows(tmp_path / "none") == []
-    # the mark in the name alone (a hand's rename, no line inside) is gone at the file's time; the mark
-    # inside alone (an app's own .win that says so) is gone too — the panel reads both, GONE either way
-    bare = canvas / "org.gnome.Nautilus-21.gone"; bare.write_text(WIN.replace("org.gnome.Terminal", "org.gnome.Nautilus"))
-    os.utime(bare, (1788701760, 1788701760))
-    inside = canvas / "org.gnome.Nautilus-22.win"; inside.write_text(WIN + "gone 1788701800\n")
-    got = {w.key: w for w in panel.read_windows(canvas)}
-    assert got["org.gnome.Nautilus-21"].gone == 1788701760 and "GONE" in panel.win_line(got["org.gnome.Nautilus-21"])
-    assert got["org.gnome.Nautilus-22"].gone == 1788701800 and "GONE" in panel.win_line(got["org.gnome.Nautilus-22"])
-    # an app's own row, in its own name and without the mirror's first line, is read the same way
-    (canvas / "lander.win").write_text("app lander\ntitle the lamp, as lander sees it\nfocus no\nat 1788600000\n")
-    assert [w.key for w in panel.read_windows(canvas)][0] == "lander"
+    # a frame that is not four numbers is no frame: the window is not placed by a line the shell did not write
+    (canvas / "odd.win").write_text("run x\nframe here\n")
+    assert {w.key: w.frame for w in panel.read_windows(canvas)}["odd"] is None
+    # what is not a .win is not a window: the old mirror's .gone, a pin, a hold
+    (canvas / "org.gnome.Nautilus-21.gone").write_text(WIN)
+    (canvas / "llm.pin").write_text("node /x\n")
+    assert [w.key for w in panel.read_windows(canvas)] == ["log", "odd", "panel"]
 
 
 def test_the_panel_without_a_terminal_lists_the_windows_under_the_pins(tmp_path):
     canvas = tmp_path / "canvas"; canvas.mkdir()
-    (canvas / "org.gnome.Terminal-12.gone").write_text(WIN + "gone 1788700900\n")
+    (canvas / "panel.win").write_text(WIN)
+    (canvas / "log.win").write_text("run tail -f llm/state/log\ndir /home/henri/tend\n")
     write(tmp_path)
     r = subprocess.run(["python3", str(ROOT / "tools" / "panel.py"), "--canvas", str(canvas)],
                        capture_output=True, text=True, env=dict(os.environ, TEND_ANDON_STATE=str(tmp_path)))
     assert r.returncode == 0, r.stderr
-    assert "windows — 0 open, 1 gone" in r.stdout and "GONE" in r.stdout and "llm's log" in r.stdout, r.stdout
+    assert "windows — 2 on the canvas, 1 placed" in r.stdout and "OPENING" in r.stdout and "tools/panel.py" in r.stdout, r.stdout

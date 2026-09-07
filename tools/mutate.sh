@@ -299,13 +299,13 @@ test/test_meter.py	meter: --diff prints this run's own numbers, not the delta	se
 test/test_meter.py	meter: a week the kept run had and this one lacks is silent	sed -i "s/gone = \[p for p in old if p not in seen\]/gone = []/" tools/meter.py
 # tools/panel.py talk — 2026-09-06, card:private.md day one, first bullet: the thinking is a state by default, text on ask
 test/test_panel.py	panel: the CLI prints the reasoning text without --think	sed -i 's/^                    if think is True:$/                    if True:/' tools/panel.py
-# tools/windows.py — 2026-09-06, Henri: "time to start the work on windowing system?" (card:canvas-windows.md)
-test/test_windows.py	windows: a closed window's file is never marked gone inside	sed -i 's/^            with open(path, "a") as f:$/            with open(os.devnull, "a") as f:/' tools/windows.py
-test/test_windows.py	windows: a file the mirror did not write is marked gone like its own	sed -i 's/^        if not _mine(path):$/        if False:/' tools/windows.py
-test/test_windows.py	windows: a closed window's file keeps its .win name	sed -i 's/^        os\.replace(path, path\[:-len(".win")\] + ".gone")$/        pass/' tools/windows.py
-test/test_windows.py	windows: a shell that does not answer is read as a desk with no windows	sed -i 's/^        return 1$/        mirror([], canvas); return 1/' tools/windows.py
-# tools/panel.py's .win rows — 2026-09-06, card:canvas-windows.md day one: a file with no window behind it reads GONE
-test/test_panel.py	panel: a gone window reads as open	sed -i 's/^    state = "GONE" if w.gone is not None else/    state = "open" if w.gone is not None else/' tools/panel.py
+# tools/windows.py — 2026-09-07, his chain (spec/canvas.md): the command writes the file, the shell does the rest (card:canvas-windows.md day two)
+test/test_windows.py	windows: open writes a second file for a window that has one	sed -i 's/^    if os.path.exists(path):$/    if False:/' tools/windows.py
+test/test_windows.py	windows: open writes a file with an empty run line	sed -i 's/^    run = " ".join(command) if len(command) > 1 else command\[0\]$/    run = ""/' tools/windows.py
+test/test_windows.py	windows: a name the panel's hand would refuse is a file	sed -i 's/^    if not _LABEL.match(name or ""):$/    if False:/' tools/windows.py
+test/test_windows.py	windows: a shell that does not answer is read as a desk with no windows	sed -i 's/^        return 1$/        return 0/' tools/windows.py
+# tools/panel.py's .win rows — 2026-09-07, card:canvas-windows.md day two: a file with no frame is a window not yet placed
+test/test_panel.py	panel: a window not yet placed reads as placed	sed -i 's/^    state = f"placed {w.frame}" if w.frame else "OPENING"$/    state = f"placed {w.frame}"/' tools/panel.py
 test/test_panel.py	panel: the panel without a terminal does not list the windows	sed -i 's/^        wins = read_windows(canvas)$/        wins = []/' tools/panel.py
 # the desk as a part — 2026-09-06, card:canvas-windows.md, the windows reader: canvas/ is the canvas directory, granted read-only
 test/test_executor.py	executor: the desk is not a part of the root	sed -i 's/^    if os.path.isdir(CANVAS):$/    if False:/' tools/executor.py

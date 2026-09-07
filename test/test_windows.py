@@ -1,13 +1,14 @@
 #: asked-by: Henri, 2026-09-06 — "time to start the work on windowing system? … start steamrolling the wrinkles straight" (card:canvas-windows.md)
-"""test/test_windows.py — the record without the manager: `tools/windows.py` mirrors the shell's window list into `canvas/*.win`.
+"""test/test_windows.py — a window from a file: `tools/windows.py open` writes `canvas/NAME.win`, the shell opens the window.
 
-The shell's side is a stub of `gdbus`, the way the door's tests stand in
-for llama-server: GNOME 50.1 refuses `Introspect.GetWindows` to a plain
-caller (measured from Henri's shell, 2026-09-06, on the card), so the
-list comes from a thin extension inside the shell over its own D-Bus
-name, and the fence has no session bus at all — the extension's run is
-his hand, and what a test can hold is the mirror, the file shape, and
-that the extension parses and names the interface the mirror calls.
+His chain (spec/canvas.md, 2026-09-06) runs from a file the person's
+command writes to a window the shell places; what a test can hold from
+this seat is the first arrow — the file, its shape, what `open`
+refuses — the list read over a stub `gdbus` the way the door's tests
+stand in for llama-server, and that the extension parses as the module
+GNOME 45+ loads and names what it watches.  The chain's run — the
+window opening, moving, closing, coming back at log-in — is his hand:
+the fence has no session bus and no shell.
 """
 import importlib.util
 import json
@@ -29,12 +30,10 @@ _spec.loader.exec_module(windows)
 
 # The stub prints what `gdbus` prints: `call` answers `('<json>',)` in
 # GVariant's text form — the quote flips to `"` when the string holds a
-# `'`, and the quote and `\` are escaped — from the list in $STUB_LIST;
-# `monitor` prints one line per signal from $STUB_SIGNALS, swapping the
-# list to $STUB_LIST2 after the first, then exits like a monitor whose
-# name went away.  Every argv goes to $STUB_SEEN.
+# `'`, and the quote and `\` are escaped — from the list in $STUB_LIST.
+# Every argv goes to $STUB_SEEN.
 STUB = r'''#!/usr/bin/env python3
-import os, sys, shutil
+import os, sys
 with open(os.environ["STUB_SEEN"], "a") as f:
     f.write(" ".join(sys.argv[1:]) + "\n")
 if os.environ.get("STUB_FAIL"):
@@ -50,18 +49,12 @@ def variant(s):
     return out + q
 if sys.argv[1] == "call":
     print("(" + variant(open(os.environ["STUB_LIST"]).read().strip()) + ",)")
-elif sys.argv[1] == "monitor":
-    for i, line in enumerate(open(os.environ["STUB_SIGNALS"]).read().splitlines()):
-        print(line, flush=True)
-        if i == 0 and os.environ.get("STUB_LIST2"):
-            shutil.copy(os.environ["STUB_LIST2"], os.environ["STUB_LIST"])
-    sys.exit(0)
 '''
 
-TERM = {"id": 94551, "seq": 12, "app": "org.gnome.Terminal", "title": "llm's log — tend", "focus": True,
-        "x": 0, "y": 32, "w": 1280, "h": 688, "at": 1788700000}
+PANEL = {"id": 94551, "seq": 12, "app": "org.gnome.Ptyxis", "title": "tend:panel", "focus": True,
+         "x": 40, "y": 40, "w": 1000, "h": 700, "at": 1788700000, "file": "panel"}
 DOC = {"id": 94552, "seq": 13, "app": "org.gnome.TextEditor", "title": "lander.md", "focus": False,
-       "x": 1280, "y": 32, "w": 640, "h": 688, "at": 1788700100}
+       "x": 1280, "y": 32, "w": 640, "h": 688, "at": 1788700100, "file": ""}
 
 
 @pytest.fixture
@@ -69,20 +62,19 @@ def desk(tmp_path, monkeypatch):
     """A canvas and a stub gdbus, both the test's own."""
     stub = tmp_path / "gdbus"; stub.write_text(STUB); stub.chmod(0o755)
     seen = tmp_path / "seen"; seen.write_text("")
-    lst = tmp_path / "list.json"; lst.write_text(json.dumps([TERM, DOC]))
+    lst = tmp_path / "list.json"; lst.write_text(json.dumps([PANEL, DOC]))
     canvas = tmp_path / "canvas"
     monkeypatch.setenv("TEND_GDBUS", str(stub))
     monkeypatch.setenv("STUB_SEEN", str(seen))
     monkeypatch.setenv("STUB_LIST", str(lst))
     monkeypatch.setenv("TEND_CANVAS", str(canvas))
     monkeypatch.delenv("STUB_FAIL", raising=False)
-    monkeypatch.delenv("STUB_LIST2", raising=False)
     return tmp_path
 
 
-def run(*args, **env):
+def run(*args, cwd=None, **env):
     return subprocess.run([sys.executable, str(TOOL), *args], capture_output=True, text=True,
-                          env=dict(os.environ, **env), timeout=30)
+                          env=dict(os.environ, **env), timeout=30, cwd=cwd)
 
 
 def fields(path):
@@ -94,98 +86,56 @@ def fields(path):
     return got
 
 
-def test_once_writes_one_file_per_window_in_the_holds_shape(desk):
-    r = run("--once")
+def test_open_writes_the_file_that_is_the_window(desk):
+    """The first arrow: the command creates a file in canvas/ that holds
+    what the window is — what runs and where; the frame is the shell's
+    to write, never this program's."""
+    r = run("open", "panel", "--", "tools/panel.py", "--canvas", "x", cwd=str(desk))
     assert r.returncode == 0, r.stderr
-    canvas = desk / "canvas"
-    assert sorted(p.name for p in canvas.iterdir()) == ["org.gnome.Terminal-12.win", "org.gnome.TextEditor-13.win"]
-    t = fields(canvas / "org.gnome.Terminal-12.win")
-    assert t == {"app": "org.gnome.Terminal", "title": "llm's log — tend", "focus": "yes",
-                 "frame": "0 32 1280 688", "at": "1788700000"}, t
-    assert fields(canvas / "org.gnome.TextEditor-13.win")["focus"] == "no"
-    # the first line says who writes it: the mirror touches only its own files
-    assert (canvas / "org.gnome.Terminal-12.win").read_text().startswith("# tools/windows.py")
-    assert "2 windows" in r.stdout and "0 gone" in r.stdout, r.stdout
-    # the interface the mirror asks is the one the extension exports
+    path = desk / "canvas" / "panel.win"
+    assert path.exists() and str(path) in r.stdout, r.stdout
+    got = fields(path)
+    assert got == {"run": "tools/panel.py --canvas x", "dir": str(desk)}, got
+    assert path.read_text().startswith("# canvas/panel.win — one file, one window"), "the first line says what it is"
+    assert "frame" not in got, "where is the layout rule's until the window has been somewhere"
+    # a line the panel reads: the same file, read by the reader the desk has
+    assert "rm" in r.stdout, "close is delete, and the line says so"
+
+
+def test_open_refuses_a_second_file_for_a_window_that_has_one(desk):
+    """One file, one window (Henri, 2026-09-06: "tämä sääntö kestää")."""
+    assert run("open", "panel", "--", "tools/panel.py").returncode == 0
+    first = (desk / "canvas" / "panel.win").read_text()
+    r = run("open", "panel", "--", "something else")
+    assert r.returncode == 1 and "one file, one window" in r.stderr and "rm" in r.stderr, r.stderr
+    assert (desk / "canvas" / "panel.win").read_text() == first, "the file that is the window is not rewritten"
+
+
+def test_open_refuses_a_name_the_panel_would_and_an_empty_command(desk):
+    for bad in ("../x", ".hidden", "a b", ""):
+        r = run("open", bad, "--", "true")
+        assert r.returncode == 2 and "not a canvas name" in r.stderr, (bad, r.stderr)
+    r = run("open", "panel")
+    assert r.returncode == 2 and "nothing to run" in r.stderr, r.stderr
+    assert not (desk / "canvas").exists(), "a refused open writes nothing, not even the directory"
+
+
+def test_list_prints_the_desk_and_says_which_file_each_window_is(desk):
+    r = run("--list")
+    assert r.returncode == 0, r.stderr
+    lines = r.stdout.splitlines()
+    assert lines[0].startswith("panel.win") and "focused" in lines[0] and "40 40 1000 700" in lines[0], lines
+    assert lines[1].startswith("-") and "lander.md" in lines[1], lines
+    assert "2 on the desk, 1 on the canvas" in r.stdout, r.stdout
     seen = (desk / "seen").read_text()
     assert "call --session --dest org.tend.Windows --object-path /org/tend/Windows --method org.tend.Windows.List" in seen, seen
 
 
-def test_a_window_that_closed_leaves_its_file_marked_gone_and_the_first_mark_is_kept(desk):
-    """The card's red-first: a `.win` with no window behind it says *gone* —
-    the file outlives the window, as a hold's row outlives a death."""
-    run("--once")
-    (desk / "list.json").write_text(json.dumps([TERM]))
-    r = run("--once")
-    assert r.returncode == 0, r.stderr
-    doc = desk / "canvas" / "org.gnome.TextEditor-13.gone"
-    assert doc.exists(), "the file outlives the window — under the name that says so"
-    assert not (desk / "canvas" / "org.gnome.TextEditor-13.win").exists(), "a .win present is a window"
-    got = fields(doc)
-    assert got["gone"].isdigit() and got["title"] == "lander.md", got
-    assert "gone" not in fields(desk / "canvas" / "org.gnome.Terminal-12.win")
-    assert "1 window" in r.stdout and "1 gone" in r.stdout, r.stdout
-    first = doc.read_text()
-    run("--once")
-    assert doc.read_text() == first, "the gone line is the moment it went; a later pass does not move it"
-
-
-def test_a_file_the_mirror_did_not_write_is_never_touched(desk):
-    """Who writes: the shallow row is the mirror's, and a tend app's own
-    row beside it is the app's — the two never write each other's file."""
-    canvas = desk / "canvas"; canvas.mkdir()
-    own = canvas / "lander.win"
-    own.write_text("app lander\ntitle the lamp, as lander sees it\nfocus no\nat 1788600000\n")
-    os.utime(own, (1788600000, 1788600000))
-    run("--once")
-    (desk / "list.json").write_text("[]")
-    r = run("--once")
-    assert r.returncode == 0, r.stderr
-    assert own.read_text().startswith("app lander") and "gone" not in own.read_text()
-    assert int(os.stat(own).st_mtime) == 1788600000
-    assert "gone" in fields(canvas / "org.gnome.Terminal-12.gone")
-
-
-def test_a_shell_that_does_not_answer_leaves_the_files_alone_and_says_so(desk):
-    """Not from this seat: a shell with no extension is not a desk with no
-    windows.  Nothing is marked gone, and the line names the extension."""
-    run("--once")
-    r = run("--once", STUB_FAIL="1")
+def test_a_shell_that_does_not_answer_says_so_and_names_the_extension(desk):
+    """Not from this seat: a shell with no extension is not a desk with no windows."""
+    r = run("--list", STUB_FAIL="1")
     assert r.returncode == 1
     assert "org.tend.Windows" in r.stderr and "tend-windows@tend" in r.stderr and "ServiceUnknown" in r.stderr, r.stderr
-    for p in (desk / "canvas").iterdir():
-        assert "gone" not in fields(p) and p.suffix == ".win", p
-
-
-def test_watch_mirrors_at_start_and_on_every_signal_and_says_when_the_shell_goes_away(desk):
-    (desk / "signals").write_text("/org/tend/Windows: org.tend.Windows.Changed ()\n/org/tend/Windows: org.tend.Windows.Changed ()\n")
-    (desk / "list2.json").write_text(json.dumps([DOC]))
-    r = run("--watch", STUB_SIGNALS=str(desk / "signals"), STUB_LIST2=str(desk / "list2.json"))
-    assert r.returncode == 1, r.stderr
-    assert "went away" in r.stderr and "tend-windows@tend" in r.stderr, r.stderr
-    seen = [l for l in (desk / "seen").read_text().splitlines()]
-    assert any(l.startswith("monitor --session --dest org.tend.Windows --object-path /org/tend/Windows") for l in seen), seen
-    assert sum(1 for l in seen if l.startswith("call ")) >= 2, seen
-    canvas = desk / "canvas"
-    assert "gone" in fields(canvas / "org.gnome.Terminal-12.gone"), "the second list had no terminal"
-    assert "gone" not in fields(canvas / "org.gnome.TextEditor-13.win")
-
-
-def test_a_file_of_the_old_shape_marked_inside_is_renamed_on_the_next_pass(desk):
-    """Before 2026-09-06 16:50 the mark was a line inside `.win`; hy3 through
-    the door read names, never a row, and called a closed Nautilus open.
-    Henri: "do the rename into .gone".  A file of the mirror's own that
-    already says gone inside gets the name, and no second gone line."""
-    canvas = desk / "canvas"; canvas.mkdir()
-    old = canvas / "org.gnome.Nautilus-21.win"
-    old.write_text(windows.MINE + "\napp org.gnome.Nautilus\ntitle Home\nfocus no\nframe 0 0 1 1\nat 1788701757\ngone 1788701760\n")
-    (desk / "list.json").write_text("[]")
-    r = run("--once")
-    assert r.returncode == 0, r.stderr
-    assert not old.exists() and (canvas / "org.gnome.Nautilus-21.gone").exists()
-    text = (canvas / "org.gnome.Nautilus-21.gone").read_text()
-    assert text.count("gone ") == 1 and "gone 1788701760" in text, text
-    assert "0 windows" in r.stdout and "1 gone" in r.stdout, r.stdout
 
 
 def test_the_gdbus_text_is_read_as_the_string_it_carries():
@@ -199,22 +149,24 @@ def test_the_gdbus_text_is_read_as_the_string_it_carries():
         windows.parse_call("not a variant")
 
 
-def test_a_key_is_a_canvas_label():
-    assert windows.key({"app": "org.gnome.Terminal", "seq": 12}) == "org.gnome.Terminal-12"
-    assert windows.key({"app": "", "seq": 3}) == "window-3"
-    assert windows.key({"app": "../x y/z", "seq": 3}) == "x-y-z-3"
-
-
-def test_the_extension_parses_and_names_the_interface_the_mirror_calls(tmp_path):
+def test_the_extension_parses_and_holds_the_chains_five_arrows(tmp_path):
     """What a test can hold of code that runs inside the shell: it parses
     as the module GNOME 45+ loads, its uuid is its directory, it targets
-    this shell's version, and its name and path are the mirror's."""
+    this shell's version, it watches the canvas the command writes to,
+    starts a terminal whose title is the file's name, and its bus name
+    and path are the ones `--list` asks."""
     meta = json.loads((EXT / "metadata.json").read_text())
     assert meta["uuid"] == EXT.name == "tend-windows@tend"
     assert "50" in meta["shell-version"], meta
     src = (EXT / "extension.js").read_text()
     assert windows.BUS_NAME in src and windows.OBJECT_PATH in src and 'name="List"' in src and 'name="Changed"' in src
     assert "export default class" in src and "resource:///org/gnome/shell/extensions/extension.js" in src
+    # the five arrows, each a line the extension has
+    assert "monitor_directory" in src, "→ the file in canvas/ is what opens the window"
+    assert f"'{windows.TITLE}'" in src and "--title=" in src and "spawn_async" in src, "→ opens, in a terminal that says which file it is"
+    assert "move_resize_frame" in src and "writeFrame" in src, "→ placed, and a move written back"
+    assert "_closing" in src and "'closing'" in src, "→ going down with the shell is not a close"
+    assert ".delete(" in src, "→ closed from its X removes the file; the file removed closes the window"
     node = shutil.which("node")
     if not node:
         pytest.skip("no node here to parse the module — not checked from this seat")

@@ -1,84 +1,64 @@
 #!/usr/bin/env python3
 #: asked-by: Henri, 2026-09-06 — "time to start the work on windowing system? … start steamrolling the wrinkles straight" (card:canvas-windows.md)
-"""tools/windows.py — the record without the manager: the shell's window list, mirrored into `canvas/*.win`.
+"""tools/windows.py — a window from a file: his command writes `canvas/NAME.win`, and the shell opens the window.
 
-    tools/windows.py --once [--canvas DIR]    mirror the list now, one file per window
-    tools/windows.py --watch [--canvas DIR]   mirror now, and again at every change the shell signals
+    tools/windows.py open NAME -- COMMAND…    write canvas/NAME.win; the window opens on the desk
+    tools/windows.py --list                   the shell's window list, printed (which file each is)
     tools/windows.py --install                copy the extension under ~/.local/share/gnome-shell/extensions
                                               and say what his hand does next
     tools/windows.py --check                  three verdicts: the extension installed, enabled, answering
 
-A window is a thing held, and nothing on the person's side records it
-(`card:canvas-windows.md`): the windows are state in the compositor's
-memory, a crash of the shell loses the layout, and a session that could
-say "you have lander.md open" has no file to say it from.  This is the
-hold card's rule one shelf over — **a window's state is a file on the
-person's side** — `<app>-<seq>.win` in the canvas directory, beside the
-pins and holds, read by the same readers:
+Henri's chain (spec/canvas.md, 2026-09-06): *the user wants to open a
+window → their command creates a file in canvas/ that holds the
+window's state → the window opens on the screen at a predetermined
+place → a move changes the file → after a shutdown and a start the
+windows come back where they were → the user closes the window and
+the file disappears from the canvas.*  This is the first arrow.  One
+file, one window (his rule, "tämä sääntö kestää"):
 
-    # tools/windows.py — the shell's shallow row; an app's own row is another file
-    app    org.gnome.Terminal
-    title  llm's log — tend
-    focus  yes
-    frame  0 32 1280 688
-    at     1788700000          the window's last change, epoch seconds
-    gone   1788700900          only once the window has closed: when — and then
-                               the file is `<app>-<seq>.gone`
+    # canvas/panel.win — one file, one window (spec/canvas.md); his command wrote it
+    run tools/panel.py            what runs in it, a shell line
+    dir /home/henri/tend          where it runs
+    frame 40 40 1000 700          where the window is — written back by the shell, never from here
+    at 1788700000                 the last change the shell saw
 
-**Presence is the claim** — a `.win` present is a window; **the file
-outlives the window** and says so twice, with a `gone` line inside
-and with its name: the mirror renames it `<key>.gone`, so `ls` says
-gone to the cheapest reader.  The name came second: the mark was a
-line inside until 2026-09-06 16:50, when hy3 through the door read
-`ls canvas/`, never a row, and called a Nautilus closed fourteen
-minutes open — Henri: "do the rename into .gone".  The panel reads
-both names and shows GONE for either.  The first `gone` is the moment
-it went; a `.gone` is never touched again.  **Who writes**: the mirror writes
-the shallow row for every window and touches only files whose first
-line is its own — a tend app's richer row beside it, in its own name,
-is the app's, and the two never write each other's file.
+**The rest of the chain is the extension**, `tools/tend-windows@tend`,
+inside the shell: it watches the canvas, starts a `.win` in a terminal
+whose title says which file it is (`ptyxis --title=tend:NAME -- sh -c
+RUN`), places the window at `frame` or by the layout rule when the
+file gives none, writes a move back, starts every file again at
+log-in, removes the file when the window is closed from its X and
+closes the window when the file is removed.  A window whose title
+does not begin `tend:` is a legacy window, on neither the canvas nor
+the panel (Henri, 2026-09-06).  **Only tend-compatible programs**: the
+mirror of every window this program was on 2026-09-06 is gone by the
+card's signed `done` line — `ls canvas/` shows nothing he did not put
+there — and so is `.gone`: close is delete.
 
-**Where the list comes from.**  GNOME 50.1 refuses
-`org.gnome.Shell.Introspect.GetWindows` to a caller not on its
-allow-list (from Henri's shell, 2026-09-06: `AccessDenied: GetWindows
-is not allowed`), so the list is read from inside the shell by
-`tools/tend-windows@tend`, a thin extension that publishes it as
-`org.tend.Windows` on the session bus — `List() -> s` (JSON) and a
-`Changed` signal — and this program asks over `gdbus`, which is on
-every GNOME desk; python's `gi` is not (it is not here).  Not from
-this seat: a shell that does not answer is not a desk with no windows
-— nothing is marked gone, the line says which name did not answer,
-and the exit is 1.  A session inside the fence has no session bus at
-all; this runs on the person's side, from his shell, and the session
-sees the files.
-
-**What it does not do.**  Move, close or focus a window: it reads the
-desk and writes files.  Sweep: a `.gone` is the person's to remove
-(or the app's whose window it was), and a window that returns under
-an old key gets a fresh `.win` beside the old `.gone`.  Keep itself alive: `--watch` is
-the loop, a carrier for it is the tick's question and not day one's.
-And it does not know a window across a shell restart — the sequence
-starts over, and a new window may take an old file's name; the `at`
-and `gone` lines are what says which.
+**Where the list comes from** (`--list`, `--check`): GNOME 50.1
+refuses `org.gnome.Shell.Introspect.GetWindows` to a caller not on
+its allow-list (from Henri's shell, 2026-09-06), so the extension
+publishes it as `org.tend.Windows` — `List() -> s` (JSON) and a
+`Changed` signal — and this program asks over `gdbus`.  A session
+inside the fence has no session bus at all; `open` needs none, it
+writes a file, and the shell does the rest on the person's side.
 """
 import ast
 import json
 import os
 import re
-import select
 import shutil
 import subprocess
 import sys
-import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXTENSION = "tend-windows@tend"
 EXT_SRC = os.path.join(HERE, EXTENSION)
 BUS_NAME = "org.tend.Windows"
 OBJECT_PATH = "/org/tend/Windows"
+TITLE = "tend:"
 CANVAS_DEFAULT = os.path.join(os.path.expanduser("~"), ".local", "state", "tend", "canvas")
-MINE = "# tools/windows.py — the shell's shallow row; an app's own row is another file"
-_LABEL = re.compile(r"[^A-Za-z0-9._-]+")
+_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
 def canvas_dir(d=None):
@@ -116,122 +96,51 @@ def fetch():
     return parse_call(r.stdout)
 
 
-def key(w):
-    """`<app>-<seq>`: a canvas label — a name the panel's hand would accept."""
-    app = _LABEL.sub("-", str(w.get("app") or "")).strip("-.")
-    return f"{app or 'window'}-{int(w.get('seq', 0))}"
+def win_text(name, run, cwd):
+    return (f"# canvas/{name}.win — one file, one window (spec/canvas.md); his command wrote it\n"
+            f"run {run}\ndir {cwd}\n")
 
 
-def _row(w):
-    return (f"{MINE}\napp {w.get('app', '')}\ntitle {str(w.get('title', '')).replace(chr(10), ' ')}\n"
-            f"focus {'yes' if w.get('focus') else 'no'}\n"
-            f"frame {int(w.get('x', 0))} {int(w.get('y', 0))} {int(w.get('w', 0))} {int(w.get('h', 0))}\n"
-            f"at {int(w.get('at', 0))}\n")
-
-
-def _mine(path):
-    try:
-        with open(path) as f:
-            return f.readline().rstrip("\n") == MINE
-    except OSError:
-        return False
-
-
-def _has_gone(path):
-    try:
-        with open(path) as f:
-            return any(line.startswith("gone ") for line in f)
-    except OSError:
-        return False
-
-
-def mirror(rows, canvas=None, at=None):
-    """Write the rows; mark every file of this mirror's own whose window is not
-    in them gone, once.  Returns (windows, gone)."""
+def open_window(name, command, canvas=None, cwd=None):
+    """The first arrow: the file.  Refuses a name the panel's hand would,
+    an empty command, and a name whose file is there — one file, one
+    window, and the window is up or opening.  Returns 0, 2 or 1."""
+    if not _LABEL.match(name or ""):
+        sys.stderr.write(f"windows: {name!r} is not a canvas name (letters, digits, . _ -; not starting with .)\n")
+        return 2
+    if not command:
+        sys.stderr.write("windows: open NAME -- COMMAND… — nothing to run in the window\n")
+        return 2
     d = canvas_dir(canvas)
+    path = os.path.join(d, name + ".win")
+    if os.path.exists(path):
+        sys.stderr.write(f"windows: {path} is there — one file, one window; rm it to close that one first\n")
+        return 1
     os.makedirs(d, exist_ok=True)
-    present = {}
-    for w in rows:
-        present[key(w) + ".win"] = w
-    for name, w in present.items():
-        path = os.path.join(d, name)
-        text = _row(w)
-        try:
-            with open(path) as f:
-                if f.read() == text:
-                    continue
-        except OSError:
-            pass
-        tmp = path + ".tmp"
-        with open(tmp, "w") as f:
-            f.write(text)
-        os.replace(tmp, path)
-    gone = 0
-    for name in sorted(os.listdir(d)):
-        path = os.path.join(d, name)
-        if name.endswith(".gone"):
-            if _mine(path):
-                gone += 1     # marked on an earlier pass; never touched again
-            continue
-        if not name.endswith(".win") or name in present:
-            continue
-        if not _mine(path):
-            continue          # somebody else's row: never touched from here
-        if not _has_gone(path):
-            with open(path, "a") as f:
-                f.write(f"gone {int(at if at is not None else time.time())}\n")
-        # the mark into the name (Henri, 2026-09-06: "do the rename into .gone"): a .win present is a
-        # window, and ls says gone to the cheapest reader — the one that read names and called a
-        # closed Nautilus open
-        os.replace(path, path[:-len(".win")] + ".gone")
-        gone += 1
-    return len(present), gone
+    run = " ".join(command) if len(command) > 1 else command[0]
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        f.write(win_text(name, run, cwd or os.getcwd()))
+    os.replace(tmp, path)
+    print(f"windows: {path} — the shell opens it; `rm` closes it")
+    return 0
 
 
-def once(canvas=None):
+def list_windows():
     try:
         rows = fetch()
     except ValueError as e:
         sys.stderr.write(f"windows: {BUS_NAME} did not answer — the {EXTENSION} extension is not enabled in "
-                         f"this shell, or this is not the desk's session bus; the files are left as they are.\n  {e}\n")
+                         f"this shell, or this is not the desk's session bus.\n  {e}\n")
         return 1
-    n, gone = mirror(rows, canvas)
-    print(f"windows: {n} window{'s' if n != 1 else ''} on {canvas_dir(canvas)}, {gone} gone")
+    for w in rows:
+        file = w.get("file") or ""
+        print(f"{(file + '.win') if file else '-':28} {'focused' if w.get('focus') else 'open':8} "
+              f"{int(w.get('x', 0))} {int(w.get('y', 0))} {int(w.get('w', 0))} {int(w.get('h', 0)):<6} "
+              f"{w.get('app', '')}  {w.get('title', '')}")
+    on = sum(1 for w in rows if w.get("file"))
+    print(f"windows: {len(rows)} on the desk, {on} on the canvas")
     return 0
-
-
-def watch(canvas=None):
-    """Mirror now, then on every `Changed` the shell signals, coalescing a
-    burst (a drag is many) into one pass; when the monitor ends, the
-    shell went away — say so and exit 1, so a carrier can restart it."""
-    if once(canvas) != 0:
-        return 1
-    cmd = [gdbus(), "monitor", "--session", "--dest", BUS_NAME, "--object-path", OBJECT_PATH]
-    try:
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    except OSError as e:
-        sys.stderr.write(f"windows: {cmd[0]}: {e}\n")
-        return 1
-    dirty = False
-    while True:
-        ready, _, _ = select.select([p.stdout], [], [], 0.3)
-        if ready:
-            line = p.stdout.readline()
-            if line == "":
-                break
-            dirty = True
-            continue
-        if dirty:
-            dirty = False
-            if once(canvas) != 0:
-                p.terminate()
-                return 1
-    if dirty:
-        once(canvas)
-    p.wait()
-    sys.stderr.write(f"windows: the monitor on {BUS_NAME} ended — the shell went away, or {EXTENSION} was disabled; "
-                     f"run --watch again once it is back.\n")
-    return 1
 
 
 def install():
@@ -270,14 +179,14 @@ def check():
         print("· no gnome-extensions here — enabled not checked from here")
     try:
         rows = fetch()
-        print(f"✓ {BUS_NAME} answers: {len(rows)} windows")
+        print(f"✓ {BUS_NAME} answers: {len(rows)} windows, {sum(1 for w in rows if w.get('file'))} on the canvas")
     except ValueError as e:
         print(f"✗ {BUS_NAME} does not answer — {e}"); fail = 1
     return fail
 
 
 def main(argv):
-    canvas = None; verb = None
+    canvas = None; verb = None; name = None; command = []
     args = list(argv[1:])
     while args:
         a = args.pop(0)
@@ -287,14 +196,22 @@ def main(argv):
             canvas = args.pop(0)
         elif a.startswith("--canvas="):
             canvas = a[len("--canvas="):]
-        elif a in ("--once", "--watch", "--install", "--check") and verb is None:
+        elif a in ("--list", "--install", "--check") and verb is None:
             verb = a
+        elif a == "open" and verb is None:
+            verb = a
+            if args and not args[0].startswith("-"):
+                name = args.pop(0)
+            if args and args[0] == "--":
+                args.pop(0)
+            command, args = args, []
         else:
             sys.stderr.write(f"windows: unknown argument {a!r}\n"); return 2
     if verb is None:
         sys.stdout.write(__doc__); return 2
-    return {"--once": lambda: once(canvas), "--watch": lambda: watch(canvas),
-            "--install": install, "--check": check}[verb]()
+    if verb == "open":
+        return open_window(name, command, canvas)
+    return {"--list": list_windows, "--install": install, "--check": check}[verb]()
 
 
 if __name__ == "__main__":

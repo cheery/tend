@@ -44,15 +44,14 @@ dies (tools/launch.sh, card:canvas.md day two) in the log column beside
 the andon's own lines, one timeline.  It shows; it never rings for a death
 (the panel's rule: not a second andon).
 
-**The windows** (card:canvas-windows.md, 2026-09-06).  A window is a
-thing held, and `tools/windows.py` mirrors the shell's list into
-`<app>-<seq>.win` beside the pins — app, title, focus, frame, the time
-of its last change — and marks a closed window's file `gone` rather
-than removing it — renamed `<app>-<seq>.gone`, as a hold's row
-outlives a death.  The panel shows one row per `.win` or `.gone`; a
-gone one is bold and says GONE, never a window.
-The panel reads; the mirror writes; and an app's own `.win` in its own
-name is read the same way.
+**The windows** (card:canvas-windows.md; spec/canvas.md, his chain of
+2026-09-06).  The file is the window: his command (`tools/windows.py
+open NAME -- COMMAND`) writes `<name>.win` beside the pins — `run` and
+`dir` — and the shell's extension opens the window, places it, and
+writes `frame` and `at` back; a file with no frame is a window not yet
+placed, shown OPENING and bold.  One file, one window; close is
+delete, so a `.win` present is never gone.  The panel reads; it never
+writes one.
 
 **The person's hand** (card:hold.md, 2026-08-29 — Henri: "the andon
 panel should have a tool to insert .pin and .hold files to the canvas,
@@ -540,18 +539,17 @@ def read_pin_state(name, node, state, canvas_dir=None):
                pulled_by, read_pulls(node))
 
 
-# --- the windows: a window is a thing held, and its file is on the canvas (card:canvas-windows.md, 2026-09-06) ---
-# `<app>-<seq>.win`, written by tools/windows.py from the shell's list, or by a tend app in its
-# own name beside it.  Presence is the claim; a window closed is the file kept and renamed
-# `<key>.gone` (a `gone` line inside says when; a `.win` that says gone inside is gone too),
-# read here as GONE and never as a window.  The panel never writes one.
+# --- the windows: the file is the window (card:canvas-windows.md day two; spec/canvas.md, his chain) ---
+# `<name>.win`, his command's (`tools/windows.py open`): `run` what runs in it, `dir` where, `frame`
+# where the window is — written back by the shell's extension, so a file with no frame is a window
+# not yet placed — and `at` the last change the shell saw.  One file, one window; close is delete,
+# so a `.win` present is a window up or opening, never gone.  The panel never writes one.
 
-Win = namedtuple("Win", "key app title focus frame at gone path")
+Win = namedtuple("Win", "key run dir frame at path")
 
 
 def _read_win(path):
-    name = os.path.basename(path)
-    key = name[:-len(".gone")] if name.endswith(".gone") else name[:-len(".win")]
+    key = os.path.basename(path)[:-len(".win")]
     got = {}
     with open(path) as f:
         for line in f:
@@ -560,25 +558,23 @@ def _read_win(path):
                 continue
             k, _, v = line.partition(" ")
             got[k] = v.strip()
-
-    def epoch(word):
-        try:
-            return int(got[word])
-        except (KeyError, ValueError):
-            return None
-    gone = epoch("gone")
-    if gone is None and name.endswith(".gone"):
-        gone = int(os.stat(path).st_mtime)   # the name says gone and the file does not say when: its own time
-    return Win(key, got.get("app", ""), got.get("title", ""), got.get("focus", "").lower() in ("yes", "true", "1"),
-               got.get("frame", ""), epoch("at"), gone, path)
+    try:
+        at = int(got["at"])
+    except (KeyError, ValueError):
+        at = None
+    frame = got.get("frame", "")
+    words = frame.split()
+    if len(words) != 4 or not all(w.lstrip("-").isdigit() for w in words):
+        frame = None      # not a frame the shell wrote: the window is not placed
+    return Win(key, got.get("run", ""), got.get("dir", ""), frame, at, path)
 
 
 def read_windows(canvas_dir=None):
-    """Every `*.win` and `*.gone` on the canvas, in name order; a missing canvas is none."""
+    """Every `*.win` on the canvas, in name order; a missing canvas is none."""
     d = _canvas_dir(canvas_dir)
     wins = []
     try:
-        names = sorted(n for n in os.listdir(d) if n.endswith((".win", ".gone")))
+        names = sorted(n for n in os.listdir(d) if n.endswith(".win"))
     except OSError:
         return wins
     for n in names:
@@ -590,20 +586,16 @@ def read_windows(canvas_dir=None):
 
 
 def _win_counts(wins):
-    gone = sum(1 for w in wins if w.gone is not None)
-    return f"{len(wins) - gone} open, {gone} gone"
+    placed = sum(1 for w in wins if w.frame)
+    return f"{len(wins)} on the canvas, {placed} placed"
 
 
 def win_line(w):
-    """A window's row, as one line: GONE is a file with no window behind it."""
-    state = "GONE" if w.gone is not None else ("focused" if w.focus else "open")
-    bits = [w.key.ljust(28), state.ljust(7), w.title or "(no title)"]
-    if w.app and not w.key.startswith(w.app):
-        bits.append(f"({w.app})")
+    """A window's row, as one line: OPENING is a file whose window the shell has not placed yet."""
+    state = f"placed {w.frame}" if w.frame else "OPENING"
+    bits = [w.key.ljust(28), state.ljust(24), w.run or "(no run line)"]
     if w.at:
         bits.append(f"changed {_when(w.at)}")
-    if w.gone is not None:
-        bits.append(f"gone {_when(w.gone)}")
     return "  ".join(bits)
 
 
@@ -1286,7 +1278,7 @@ def _tui(stdscr, canvas=None):
         if wins:
             put(row, 2, f"windows — {_win_counts(wins)}", curses.A_BOLD); row += 1
             for wn in wins:
-                put(row, 4, win_line(wn), curses.A_BOLD if wn.gone is not None else 0); row += 1
+                put(row, 4, win_line(wn), curses.A_BOLD if wn.frame is None else 0); row += 1
         row += 1
         if not st.pending:
             put(row, 2, "nothing pending — the floor is quiet."); row += 1
