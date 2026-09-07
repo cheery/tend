@@ -547,3 +547,41 @@ second reading instead — the gap is still the third verdict.
 Each arrow's verdict goes here in his words.  **Not this pass**: a
 window's contents in its file, more than one canvas, a program with
 several cells, and a carrier for nothing — the extension is its own.
+
+## Run by his hand — 2026-09-07, 13:1x: four arrows of five
+
+Henri: *"When I log out, the window closed but it did not come back
+when I logged in.. Other than that.  It's exactly how I want it!"*
+
+So, on the live desk: the command's file opened a window, placed; a
+move changed the file; the X removed it; the second `open` opened it
+again.  The fifth arrow — back where it was after a log-out — did not
+hold, and the canvas said why before anybody asked: read from the
+session's seat at 13:14, the directory was empty and its own time was
+13:12:46, the log-out.  **The file went at log-out**, so at log-in
+there was nothing to start.
+
+**Why.**  At log-out gnome-session tells every application to quit
+while the shell still runs; the panel's terminal exited, its window
+was unmanaged, and from inside the shell that is the same signal as
+the X.  Both guards — the extension's own `disable`, the display's
+`closing` — come after the windows are gone, which is what §"Read
+again" called the gap that stays the third verdict.
+
+**The fix, the same hour**, two mechanisms in the extension and no
+heuristic about which one fires: the shell's own end-session dialog
+emits `ConfirmedLogout` / `ConfirmedReboot` / `ConfirmedShutdown` on
+the session bus when he confirms, and login1 emits
+`PrepareForShutdown` on the system bus before a shutdown from
+anywhere — either marks the extension closing before a window goes,
+and `Canceled` marks it open again.  And a close's delete waits three
+seconds (`CLOSE_GRACE`): a log-out that shows no dialog takes the
+shell down inside that, and the delete never runs.  The cost is the
+file lingering three seconds after an X, which `ls` in that window
+can see.  Not gated from here: node parses it and the test names the
+three lines; the run is the same steps as before, from the
+`--install` and a log-out on.
+
+**Still not seen on the live desk**: the fifth arrow itself — a file
+that survives the log-out being started at log-in, at its frame — and
+the three-second file after an X.  His next run says.

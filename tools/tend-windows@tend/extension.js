@@ -23,7 +23,13 @@
 // when the file gives none; a move or resize writes the frame back; a
 // `frame` edited by hand moves the window; the window closed from its X
 // removes the file; the file removed closes the window.  Windows going
-// down with the shell are not closed: after `disable` no file is removed.
+// down with the shell are not closed — and from in here they look the
+// same: at log-out gnome-session tells every app to quit while the shell
+// still runs (Henri's desk, 2026-09-07 13:12: the file went, the window
+// did not come back).  So the shell's end-session dialog, confirmed, and
+// login1's PrepareForShutdown mark this closing before the windows go,
+// and a close's delete waits CLOSE_GRACE seconds — a log-out with no
+// dialog takes the shell down before the delete fires.
 //
 // The list stays published for a reader — org.tend.Windows at
 // /org/tend/Windows, `List() -> s` (JSON rows: id, seq, app, title,
@@ -55,6 +61,9 @@ const TERMINAL = ['ptyxis'];           // `--title=tend:NAME -- sh -c RUN`; a `-
 const CASCADE = 40;                    // the layout rule: each new window forty pixels on from the last
 const CASCADE_W = 1000, CASCADE_H = 700;
 const RELAUNCH_AFTER = 15;             // seconds before a started file with no window yet is started again
+const CLOSE_GRACE = 3;                 // seconds a close waits before its file goes: a log-out ends the shell first
+const END_SESSION_IFACE = 'org.gnome.SessionManager.EndSessionDialog';   // the shell's own dialog, on the session bus
+const END_SESSION_PATH = '/org/gnome/SessionManager/EndSessionDialog';
 const WINDOW_SIGNALS = ['notify::title', 'position-changed', 'size-changed', 'focus', 'unmanaged'];
 
 function now() {
@@ -143,6 +152,29 @@ export default class TendWindows extends Extension {
         this._files = new Map();       // name -> {path, window, started, frame}
         this._byWindow = new Map();    // window -> name
         this._placed = 0;
+        this._pending = new Set();     // the closes waiting out CLOSE_GRACE (GLib source ids)
+        // the session's end, before the windows go: the dialog confirmed, or a shutdown announced
+        this._endSession = Gio.DBus.session.signal_subscribe(null, END_SESSION_IFACE, null, END_SESSION_PATH, null,
+            Gio.DBusSignalFlags.NONE, (_c, _s, _p, _i, signal) => {
+                if (signal.startsWith('Confirmed')) {
+                    this._closing = true;
+                    log(`${signal}: the session is ending — no file is removed from here on`);
+                } else if (signal === 'Canceled' || signal === 'Closed') {
+                    this._closing = false;
+                }
+            });
+        try {
+            this._shutdown = Gio.DBus.system.signal_subscribe(null, 'org.freedesktop.login1.Manager', 'PrepareForShutdown',
+                '/org/freedesktop/login1', null, Gio.DBusSignalFlags.NONE, (_c, _s, _p, _i, _sig, params) => {
+                    if (params.get_child_value(0).get_boolean()) {
+                        this._closing = true;
+                        log('PrepareForShutdown: no file is removed from here on');
+                    }
+                });
+        } catch (e) {
+            this._shutdown = 0;
+            log(`no system bus for PrepareForShutdown (${e.message})`);
+        }
         this._dbus = Gio.DBusExportedObject.wrapJSObject(IFACE, this);
         this._dbus.export(Gio.DBus.session, OBJECT_PATH);
         this._owner = Gio.bus_own_name(Gio.BusType.SESSION, BUS_NAME, Gio.BusNameOwnerFlags.NONE,
@@ -186,6 +218,17 @@ export default class TendWindows extends Extension {
     disable() {
         // first: from here on a window going away is the shell going down, never a close
         this._closing = true;
+        for (const id of this._pending ?? [])
+            GLib.source_remove(id);
+        this._pending = null;
+        if (this._endSession) {
+            Gio.DBus.session.signal_unsubscribe(this._endSession);
+            this._endSession = 0;
+        }
+        if (this._shutdown) {
+            Gio.DBus.system.signal_unsubscribe(this._shutdown);
+            this._shutdown = 0;
+        }
         if (this._monitor) {
             this._monitor.cancel();
             this._monitor = null;
@@ -350,19 +393,30 @@ export default class TendWindows extends Extension {
             const entry = this._files.get(name);
             if (entry && entry.window === w) {
                 entry.window = null;
-                if (!this._closing) {
-                    // closed from its X: the file goes (his 17:35).  Going down with the shell is not a close.
-                    this._files.delete(name);
-                    try {
-                        Gio.File.new_for_path(entry.path).delete(null);
-                        log(`${name}: window closed, file removed`);
-                    } catch (e) {
-                        log(`${name}: window closed, cannot remove ${entry.path}: ${e.message}`);
-                    }
-                }
+                if (!this._closing)
+                    this._closeLater(name, entry);
             }
         }
         this._signal();
+    }
+
+    // Closed from its X: the file goes (his 17:35) — after CLOSE_GRACE, so that a shell going down
+    // with the session (every window closing at once, and this process next) never gets this far.
+    _closeLater(name, entry) {
+        const id = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, CLOSE_GRACE, () => {
+            this._pending?.delete(id);
+            if (this._closing || !this._files || this._files.get(name) !== entry || entry.window)
+                return GLib.SOURCE_REMOVE;      // the session ended, or the window is back under its name
+            this._files.delete(name);
+            try {
+                Gio.File.new_for_path(entry.path).delete(null);
+                log(`${name}: window closed, file removed`);
+            } catch (e) {
+                log(`${name}: window closed, cannot remove ${entry.path}: ${e.message}`);
+            }
+            return GLib.SOURCE_REMOVE;
+        });
+        this._pending.add(id);
     }
 
     _changed(w, what) {
