@@ -25,10 +25,12 @@ needs_bwrap = pytest.mark.skipif(
     reason="no bubblewrap here, or already inside the fence — the rewritten command cannot run")
 
 
-def hook(command, allow=None):
+def hook(command, allow=None, trees=None):
     env = {"PATH": "/usr/bin:/bin", "HOME": str(pathlib.Path.home())}
     if allow is not None:
         env["TEND_REACH_ALLOW"] = allow
+    if trees is not None:
+        env["TEND_TREES"] = trees
     payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}})
     out = subprocess.run(["bash", str(HOOK)], input=payload, capture_output=True,
                          text=True, env=env, cwd=ROOT)
@@ -36,8 +38,8 @@ def hook(command, allow=None):
     return json.loads(out.stdout) if out.stdout.strip() else None
 
 
-def rewritten(command, allow=None):
-    return hook(command, allow)["hookSpecificOutput"]["updatedInput"]["command"]
+def rewritten(command, allow=None, trees=None):
+    return hook(command, allow, trees)["hookSpecificOutput"]["updatedInput"]["command"]
 
 
 def test_it_parses():
@@ -126,6 +128,20 @@ def test_every_requested_row_must_be_in_the_bound():
 def test_there_is_no_nofence():
     assert "NOFENCE" not in HOOK.read_text(encoding="utf-8").split("set -euo pipefail")[1]
     assert rewritten("NOFENCE=1 ls").startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh -- {ROOT}/tools/sandbox.sh")
+
+
+def test_the_trees_the_person_named_cross_into_the_sandbox():
+    """F029.  `tools/reach-allow.sh --trees` writes TEND_TREES onto the hook's
+    own command line, and that is the hook's environment — the rewritten
+    command runs in the harness's, where nothing from the line exists.
+    Only what the hook writes into the command crosses the seam, and
+    until 2026-09-22 it wrote TEND_TREE alone, so the sandbox fell to its
+    default (`~/gestate`), which was the setting for as long as anyone
+    looked.  Set empty is a bind of none (test_reach_allow.py) and must
+    cross as empty, not as unset — unset is the default again."""
+    assert rewritten("ls", trees="/a:/b").startswith(f"TEND_TREE={ROOT} TEND_TREES='/a:/b' {ROOT}/tools/leash.sh")
+    assert rewritten("ls", trees="").startswith(f"TEND_TREE={ROOT} TEND_TREES='' {ROOT}/tools/leash.sh")
+    assert rewritten("ls").startswith(f"TEND_TREE={ROOT} {ROOT}/tools/leash.sh")
 
 
 # ── card:rewritten-command.md day one — refuse the route ─────────────────

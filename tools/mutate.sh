@@ -202,6 +202,7 @@ test/test_toolbox.py	toolbox: --check claims a change	sed -i "s/nothing was chan
 test/test_node.py	node: the pull ledger renamed	sed -i "s/\.pull/\.pxll/g" node/node.py
 test/test_leash.py	leash: the hang message changed	sed -i "s/budget is spent/all gone/" tools/leash.sh
 test/test_fence_hook.py	fence-hook: the leash prefix dropped	sed -i "s#tools/leash.sh -- ##g" tools/fence-hook.sh
+test/test_fence_hook.py	fence-hook: the person's trees bound stops at the hook (F029)	sed -i 's/^  env_="\$env_ TEND_TREES=.*/  :/' tools/fence-hook.sh
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py

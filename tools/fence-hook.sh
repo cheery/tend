@@ -161,10 +161,21 @@ for row in "${rows[@]}"; do
 done
 
 quoted="$(printf '%s' "$cmd" | jq -Rsr 'rtrimstr("\n") | @sh')"
+# What the hook's line sets is the hook's environment, not the rewritten
+# command's: the harness runs that in its own, and only what is written
+# into the command crosses.  TEND_TREES is the person's bound
+# (`tools/reach-allow.sh --trees`), and until 2026-09-22 it stopped here —
+# the sandbox fell to its default, which was the setting, so nobody saw
+# (F029).  Set empty is a bind of none and crosses as empty; unset stays
+# unset, which is the default again.
+env_="TEND_TREE=$root"
+if [[ -n ${TEND_TREES+set} ]]; then
+  env_="$env_ TEND_TREES=$(printf '%s' "$TEND_TREES" | jq -Rsr '@sh')"
+fi
 if [[ -n $reach ]]; then
-  wrapped="TEND_TREE=$root $here/leash.sh -- $here/sandbox.sh --reach $reach bash -c $quoted"
+  wrapped="$env_ $here/leash.sh -- $here/sandbox.sh --reach $reach bash -c $quoted"
 else
-  wrapped="TEND_TREE=$root $here/leash.sh -- $here/sandbox.sh bash -c $quoted"
+  wrapped="$env_ $here/leash.sh -- $here/sandbox.sh bash -c $quoted"
 fi
 
 jq -n --arg w "$wrapped" --arg r "$reach" \
