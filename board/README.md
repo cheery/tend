@@ -192,6 +192,16 @@ between two workable cards is Henri's.
     omaa sääntöänsä"; its `done` line is a session's draft and
     unsigned, so by its own rule nothing on it is built until his
     line is there; the tiebreak is his.*
+15. **[protocol](protocol.md)** — a program a model writes carries its
+    why nowhere a machine checks, and the places it goes wrong are the
+    interfaces: a protocol, what may be sent, in what order, and what is
+    possible after — and this tree's own wires, `pull` and `connect`,
+    are typed by nothing.  *Placed last by the session that wrote it on
+    2026-09-22, at Henri's "it'd be tend's project" and the transcript's
+    "Ok.  Tehdään jotakin valmiiksi sitten"
+    (`doc/notes/lineaarilogiikka-kieli-keskustelu.md`); its `done` line is a
+    session's draft and unsigned, and its name is a question on the
+    card; the tiebreak is his.*
 
 ## Finished
 
