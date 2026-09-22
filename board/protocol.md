@@ -77,7 +77,7 @@ henri: )*
 *(question, his call — where on the priority?  A session places a new
 card last; the transcript's "omaksi ilokseni" says it may belong
 there, and "tehdään jotakin valmiiksi" says it should not stay there
-unworked.  henri: )*
+unworked.  henri: we start on it once we've decided the name 2026-09-22)*
 
 ## What the transcript decided, read from this seat
 
