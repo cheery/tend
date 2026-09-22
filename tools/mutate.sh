@@ -203,6 +203,11 @@ test/test_node.py	node: the pull ledger renamed	sed -i "s/\.pull/\.pxll/g" node/
 test/test_leash.py	leash: the hang message changed	sed -i "s/budget is spent/all gone/" tools/leash.sh
 test/test_fence_hook.py	fence-hook: the leash prefix dropped	sed -i "s#tools/leash.sh -- ##g" tools/fence-hook.sh
 test/test_fence_hook.py	fence-hook: the person's trees bound stops at the hook (F029)	sed -i 's/^  env_="\$env_ TEND_TREES=.*/  :/' tools/fence-hook.sh
+# test_kude.py against kude/kude.py — card:protocol.md day one, 2026-09-22
+test/test_kude.py	kude: a case with no clause is let through	sed -i 's/if not holding:/if False:/' kude/kude.py
+test/test_kude.py	kude: two clauses holding at once is let through	sed -i 's/if len(holding) > 1:/if False:/' kude/kude.py
+test/test_kude.py	kude: a test after a call is let through	sed -i 's/if computed:/if False:/' kude/kude.py
+test/test_kude.py	kude: an output never bound is let through	sed -i 's/if o not in body:/if False:/' kude/kude.py
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py

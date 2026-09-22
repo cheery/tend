@@ -1,0 +1,9 @@
+-- gcd, as the LPVM paper writes it (Gange, Navas, Schachte, Søndergaard,
+-- Stuckey, simplified as in doc/notes/lineaarilogiikka-kieli-keskustelu.md
+-- §3): the arguments split into inputs and outputs by the semicolon, one
+-- clause per case, and the cases complementary and exhaustive so that
+-- exactly one clause holds and nothing backtracks.  The first file in
+-- Kude, 2026-09-22 — card:protocol.md day one.
+
+gcd(a, b; ret) <- b != 0, mod(a, b; r), gcd(b, r; ret).
+gcd(a, b; ret) <- b = 0, ret = a.

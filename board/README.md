@@ -201,7 +201,13 @@ between two workable cards is Henri's.
     "Ok.  Tehdään jotakin valmiiksi sitten"
     (`doc/notes/lineaarilogiikka-kieli-keskustelu.md`); its `done` line is a
     session's draft and unsigned, and its name is a question on the
-    card; the tiebreak is his.*
+    card; the tiebreak is his.  His hand the same morning: the `done`
+    line signed as it stands, the language named Kude (a session's
+    word at his "How would you name the language?"), and "we start on
+    it once we've decided the name" — so day one landed in the same
+    sitting: `kude/kude.py` checks and runs the paper's `gcd`, and
+    refuses `gcd` with its base case removed naming `b = 0`; session
+    types are not in it, by the manifesto's first rule.*
 
 ## Finished
 

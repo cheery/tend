@@ -1,6 +1,6 @@
 # protocol — a program a model writes carries its why nowhere a machine checks, and the places it goes wrong are the interfaces
 
-    status   open
+    status   doing — day one landed 2026-09-22
     because  Henri, 2026-09-21, to a general session (the transcript is
              `doc/notes/lineaarilogiikka-kieli-keskustelu.md`, copied here
              verbatim at his "it'd be tend's project"): "Minulla on
@@ -134,6 +134,44 @@ directory of its own beside `die/` and `solitaire/`, or a node
 (`card:edge.md`) whose pull is a program to check and whose answer is
 the verdict — the second is how the tree would use it for its own
 wires, and the first is smaller.
+
+## Day one, landed — 2026-09-22, the same sitting
+
+`kude/kude.py`, `check FILE` and `run FILE 'name(1, 2)'`; `kude/gcd.kude`,
+the paper's `gcd` as two clauses and the first file in the language;
+`test/test_kude.py`, eighteen tests, all red before the program existed
+and green on its first run.  By hand: the check accepts `gcd` naming its
+signature and its two clauses, `gcd(1071, 462)` answers 21, and `gcd`
+with its `b = 0` clause removed is refused at the check with the words
+*no clause of gcd(a, b; ret) holds when b = 0* — the day-one line above,
+seen.
+
+What the check is: the guards of a predicate are comparisons whose
+operands are head inputs or numbers; each pair of terms compared is an
+atom, each atom takes one of `<`, `=`, `>`, and every combination is
+walked — none holding is refused with the case named, two holding is
+refused naming both.  Modes: inputs bound before a call, outputs bound
+by it, a variable bound once, every head output bound at the end, and a
+comparison on a value the body computed refused, because a failed test
+there has no clause to fall to.  **Its limit is written into it**: one
+relation per atom, no relation between atoms, so a program exhaustive
+only because `a < b` and `b < c` make `a < c` is refused, and the
+refusal says the check did not relate the atoms; a test holds that
+case.  The runner asserts what the check proved and says so if it ever
+finds two clauses holding.
+
+Four mutate rows.  One survived on its first run — the refusal of a
+test after a call, disabled, and eighteen green — because the test used
+`=`, which the bound-twice branch refuses first; the test grew the
+other comparison and the row went red.  Kept on the card as the day's
+one lesson: a refusal with two branches needs a test on each.
+
+Not built, and said so in the file's own header: session types, the
+paper's state thread, any builtin but `mod`, any term but a variable
+or an integer, and the paper's own spelling beyond the five signs it
+reads (`←`, `∧`, `≠`, `≤`, `≥`).  Where it lives: a directory of its
+own, the smaller of the two the card named; the node shape waits on
+something in this tree handing a program to the checker.
 
 ## What would make this wrong
 
