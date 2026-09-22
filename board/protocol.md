@@ -72,7 +72,18 @@ is on every file written in it.
 *(question, his call — what is the language called?  Nothing on this
 card needs the answer before day one, which is a checker and a runner
 for the paper's `gcd`; the first file in the language is the moment.
-henri: )*
+henri: Kude it is, write it in and start day one. 2026-09-22)*
+
+**Kude** — Finnish for weft, the thread that passes through the warp:
+the warp is fixed before weaving begins and says where every pass must
+go (the session type), the weft is the program, one pass at a time,
+each consumed exactly once and in the order the warp says, and a
+dropped or doubled pass is a fault the loom refuses.  A session's
+proposal at his "I'm out of ideas.  How would you name the language?",
+checked within his net bound: no command of that name on this machine,
+no language of that name on GitHub; `weft` had three repositories,
+`cut` is coreutils, `seam` taken several times.  Not checked: the wider
+web.
 
 *(question, his call — where on the priority?  A session places a new
 card last; the transcript's "omaksi ilokseni" says it may belong
