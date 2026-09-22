@@ -23,9 +23,12 @@ GCD = ROOT / "kude" / "gcd.kude"
 GCD_TEXT = GCD.read_text(encoding="utf-8")
 
 
-def kude(*args):
+BANK = ROOT / "kude" / "bank.kude"
+
+
+def kude(*args, stdin=""):
     return subprocess.run([sys.executable, str(KUDE), *map(str, args)],
-                          capture_output=True, text=True, cwd=ROOT)
+                          input=stdin, capture_output=True, text=True, cwd=ROOT)
 
 
 def check(tmp_path, text, name="p.kude"):
@@ -202,3 +205,100 @@ def test_the_check_says_its_limit(tmp_path):
     # relation, and the check cannot see that, so it refuses and says so
     err = refused(tmp_path, text2)
     assert "no clause" in err and "does not relate" in err, err
+
+
+# ── day two: one party against its type, run against a scripted partner ──
+#
+# A head argument `c: T` is a channel at session type T; `~T` is the dual.
+# The checker walks each clause's actions on the channel through the type
+# and refuses one the type does not allow, naming the state the channel is
+# at; a branch offered (`&`) is a clause each, and the exhaustiveness check
+# walks labels the way it walks comparisons.  The runner plays one party
+# against stdin and stdout: what it sends and chooses goes out one line
+# each, what it receives and the branches chosen for it come in.  Two
+# parties joined by a cut is day three.
+
+BANK_TYPE = BANK.read_text(encoding="utf-8").split("-- The client")[0]
+BANK_CLAUSES = "".join(l for l in BANK.read_text(encoding="utf-8").splitlines(keepends=True) if l.startswith("bank("))
+
+
+def test_the_bank_and_its_client_check():
+    r = kude("check", BANK)
+    assert r.returncode == 0, r.stderr
+    assert "client(c: ~Bank; got): 1 clause" in r.stdout and "bank(c: Bank, bal; ): 3 clauses" in r.stdout, r.stdout
+
+
+def test_the_client_runs_against_a_scripted_bank():
+    r = kude("run", BANK, "client(c)", stdin="120\n")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines() == ["c . deposit", "c ! 50", "c . withdraw", "c ! 30", "c . quit", "got = 120"], r.stdout
+
+
+def test_the_bank_runs_against_a_scripted_client():
+    r = kude("run", BANK, "bank(c, 100)", stdin="deposit\n50\nwithdraw\n30\nquit\n")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines() == ["c ! 120"], r.stdout
+
+
+def test_a_partner_that_closes_early_is_a_run_error():
+    r = kude("run", BANK, "client(c)", stdin="")
+    assert r.returncode == 2 and "closed" in r.stderr and "c ? got" in r.stderr, (r.returncode, r.stderr)
+    r = kude("run", BANK, "bank(c, 100)", stdin="deposit\n")
+    assert r.returncode == 2 and "closed" in r.stderr, (r.returncode, r.stderr)
+
+
+def test_a_send_where_the_type_receives_is_refused_naming_the_state(tmp_path):
+    err = refused(tmp_path, BANK_TYPE + "client(c: ~Bank; got) <- c.deposit, c?got, c.quit.\n")
+    assert "c ? got" in err and "!Int . ~Bank" in err, err
+
+
+def test_a_channel_left_unfinished_is_refused_naming_the_state(tmp_path):
+    err = refused(tmp_path, BANK_TYPE + "client(c: ~Bank; got) <- c.deposit, c!50, got = 0.\n")
+    assert "c is at ~Bank" in err and "ends" in err, err
+
+
+def test_a_branch_not_offered_is_refused_naming_the_label(tmp_path):
+    two = ("bank(c: Bank, bal; ) <- c.deposit, c?n, add(bal, n; bal'), bank(c, bal'; ).\n"
+           "bank(c: Bank, bal; ) <- c.withdraw, c?n, sub(bal, n; bal'), c!bal', bank(c, bal'; ).\n")
+    err = refused(tmp_path, BANK_TYPE + two)
+    assert "no clause of bank(c: Bank, bal; )" in err and "c . quit" in err, err
+
+
+def test_a_label_the_type_does_not_have_is_refused(tmp_path):
+    err = refused(tmp_path, BANK_TYPE + "client(c: ~Bank; got) <- c.steal, c?got, c.quit.\n")
+    assert "steal" in err and "deposit" in err and "quit" in err, err
+
+
+def test_a_channel_used_after_it_was_passed_on_is_refused(tmp_path):
+    # a bank with one clause is refused for its missing branches first — the
+    # first run of this test, 2026-09-22, was the checker being right about
+    # the fixture — so the whole bank stands under the clause on trial
+    text = BANK_TYPE + BANK_CLAUSES + "f(c: Bank, bal; ) <- c.deposit, c?n, bank(c, n; ), c.quit.\n"
+    err = refused(tmp_path, text)
+    assert "c was passed to bank" in err, err
+
+
+def test_a_call_with_the_channel_at_another_type_is_refused(tmp_path):
+    text = BANK_TYPE + BANK_CLAUSES + "f(c: Bank, bal; ) <- c.deposit, bank(c, bal; ).\n"
+    err = refused(tmp_path, text)
+    assert "bank takes c at Bank" in err and "?Int . Bank" in err, err
+
+
+def test_a_branch_is_chosen_at_entry_so_it_comes_first(tmp_path):
+    text = BANK_TYPE + ("bank(c: Bank, bal; ) <- add(bal, 1; b), c.deposit, c?n, bank(c, n; ).\n"
+                        "bank(c: Bank, bal; ) <- c.withdraw, c?n, c!bal, bank(c, bal; ).\n"
+                        "bank(c: Bank, bal; ) <- c.quit.\n")
+    err = refused(tmp_path, text)
+    assert "at entry" in err and "c . deposit" in err, err
+
+
+def test_a_type_that_names_nothing_is_refused(tmp_path):
+    err = refused(tmp_path, "f(c: Teller; ) <- c.quit.\n")
+    assert "Teller" in err and "no type" in err, err
+
+
+def test_a_run_needs_a_name_for_a_channel_and_a_number_for_a_number():
+    r = kude("run", BANK, "client(5)")
+    assert r.returncode == 1 and "c" in r.stderr and "channel" in r.stderr, r.stderr
+    r = kude("run", BANK, "bank(c, d)")
+    assert r.returncode == 1 and "bal" in r.stderr and "number" in r.stderr, r.stderr

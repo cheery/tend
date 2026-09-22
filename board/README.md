@@ -207,7 +207,12 @@ between two workable cards is Henri's.
     it once we've decided the name" — so day one landed in the same
     sitting: `kude/kude.py` checks and runs the paper's `gcd`, and
     refuses `gcd` with its base case removed naming `b = 0`; session
-    types are not in it, by the manifesto's first rule.*
+    types are not in it, by the manifesto's first rule.  Day two the
+    same sitting, at his "Ok, do day two then": the transcript's Bank
+    and Client in `kude/bank.kude`, a channel a typed head input, each
+    clause walked along the type and refused naming the state, the
+    branches of an offer the clauses of the predicate, and one party
+    run against a scripted partner on stdin.  Day three is the cut.*
 
 ## Finished
 

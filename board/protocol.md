@@ -173,6 +173,43 @@ reads (`←`, `∧`, `≠`, `≤`, `≥`).  Where it lives: a directory of its
 own, the smaller of the two the card named; the node shape waits on
 something in this tree handing a program to the checker.
 
+## Day two, landed — 2026-09-22, the same sitting, at his "Ok, do day two then"
+
+Asked whether the milestone was steep, the answer was: one real piece
+and three of glue, so two days and not a leap — day two one party
+checked against its type and run against a scripted partner, day three
+the cut.  Day two is that.  `kude/bank.kude`, the transcript's Bank and
+Client as Kude writes them: `type Bank = &{deposit: ?Int . Bank,
+withdraw: ?Int . !Int . Bank, quit: end}.`, the client on `~Bank` in one
+clause, the bank on `Bank` in three, one per branch offered.  A head
+input `c: T` is a channel; `c ! t` sends, `c ? x` receives, `c . l`
+chooses or, where the type offers, names the branch the clause is.
+
+The checker walks each clause's actions on a channel through the
+type: an action the type does not allow is refused naming the state
+the channel is at (*`c ? got` — c is at !Int . ~Bank, which does not
+receive*); a channel is used to its `end` or passed on in a call at the
+type the callee expects, and a use after passing is refused; a branch
+on an offering channel is a guard, so it comes before any action, and
+the exhaustiveness check walks labels as it walks comparisons — the
+bank without its `quit` clause is refused with *no clause of bank(c:
+Bank, bal; ) holds when c . quit*.  Duality is mechanical (`~Bank`
+flips every sign) and recursion is by name, compared coinductively.
+The runner plays one party: sends and choices go to stdout one line
+each, receives and the partner's choices come from stdin, so a
+scripted partner is a file piped in and a partner closing early is a
+run error naming the action it closed on.  By hand: the bank at 100
+told *deposit, 50, withdraw, 30, quit* answers `c ! 120`; the client
+told *120* prints its five actions and `got = 120`.  `add` and `sub`
+are builtins now because the bank needed them.
+
+Thirteen tests, red before the program and green after two fixture
+fixes: a one-clause bank in two fixtures was refused for its missing
+branches before the refusal on trial — the checker right about the
+test.  Five mutate rows on the walk, beside the four of day one.  Not
+built, said in the header: the cut, a message type but `Int`, a channel
+sent over a channel, `!A`, polymorphism, the state thread.
+
 ## What would make this wrong
 
 The transcript says it: "Sinulle ei mikään.  Alalle vähän."  If the

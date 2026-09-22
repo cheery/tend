@@ -1,0 +1,19 @@
+-- The transcript's Bank and Client (doc/notes/lineaarilogiikka-kieli-keskustelu.md
+-- §2, design 2), as Kude writes them — card:protocol.md day two, 2026-09-22.
+--
+-- A session type is the warp: `&{...}` offers a choice the other side makes,
+-- `+{...}` makes one, `?Int . S` receives a number and goes on as S, `!Int . S`
+-- sends one, `end` is done.  `~Bank` is Bank's dual — the same protocol seen
+-- from the other end, every `&` a `+` and every `?` a `!`.
+
+type Bank = &{ deposit  : ?Int . Bank,
+               withdraw : ?Int . !Int . Bank,
+               quit     : end }.
+
+-- The client: deposit 50, withdraw 30, keep the balance the bank answers, quit.
+client(c: ~Bank; got) <- c.deposit, c!50, c.withdraw, c!30, c?got, c.quit.
+
+-- The bank: one clause per branch offered, the balance carried as an input.
+bank(c: Bank, bal; ) <- c.deposit, c?n, add(bal, n; bal'), bank(c, bal'; ).
+bank(c: Bank, bal; ) <- c.withdraw, c?n, sub(bal, n; bal'), c!bal', bank(c, bal'; ).
+bank(c: Bank, bal; ) <- c.quit.

@@ -208,6 +208,12 @@ test/test_kude.py	kude: a case with no clause is let through	sed -i 's/if not ho
 test/test_kude.py	kude: two clauses holding at once is let through	sed -i 's/if len(holding) > 1:/if False:/' kude/kude.py
 test/test_kude.py	kude: a test after a call is let through	sed -i 's/if computed:/if False:/' kude/kude.py
 test/test_kude.py	kude: an output never bound is let through	sed -i 's/if o not in body:/if False:/' kude/kude.py
+# day two — the walk along the type
+test/test_kude.py	kude: a receive where the type sends is let through	sed -i 's/if cur\[0\] != "recv":/if False:/' kude/kude.py
+test/test_kude.py	kude: a channel left unfinished is let through	sed -i 's/if ch not in passed and unfold(t, types)\[0\] != "end":/if False:/' kude/kude.py
+test/test_kude.py	kude: a branch after an action is let through	sed -i 's/if acted:/if False:/' kude/kude.py
+test/test_kude.py	kude: a channel passed at the wrong type is let through	sed -i 's/if not same(chans\[a\[1\]\], ptype, types):/if False:/' kude/kude.py
+test/test_kude.py	kude: a channel used after it was passed is let through	sed -i 's/if ch in passed:/if False:/' kude/kude.py
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py
