@@ -382,7 +382,14 @@ answers, one question, one answer, let go) written as a Kude session
 type, and a node that holds it written in Kude, run from his shell
 against the real llm and getting its answer; a program that asks
 before the llm answers, asks twice, or never lets go refused at the
-check, naming the type and the clause.
+check, naming the type and the clause.  And, added the same hour at his
+"We could add into the chapter 1: The model writes a program": a door
+model, given that session type and nothing else, writes the node too —
+every try through the check, and the count (refused, fixed from the
+refusal's words alone, run against the real llm) written here, whether
+or not a try passes.  One wire, two authors: the session's node says
+the type can be held; the model's count says whether the type helps
+the one writing it.
 
 **Why this one**: it is the road where Kude stops being built only
 for its own joy — the tree's wires, `pull` and `connect`, have been

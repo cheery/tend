@@ -209,7 +209,8 @@ between two workable cards is Henri's.
     tiebreak is his.  His pick the same day: tend's own wire — the
     node-and-llm conversation as a Kude type and a node written in
     Kude — signed as the `done` line, and chapter 1 of the narration
-    in journal.md.*
+    in journal.md; then, at his "The model writes a program", a door
+    model writing the same node, its tries counted.*
 16. **[one-piece](one-piece.md)** — the board works every card at
     once, and a card in `doing` can sit for weeks: three have, since
     2026-08-30, 08-31 and 09-06.  *Placed last by the session that

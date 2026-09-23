@@ -19,10 +19,16 @@
              his shell against the real llm and getting its answer;
              and a program that asks before the llm answers, asks
              twice, or never lets go is refused at the check naming
-             the type and the clause.  (a session's draft, 2026-09-23,
-             for road 3, his pick; henri: signed 2026-09-23 — "Tend's
-             own wire in Kude", chapter 1 of the narration in
-             journal.md)
+             the type and the clause; and a door model, given that
+             session type and nothing else, writes the node too: every
+             try it makes goes through the check, and the count —
+             refused, fixed from the refusal's words alone, run against
+             the real llm — is written into the chapter, whether or not
+             a try passes.  (a session's draft, 2026-09-23, for road 3,
+             his pick, and road 4 added at his "We could add into the
+             chapter 1: The model writes a program"; henri: signed
+             2026-09-23 — "Tend's own wire in Kude", then "Model writes
+             the same node", chapter 1 of the narration in journal.md)
     asked    Henri, 2026-09-23 — "This works.  Lets leave a card where
              to continue from, then we can stop."
     see      card:protocol.md and card:real-program.md (both done, the
