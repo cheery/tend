@@ -97,6 +97,19 @@ unsigned `done` lines beside the marks.  The cost: his hand on every
 card before any build, one line each, and one exchange at the head of
 every card — the exchange that was missing on 2026-09-06.
 
+## 2026-09-23 — named again, as one of two gates
+
+A lean consultant's advice, passed on by Henri: "Toisekseen tavoitteet
+on tärkeä asettaa niin työkokonaisuuksien kuin projektien alussa."  At
+his "Write the goal into vision.md and card the two gates", the two
+gates are this card's day one above — no card at `doing` with an
+unsigned `done` line — and `card:one-piece.md`, no second card at
+`doing`.  Not a new card: this one already carried the gate, signed.
+The two meet at the same moment, the move to `doing`: a card may start
+only when its goal is signed and nothing else has started.  vision.md
+§"The goal" names the principle, "Goal before work", and its standing
+as partly.
+
 ## What would make this card wrong
 
 If the signed lines turn out to be written by him to get past the gate

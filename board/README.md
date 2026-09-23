@@ -202,6 +202,15 @@ between two workable cards is Henri's.
     channels and `!A`, this tree's own wires, a model writing Kude, a
     compiler.  Which road is his, and its `done` line waits for it; the
     tiebreak is his.*
+16. **[one-piece](one-piece.md)** — the board works every card at
+    once, and a card in `doing` can sit for weeks: three have, since
+    2026-08-30, 08-31 and 09-06.  *Placed last by the session that
+    wrote it on 2026-09-23, at Henri's "Write the goal into vision.md
+    and card the two gates", from a lean consultant's advice he passed
+    on; the other gate is `card:done-when.md`'s day one, already on the
+    board.  Its `done` line is unsigned, and the three `doing` cards
+    wait on his word before the gate can be turned on; the tiebreak is
+    his.*
 
 ## Finished
 

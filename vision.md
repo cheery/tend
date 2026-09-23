@@ -10,6 +10,56 @@ provenance is kept because the date is what makes a line arguable
 later.  Lines a session drafted at Henri's ask are marked so, and are
 his to strike.*
 
+## The goal
+
+2026-09-23: Goal for tend is to become an operating system/working
+environment/programming language based on lean philosophy, for both
+sessions and humans.  When person works along the philosophy, it would
+support them.  It's a big goal, and multiple bases.
+
+2026-09-23: "support = scaffold and ease of movement within that
+scaffold"
+
+2026-09-23: One-week goal is good, but project must not consume its
+creator, we need slacked, weeks can be skipped.
+
+2026-09-23: I have to admit lot of the pull for the whole project is my
+tastes, immediate things I see in computers when I open them today, and
+personal enjoyment on the work itself of building this.
+
+*The rest of this section is a session's draft at Henri's "I'd like us
+to make this somewhat concrete", corrected by him the same hour —
+"principles seem correct but may require refinement later on".  His to
+strike.*
+
+**Three bases, one test.**  The environment — where work runs: nodes,
+pulls, holds, the grant, the canvas.  The language — Kude, where a
+program's interfaces are a scaffold the checker holds.  The method — the
+board, `done` lines, kaizen, the andon, `fixme/` — which the other two
+support.  The test for each: the lean move is scaffolded and easy to
+make, and a step off it is shown or refused.
+
+**The principles, and where tend stands on each**, 2026-09-23:
+
+| Principle | The scaffold | Standing |
+|---|---|---|
+| Goal before work | no build without a signed `done` line | partly — the rule signed 2026-09-07, its gate unbuilt (`card:done-when.md`) |
+| One piece at a time | at most one card in `doing` | missing (`card:one-piece.md`) |
+| Pull, not push | work runs only while something pulls it | built — `pull`, the edge, the hold |
+| Stop the line | an andon anyone can pull, heard by the person | built, with a gap (`card:silent-cord.md`) |
+| Error-proofing | a wrong move refused before it lands | built — the gates, the fence, the mutate rows; Kude for programs |
+| Standard work | rules promoted from what went wrong | built — the README's rules, from the ingestion batches |
+| Kaizen | every sitting reflected on, and read back | partly — written every sitting, read back in batches (`card:kaizen-ingestion.md`) |
+| Go and see | a check says where it cannot see from | partly — the three verdicts, at two call sites |
+| Visual management | the state of the work seen without asking | partly — the panel and canvas show nodes, not the board's flow |
+| Respect for people | each party its grant and its own place | partly — the grant and the fence built; `card:private.md` open |
+
+**The yardstick.**  A person and a session work one project in tend for
+a week: the board shows one card at a time going from a signed goal to
+done, and every step off the method was refused or shown by something in
+tend, not by memory.  Weeks are skipped when they are; a week the
+yardstick is not run is slack, not a failure.
+
 ## Ease of use and efficiency
 
 2026-08-24 (gestate, 2026-08-16): It's so much ceremony, to get a simple
