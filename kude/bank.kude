@@ -17,3 +17,10 @@ client(c: ~Bank; got) <- c.deposit, c!50, c.withdraw, c!30, c?got, c.quit.
 bank(c: Bank, bal; ) <- c.deposit, c?n, add(bal, n; bal'), bank(c, bal'; ).
 bank(c: Bank, bal; ) <- c.withdraw, c?n, sub(bal, n; bal'), c!bal', bank(c, bal'; ).
 bank(c: Bank, bal; ) <- c.quit.
+
+-- The two together — day three, 2026-09-23.  `new c: Bank (... | ...)` is the
+-- cut: it makes the channel, gives the end at Bank to the left side and the end
+-- at ~Bank to the right, and runs both until both are done.  The check says the
+-- ends are dual because each side's own type says so; no lock, and no deadlock
+-- because two parties on one channel, each walking its type, cannot both wait.
+main(; got) <- new c: Bank (bank(c, 100; ) | client(c; got)).

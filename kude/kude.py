@@ -6,6 +6,7 @@ card:protocol.md.
     kude.py check FILE               accept, saying what was read; or refuse, saying why
     kude.py run FILE 'name(c, 2)'    check, then run the one clause that holds — a
                                      channel argument is played against stdin and stdout
+    kude.py run bank.kude 'main()'   two parties joined by a cut, in one run
 
 A program is type definitions and clauses.  A clause is
 `name(inputs; outputs) <- goal, goal, ... .`, the semicolon splitting a
@@ -29,8 +30,20 @@ channel through its type and refuses an action the type does not
 allow, naming the state the channel is at; a channel is used to its
 `end` or passed on in a call at the type the callee expects, and never
 touched after.  Day two, 2026-09-22: one party against its type, run
-against a partner on stdin and stdout.  Two parties joined by a cut is
-day three.
+against a partner on stdin and stdout.
+
+**Two parties meet at a cut**, `new c: T (p(c, ...; ...) | q(c, ...; ...))`
+— day three, 2026-09-23.  It makes a channel, gives the end at T to p
+and the end at ~T to q, runs both, and binds both sides' outputs when
+both are done.  The check: each side is one call that takes c at its
+end's type, so the ends are dual because each callee's own type says so;
+c is used by both sides and by nothing after; and a channel the clause
+already holds goes to one side at most.  So the parties of a run form a
+tree, one channel per edge, and a tree of parties each walking its type
+never has every party waiting — the cut's deadlock freedom, from the
+check and not from the run.  It says nothing about a program that runs
+forever; a bank whose client never quits is not a deadlock.  The run
+is coroutines and a queue each way, one thread and no lock.
 
 **Exactly one clause holds.**  The paper asks that a predicate's guards
 be complementary and exhaustive, so that one clause succeeds and
@@ -55,15 +68,20 @@ the body ends.  A comparison on a value the body computed is refused —
 if it failed there would be no clause to fall to, and the form has no
 backtracking — so a test belongs in the guards or nowhere.
 
-**Not built**, and said here so it is not mistaken for built: the cut
-(two parties in one run), a message type but `Int`, sending a channel
-over a channel, the replicable service `!A`, polymorphism, the paper's
-state thread, any builtin but `mod`, `add`, `sub`, any term but a
-variable or an integer.  The runner asserts what the check proved —
-exactly one clause holds — and says so if it ever finds otherwise,
-because a check that is wrong must be able to say so.
+**Not built**, and said here so it is not mistaken for built: a message
+type but `Int`, sending a channel over a channel, the replicable
+service `!A`, polymorphism, the paper's state thread, a cut side that is
+more than one call, more than one channel from the shell, any builtin
+but `mod`, `add`, `sub`, any term but a variable or an integer — and
+tail calls: a recursion is a Python frame, so a conversation of 400
+rounds runs and one of 1000 is a run error (measured 2026-09-23).  The
+runner asserts what the check proved — exactly one clause holds, every
+message is of the kind its taker waits for, and never does every party
+wait — and says so if it ever finds otherwise, because a check that is
+wrong must be able to say so.
 """
 
+import collections
 import itertools
 import re
 import sys
@@ -88,7 +106,7 @@ class RunError(Exception):
 # ── reading ───────────────────────────────────────────────────────────────
 
 SPELLING = [("←", "<-"), ("∧", ","), ("≠", "!="), ("≤", "<="), ("≥", ">=")]
-TOKEN = re.compile(r"[ \t\r]+|--[^\n]*|(\n)|(<-|!=|<=|>=|[<>=(),;.!?+&{}:~])|(-?\d+)|([A-Za-z_][A-Za-z0-9_']*)|(.)")
+TOKEN = re.compile(r"[ \t\r]+|--[^\n]*|(\n)|(<-|!=|<=|>=|[<>=(),;.!?+&{}:~|])|(-?\d+)|([A-Za-z_][A-Za-z0-9_']*)|(.)")
 
 
 def tokens(text):
@@ -213,21 +231,36 @@ class Parser:
             return (t[0], t[1])
         raise Refusal(f"line {t[2]}: expected a variable or a number, got {t[1]!r}")
 
+    def call(self):
+        line = self.peek()[2]
+        name = self.take("var")[1]
+        self.take("op", "(")
+        args = []
+        while self.peek()[1] != ";":
+            args.append(self.term())
+            if self.peek()[1] != ",":
+                break
+            self.take("op", ",")
+        self.take("op", ";")
+        outs = [n for n, _ in self.params(typed=False)]
+        self.take("op", ")")
+        return {"kind": "call", "name": name, "args": args, "outs": outs, "line": line}
+
     def goal(self):
         line = self.peek()[2]
-        if self.peek()[0] == "var" and self.peek(1)[1] == "(":
-            name = self.take("var")[1]
+        if self.peek()[1] == "new" and self.peek(1)[0] == "var" and self.peek(2)[1] == ":":
+            self.i += 1
+            chan = self.take("var")[1]
+            self.take("op", ":")
+            t = self.type_expr()
             self.take("op", "(")
-            args = []
-            while self.peek()[1] != ";":
-                args.append(self.term())
-                if self.peek()[1] != ",":
-                    break
-                self.take("op", ",")
-            self.take("op", ";")
-            outs = [n for n, _ in self.params(typed=False)]
+            sides = [self.call()]
+            self.take("op", "|")
+            sides.append(self.call())
             self.take("op", ")")
-            return {"kind": "call", "name": name, "args": args, "outs": outs, "line": line}
+            return {"kind": "cut", "chan": chan, "type": t, "sides": sides, "line": line}
+        if self.peek()[0] == "var" and self.peek(1)[1] == "(":
+            return self.call()
         if self.peek()[0] == "var" and self.peek(1)[1] in ("!", "?", "."):
             chan = self.take("var")[1]
             op = self.take("op")[1]
@@ -369,39 +402,62 @@ def modes(c, preds, types):
             raise Refusal(f"{here}: {ch} is not a channel")
         return ch, unfold(chans[ch], types)
 
+    def take_call(g, here):
+        if g["name"] in BUILTINS:
+            nin, nout = BUILTINS[g["name"]]
+            params = [(None, None)] * nin
+        elif g["name"] in preds:
+            callee = preds[g["name"]][0]
+            nin, nout = len(callee["ins"]), len(callee["outs"])
+            params = callee["ins"]
+        else:
+            raise Refusal(f"{here}: no predicate {g['name']}")
+        if (len(g["args"]), len(g["outs"])) != (nin, nout):
+            raise Refusal(f"{here}: {g['name']} takes {nin} inputs and {nout} outputs")
+        for a, (pname, ptype) in zip(g["args"], params):
+            if a[0] == "var" and a[1] in chans:
+                if ptype is None:
+                    raise Refusal(f"{here}: {g['name']} takes a number where {a[1]} is a channel")
+                if a[1] in passed:
+                    raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
+                if not same(chans[a[1]], ptype, types):
+                    raise Refusal(f"{here}: {g['name']} takes {pname} at {tshow(ptype)}, and {a[1]} is at {tshow(chans[a[1]])}")
+                passed[a[1]] = g["name"]
+            elif a[0] == "var" and a[1] in passed:
+                raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
+            elif ptype is not None:
+                raise Refusal(f"{here}: {g['name']} takes {pname} as a channel at {tshow(ptype)}, and {show(a)} is a number")
+            elif not known(a):
+                raise Refusal(f"{here}: {show(a)} is not bound when {g['name']} is called")
+        for o in g["outs"]:
+            if o in entry or o in body or o in chans:
+                raise Refusal(f"{here}: {o} is bound twice")
+            body[o] = "call"
+
     for g in c["goals"]:
         here = where.format(g["line"])
         if g["kind"] == "call":
-            if g["name"] in BUILTINS:
-                nin, nout = BUILTINS[g["name"]]
-                params = [(None, None)] * nin
-            elif g["name"] in preds:
-                callee = preds[g["name"]][0]
-                nin, nout = len(callee["ins"]), len(callee["outs"])
-                params = callee["ins"]
-            else:
-                raise Refusal(f"{here}: no predicate {g['name']}")
-            if (len(g["args"]), len(g["outs"])) != (nin, nout):
-                raise Refusal(f"{here}: {g['name']} takes {nin} inputs and {nout} outputs")
-            for a, (pname, ptype) in zip(g["args"], params):
-                if a[0] == "var" and a[1] in chans:
-                    if ptype is None:
-                        raise Refusal(f"{here}: {g['name']} takes a number where {a[1]} is a channel")
-                    if a[1] in passed:
-                        raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
-                    if not same(chans[a[1]], ptype, types):
-                        raise Refusal(f"{here}: {g['name']} takes {pname} at {tshow(ptype)}, and {a[1]} is at {tshow(chans[a[1]])}")
-                    passed[a[1]] = g["name"]
-                elif a[0] == "var" and a[1] in passed:
-                    raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
-                elif ptype is not None:
-                    raise Refusal(f"{here}: {g['name']} takes {pname} as a channel at {tshow(ptype)}, and {show(a)} is a number")
-                elif not known(a):
-                    raise Refusal(f"{here}: {show(a)} is not bound when {g['name']} is called")
-            for o in g["outs"]:
-                if o in entry or o in body or o in chans:
-                    raise Refusal(f"{here}: {o} is bound twice")
-                body[o] = "call"
+            take_call(g, here)
+            acted = True
+            continue
+        if g["kind"] == "cut":
+            # the cut: a new channel, its end at T to the left side and at ~T
+            # to the right, each side one call that takes it — so the two
+            # ends are dual because each callee's type says so — and nothing
+            # after.  A channel this clause holds goes to one side at most,
+            # which take_call's `passed` already says: the tree stays a tree.
+            ch, t = g["chan"], g["type"]
+            names_exist(t, types, here)
+            if ch in entry or ch in body or ch in chans or ch in passed:
+                raise Refusal(f"{here}: {ch} is bound twice — a cut makes a new channel")
+            for side, end in zip(g["sides"], (t, dual(t))):
+                chans[ch] = end
+                take_call(side, here)
+                if passed.pop(ch, None) != side["name"]:
+                    raise Refusal(f"{here}: new {ch}: {tshow(t)} — {ch} is not given to {side['name']}, "
+                                  f"and a cut gives one end to each side")
+            del chans[ch]
+            passed[ch] = "both sides of its cut"
             acted = True
             continue
         if g["kind"] == "send":
@@ -538,31 +594,95 @@ def one_holds(name, cs):
 
 # ── the run ───────────────────────────────────────────────────────────────
 
+#
+# A party is a coroutine: `call` is a generator that runs a clause and
+# yields WAIT when the message it needs is not there yet.  A cut runs its
+# two parties in rounds, each stepped until it waits or ends; a message
+# put on a queue is the only thing that wakes a waiting party, so a round
+# in which nothing was sent and someone still waits is handed up to the
+# cut outside it.  At the top there is nothing outside: every party waits,
+# which is a deadlock the check said could not happen — and the run says
+# so.  One thread, no lock.
+
+WAIT = "wait"
+
+
+class Run:
+    def __init__(self):
+        self.sent = 0          # messages put on a queue, ever — what a round reads
+        self.waiting = {}      # an end waited on → who waits there, as words
+
+
 class Stdio:
-    """The partner at the other end of every channel in a run: what this
-    party sends and chooses goes to stdout, one line each; what it receives
-    and the branches chosen for it are read from stdin, one line each."""
+    """An end whose partner is the shell: what this party sends and chooses
+    goes to stdout, one line each; what it receives and the branches chosen
+    for it are read from stdin, one line each."""
 
-    def send(self, ch, v, trace):
-        print(f"{ch} ! {v}", flush=True)
+    def __init__(self, name):
+        self.name = name
 
-    def choose(self, ch, label, trace):
-        print(f"{ch} . {label}", flush=True)
+    def __str__(self):
+        return self.name
 
-    def recv(self, ch, var, trace):
+    def put(self, item, sign, rt):
+        print(f"{self.name} {sign} {item}", flush=True)
+
+    def take(self, rt, what, number):
         line = sys.stdin.readline()
         if not line:
-            raise RunError(f"the partner closed on `{ch} ? {var}` in {trace}")
+            raise RunError(f"the partner closed {what}")
+        if not number:
+            return line.strip()
         try:
             return int(line.strip())
         except ValueError:
-            raise RunError(f"the partner sent {line.strip()!r} on {ch} where a number was due, in {trace}")
+            raise RunError(f"the partner sent {line.strip()!r} where a number was due, {what}")
+        yield   # a generator like End.take, though a read from the shell never hands a round up
 
-    def offer(self, ch, trace):
-        line = sys.stdin.readline()
-        if not line:
-            raise RunError(f"the partner closed while {trace} waited for its choice on {ch}")
-        return line.strip()
+
+class End:
+    """One end of a channel a cut made: a put goes on the queue the other
+    end takes from, and a take waits on this end's own."""
+
+    def __init__(self, name, queues, side):
+        self.name, self.queues, self.side = name, queues, side
+
+    def __str__(self):
+        return self.name
+
+    def put(self, item, sign, rt):
+        self.queues[1 - self.side].append(item)
+        rt.sent += 1
+
+    def take(self, rt, what, number):
+        q = self.queues[self.side]
+        while not q:
+            rt.waiting[self] = what
+            yield WAIT
+        rt.waiting.pop(self, None)
+        item = q.popleft()
+        if number != isinstance(item, int):
+            raise RunError(f"the check let this through: {item!r} came {what}, where "
+                           f"{'a number' if number else 'a choice'} was due")
+        return item
+
+
+def together(parties, rt):
+    """The cut's run: step each party until it waits or ends, round after
+    round, until both are done; their outputs, in order."""
+    results = [None] * len(parties)
+    live = list(range(len(parties)))
+    while live:
+        before = rt.sent
+        for i in list(live):
+            try:
+                next(parties[i])
+            except StopIteration as done:
+                results[i] = done.value
+                live.remove(i)
+        if live and rt.sent == before:
+            yield WAIT
+    return results
 
 
 def value(term, env):
@@ -582,14 +702,16 @@ def builtin(name, args, trace):
     raise RunError(f"no builtin {name}")
 
 
-def call(preds, name, args, partner):
+def call(preds, name, args, rt):
     cs = preds[name]
-    trace = f"{name}({', '.join(n if isinstance(v, str) else str(v) for (n, _), v in zip(cs[0]['ins'], args))})"
-    chosen = {}
+    trace = f"{name}({', '.join(map(str, args))})"
+    chosen = {}                # an offering end → the branch its partner chose
     for c in cs:
+        env = dict(zip((n for n, _ in c["ins"]), args))
         for g in c["goals"]:
-            if g["kind"] == "branch" and g["chan"] not in chosen:
-                chosen[g["chan"]] = partner.offer(g["chan"], trace)
+            if g["kind"] == "branch" and env[g["chan"]] not in chosen:
+                end = env[g["chan"]]
+                chosen[end] = yield from end.take(rt, f"while {trace} waited for its choice on {end}", False)
     holding = []
     for c in cs:
         env = dict(zip((n for n, _ in c["ins"]), args))
@@ -598,7 +720,7 @@ def call(preds, name, args, partner):
             if g["kind"] == "guard":
                 ok = COMPARE[g["op"]](value(g["left"], env), value(g["right"], env))
             elif g["kind"] == "branch":
-                ok = chosen[g["chan"]] == g["label"]
+                ok = chosen[env[g["chan"]]] == g["label"]
             if not ok:
                 break
         if ok:
@@ -612,14 +734,26 @@ def call(preds, name, args, partner):
             env[g["left"][1]] = value(g["right"], env)
         elif k == "call":
             a = [value(t, env) for t in g["args"]]
-            outs = builtin(g["name"], a, trace) if g["name"] in BUILTINS else call(preds, g["name"], a, partner)
+            if g["name"] in BUILTINS:
+                outs = builtin(g["name"], a, trace)
+            else:
+                outs = yield from call(preds, g["name"], a, rt)
             env.update(zip(g["outs"], outs))
+        elif k == "cut":
+            queues = (collections.deque(), collections.deque())
+            parties = []
+            for side, i in zip(g["sides"], (0, 1)):
+                local = dict(env, **{g["chan"]: End(g["chan"], queues, i)})
+                parties.append(call(preds, side["name"], [value(t, local) for t in side["args"]], rt))
+            results = yield from together(parties, rt)
+            for side, outs in zip(g["sides"], results):
+                env.update(zip(side["outs"], outs))
         elif k == "send":
-            partner.send(g["chan"], value(g["term"], env), trace)
+            env[g["chan"]].put(value(g["term"], env), "!", rt)
         elif k == "recv":
-            env[g["var"]] = partner.recv(g["chan"], g["var"], trace)
+            env[g["var"]] = yield from env[g["chan"]].take(rt, f"on `{g['chan']} ? {g['var']}` in {trace}", True)
         elif k == "choose":
-            partner.choose(g["chan"], g["label"], trace)
+            env[g["chan"]].put(g["label"], ".", rt)
     return [env[o] for o in c["outs"]]
 
 
@@ -646,12 +780,20 @@ def run(types, preds, text):
         else:
             if re.fullmatch(r"-?\d+", g):
                 raise Refusal(f"{pname} is a channel at {tshow(ptype)}, and {g} is not a name for one")
-            args.append(g)
+            args.append(Stdio(g))
             channels.append(g)
     if len(channels) > 1:
-        raise Refusal(f"one channel per run for now — {name} has {len(channels)}; the cut is day three")
+        raise Refusal(f"one channel from the shell per run — {name} has {len(channels)}; "
+                      f"two parties meet at a cut, `new c: T (p(c; ) | q(c; ))`")
+    rt = Run()
     try:
-        outs = call(preds, name, args, Stdio())
+        try:
+            next(call(preds, name, args, rt))
+        except StopIteration as done:
+            outs = done.value
+        else:
+            raise RunError("the check let this through: every party waits — "
+                           + "; ".join(rt.waiting.values()))
     except RecursionError:
         raise RunError(f"{name}({', '.join(given)}) recursed deeper than this runner goes")
     return list(zip(c["outs"], outs))

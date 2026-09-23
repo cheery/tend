@@ -212,7 +212,13 @@ between two workable cards is Henri's.
     and Client in `kude/bank.kude`, a channel a typed head input, each
     clause walked along the type and refused naming the state, the
     branches of an offer the clauses of the predicate, and one party
-    run against a scripted partner on stdin.  Day three is the cut.*
+    run against a scripted partner on stdin.  Day three, 2026-09-23, at
+    his "Do the day 3 now": the cut — `new c: Bank (bank(c, 100; ) |
+    client(c; got))`, the two ends dual because each side's type says
+    so, the parties coroutines with a queue each way and no lock, and a
+    run where every party waits reported as the check's fault.  The
+    `done` line runs from a session's seat; the run from his shell is
+    his.*
 
 ## Finished
 

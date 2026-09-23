@@ -302,3 +302,122 @@ def test_a_run_needs_a_name_for_a_channel_and_a_number_for_a_number():
     assert r.returncode == 1 and "c" in r.stderr and "channel" in r.stderr, r.stderr
     r = kude("run", BANK, "bank(c, d)")
     assert r.returncode == 1 and "bal" in r.stderr and "number" in r.stderr, r.stderr
+
+
+# ── day three: the cut — two parties in one run ──────────────────────────
+#
+# `new c: T (p(c, ...) | q(c, ...))` makes a channel, gives the end at T to
+# p and the end at ~T to q, and runs both until both are done.  The check
+# is the cut's: each side takes c at its end's type, so the two ends are
+# dual; c is used by both sides and by nothing else; and a channel the
+# clause already holds goes to one side at most.  The parties of a run
+# then form a tree with one channel per edge, and a tree of parties each
+# following its type has no cycle of waiting — the transcript's "deadlock
+# freedom from the cut".  The run is coroutines and a queue each way, one
+# thread and no lock; if every party ever waits, the run says the check let
+# a deadlock through, because a check that is wrong must be able to say so.
+
+NUM = ("type Num = !Int . end.\n"
+       "fwd(d: ~Num, c: Num; ) <- d ? x, c ! x.\n"
+       "sink(c: ~Num; y) <- c ? y.\n")
+
+
+def test_the_bank_and_its_client_run_together():
+    r = kude("check", BANK)
+    assert r.returncode == 0 and "main(; got): 1 clause" in r.stdout, (r.stdout, r.stderr)
+    r = kude("run", BANK, "main()")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines() == ["got = 120"], r.stdout
+
+
+def test_either_end_of_the_cut_can_be_named(tmp_path):
+    src = tmp_path / "b.kude"
+    src.write_text(BANK.read_text(encoding="utf-8") +
+                   "other(; got) <- new c: ~Bank (client(c; got) | bank(c, 100; )).\n", encoding="utf-8")
+    r = kude("run", src, "other()")
+    assert r.returncode == 0 and r.stdout.splitlines() == ["got = 120"], (r.stdout, r.stderr)
+
+
+def test_a_party_that_waits_is_resumed_when_its_partner_sends(tmp_path):
+    # sink is run first and waits on c; fwd reads stdin and sends; sink
+    # takes it on the next round — and the stdin channel lives beside the cut
+    src = tmp_path / "n.kude"
+    src.write_text(NUM + "main(d: ~Num; y) <- new c: ~Num (sink(c; y) | fwd(d, c; )).\n", encoding="utf-8")
+    r = kude("run", src, "main(d)", stdin="7\n")
+    assert r.returncode == 0 and r.stdout.splitlines() == ["y = 7"], (r.stdout, r.stderr)
+
+
+def test_a_cut_whose_ends_are_not_dual_is_refused_naming_the_types(tmp_path):
+    err = refused(tmp_path, BANK_TYPE + BANK_CLAUSES +
+                  "main(; ) <- new c: Bank (bank(c, 100; ) | bank(c, 0; )).\n")
+    assert "bank takes c at Bank" in err and "c is at ~Bank" in err and "main" in err, err
+
+
+def test_a_cut_channel_one_side_leaves_unused_is_refused(tmp_path):
+    err = refused(tmp_path, BANK_TYPE + BANK_CLAUSES + "id(a; b) <- b = a.\n"
+                  "main(; x) <- new c: Bank (bank(c, 100; ) | id(5; x)).\n")
+    assert "c" in err and "id" in err and "each side" in err, err
+
+
+def test_a_channel_given_to_both_sides_of_a_cut_is_refused(tmp_path):
+    # the tree: one channel per edge, so d cannot join both sides as well
+    text = ("type P = !Int . end.\n"
+            "give(a: P, b: P; ) <- a ! 1, b ! 2.\n"
+            "take(a: ~P, b: P; x) <- a ? x, b ! 3.\n"
+            "f(d: P; x) <- new c: P (give(c, d; ) | take(c, d; x)).\n")
+    err = refused(tmp_path, text)
+    assert "d was passed to give" in err, err
+
+
+def test_the_cut_channel_is_not_used_after_the_cut(tmp_path):
+    err = refused(tmp_path, BANK.read_text(encoding="utf-8") +
+                  "late(; got) <- new c: Bank (bank(c, 100; ) | client(c; got)), c.quit.\n")
+    assert "c was passed to" in err, err
+
+
+def test_a_cut_names_a_channel_that_is_new(tmp_path):
+    err = refused(tmp_path, BANK.read_text(encoding="utf-8") +
+                  "twice(c; got) <- new c: Bank (bank(c, 100; ) | client(c; got)).\n")
+    assert "c is bound twice" in err, err
+
+
+def test_a_cut_at_a_type_that_names_nothing_is_refused(tmp_path):
+    err = refused(tmp_path, BANK.read_text(encoding="utf-8") +
+                  "t(; got) <- new c: Teller (bank(c, 100; ) | client(c; got)).\n")
+    assert "Teller" in err and "no type" in err, err
+
+
+def unchecked(tmp_path, text):
+    """Run main() with the check made wrong, in-process: every two types
+    are `same`, so a cut whose ends are not dual is let through, and the
+    run must be the one to say so rather than hang or answer."""
+    src = tmp_path / "d.kude"
+    src.write_text(text, encoding="utf-8")
+    script = ("import sys; sys.path.insert(0, sys.argv[1]); import kude\n"
+              "kude.same = lambda *a, **k: True\n"
+              "sys.exit(kude.main(['run', sys.argv[2], 'main()']))\n")
+    return subprocess.run([sys.executable, "-c", script, str(KUDE.parent), str(src)],
+                          capture_output=True, text=True, timeout=30)
+
+
+def test_the_run_says_so_if_the_check_ever_lets_a_deadlock_through(tmp_path):
+    # two banks on one channel: each waits for the other to choose
+    text = BANK_TYPE + BANK_CLAUSES + "main(; ) <- new c: Bank (bank(c, 100; ) | bank(c, 0; )).\n"
+    assert "bank takes c at Bank" in refused(tmp_path, text)
+    r = unchecked(tmp_path, text)
+    assert r.returncode == 2, (r.returncode, r.stdout, r.stderr)
+    assert "the check let this through" in r.stderr and "every party waits" in r.stderr, r.stderr
+    assert r.stderr.count("waited for its choice on c") == 2, r.stderr
+
+
+def test_the_run_says_so_if_the_check_ever_lets_a_wrong_message_through(tmp_path):
+    # two clients on one channel do not deadlock — a queue each way, and each
+    # takes the other's choices where it waits for a number.  The first run
+    # of the deadlock test, 2026-09-23, used this pair and it answered
+    # `a = deposit`: the fixture's claim was wrong, and the run said nothing
+    text = (BANK_TYPE + "client(c: ~Bank; got) <- c.deposit, c!50, c.withdraw, c!30, c?got, c.quit.\n"
+            "main(; a, b) <- new c: ~Bank (client(c; a) | client(c; b)).\n")
+    assert "client takes c at ~Bank" in refused(tmp_path, text)
+    r = unchecked(tmp_path, text)
+    assert r.returncode == 2, (r.returncode, r.stdout, r.stderr)
+    assert "the check let this through" in r.stderr and "'deposit'" in r.stderr and "a number" in r.stderr, r.stderr

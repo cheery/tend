@@ -1,6 +1,7 @@
 # protocol — a program a model writes carries its why nowhere a machine checks, and the places it goes wrong are the interfaces
 
-    status   doing — day one landed 2026-09-22
+    status   doing — day three landed 2026-09-23; the done line runs from
+             a session's seat, and the run from his shell is his
     because  Henri, 2026-09-21, to a general session (the transcript is
              `doc/notes/lineaarilogiikka-kieli-keskustelu.md`, copied here
              verbatim at his "it'd be tend's project"): "Minulla on
@@ -209,6 +210,67 @@ branches before the refusal on trial — the checker right about the
 test.  Five mutate rows on the walk, beside the four of day one.  Not
 built, said in the header: the cut, a message type but `Int`, a channel
 sent over a channel, `!A`, polymorphism, the state thread.
+
+## Day three, landed — 2026-09-23, at his "Do the day 3 now, and then lets discuss where this goes"
+
+The cut.  `new c: T (p(c, ...; ...) | q(c, ...; ...))` is a goal: it
+makes a channel, gives the end at `T` to the left call and the end at
+`~T` to the right, runs both, and binds both sides' outputs when both
+are done.  `kude/bank.kude` ends with the line the `done` line asked
+for — `main(; got) <- new c: Bank (bank(c, 100; ) | client(c; got)).` —
+and `kude.py run kude/bank.kude 'main()'` answers `got = 120` with
+nothing read from stdin: the bank and the client talking to each
+other, not to a script.
+
+The check is the cut's and small, because day two had done the rest:
+each side is one call and takes `c` at its end's type, so the two ends
+are dual because each callee's own type says so — `new c: Bank
+(bank(c, 100; ) | bank(c, 0; ))` is refused as *bank takes c at Bank,
+and c is at ~Bank*, naming the clause; a side that does not take `c` is
+refused; `c` is not touched after the cut; `c` must be a new name; and
+a channel the clause already holds goes to one side at most, which
+day two's rule on passing already said.  So the parties of a run form a
+tree with one channel per edge, and a tree of parties each walking its
+type never has every party waiting.  That is the deadlock freedom the
+`done` line asked for, from the check — and it is only that: a bank
+whose client never quits runs forever, which is not a deadlock and not
+excluded.
+
+The run is the transcript's step 4: coroutines (a clause is a Python
+generator that yields when the message it needs is not there) and a
+queue each way, one thread, no lock.  A cut runs its two parties in
+rounds; only a message put on a queue wakes a waiting party, so a round
+in which nothing was sent and someone still waits is handed up, and at
+the top that is every party waiting — which the runner reports as *the
+check let this through*, because a check that is wrong must be able to
+say so.  A test makes the check wrong in-process (every two types
+`same`) and reads the runner's words.
+
+Eleven tests.  Ten were run before the program and all ten red.  The
+tenth then failed after the program, and was the fixture's fault: it
+put two clients on one channel expecting a deadlock, and with a queue
+each way there is none — each client took the other's `deposit` where
+it waited for a number and answered `a = deposit`, and the run said
+nothing.  So the runner learned a second assertion — a message of the
+wrong kind is *the check let this through* — and an eleventh test holds
+it, written with its fix rather than before it; the deadlock test now
+uses two banks, each waiting for the other to choose.  The day's one
+lesson in the old shape: a fixture is a claim about the thing it
+copies, and "two clients deadlock" was a claim about a synchronous
+wire this runner is not.  Six mutate rows on the cut and the run,
+beside day one's four and day two's five: fifteen, all red.
+
+Measured and written into the header: there are no tail calls — a
+recursion is a Python frame — so a client that deposits 400 times runs
+and one that deposits 1000 times is a run error.  Not built beyond
+day two's list: a cut side that is more than one call, and more than one
+channel from the shell.
+
+The `done` line now runs from this seat, from the shell a session has:
+Bank and Client from one command, the refusals named, no lock.  "From
+his shell" is his seat, so the card stays `doing` until he has run it
+or said otherwise; where Kude goes after the `done` line is the talk
+that follows this commit.
 
 ## What would make this wrong
 

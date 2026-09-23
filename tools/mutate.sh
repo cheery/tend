@@ -214,6 +214,13 @@ test/test_kude.py	kude: a channel left unfinished is let through	sed -i 's/if ch
 test/test_kude.py	kude: a branch after an action is let through	sed -i 's/if acted:/if False:/' kude/kude.py
 test/test_kude.py	kude: a channel passed at the wrong type is let through	sed -i 's/if not same(chans\[a\[1\]\], ptype, types):/if False:/' kude/kude.py
 test/test_kude.py	kude: a channel used after it was passed is let through	sed -i 's/if ch in passed:/if False:/' kude/kude.py
+# day three — the cut and the run of two parties, 2026-09-23
+test/test_kude.py	kude: the cut gives both sides the same end	sed -i 's/zip(g\["sides"\], (t, dual(t)))/zip(g["sides"], (t, t))/' kude/kude.py
+test/test_kude.py	kude: a cut side that leaves its end unused is let through	sed -i 's/!= side\["name"\]:/!= side["name"] and False:/' kude/kude.py
+test/test_kude.py	kude: a cut over a name already bound is let through	sed -i 's/if ch in entry or ch in body or ch in chans or ch in passed:/if False:/' kude/kude.py
+test/test_kude.py	kude: a round that moved hands up as if stuck	sed -i 's/if live and rt.sent == before:/if live:/' kude/kude.py
+test/test_kude.py	kude: every party waiting is never handed up (a hang)	sed -i 's/if live and rt.sent == before:/if False:/' kude/kude.py
+test/test_kude.py	kude: a message of the wrong kind is taken silently	sed -i 's/if number != isinstance(item, int):/if False:/' kude/kude.py
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py
