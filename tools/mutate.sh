@@ -220,7 +220,15 @@ test/test_kude.py	kude: a cut side that leaves its end unused is let through	sed
 test/test_kude.py	kude: a cut over a name already bound is let through	sed -i 's/if ch in entry or ch in body or ch in chans or ch in passed:/if False:/' kude/kude.py
 test/test_kude.py	kude: a round that moved hands up as if stuck	sed -i 's/if live and rt.sent == before:/if live:/' kude/kude.py
 test/test_kude.py	kude: every party waiting is never handed up (a hang)	sed -i 's/if live and rt.sent == before:/if False:/' kude/kude.py
-test/test_kude.py	kude: a message of the wrong kind is taken silently	sed -i 's/if number != isinstance(item, int):/if False:/' kude/kude.py
+test/test_kude.py	kude: a message of the wrong kind is taken silently	sed -i 's/if kind_of(item) != kind:/if False:/' kude/kude.py
+# card:real-program.md day one — the world as a channel, text, tail calls, 2026-09-23
+test/test_kude.py	kude: no tail calls — every call a frame	sed -i 's/tail = last\["kind"\] == "call"/tail = False and last["kind"] == "call"/' kude/kude.py
+test/test_kude.py	kude: a send of the wrong value type is let through	sed -i 's/if ttype(g\["term"\]) != cur\[2\]:/if False:/' kude/kude.py
+test/test_kude.py	kude: a call's input of the wrong value type is let through	sed -i 's/elif ttype(a) != vtype(ptype):/elif False:/' kude/kude.py
+test/test_kude.py	kude: an output bound to the wrong value type is let through	sed -i 's/if vt\[o\] != ot:/if False:/' kude/kude.py
+test/test_kude.py	kude: a comparison of text with a number is let through	sed -i 's/if known(left) and known(right) and ttype(left) != ttype(right):/if False:/' kude/kude.py
+test/test_kude.py	kude: two messages of different types are the same	sed -i 's/return ua\[2\] == ub\[2\] and same/return same/' kude/kude.py
+test/test_kude.py	kude: a program may redefine the terminal's types	sed -i 's/if name in world:/if False:/' kude/kude.py
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py

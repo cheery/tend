@@ -7,6 +7,8 @@ card:protocol.md.
     kude.py run FILE 'name(c, 2)'    check, then run the one clause that holds — a
                                      channel argument is played against stdin and stdout
     kude.py run bank.kude 'main()'   two parties joined by a cut, in one run
+    seq 5 | kude.py run nl.kude 'main(io)'
+                                     a channel at `Console` is played by the terminal
 
 A program is type definitions and clauses.  A clause is
 `name(inputs; outputs) <- goal, goal, ... .`, the semicolon splitting a
@@ -45,6 +47,27 @@ check and not from the run.  It says nothing about a program that runs
 forever; a bank whose client never quits is not a deadlock.  The run
 is coroutines and a queue each way, one thread and no lock.
 
+**The world is a channel** — card:real-program.md day one, 2026-09-23.
+The paper threads the world through a program as `st → st'`, used once
+and replaced, linear by convention; here a channel from the shell at the
+type `Console` is played by the terminal:
+
+    type Console = +{ read: Input, write: !Str . Console, close: end }.
+    type Input   = &{ line: ?Str . Console, eof: Console }.
+
+Both names are the terminal's and a program cannot define them, so a
+write after `close`, a clause that ends with the console open, or a
+number written where text is due is refused like any channel's misuse.
+**Values are `Int` and `Str`**: a head input `s: Str`, an output
+`s: Str`, a message `!Str`, a literal `"text"` (escapes `\\n \\t \\" \\\\`);
+every variable has one, and a value where the other is due — sent, passed,
+compared, or bound to an output — is refused naming both.  Builtins:
+`mod`, `add`, `sub` on numbers, `cat` on text, `show` a number as text,
+`len` of text.  **Tail calls**: a clause whose last goal is a call that
+hands back exactly the clause's outputs, in order, runs in the frame it
+is in, so a loop written as recursion runs as long as its input — `nl`
+over a hundred thousand lines, a bank over a hundred thousand rounds.
+
 **Exactly one clause holds.**  The paper asks that a predicate's guards
 be complementary and exhaustive, so that one clause succeeds and
 nothing backtracks; here that is checked and not trusted.  A guard is
@@ -68,13 +91,12 @@ the body ends.  A comparison on a value the body computed is refused —
 if it failed there would be no clause to fall to, and the form has no
 backtracking — so a test belongs in the guards or nowhere.
 
-**Not built**, and said here so it is not mistaken for built: a message
-type but `Int`, sending a channel over a channel, the replicable
-service `!A`, polymorphism, the paper's state thread, a cut side that is
-more than one call, more than one channel from the shell, any builtin
-but `mod`, `add`, `sub`, any term but a variable or an integer — and
-tail calls: a recursion is a Python frame, so a conversation of 400
-rounds runs and one of 1000 is a run error (measured 2026-09-23).  The
+**Not built**, and said here so it is not mistaken for built: sending a
+channel over a channel, the replicable service `!A`, polymorphism, a
+file as a channel, a cut side that is more than one call, more than one
+channel from the shell, text in the shell's call, reading a number out
+of text, and depth for a call that is not last — that is still a Python
+frame, so a non-tail recursion a thousand deep is a run error.  The
 runner asserts what the check proved — exactly one clause holds, every
 message is of the kind its taker waits for, and never does every party
 wait — and says so if it ever finds otherwise, because a check that is
@@ -86,7 +108,10 @@ import itertools
 import re
 import sys
 
-BUILTINS = {"mod": (2, 1), "add": (2, 1), "sub": (2, 1)}
+BUILTINS = {"mod": (("Int", "Int"), ("Int",)), "add": (("Int", "Int"), ("Int",)),
+            "sub": (("Int", "Int"), ("Int",)), "cat": (("Str", "Str"), ("Str",)),
+            "show": (("Int",), ("Str",)), "len": (("Str",), ("Int",))}
+VALUES = ("Int", "Str")
 MAX_CASES = 3 ** 10     # past this the check says so rather than hang
 RELATIONS = {"<": {"<"}, "=": {"="}, ">": {">"},
              "!=": {"<", ">"}, "<=": {"<", "="}, ">=": {">", "="}}
@@ -105,20 +130,25 @@ class RunError(Exception):
 
 # ── reading ───────────────────────────────────────────────────────────────
 
-SPELLING = [("←", "<-"), ("∧", ","), ("≠", "!="), ("≤", "<="), ("≥", ">=")]
-TOKEN = re.compile(r"[ \t\r]+|--[^\n]*|(\n)|(<-|!=|<=|>=|[<>=(),;.!?+&{}:~|])|(-?\d+)|([A-Za-z_][A-Za-z0-9_']*)|(.)")
+SPELLING = {"←": "<-", "∧": ",", "≠": "!=", "≤": "<=", "≥": ">="}
+ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
+TOKEN = re.compile(r'[ \t\r]+|--[^\n]*|(\n)|(<-|!=|<=|>=|[<>=(),;.!?+&{}:~|←∧≠≤≥])|(-?\d+)'
+                   r'|([A-Za-z_][A-Za-z0-9_\']*)|"((?:[^"\\\n]|\\.)*)"|(.)')
 
 
 def tokens(text):
-    for theirs, ours in SPELLING:
-        text = text.replace(theirs, ours)
     line = 1
     for m in TOKEN.finditer(text):
-        nl, op, num, name, bad = m.groups()
+        nl, op, num, name, text_, bad = m.groups()
         if nl:
             line += 1
+        elif text_ is not None:
+            bad_escape = re.search(r"\\([^nt\"\\])", text_)
+            if bad_escape:
+                raise Refusal(f"line {line}: unknown escape \\{bad_escape.group(1)} in a string")
+            yield ("str", re.sub(r"\\(.)", lambda e: ESCAPES[e.group(1)], text_), line)
         elif op:
-            yield ("op", op, line)
+            yield ("op", SPELLING.get(op, op), line)
         elif num:
             yield ("int", int(num), line)
         elif name:
@@ -165,10 +195,11 @@ class Parser:
         t = self.peek()
         if t[1] in ("!", "?"):
             self.i += 1
-            if self.take("var")[1] != "Int":
-                raise Refusal(f"line {t[2]}: a message is an Int — nothing else is sent yet")
+            vt = self.take("var")[1]
+            if vt not in VALUES:
+                raise Refusal(f"line {t[2]}: a message is an Int or a Str, not {vt}")
             self.take("op", ".")
-            return ("send" if t[1] == "!" else "recv", self.type_expr())
+            return ("send" if t[1] == "!" else "recv", self.type_expr(), vt)
         if t[1] in ("+", "&"):
             self.i += 1
             self.take("op", "{")
@@ -188,6 +219,8 @@ class Parser:
             self.i += 1
             return ("dual", self.take("var")[1])
         if t[0] == "var":
+            if t[1] in VALUES:
+                raise Refusal(f"line {t[2]}: {t[1]} is a value, not a protocol — a message is `!{t[1]} . S`")
             self.i += 1
             return ("end",) if t[1] == "end" else ("name", t[1])
         raise Refusal(f"line {t[2]}: expected a type, got {t[1]!r}")
@@ -196,9 +229,9 @@ class Parser:
         line = self.peek()[2]
         name = self.take("var")[1]
         self.take("op", "(")
-        ins = self.params(typed=True)
+        ins = self.params("in")
         self.take("op", ";")
-        outs = [n for n, _ in self.params(typed=False)]
+        outs = self.params("out")
         self.take("op", ")")
         self.take("op", "<-")
         goals = [self.goal()]
@@ -206,18 +239,30 @@ class Parser:
             self.take("op", ",")
             goals.append(self.goal())
         self.take("op", ".")
-        return {"name": name, "ins": ins, "outs": outs, "goals": goals, "line": line}
+        return {"name": name, "ins": ins, "outs": [n for n, _ in outs], "otypes": [t for _, t in outs],
+                "goals": goals, "line": line}
 
-    def params(self, typed):
+    def params(self, where):
+        """A head's inputs (`where` "in"): a number, `s: Str`, or a channel
+        `c: T` — (name, None) for an Int, ("val", "Str") for text, the
+        session type for a channel.  A head's outputs ("out"): (name, "Int"
+        or "Str").  A call's outputs ("call"): names, the types the callee's."""
         out = []
         while self.peek()[0] == "var":
             name = self.take("var")[1]
-            t = None
+            t = None if where == "in" else "Int"
             if self.peek()[1] == ":":
-                if not typed:
-                    raise Refusal(f"line {self.peek()[2]}: an output has no type — a channel is made by nothing yet")
+                line = self.peek()[2]
+                if where == "call":
+                    raise Refusal(f"line {line}: a call's output takes its type from the callee")
                 self.take("op", ":")
-                t = self.type_expr()
+                if self.peek()[1] in VALUES:
+                    vt = self.take("var")[1]
+                    t = vt if where == "out" else (None if vt == "Int" else ("val", vt))
+                elif where == "out":
+                    raise Refusal(f"line {line}: an output is an Int or a Str — a channel is made by a cut")
+                else:
+                    t = self.type_expr()
             out.append((name, t))
             if self.peek()[1] != ",":
                 break
@@ -226,10 +271,10 @@ class Parser:
 
     def term(self):
         t = self.peek()
-        if t[0] in ("int", "var"):
+        if t[0] in ("int", "str", "var"):
             self.i += 1
             return (t[0], t[1])
-        raise Refusal(f"line {t[2]}: expected a variable or a number, got {t[1]!r}")
+        raise Refusal(f"line {t[2]}: expected a variable, a number or a string, got {t[1]!r}")
 
     def call(self):
         line = self.peek()[2]
@@ -242,7 +287,7 @@ class Parser:
                 break
             self.take("op", ",")
         self.take("op", ";")
-        outs = [n for n, _ in self.params(typed=False)]
+        outs = [n for n, _ in self.params("call")]
         self.take("op", ")")
         return {"kind": "call", "name": name, "args": args, "outs": outs, "line": line}
 
@@ -287,8 +332,10 @@ def tshow(t):
     k = t[0]
     if k == "end":
         return "end"
+    if k == "val":
+        return t[1]
     if k in ("send", "recv"):
-        return ("!Int . " if k == "send" else "?Int . ") + tshow(t[1])
+        return ("!" if k == "send" else "?") + f"{t[2]} . " + tshow(t[1])
     if k in ("choose", "offer"):
         return ("+" if k == "choose" else "&") + "{" + ", ".join(f"{l}: {tshow(s)}" for l, s in t[1]) + "}"
     return t[1] if k == "name" else "~" + t[1]
@@ -299,7 +346,7 @@ def dual(t):
     if k == "end":
         return t
     if k in ("send", "recv"):
-        return ("recv" if k == "send" else "send", dual(t[1]))
+        return ("recv" if k == "send" else "send", dual(t[1]), t[2])
     if k in ("choose", "offer"):
         return ("offer" if k == "choose" else "choose", [(l, dual(s)) for l, s in t[1]])
     return ("dual", t[1]) if k == "name" else ("name", t[1])
@@ -322,7 +369,7 @@ def same(a, b, types, seen=()):
         return False
     seen = seen + ((a, b),)
     if ua[0] in ("send", "recv"):
-        return same(ua[1], ub[1], types, seen)
+        return ua[2] == ub[2] and same(ua[1], ub[1], types, seen)
     if ua[0] in ("choose", "offer"):
         return [l for l, _ in ua[1]] == [l for l, _ in ub[1]] and \
             all(same(s, r, types, seen) for (_, s), (_, r) in zip(ua[1], ub[1]))
@@ -344,25 +391,50 @@ def names_exist(t, types, where):
 
 # ── the check ─────────────────────────────────────────────────────────────
 
+def is_chan(t):
+    return t is not None and t[0] != "val"
+
+
+def vtype(t):
+    """A value parameter's type, from its (name, t): Int unless it says Str."""
+    return "Int" if t is None else t[1]
+
+
 def signature(c):
     ins = ", ".join(n if t is None else f"{n}: {tshow(t)}" for n, t in c["ins"])
-    return f"{c['name']}({ins}; {', '.join(c['outs'])})"
+    outs = ", ".join(n if t == "Int" else f"{n}: {t}" for n, t in zip(c["outs"], c["otypes"]))
+    return f"{c['name']}({ins}; {outs})"
 
 
 def show(term):
+    if term[0] == "str":
+        return '"' + term[1].replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\t", "\\t") + '"'
     return str(term[1])
+
+
+# The terminal's protocol, as the program sees it: the partner at the other
+# end of a channel from the shell at `Console` is the terminal itself.
+WORLD_TEXT = """
+type Console = +{ read: Input, write: !Str . Console, close: end }.
+type Input   = &{ line: ?Str . Console, eof: Console }.
+"""
 
 
 def check(program):
     """Refuse, or return (types, predicates) — name → clauses, each goal
     marked by what it is — which is what the runner runs."""
     types, clauses = program
+    world = parse(WORLD_TEXT)[0]
+    for name in types:
+        if name in world:
+            raise Refusal(f"type {name} is the terminal's and cannot be defined: {tshow(world[name])}")
+    types = {**world, **types}
     for name, t in types.items():
         names_exist(t, types, f"type {name}")
     preds = {}
     for c in clauses:
         for n, t in c["ins"]:
-            if t is not None:
+            if is_chan(t):
                 names_exist(t, types, f"line {c['line']}, {signature(c)}")
         first = preds.setdefault(c["name"], [])
         if first and signature(first[0]) != signature(c):
@@ -381,18 +453,22 @@ def modes(c, preds, types):
     head = [n for n, _ in c["ins"]] + c["outs"]
     if len(set(head)) != len(head):
         raise Refusal(f"line {c['line']}: {signature(c)} names a variable twice in its head")
-    entry = {n for n, t in c["ins"] if t is None}     # numbers known when the clause is chosen
-    chans = {n: t for n, t in c["ins"] if t is not None}
+    entry = {n for n, t in c["ins"] if not is_chan(t)}     # values known when the clause is chosen
+    chans = {n: t for n, t in c["ins"] if is_chan(t)}
+    vt = {n: vtype(t) for n, t in c["ins"] if not is_chan(t)}     # var → Int or Str
     passed = {}                    # channel → the call it went to
     body = {}                      # var → how it was bound in this clause
     acted = False                  # a non-guard goal has been seen
     where = f"line {{}}, clause {signature(c)}"
 
     def known(term):
-        return term[0] == "int" or term[1] in entry or term[1] in body
+        return term[0] != "var" or term[1] in entry or term[1] in body
 
     def at_entry(term):
-        return term[0] == "int" or term[1] in entry
+        return term[0] != "var" or term[1] in entry
+
+    def ttype(term):
+        return {"int": "Int", "str": "Str"}.get(term[0]) or vt[term[1]]
 
     def channel(g, here):
         ch = g["chan"]
@@ -404,20 +480,20 @@ def modes(c, preds, types):
 
     def take_call(g, here):
         if g["name"] in BUILTINS:
-            nin, nout = BUILTINS[g["name"]]
-            params = [(None, None)] * nin
+            ins_t, otypes = BUILTINS[g["name"]]
+            params = [(f"input {i}", None if t == "Int" else ("val", t)) for i, t in enumerate(ins_t, 1)]
         elif g["name"] in preds:
             callee = preds[g["name"]][0]
-            nin, nout = len(callee["ins"]), len(callee["outs"])
-            params = callee["ins"]
+            params, otypes = callee["ins"], callee["otypes"]
         else:
             raise Refusal(f"{here}: no predicate {g['name']}")
+        nin, nout = len(params), len(otypes)
         if (len(g["args"]), len(g["outs"])) != (nin, nout):
             raise Refusal(f"{here}: {g['name']} takes {nin} inputs and {nout} outputs")
         for a, (pname, ptype) in zip(g["args"], params):
             if a[0] == "var" and a[1] in chans:
-                if ptype is None:
-                    raise Refusal(f"{here}: {g['name']} takes a number where {a[1]} is a channel")
+                if not is_chan(ptype):
+                    raise Refusal(f"{here}: {g['name']} takes {pname} as {vtype(ptype)}, where {a[1]} is a channel")
                 if a[1] in passed:
                     raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
                 if not same(chans[a[1]], ptype, types):
@@ -425,14 +501,17 @@ def modes(c, preds, types):
                 passed[a[1]] = g["name"]
             elif a[0] == "var" and a[1] in passed:
                 raise Refusal(f"{here}: {a[1]} was passed to {passed[a[1]]} and is not used after")
-            elif ptype is not None:
-                raise Refusal(f"{here}: {g['name']} takes {pname} as a channel at {tshow(ptype)}, and {show(a)} is a number")
+            elif is_chan(ptype):
+                raise Refusal(f"{here}: {g['name']} takes {pname} as a channel at {tshow(ptype)}, and {show(a)} is a value")
             elif not known(a):
                 raise Refusal(f"{here}: {show(a)} is not bound when {g['name']} is called")
-        for o in g["outs"]:
+            elif ttype(a) != vtype(ptype):
+                raise Refusal(f"{here}: {g['name']} takes {pname} as {vtype(ptype)}, and {show(a)} is {ttype(a)}")
+        for o, ot in zip(g["outs"], otypes):
             if o in entry or o in body or o in chans:
                 raise Refusal(f"{here}: {o} is bound twice")
             body[o] = "call"
+            vt[o] = ot
 
     for g in c["goals"]:
         here = where.format(g["line"])
@@ -466,6 +545,9 @@ def modes(c, preds, types):
                 raise Refusal(f"{here}: `{ch} ! {show(g['term'])}` — {ch} is at {tshow(chans[ch])}, which does not send")
             if not known(g["term"]):
                 raise Refusal(f"{here}: {show(g['term'])} is not bound")
+            if ttype(g["term"]) != cur[2]:
+                raise Refusal(f"{here}: `{ch} ! {show(g['term'])}` — {ch} is at {tshow(chans[ch])}, which sends "
+                              f"{cur[2]}, and {show(g['term'])} is {ttype(g['term'])}")
             chans[ch] = cur[1]
             acted = True
             continue
@@ -476,6 +558,7 @@ def modes(c, preds, types):
             if g["var"] in entry or g["var"] in body or g["var"] in chans:
                 raise Refusal(f"{here}: {g['var']} is bound twice")
             body[g["var"]] = "recv"
+            vt[g["var"]] = g["vt"] = cur[2]
             chans[ch] = cur[1]
             acted = True
             continue
@@ -499,7 +582,9 @@ def modes(c, preds, types):
         left, op, right = g["left"], g["op"], g["right"]
         for t in (left, right):
             if t[0] == "var" and (t[1] in chans or t[1] in passed):
-                raise Refusal(f"{here}: {t[1]} is a channel, not a number to compare")
+                raise Refusal(f"{here}: {t[1]} is a channel, not a value to compare")
+        if known(left) and known(right) and ttype(left) != ttype(right):
+            raise Refusal(f"{here}: `{show(left)} {op} {show(right)}` compares {ttype(left)} with {ttype(right)}")
         if at_entry(left) and at_entry(right):
             g["kind"] = "guard"
             continue
@@ -508,6 +593,7 @@ def modes(c, preds, types):
                 raise Refusal(f"{here}: {show(right)} is not bound")
             g["kind"] = "bind"
             body[left[1]] = "bind"
+            vt[left[1]] = ttype(right)
             acted = True
             continue
         computed = [show(t) for t in (left, right) if t[0] == "var" and t[1] in body]
@@ -519,9 +605,11 @@ def modes(c, preds, types):
                           f"in this clause, and if the test failed there would be no clause to fall to")
         unbound = [show(t) for t in (left, right) if not known(t)]
         raise Refusal(f"{here}: {', '.join(unbound)} is not bound")
-    for o in c["outs"]:
+    for o, ot in zip(c["outs"], c["otypes"]):
         if o not in body:
             raise Refusal(f"{where.format(c['line'])}: output {o} is never bound")
+        if vt[o] != ot:
+            raise Refusal(f"{where.format(c['line'])}: output {o} is {ot}, and it is bound to {vt[o]}")
     for ch, t in chans.items():
         if ch not in passed and unfold(t, types)[0] != "end":
             raise Refusal(f"{where.format(c['line'])}: {ch} is at {tshow(t)} when the clause ends — "
@@ -533,11 +621,11 @@ def atom(g):
     of terms it compares, the relations the subset of < = > under which it
     holds; (None, bool) when it is constant."""
     left, op, right = g["left"], g["op"], g["right"]
-    if left[0] == "int" and right[0] == "int":
+    if left[0] != "var" and right[0] != "var":
         return None, COMPARE[op](left[1], right[1])
     if left == right:
         return None, "=" in RELATIONS[op]
-    if left[0] == "int" or (right[0] == "var" and left[1] > right[1]):
+    if left[0] != "var" or (right[0] == "var" and left[1] > right[1]):
         left, right, op = right, left, FLIP[op]
     return (show(left), show(right)), RELATIONS[op]
 
@@ -625,14 +713,16 @@ class Stdio:
         return self.name
 
     def put(self, item, sign, rt):
-        print(f"{self.name} {sign} {item}", flush=True)
+        print(f"{self.name} {sign} {item[1] if isinstance(item, tuple) else item}", flush=True)
 
-    def take(self, rt, what, number):
+    def take(self, rt, what, kind):
         line = sys.stdin.readline()
         if not line:
             raise RunError(f"the partner closed {what}")
-        if not number:
+        if kind is None:
             return line.strip()
+        if kind == "Str":
+            return line[:-1] if line.endswith("\n") else line
         try:
             return int(line.strip())
         except ValueError:
@@ -640,9 +730,54 @@ class Stdio:
         yield   # a generator like End.take, though a read from the shell never hands a round up
 
 
+class Console:
+    """The terminal, at the other end of a channel from the shell at
+    `Console`: `read` takes the next line of stdin and offers `line` with
+    it, or `eof`; `write` and then a Str prints it as a line; `close`
+    flushes.  It keeps no watch on the order it is told things in: that
+    is the check's, which walked the program along `Console`."""
+
+    def __init__(self, name):
+        self.name, self.pending, self.writing = name, collections.deque(), False
+
+    def __str__(self):
+        return self.name
+
+    def put(self, item, sign, rt):
+        if self.writing:
+            sys.stdout.write(item + "\n")
+            self.writing = False
+        elif item == ("label", "read"):
+            sys.stdout.flush()
+            line = sys.stdin.readline()
+            if line:
+                self.pending.extend([("label", "line"), line[:-1] if line.endswith("\n") else line])
+            else:
+                self.pending.append(("label", "eof"))
+        elif item == ("label", "write"):
+            self.writing = True
+        else:
+            sys.stdout.flush()
+
+    def take(self, rt, what, kind):
+        if not self.pending:
+            raise RunError(f"the check let this through: the terminal was asked {what} before a read")
+        item = self.pending.popleft()
+        return item[1] if kind is None else item
+        yield   # a generator like End.take; the terminal answers at once
+
+
+KINDS = {"Int": "a number", "Str": "text", None: "a choice"}
+
+
+def kind_of(item):
+    return None if isinstance(item, tuple) else "Int" if isinstance(item, int) else "Str"
+
+
 class End:
     """One end of a channel a cut made: a put goes on the queue the other
-    end takes from, and a take waits on this end's own."""
+    end takes from, and a take waits on this end's own.  A choice travels
+    as ("label", name), so it is never mistaken for text."""
 
     def __init__(self, name, queues, side):
         self.name, self.queues, self.side = name, queues, side
@@ -654,17 +789,16 @@ class End:
         self.queues[1 - self.side].append(item)
         rt.sent += 1
 
-    def take(self, rt, what, number):
+    def take(self, rt, what, kind):
         q = self.queues[self.side]
         while not q:
             rt.waiting[self] = what
             yield WAIT
         rt.waiting.pop(self, None)
         item = q.popleft()
-        if number != isinstance(item, int):
-            raise RunError(f"the check let this through: {item!r} came {what}, where "
-                           f"{'a number' if number else 'a choice'} was due")
-        return item
+        if kind_of(item) != kind:
+            raise RunError(f"the check let this through: {item!r} came {what}, where {KINDS[kind]} was due")
+        return item[1] if kind is None else item
 
 
 def together(parties, rt):
@@ -686,10 +820,14 @@ def together(parties, rt):
 
 
 def value(term, env):
-    return term[1] if term[0] == "int" else env[term[1]]
+    return env[term[1]] if term[0] == "var" else term[1]
 
 
 def builtin(name, args, trace):
+    if name == "show":
+        return [str(args[0])]
+    if name == "len":
+        return [len(args[0])]
     a, b = args
     if name == "mod":
         if b == 0:
@@ -699,62 +837,73 @@ def builtin(name, args, trace):
         return [a + b]
     if name == "sub":
         return [a - b]
+    if name == "cat":
+        return [a + b]
     raise RunError(f"no builtin {name}")
 
 
 def call(preds, name, args, rt):
-    cs = preds[name]
-    trace = f"{name}({', '.join(map(str, args))})"
-    chosen = {}                # an offering end → the branch its partner chose
-    for c in cs:
-        env = dict(zip((n for n, _ in c["ins"]), args))
-        for g in c["goals"]:
-            if g["kind"] == "branch" and env[g["chan"]] not in chosen:
-                end = env[g["chan"]]
-                chosen[end] = yield from end.take(rt, f"while {trace} waited for its choice on {end}", False)
-    holding = []
-    for c in cs:
-        env = dict(zip((n for n, _ in c["ins"]), args))
-        ok = True
-        for g in c["goals"]:
-            if g["kind"] == "guard":
-                ok = COMPARE[g["op"]](value(g["left"], env), value(g["right"], env))
-            elif g["kind"] == "branch":
-                ok = chosen[env[g["chan"]]] == g["label"]
-            if not ok:
-                break
-        if ok:
-            holding.append((c, env))
-    if len(holding) != 1:
-        raise RunError(f"the check let this through: {len(holding)} clauses of {signature(cs[0])} hold for {trace}")
-    c, env = holding[0]
-    for g in c["goals"]:
-        k = g["kind"]
-        if k == "bind":
-            env[g["left"][1]] = value(g["right"], env)
-        elif k == "call":
-            a = [value(t, env) for t in g["args"]]
-            if g["name"] in BUILTINS:
-                outs = builtin(g["name"], a, trace)
-            else:
-                outs = yield from call(preds, g["name"], a, rt)
-            env.update(zip(g["outs"], outs))
-        elif k == "cut":
-            queues = (collections.deque(), collections.deque())
-            parties = []
-            for side, i in zip(g["sides"], (0, 1)):
-                local = dict(env, **{g["chan"]: End(g["chan"], queues, i)})
-                parties.append(call(preds, side["name"], [value(t, local) for t in side["args"]], rt))
-            results = yield from together(parties, rt)
-            for side, outs in zip(g["sides"], results):
-                env.update(zip(side["outs"], outs))
-        elif k == "send":
-            env[g["chan"]].put(value(g["term"], env), "!", rt)
-        elif k == "recv":
-            env[g["var"]] = yield from env[g["chan"]].take(rt, f"on `{g['chan']} ? {g['var']}` in {trace}", True)
-        elif k == "choose":
-            env[g["chan"]].put(g["label"], ".", rt)
-    return [env[o] for o in c["outs"]]
+    """Run name(args) as a party.  A clause whose last goal is a call that
+    hands back exactly the clause's outputs, in order, is a tail call: the
+    loop goes round with the callee instead of stacking a frame, so a loop
+    written as recursion runs as long as its input does."""
+    while True:
+        cs = preds[name]
+        trace = f"{name}({', '.join(map(str, args))})"
+        chosen = {}                # an offering end → the branch its partner chose
+        for c in cs:
+            env = dict(zip((n for n, _ in c["ins"]), args))
+            for g in c["goals"]:
+                if g["kind"] == "branch" and env[g["chan"]] not in chosen:
+                    end = env[g["chan"]]
+                    chosen[end] = yield from end.take(rt, f"while {trace} waited for its choice on {end}", None)
+        holding = []
+        for c in cs:
+            env = dict(zip((n for n, _ in c["ins"]), args))
+            ok = True
+            for g in c["goals"]:
+                if g["kind"] == "guard":
+                    ok = COMPARE[g["op"]](value(g["left"], env), value(g["right"], env))
+                elif g["kind"] == "branch":
+                    ok = chosen[env[g["chan"]]] == g["label"]
+                if not ok:
+                    break
+            if ok:
+                holding.append((c, env))
+        if len(holding) != 1:
+            raise RunError(f"the check let this through: {len(holding)} clauses of {signature(cs[0])} hold for {trace}")
+        c, env = holding[0]
+        last = c["goals"][-1]
+        tail = last["kind"] == "call" and last["name"] not in BUILTINS and last["outs"] == c["outs"]
+        for g in c["goals"][:-1] if tail else c["goals"]:
+            k = g["kind"]
+            if k == "bind":
+                env[g["left"][1]] = value(g["right"], env)
+            elif k == "call":
+                a = [value(t, env) for t in g["args"]]
+                if g["name"] in BUILTINS:
+                    outs = builtin(g["name"], a, trace)
+                else:
+                    outs = yield from call(preds, g["name"], a, rt)
+                env.update(zip(g["outs"], outs))
+            elif k == "cut":
+                queues = (collections.deque(), collections.deque())
+                parties = []
+                for side, i in zip(g["sides"], (0, 1)):
+                    local = dict(env, **{g["chan"]: End(g["chan"], queues, i)})
+                    parties.append(call(preds, side["name"], [value(t, local) for t in side["args"]], rt))
+                results = yield from together(parties, rt)
+                for side, outs in zip(g["sides"], results):
+                    env.update(zip(side["outs"], outs))
+            elif k == "send":
+                env[g["chan"]].put(value(g["term"], env), "!", rt)
+            elif k == "recv":
+                env[g["var"]] = yield from env[g["chan"]].take(rt, f"on `{g['chan']} ? {g['var']}` in {trace}", g["vt"])
+            elif k == "choose":
+                env[g["chan"]].put(("label", g["label"]), ".", rt)
+        if not tail:
+            return [env[o] for o in c["outs"]]
+        name, args = last["name"], [value(t, env) for t in last["args"]]
 
 
 CALL = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_']*)\s*\(\s*((?:-?\d+|[A-Za-z_][A-Za-z0-9_']*)(?:\s*,\s*(?:-?\d+|[A-Za-z_][A-Za-z0-9_']*))*)?\s*\)\s*$")
@@ -773,14 +922,16 @@ def run(types, preds, text):
         raise Refusal(f"{name} takes {len(c['ins'])} inputs, {len(given)} given")
     args, channels = [], []
     for g, (pname, ptype) in zip(given, c["ins"]):
-        if ptype is None:
+        if not is_chan(ptype):
+            if vtype(ptype) == "Str":
+                raise Refusal(f"{pname} is a Str, and text is not read from the shell's call yet")
             if not re.fullmatch(r"-?\d+", g):
                 raise Refusal(f"{pname} is a number, and {g} is not one")
             args.append(int(g))
         else:
             if re.fullmatch(r"-?\d+", g):
                 raise Refusal(f"{pname} is a channel at {tshow(ptype)}, and {g} is not a name for one")
-            args.append(Stdio(g))
+            args.append(Console(g) if ptype == ("name", "Console") else Stdio(g))
             channels.append(g)
     if len(channels) > 1:
         raise Refusal(f"one channel from the shell per run — {name} has {len(channels)}; "

@@ -1,0 +1,23 @@
+-- Number the lines of whatever is piped in — card:real-program.md day one,
+-- 2026-09-23.  The first Kude program that does a job:
+--
+--     seq 5 | python3 kude/kude.py run kude/nl.kude 'main(io)'
+--
+-- `io` is a channel from the shell at `Console`, and the terminal is the party
+-- at its other end.  Its type is the checker's, not this file's:
+--
+--     type Console = +{ read: Input, write: !Str . Console, close: end }.
+--     type Input   = &{ line: ?Str . Console, eof: Console }.
+--
+-- So the paper's state thread `st → st'`, linear by convention there, is a
+-- session here: the check refuses a write after `close`, a clause that ends
+-- with the console open, and a number written where the terminal takes text.
+
+main(io: Console; ) <- nl(io, 1; ).
+
+-- Ask for a line; `line` below is the answer, one clause per branch offered.
+nl(io: Console, n; ) <- io.read, line(io, n; ).
+
+line(io: Input, n; ) <- io.line, io?s, show(n; k), cat(k, " "; p), cat(p, s; out),
+                        io.write, io!out, add(n, 1; m), nl(io, m; ).
+line(io: Input, n; ) <- io.eof, io.close.

@@ -421,3 +421,114 @@ def test_the_run_says_so_if_the_check_ever_lets_a_wrong_message_through(tmp_path
     r = unchecked(tmp_path, text)
     assert r.returncode == 2, (r.returncode, r.stdout, r.stderr)
     assert "the check let this through" in r.stderr and "'deposit'" in r.stderr and "a number" in r.stderr, r.stderr
+
+
+# ── card:real-program.md day one: the world as a channel, text, tail calls ─
+#
+# A channel from the shell at the type `Console` is played by the terminal:
+# `read` makes it offer `line` with the next line of stdin, or `eof`;
+# `write` then `!s` prints s; `close` ends it.  So a write after close, or
+# a console left open, is refused as any channel's misuse is.  `Str` is a
+# value beside `Int`, as a message (`!Str`), a literal, a head input
+# `s: Str` and an output `s: Str`, and the check refuses the one where the
+# other is due.  A clause whose last goal is a call handing back exactly
+# the clause's outputs runs in the frame it is in, so a loop is a loop.
+
+NL = ROOT / "kude" / "nl.kude"
+
+
+def test_nl_numbers_the_lines_piped_to_it():
+    r = kude("check", NL)
+    assert r.returncode == 0, r.stderr
+    r = kude("run", NL, "main(io)", stdin="alpha\nbeta\n\ngamma\n")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout == "1 alpha\n2 beta\n3 \n4 gamma\n", r.stdout
+
+
+def test_nl_on_nothing_says_nothing():
+    r = kude("run", NL, "main(io)", stdin="")
+    assert r.returncode == 0 and r.stdout == "", (r.stdout, r.stderr)
+
+
+def test_nl_runs_over_a_hundred_thousand_lines():
+    lines = "".join(f"line {i}\n" for i in range(100000))
+    r = kude("run", NL, "main(io)", stdin=lines)
+    assert r.returncode == 0, r.stderr[-500:]
+    out = r.stdout.splitlines()
+    assert len(out) == 100000 and out[0] == "1 line 0" and out[-1] == "100000 line 99999", (len(out), out[-1:])
+
+
+def test_a_conversation_of_a_hundred_thousand_rounds_runs(tmp_path):
+    # day three's measure was 400 rounds run and 1000 a run error
+    src = tmp_path / "loop.kude"
+    src.write_text(BANK.read_text(encoding="utf-8") +
+                   "many(c: ~Bank, n; got) <- n > 0, c.deposit, c!1, sub(n, 1; m), many(c, m; got).\n"
+                   "many(c: ~Bank, n; got) <- n = 0, c.withdraw, c!0, c?got, c.quit.\n"
+                   "many(c: ~Bank, n; got) <- n < 0, c.quit, got = n.\n"
+                   "loop(n; got) <- new c: Bank (bank(c, 0; ) | many(c, n; got)).\n", encoding="utf-8")
+    r = kude("run", src, "loop(100000)")
+    assert r.returncode == 0 and r.stdout.strip() == "got = 100000", (r.stdout, r.stderr[-500:])
+
+
+def test_a_call_that_is_not_last_still_returns(tmp_path):
+    src = tmp_path / "s.kude"
+    src.write_text("sum(n; s) <- n > 0, sub(n, 1; m), sum(m; t), add(t, n; s).\n"
+                   "sum(n; s) <- n <= 0, s = 0.\n", encoding="utf-8")
+    r = kude("run", src, "sum(100)")
+    assert r.returncode == 0 and r.stdout.strip() == "s = 5050", (r.stdout, r.stderr)
+
+
+CONSOLE_OPEN = "main(io: Console; ) <- io.read, rest(io; ).\n"
+
+
+def test_a_write_after_close_is_refused_naming_the_state(tmp_path):
+    err = refused(tmp_path, CONSOLE_OPEN +
+                  "rest(io: Input; ) <- io.line, io?s, io.close, io.write, io!s.\n"
+                  "rest(io: Input; ) <- io.eof, io.close.\n")
+    assert "io . write" in err and "io is at end" in err and "rest" in err, err
+
+
+def test_a_console_left_open_is_refused(tmp_path):
+    err = refused(tmp_path, CONSOLE_OPEN +
+                  "rest(io: Input; ) <- io.line, io?s, io.write, io!s.\n"
+                  "rest(io: Input; ) <- io.eof, io.close.\n")
+    assert "io is at Console when the clause ends" in err, err
+
+
+def test_a_number_where_text_is_due_is_refused_naming_the_type(tmp_path):
+    err = refused(tmp_path, CONSOLE_OPEN +
+                  "rest(io: Input; ) <- io.line, io?s, io.write, io!5, io.close.\n"
+                  "rest(io: Input; ) <- io.eof, io.close.\n")
+    assert "io ! 5" in err and "!Str" in err and "Int" in err, err
+
+
+def test_text_where_a_number_is_due_is_refused(tmp_path):
+    err = refused(tmp_path, "f(s: Str; n) <- add(s, 1; n).\n")
+    assert "add" in err and "s" in err and "Str" in err and "Int" in err, err
+    err = refused(tmp_path, "f(n; s: Str) <- add(n, 1; s).\n")
+    assert "output s" in err and "Str" in err and "Int" in err, err
+    err = refused(tmp_path, 'f(n; r) <- n > "a", r = 1.\nf(n; r) <- n <= "a", r = 2.\n')
+    assert "Str" in err and "Int" in err, err
+
+
+def test_text_is_a_value_with_literals_and_builtins(tmp_path):
+    src = tmp_path / "t.kude"
+    src.write_text('f(n; s: Str, k) <- show(n; a), cat(a, " \\"x\\" ≤ y"; s), len(s; k).\n', encoding="utf-8")
+    r = kude("run", src, "f(12)")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines() == ['s = 12 "x" ≤ y', "k = 10"], r.stdout
+
+
+def test_a_cut_whose_ends_carry_different_messages_is_refused(tmp_path):
+    # written after the program, 2026-09-23; its mutate row is what says it bites
+    err = refused(tmp_path, "type T = !Int . end.\n"
+                  "give(c: T; ) <- c ! 1.\n"
+                  "take(c: ?Str . end; s: Str) <- c ? s.\n"
+                  "m(; s: Str) <- new c: T (give(c; ) | take(c; s)).\n")
+    assert "take takes c at ?Str . end" in err and "~T" in err, err
+
+
+def test_the_console_types_are_the_terminals(tmp_path):
+    err = refused(tmp_path, "type Console = end.\nf(c: Console; ) <- c.close.\n")
+    assert "Console" in err and "terminal" in err, err
+

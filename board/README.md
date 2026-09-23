@@ -219,6 +219,18 @@ between two workable cards is Henri's.
     run where every party waits reported as the check's fault.  The
     `done` line runs from a session's seat; the run from his shell is
     his.*
+16. **[real-program](real-program.md)** — Kude checks and runs
+    protocols, and no real program can be written in it: a thousand
+    rounds was a run error, a message was a number, and nothing
+    outside the program could be read or written.  *Placed last by the
+    session that wrote it on 2026-09-23, at Henri's "lets create a card
+    that maps the next direction, and immediately do it"; the `done`
+    line signed at his pick the same minute.  Day one landed in the
+    same sitting: the terminal as a channel at `Console`, `Str`, tail
+    calls, and `kude/nl.kude` numbering a hundred thousand lines.  The
+    rest of the card is a map of roads — files, channels over
+    channels, `!A`, the ask node's wire, a model writing Kude — and
+    the order is his.*
 
 ## Finished
 
