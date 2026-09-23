@@ -1,6 +1,6 @@
 # real-program — Kude checks and runs protocols, and no real program can be written in it
 
-    status   doing — the done line signed 2026-09-23
+    status   done — 2026-09-23
     because  Henri, 2026-09-21, in the transcript card:protocol.md
              grew from: "Minua esimerkiksi kiehtoisi paljon juuri nyt
              'design 2' vietynä niin pitkälle että sillä voisi tuottaa
@@ -118,3 +118,12 @@ refusals naming type and clause for write-after-close, left-open and a
 number where text is due, the old files green — all true from a
 session's seat.  "From his shell" is his; the card stays `doing` until
 he has run it.
+
+## Closed — 2026-09-23, at his "This works"
+
+He ran it: "This works.  Lets leave a card where to continue from, then
+we can stop."  The `because` no longer stands in the words it was
+written in: a real program is written in Kude and runs as long as its
+input.  The map above is the next card's, not this one's — it moves to
+`card:kude.md` with where to start, and this card keeps it as what it
+said on the day it was drawn.

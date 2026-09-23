@@ -318,3 +318,19 @@ more things the card held: the contents to the notebook card when it
 opens, the layered pull graph to `canvas`, the compositor of his own to
 `later/compositor.md`.  Woken 2026-09-06 and closed the next day, with
 the day-one mirror it built retired by the line he signed.
+
+`protocol` and `real-program` finished 2026-09-23, at Henri's "This
+works.  Lets leave a card where to continue from, then we can stop."
+`protocol` was carded 2026-09-22 from a transcript of his with a general
+session, its `done` line signed and its language named Kude the same
+morning, and it closed on its third day: `gcd`, then one party walked
+along its session type, then the cut — Bank and Client in one run,
+duality from the callee's types, a tree of parties and so no deadlock,
+coroutines and no lock (`done/protocol.md`).  `real-program` was carded,
+signed and built in one sitting the next afternoon, at his "maps the
+next direction, and immediately do it": the terminal as a channel at
+`Console`, `Str`, tail calls, and `kude/nl.kude` numbering a hundred
+thousand lines (`done/real-program.md`).  What neither closed is the
+question `protocol` asked of itself — whether anything ever hands the
+checker a program — and it goes on to `card:kude.md` with the five
+roads, none chosen.

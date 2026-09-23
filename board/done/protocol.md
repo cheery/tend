@@ -1,7 +1,6 @@
 # protocol — a program a model writes carries its why nowhere a machine checks, and the places it goes wrong are the interfaces
 
-    status   doing — day three landed 2026-09-23; the done line runs from
-             a session's seat, and the run from his shell is his
+    status   done — 2026-09-23
     because  Henri, 2026-09-21, to a general session (the transcript is
              `doc/notes/lineaarilogiikka-kieli-keskustelu.md`, copied here
              verbatim at his "it'd be tend's project"): "Minulla on
@@ -271,6 +270,18 @@ Bank and Client from one command, the refusals named, no lock.  "From
 his shell" is his seat, so the card stays `doing` until he has run it
 or said otherwise; where Kude goes after the `done` line is the talk
 that follows this commit.
+
+## Closed — 2026-09-23, at his "This works"
+
+The `done` line's last clause was his shell's: after day three and
+`card:real-program.md`'s day one, handed the two commands, he wrote
+"This works.  Lets leave a card where to continue from, then we can
+stop."  The `because` no longer stands for the two programs it named:
+`gcd` and the Bank and Client run as clauses typed by session types,
+checked before they run, and the two parties meet at a cut with no
+lock.  The question below — whether anything ever hands the checker a
+program — is not answered by closing, and goes on to `card:kude.md`,
+where the roads are.
 
 ## What would make this wrong
 

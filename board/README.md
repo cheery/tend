@@ -192,49 +192,20 @@ between two workable cards is Henri's.
     omaa sääntöänsä"; its `done` line is a session's draft and
     unsigned, so by its own rule nothing on it is built until his
     line is there; the tiebreak is his.*
-15. **[protocol](protocol.md)** — a program a model writes carries its
-    why nowhere a machine checks, and the places it goes wrong are the
-    interfaces: a protocol, what may be sent, in what order, and what is
-    possible after — and this tree's own wires, `pull` and `connect`,
-    are typed by nothing.  *Placed last by the session that wrote it on
-    2026-09-22, at Henri's "it'd be tend's project" and the transcript's
-    "Ok.  Tehdään jotakin valmiiksi sitten"
-    (`doc/notes/lineaarilogiikka-kieli-keskustelu.md`); its `done` line is a
-    session's draft and unsigned, and its name is a question on the
-    card; the tiebreak is his.  His hand the same morning: the `done`
-    line signed as it stands, the language named Kude (a session's
-    word at his "How would you name the language?"), and "we start on
-    it once we've decided the name" — so day one landed in the same
-    sitting: `kude/kude.py` checks and runs the paper's `gcd`, and
-    refuses `gcd` with its base case removed naming `b = 0`; session
-    types are not in it, by the manifesto's first rule.  Day two the
-    same sitting, at his "Ok, do day two then": the transcript's Bank
-    and Client in `kude/bank.kude`, a channel a typed head input, each
-    clause walked along the type and refused naming the state, the
-    branches of an offer the clauses of the predicate, and one party
-    run against a scripted partner on stdin.  Day three, 2026-09-23, at
-    his "Do the day 3 now": the cut — `new c: Bank (bank(c, 100; ) |
-    client(c; got))`, the two ends dual because each side's type says
-    so, the parties coroutines with a queue each way and no lock, and a
-    run where every party waits reported as the check's fault.  The
-    `done` line runs from a session's seat; the run from his shell is
-    his.*
-16. **[real-program](real-program.md)** — Kude checks and runs
-    protocols, and no real program can be written in it: a thousand
-    rounds was a run error, a message was a number, and nothing
-    outside the program could be read or written.  *Placed last by the
-    session that wrote it on 2026-09-23, at Henri's "lets create a card
-    that maps the next direction, and immediately do it"; the `done`
-    line signed at his pick the same minute.  Day one landed in the
-    same sitting: the terminal as a channel at `Console`, `Str`, tail
-    calls, and `kude/nl.kude` numbering a hundred thousand lines.  The
-    rest of the card is a map of roads — files, channels over
-    channels, `!A`, the ask node's wire, a model writing Kude — and
-    the order is his.*
+15. **[kude](kude.md)** — Kude writes a line filter and a two-party
+    protocol, and nothing in this tree or on his desk uses it yet.
+    *Placed last by the session that wrote it on 2026-09-23, at Henri's
+    "This works.  Lets leave a card where to continue from, then we can
+    stop.", as `protocol` and `real-program` closed.  **Where to
+    continue Kude from**: the card says what is built, how to run it,
+    the known limits, and five roads — a fuller language, channels over
+    channels and `!A`, this tree's own wires, a model writing Kude, a
+    compiler.  Which road is his, and its `done` line waits for it; the
+    tiebreak is his.*
 
 ## Finished
 
-Eighteen cards are on `done/`, each closed with its `because` answered.
+Twenty cards are on `done/`, each closed with its `because` answered.
 What the board said as each one closed is in `journal.md` ("The board's
 closing notes"), moved there on 2026-09-03 at Henri's word: a closing
 note is what happened, and what happened goes in the journal.
@@ -243,7 +214,7 @@ note is what happened, and what happened goes in the journal.
   `resolver`, `self` 2026-08-26; `cords`, `fence`, `green`, `install`
   2026-08-27; `andon-panel`, `node-install` 2026-08-28; `lost-write`,
   `trees` 2026-08-31; `lock-test` 2026-09-03; `material` 2026-09-04;
-  `canvas-windows` 2026-09-07.
+  `canvas-windows` 2026-09-07; `protocol`, `real-program` 2026-09-23.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.  `swe-bench` went there on
