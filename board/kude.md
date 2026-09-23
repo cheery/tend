@@ -12,9 +12,17 @@
              to what Kude is for, and a session picking one would be
              deciding that.  Henri, the same minute: "Lets leave a
              card where to continue from, then we can stop."
-    done     (none yet — the road is his to pick; a session drafts the
-             line for the road he picks, and nothing is built before
-             his `henri:` line is on it, by card:done-when.md)
+    done     when the conversation between a node and the llm it pulls
+             — pull, wait until it answers, one question, one answer,
+             let go — is written as a Kude session type, and a node
+             that holds that conversation is a Kude program, run from
+             his shell against the real llm and getting its answer;
+             and a program that asks before the llm answers, asks
+             twice, or never lets go is refused at the check naming
+             the type and the clause.  (a session's draft, 2026-09-23,
+             for road 3, his pick; henri: signed 2026-09-23 — "Tend's
+             own wire in Kude", chapter 1 of the narration in
+             journal.md)
     asked    Henri, 2026-09-23 — "This works.  Lets leave a card where
              to continue from, then we can stop."
     see      card:protocol.md and card:real-program.md (both done, the
@@ -24,7 +32,8 @@
              (the Kude rows), doc/notes/lineaarilogiikka-kieli-keskustelu.md
              (why), card:edge.md (this tree's untyped wires)
 
-*(question, his call — which road next?)*
+*(question, his call — which road next?  henri: Tend's own wire in Kude
+2026-09-23)*
 
 ## Where it stands — 2026-09-23
 

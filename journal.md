@@ -334,3 +334,61 @@ thousand lines (`done/real-program.md`).  What neither closed is the
 question `protocol` asked of itself — whether anything ever hands the
 checker a program — and it goes on to `card:kude.md` with the five
 roads, none chosen.
+
+
+## The narration — chapters, from 2026-09-23
+
+Henri, 2026-09-23: "Lets write some kind of a chronological
+progression, maybe even a narration that we can build in journal.  I
+think that our first goal under this new narration would be to achieve
+some kind of a milestone with the programming language."
+
+How it goes, from a lean consultant's two points he passed on the same
+day: work comes in chapters that follow one another, not side by side,
+and each chapter opens with its goal.  A chapter opens when its goal is
+signed — a card's `done` line with his `henri:` on it — and closes when
+the goal is met or he strikes it, with what happened written under it.
+The next chapter does not open before.  A week with no chapter work is
+slack, not a gap to explain (vision.md, "weeks can be skipped").  The
+board keeps the cards; this keeps the story of which one was *the* one.
+
+### Prologue — 2026-08-24 to 2026-09-23
+
+Tend started on 2026-08-24 as the second vehicle after `~/gestate`:
+the method's mechanisms carried over, not its prose — a board, its
+contract, one card, and the audit run red.  In the month after, twenty
+cards closed: the gates at the commit, the fence around a session, the
+grant and `keep` around a node, the pull and the edge between nodes,
+the andon and its panel, the canvas.  Much of it was worked side by
+side, and on 2026-09-23 three cards had sat at `doing` for weeks.
+
+On 2026-09-22 a talk of his with a general session about interfaces
+became `card:protocol.md`, and the language got its name, Kude — the
+weft.  In two days it ran the LPVM paper's `gcd`, the Bank and Client
+joined by a cut with no lock, and `nl` over a hundred thousand lines.
+
+On 2026-09-23 the goal was written into vision.md in his words —
+"an operating system/working environment/programming language based
+on lean philosophy, for both sessions and humans" — with "support =
+scaffold and ease of movement within that scaffold", and the first of
+the two gates the consultant's advice asked for was built: a change to
+a program lands on a goal he has signed, or not at all.
+
+### Chapter 1 — tend's own wire in Kude (opened 2026-09-23)
+
+**The goal**, signed by his pick: `card:kude.md`'s `done` line — the
+conversation between a node and the llm it pulls (pull, wait until it
+answers, one question, one answer, let go) written as a Kude session
+type, and a node that holds it written in Kude, run from his shell
+against the real llm and getting its answer; a program that asks
+before the llm answers, asks twice, or never lets go refused at the
+check, naming the type and the clause.
+
+**Why this one**: it is the road where Kude stops being built only
+for its own joy — the tree's wires, `pull` and `connect`, have been
+typed by nothing since `card:edge.md` made them, and this makes the
+first of them a checked protocol.  It will need more of the language
+on the way — a channel to something other than the terminal, at
+least — pulled in as the chapter asks for it, not before.
+
+*Not yet begun.  What happened goes here as it happens.*

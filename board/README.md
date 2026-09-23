@@ -206,7 +206,10 @@ between two workable cards is Henri's.
     the known limits, and five roads — a fuller language, channels over
     channels and `!A`, this tree's own wires, a model writing Kude, a
     compiler.  Which road is his, and its `done` line waits for it; the
-    tiebreak is his.*
+    tiebreak is his.  His pick the same day: tend's own wire — the
+    node-and-llm conversation as a Kude type and a node written in
+    Kude — signed as the `done` line, and chapter 1 of the narration
+    in journal.md.*
 16. **[one-piece](one-piece.md)** — the board works every card at
     once, and a card in `doing` can sit for weeks: three have, since
     2026-08-30, 08-31 and 09-06.  *Placed last by the session that

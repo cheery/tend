@@ -1,6 +1,8 @@
 # done-when — work was done on a spec nobody had written, and the card form has no place for what done looks like
 
-    status   doing — day one landed 2026-09-23
+    status   blocked — day one landed 2026-09-23
+    blocked  the first commit the gate refuses for real, or his word
+             striking the `done` line's second clause
     because  on 2026-09-06 a card's `because` said "nothing on the
              person's side records a window", a session sized day one
              by its own taste, and fifteen commits landed — a mirror
