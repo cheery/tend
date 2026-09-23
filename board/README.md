@@ -191,7 +191,12 @@ between two workable cards is Henri's.
     wrote it at Henri's "tee sille kortti. Ja kortti itse noudattaa
     omaa sääntöänsä"; its `done` line is a session's draft and
     unsigned, so by its own rule nothing on it is built until his
-    line is there; the tiebreak is his.*
+    line is there; the tiebreak is his.  Signed 2026-09-07; day one
+    landed 2026-09-23 at his "Build the done-when gate first then": a
+    `commit-msg` hook refuses a change to a program whose message cites
+    no signed card and no F-number, and the board refuses a card at
+    `doing` with an unsigned goal — the three from before the gate
+    named, waiting on his word.*
 15. **[kude](kude.md)** — Kude writes a line filter and a two-party
     protocol, and nothing in this tree or on his desk uses it yet.
     *Placed last by the session that wrote it on 2026-09-23, at Henri's

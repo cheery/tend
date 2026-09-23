@@ -34,6 +34,7 @@ to `done/`.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -189,6 +190,52 @@ def test_a_blocked_card_names_what_it_waits_on(card: Path):
         assert (ROOT / cited).exists(), (
             f"{card.relative_to(ROOT)} waits on {cited}, which is not "
             "there.")
+
+
+# ── card:done-when.md: a card starts only when its goal is signed ─────────
+
+sys.path.insert(0, str(ROOT / "tools"))
+import signed  # noqa: E402  — the one reader of a `done` line, shared with the commit-msg hook
+
+#: Cards that were `doing` before this gate, 2026-09-23, with no signed
+#: `done` line.  Each waits on his word (card:one-piece.md's second
+#: mark): finished, put back to `open`, or moved to `later/`.  The list
+#: only shrinks — the test below refuses a name here that is no longer
+#: `doing`, so an exception cannot outlive its reason.
+BEFORE_THE_GATE = {"flake.md", "hold.md", "session-program.md"}
+
+
+def test_a_done_line_is_signed_only_by_his_hand():
+    assert signed.is_signed("when it works.  (a draft; henri: signed 2026-09-23)")
+    assert signed.is_signed("when it works.\n(henri: approved 2026-09-07)")
+    assert not signed.is_signed("when it works.  (a session's draft; unsigned)")
+    assert not signed.is_signed("when it works.  (henri: )")
+    assert not signed.is_signed("")
+    card = ("# c\n\n    status   doing\n    because  a problem\n"
+            "    done     when it works, over two\n"
+            "             lines.  (henri: signed 2026-09-23)\n    asked    him\n\nbody\n")
+    assert signed.field(card, "done").endswith("(henri: signed 2026-09-23)")
+    assert signed.field(card, "asked") == "him"
+
+
+@pytest.mark.parametrize("card", cards(), ids=lambda p: p.stem)
+def test_a_card_at_doing_has_a_signed_goal(card: Path):
+    """Work starts when its goal is signed: `status doing` with no
+    `henri:` in the `done` line is the state of 2026-09-06, fifteen
+    commits on a spec nobody had written."""
+    text = card.read_text(encoding="utf-8")
+    if not signed.field(text, "status").startswith("doing") or card.name in BEFORE_THE_GATE:
+        return
+    assert signed.is_signed(signed.field(text, "done")), (
+        f"{card.relative_to(ROOT)} is doing, and its `done` line is not signed — "
+        "a card starts when his `henri:` is on its goal (card:done-when.md)")
+
+
+def test_the_cards_from_before_the_gate_are_still_waiting():
+    for name in BEFORE_THE_GATE:
+        path = BOARD / name
+        assert path.exists() and signed.field(path.read_text(encoding="utf-8"), "status").startswith("doing"), (
+            f"{name} is on BEFORE_THE_GATE and is no longer doing on the board — take it off the list")
 
 
 def test_the_board_lists_every_open_card_in_order():

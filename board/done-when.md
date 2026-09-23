@@ -1,6 +1,6 @@
 # done-when — work was done on a spec nobody had written, and the card form has no place for what done looks like
 
-    status   open
+    status   doing — day one landed 2026-09-23
     because  on 2026-09-06 a card's `because` said "nothing on the
              person's side records a window", a session sized day one
              by its own taste, and fifteen commits landed — a mirror
@@ -109,6 +109,46 @@ The two meet at the same moment, the move to `doing`: a card may start
 only when its goal is signed and nothing else has started.  vision.md
 §"The goal" names the principle, "Goal before work", and its standing
 as partly.
+
+## Day one, landed — 2026-09-23, at his "Build the done-when gate first then"
+
+Both halves, meeting where a card starts.  **The commit:** a second hook,
+`commit-msg`, installed by `tools/pre-commit.sh --install` beside the
+first, runs `tools/signed.py`: a commit that changes a program — under
+`tools/`, `test/`, `node/` or `kude/`, or any `.py` or `.sh` — lands
+only if its message cites a `card:` whose `done` line carries `henri:`
+and his words, or an F-number on either shelf of `fixme/`; otherwise it
+is refused naming the paths and why (*cites no card*, *not signed*, *no
+such card*).  Cards, specs, kaizens and the journal are not gated.
+Wider than the proposal above, which named `tools/` and `test/` only:
+`kude/` had become a program since, and a rule that read two
+directories would have let this week's work through unasked.  **The
+board:** `test/test_board.py` refuses a card at `doing` whose `done`
+line is unsigned, with the same reader.  The three cards `doing` before
+the gate — `flake`, `hold`, `session-program` — are named in the test as
+waiting on his word (`card:one-piece.md`'s second mark), and a second
+test refuses a name there that is no longer `doing`, so the list only
+shrinks.
+
+Red first: five commit tests and the board file's import, all red
+before `tools/signed.py` existed.  Two old tests then went red for the
+right reason and were changed, each saying why: the scratch repository
+needed the new script, and the suite test's second commit touched
+`tools/` and now cites a defect number.  This clone's hook was
+reinstalled from this seat (`--check` said commit-msg was missing,
+which is what the clone test is for).  Every caller of the install
+read: `mutate.sh` makes its intact commit before installing and its
+gate rows commit board files only; `toolbox.sh` installs.  Four mutate
+rows, all red.
+
+Not built: `tools/meter.py --waiting` listing unsigned `done` lines —
+a draft already carries a `his call` mark the meter counts, so the
+list would say the same thing twice.  And the `done` line's second
+clause — "this card's own build was the first one refused for it" —
+cannot be met as written: the line was signed on 2026-09-07, before
+any build, so this build passed the gate it built.  The card stays
+`doing` until the first real refusal is on the record, or until he
+strikes the clause.
 
 ## What would make this card wrong
 

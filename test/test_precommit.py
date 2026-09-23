@@ -55,8 +55,12 @@ def test_the_hook_refuses_the_commit_the_suite_refuses(tmp_path):
     assert "a gate failed" in r.stderr
     assert git("rev-parse", "--verify", "-q", "HEAD").returncode != 0, "nothing was committed"
     verdict.write_text("0\n")
+    # the commit touches tools/, so since 2026-09-23 it cites something the
+    # commit-msg gate reads (card:done-when.md) — a defect number, here
+    (tmp_path / "fixme").mkdir()
+    (tmp_path / "fixme" / "F001.md").write_text("# F001\n")
     git("add", "-A")
-    r = git("commit", "-qm", "fine")
+    r = git("commit", "-qm", "fine, F001")
     assert r.returncode == 0, r.stderr
     assert git("rev-parse", "--verify", "-q", "HEAD").returncode == 0
 
@@ -99,6 +103,7 @@ def _scratch(tmp_path):
     (tmp_path / "tools").mkdir()
     (tmp_path / "tools" / "pre-commit.sh").write_text(HOOK.read_text(encoding="utf-8"))
     (tmp_path / "tools" / "pre-commit.sh").chmod(0o755)  # the shim execs it
+    (tmp_path / "tools" / "signed.py").write_text((ROOT / "tools" / "signed.py").read_text(encoding="utf-8"))
     git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t",
                                      *a], cwd=tmp_path, capture_output=True, text=True)
     run = lambda: subprocess.run(["sh", "tools/pre-commit.sh"], cwd=tmp_path,
@@ -174,3 +179,77 @@ def test_somebody_elses_hook_is_not_overwritten(tmp_path):
                        capture_output=True, text=True)
     assert r.returncode == 3
     assert hook.read_text() == "#!/bin/sh\necho theirs\n"
+
+
+# ── card:done-when.md: no change to a program lands on an unsigned goal ──
+#
+# The second hook, `commit-msg`, because the message does not exist when
+# `pre-commit` runs.  A commit that changes a program — anything under
+# tools/, test/, node/ or kude/, or any .py or .sh — lands only if its
+# message cites a `card:` whose `done` line carries his `henri:`, or an
+# F-number on either shelf of fixme/.  A commit of cards, specs, kaizens
+# and the journal is not gated: that is the work that comes first.
+
+SIGNED = ("# s\n\n    status   doing\n    because  a problem\n"
+          "    done     when it works.  (a draft; henri: signed 2026-09-23)\n    asked    him\n")
+UNSIGNED = ("# u\n\n    status   open\n    because  a problem\n"
+            "    done     when it works.  (a session's draft; unsigned)\n    asked    him\n")
+
+
+def _gated(tmp_path):
+    git, _ = _scratch(tmp_path)
+    (tmp_path / "tools" / "suite.py").write_text("import sys\nsys.exit(0)\n")
+    (tmp_path / "board").mkdir()
+    (tmp_path / "board" / "s.md").write_text(SIGNED)
+    (tmp_path / "board" / "u.md").write_text(UNSIGNED)
+    (tmp_path / "fixme").mkdir()
+    (tmp_path / "fixme" / "F001.md").write_text("# F001\n")
+    r = subprocess.run(["sh", "tools/pre-commit.sh", "--install"], cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    git("add", "-A")
+    assert git("commit", "-qm", "the fixture, citing card:s.md").returncode == 0
+
+    def commit(path, message):
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_text(f"{message}\n")
+        git("add", "-A")
+        return git("commit", "-qm", message)
+    return git, commit
+
+
+def test_a_program_change_citing_nothing_is_refused(tmp_path):
+    git, commit = _gated(tmp_path)
+    r = commit("tools/new.sh", "a new tool")
+    assert r.returncode != 0, "a program change with no card landed"
+    assert "cites no card" in r.stderr and "tools/new.sh" in r.stderr, r.stderr
+
+
+def test_a_program_change_on_an_unsigned_card_is_refused_naming_it(tmp_path):
+    git, commit = _gated(tmp_path)
+    r = commit("kude/x.py", "work on card:u.md")
+    assert r.returncode != 0, "a program change on an unsigned card landed"
+    assert "card:u.md" in r.stderr and "not signed" in r.stderr, r.stderr
+    r = commit("test/test_x.py", "work on card:nothere.md")
+    assert r.returncode != 0 and "card:nothere.md" in r.stderr and "no such card" in r.stderr, r.stderr
+
+
+def test_a_program_change_on_a_signed_card_or_a_defect_lands(tmp_path):
+    git, commit = _gated(tmp_path)
+    assert commit("tools/a.sh", "work on card:s.md").returncode == 0
+    assert commit("somewhere/b.py", "fix F001").returncode == 0
+    assert commit("node/c.txt", "both card:u.md and card:s.md").returncode == 0
+
+
+def test_a_change_of_documents_alone_is_not_gated(tmp_path):
+    git, commit = _gated(tmp_path)
+    assert commit("board/new.md", "a card, citing nothing").returncode == 0
+    assert commit("doc/kaizen/x.md", "a kaizen").returncode == 0
+
+
+def test_install_puts_both_hooks_and_check_reads_both(tmp_path):
+    git, _ = _gated(tmp_path)
+    hook = tmp_path / ".git" / "hooks" / "commit-msg"
+    assert "tend:tools/pre-commit.sh" in hook.read_text()
+    hook.unlink()
+    r = subprocess.run(["sh", "tools/pre-commit.sh", "--check"], cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 1 and "commit-msg" in r.stdout, r.stdout

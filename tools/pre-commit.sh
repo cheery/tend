@@ -3,10 +3,12 @@
 #
 # tools/pre-commit.sh — the gates, at the commit that breaks them.
 #
-#     tools/pre-commit.sh --install     put it in .git/hooks/pre-commit
-#     tools/pre-commit.sh --uninstall   take it out again
-#     tools/pre-commit.sh --check       say whether it is installed
+#     tools/pre-commit.sh --install     put it in .git/hooks/pre-commit and commit-msg
+#     tools/pre-commit.sh --uninstall   take them out again
+#     tools/pre-commit.sh --check       say whether both are installed
 #     tools/pre-commit.sh               run the gates now (what the hook does)
+#     tools/pre-commit.sh --msg FILE    a program change cites a signed card (what
+#                                       commit-msg does — tools/signed.py, card:done-when.md)
 #
 # Borrowed whole from gestate's `tools/pre-commit.sh` on 2026-08-24,
 # named as borrowed (`card:gates.md`).  The shape was paid for there:
@@ -37,14 +39,20 @@ MARKER='tend:tools/pre-commit.sh'
 hookdir=$(git -C "$root" rev-parse --git-path hooks 2>/dev/null || echo '')
 case "$hookdir" in /*) ;; *) hookdir="$root/$hookdir" ;; esac
 hook="$hookdir/pre-commit"
+# The second hook, 2026-09-23 (card:done-when.md): the commit's message
+# does not exist when pre-commit runs, so the check that a change to a
+# program cites a signed goal is `commit-msg`, from the same file.
+msghook="$hookdir/commit-msg"
 
 case "${1:-}" in
 --install)
-    if [ -e "$hook" ] && ! grep -q "$MARKER" "$hook" 2>/dev/null; then
-        echo "pre-commit: $hook exists and is not ours — not overwriting it." >&2
-        echo "            look at it, then move it aside if you want this one." >&2
-        exit 3
-    fi
+    for h in "$hook" "$msghook"; do
+        if [ -e "$h" ] && ! grep -q "$MARKER" "$h" 2>/dev/null; then
+            echo "pre-commit: $h exists and is not ours — not overwriting it." >&2
+            echo "            look at it, then move it aside if you want this one." >&2
+            exit 3
+        fi
+    done
     mkdir -p "$hookdir"
     cat > "$hook" <<'SHIM'
 #!/bin/sh
@@ -52,28 +60,46 @@ case "${1:-}" in
 # Not tracked (hooks never are); remove with `tools/pre-commit.sh --uninstall`.
 exec "$(git rev-parse --show-toplevel)/tools/pre-commit.sh"
 SHIM
-    chmod +x "$hook"
-    echo "pre-commit: installed at $hook"
-    echo "            every commit now runs the gates first (a few seconds)."
+    cat > "$msghook" <<'SHIM'
+#!/bin/sh
+# tend:tools/pre-commit.sh — installed by `tools/pre-commit.sh --install`.
+# Not tracked (hooks never are); remove with `tools/pre-commit.sh --uninstall`.
+exec "$(git rev-parse --show-toplevel)/tools/pre-commit.sh" --msg "$1"
+SHIM
+    chmod +x "$hook" "$msghook"
+    echo "pre-commit: installed at $hook and $msghook"
+    echo "            every commit now runs the gates first (a few seconds),"
+    echo "            and a change to a program must cite a signed card."
     exit 0
     ;;
 --uninstall)
-    if [ ! -e "$hook" ]; then
-        echo "pre-commit: nothing installed at $hook"
-    elif grep -q "$MARKER" "$hook" 2>/dev/null; then
-        rm -f "$hook"; echo "pre-commit: removed $hook"
-    else
-        echo "pre-commit: $hook is not ours — left alone." >&2; exit 3
-    fi
+    for h in "$hook" "$msghook"; do
+        if [ ! -e "$h" ]; then
+            echo "pre-commit: nothing installed at $h"
+        elif grep -q "$MARKER" "$h" 2>/dev/null; then
+            rm -f "$h"; echo "pre-commit: removed $h"
+        else
+            echo "pre-commit: $h is not ours — left alone." >&2; exit 3
+        fi
+    done
     exit 0
     ;;
 --check)
+    ok=0
     if [ -x "$hook" ] && grep -q "$MARKER" "$hook" 2>/dev/null; then
         echo "✓ pre-commit hook installed — the gates run at every commit"
-        exit 0
+    else
+        echo "✗ no pre-commit hook — run tools/pre-commit.sh --install"; ok=1
     fi
-    echo "✗ no pre-commit hook — run tools/pre-commit.sh --install"
-    exit 1
+    if [ -x "$msghook" ] && grep -q "$MARKER" "$msghook" 2>/dev/null; then
+        echo "✓ commit-msg hook installed — a change to a program cites a signed card"
+    else
+        echo "✗ no commit-msg hook — run tools/pre-commit.sh --install"; ok=1
+    fi
+    exit $ok
+    ;;
+--msg)
+    exec python3 "$root/tools/signed.py" "${2:?--msg takes the message file}"
     ;;
 -h|--help)
     sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'

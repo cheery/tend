@@ -229,6 +229,11 @@ test/test_kude.py	kude: an output bound to the wrong value type is let through	s
 test/test_kude.py	kude: a comparison of text with a number is let through	sed -i 's/if known(left) and known(right) and ttype(left) != ttype(right):/if False:/' kude/kude.py
 test/test_kude.py	kude: two messages of different types are the same	sed -i 's/return ua\[2\] == ub\[2\] and same/return same/' kude/kude.py
 test/test_kude.py	kude: a program may redefine the terminal's types	sed -i 's/if name in world:/if False:/' kude/kude.py
+# test_precommit.py and test_board.py against tools/signed.py — card:done-when.md, 2026-09-23
+test/test_precommit.py	signed: every done line reads as signed	sed -i 's/return bool(SIGNATURE.search(done))/return True/' tools/signed.py
+test/test_precommit.py	signed: no change is a program	sed -i 's/    if not changed:/    if True:/' tools/signed.py
+test/test_board.py	signed: a done line's continuation is dropped	sed -i 's/elif current and CONTINUED.match(line):/elif False:/' tools/signed.py
+test/test_precommit.py	signed: --install leaves commit-msg unrunnable	sed -i 's/chmod +x "\$hook" "\$msghook"/chmod +x "$hook"/' tools/pre-commit.sh
 # test_keep.py against tools/keep.py and node/run.sh — card:keep.md, the write and network slices, 2026-08-26
 test/test_keep.py	keep: write bits never handled (--write collapses to read-only)	sed -i 's/^        write_bits = WRITE_HANDLED .*/        write_bits = 0/' tools/keep.py
 test/test_keep.py	keep: net bits zeroed (--no-net handles nothing)	sed -i 's/^NET_HANDLED = NET_BIND_TCP | NET_CONNECT_TCP/NET_HANDLED = 0/' tools/keep.py
