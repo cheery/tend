@@ -1,6 +1,6 @@
 # kude — Kude writes a line filter and a two-party protocol, and nothing in this tree or on his desk uses it yet
 
-    status   doing
+    status   done — 2026-09-24
     because  card:protocol.md named its own failure in its last
              section: "If the `done` line runs and nothing in this
              tree, or on his desk, ever hands a program to the checker
@@ -260,3 +260,11 @@ never letting go are refused at the check naming the type and the
 clause; and a door model, given the type and the language's reference,
 wrote the node — every try through the check, and the count above,
 written here.  Met, as written.  Closing the card and the chapter is his.
+
+## Closed — 2026-09-24
+
+At his "close the chapter": the done line met as written, and the
+`because` answered — two nodes in this tree run Kude, `ask-kude/` and
+`ask-kude-model/`, one written by a session and one by a door model.
+The roads above not taken (a fuller language, channels over channels,
+a compiler) stay here as the card left them; the next chapter is his.

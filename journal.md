@@ -424,3 +424,7 @@ never saw — each fix from the refusal's words alone.  No try broke the
 protocol; both refusals were the language's.  Its program, run from his
 shell against the real llm, got the same answer.  One wire, two
 authors: the goal is met as written, and the chapter's close is his.
+
+**Closed 2026-09-24**, at his "close the chapter", the second day of
+it: `card:kude.md` to `done/`, its goal met as written.  Nothing is in
+`doing` now; chapter 2 opens when he signs its goal.

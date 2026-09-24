@@ -154,23 +154,7 @@ between two workable cards is Henri's.
     no signed card and no F-number, and the board refuses a card at
     `doing` with an unsigned goal — the three from before the gate
     named, waiting on his word.*
-12. **[kude](kude.md)** — Kude writes a line filter and a two-party
-    protocol, and nothing in this tree or on his desk uses it yet.
-    *Placed last by the session that wrote it on 2026-09-23, at Henri's
-    "This works.  Lets leave a card where to continue from, then we can
-    stop.", as `protocol` and `real-program` closed.  **Where to
-    continue Kude from**: the card says what is built, how to run it,
-    the known limits, and five roads — a fuller language, channels over
-    channels and `!A`, this tree's own wires, a model writing Kude, a
-    compiler.  Which road is his, and its `done` line waits for it; the
-    tiebreak is his.  His pick the same day: tend's own wire — the
-    node-and-llm conversation as a Kude type and a node written in
-    Kude — signed as the `done` line, and chapter 1 of the narration
-    in journal.md; then, at his "The model writes a program", a door
-    model writing the same node, its tries counted.  `doing` from
-    2026-09-24, at his "kude to doing, then start working on kude" —
-    the one card in `doing`.*
-13. **[one-piece](one-piece.md)** — the board works every card at
+12. **[one-piece](one-piece.md)** — the board works every card at
     once, and a card in `doing` can sit for weeks: three have, since
     2026-08-30, 08-31 and 09-06.  *Placed last by the session that
     wrote it on 2026-09-23, at Henri's "Write the goal into vision.md
@@ -183,7 +167,7 @@ between two workable cards is Henri's.
 
 ## Finished
 
-Twenty cards are on `done/`, each closed with its `because` answered.
+Twenty-one cards are on `done/`, each closed with its `because` answered.
 What the board said as each one closed is in `journal.md` ("The board's
 closing notes"), moved there on 2026-09-03 at Henri's word: a closing
 note is what happened, and what happened goes in the journal.
@@ -192,7 +176,8 @@ note is what happened, and what happened goes in the journal.
   `resolver`, `self` 2026-08-26; `cords`, `fence`, `green`, `install`
   2026-08-27; `andon-panel`, `node-install` 2026-08-28; `lost-write`,
   `trees` 2026-08-31; `lock-test` 2026-09-03; `material` 2026-09-04;
-  `canvas-windows` 2026-09-07; `protocol`, `real-program` 2026-09-23.
+  `canvas-windows` 2026-09-07; `protocol`, `real-program` 2026-09-23;
+  `kude` 2026-09-24.
 
 And displaced cards are in [later/](later/): real, and not being
 worked, and each says what it waits on.  `swe-bench` went there on
