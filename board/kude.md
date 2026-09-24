@@ -162,11 +162,22 @@ a death, no edge, a wait run out), red first on `no type Llm`;
 `test/test_launch.py` two flow tests, the node under keep against the
 stand-in and without `connect`; five mutate rows, all red.
 
-**Not yet**: the run from his shell against the real llm — the done
-line's words, and his hand:
+**Run from his shell against the real llm, 2026-09-24**, the done
+line's words and his hand — `tools/launch.sh ask-kude run`, the edge
+taken 18:11:51, the answer in the log 18:13:49 (two minutes: the llm
+loading its model because it was pulled), `stopped` saying "exited 0:
+ask-kude stopped by itself".  His paste:
 
-    tools/launch.sh ask-kude run
-    tail -3 ask-kude/state/log        # answer = …
+    answer = The word "tend" is used to describe the act of caring for something, moving in a specific direction, or having a natural inclination toward a certain behavior.
+
+A dictionary entry, which is the cold arm `card:material.md` measured on
+2026-09-04: ask-kude's grant has no `material` word, so the llm answers
+about the English word and not this tree.  That is the answer to the
+question it was given, and the done line asks for its answer, not a good
+one.  Above it in his paste, keep's deprecation warning — F030.  So the
+done line's first half is met: the type, the node in Kude, the run
+against the real llm, the three refusals at the check.  Its second half
+— a door model writing the node, its tries counted — is not begun.
 
 Also not built: the answer is only the log's line (ask/ writes
 `state/answer`); a node whose llm is down exits 0, since a Kude program

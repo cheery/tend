@@ -408,5 +408,9 @@ The sitting's first fifteen minutes gave a plan; he extended the time
 a channel at `Llm`, whose type the checker owns, so asking early,
 asking twice and never letting go are refused by the type alone, each
 naming it and the clause.  The node is `ask-kude/`, run under keep
-against a stand-in llm.  Owed: his run against the real llm, and the
-door model's half.
+against a stand-in llm.  At 18:13 he ran it from his shell against the
+real llm, and it answered — "The word "tend" is used to describe the
+act of caring for something …", the cold arm's dictionary entry, since
+the node is handed no tree.  The first half of the goal is met: the wire
+is a type, the node is Kude, it ran against the real llm, and the wrong
+orders are refused at the check.  Owed: the door model's half.
