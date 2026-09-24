@@ -152,6 +152,7 @@ class net_port_attr(ctypes.Structure):
 
 class path_beneath_attr(ctypes.Structure):
     _pack_ = 1  # struct is __attribute__((packed)): u64 then s32, size 12
+    _layout_ = "ms"  # the only layout that packs; unnamed, 3.14 warns on every start and 3.19 refuses (F030)
     _fields_ = [("allowed_access", ctypes.c_uint64),
                 ("parent_fd", ctypes.c_int32)]
 

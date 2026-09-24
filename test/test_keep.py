@@ -44,6 +44,23 @@ def test_it_parses():
     assert subprocess.run([sys.executable, "-m", "py_compile", str(KEEP)]).returncode == 0
 
 
+def test_the_landlock_path_struct_is_the_kernels_twelve_bytes_and_loads_without_a_warning():
+    """F030: `_pack_` with no `_layout_` is a DeprecationWarning on every
+    node start from Python 3.14 and an error from 3.19.  The kernel's
+    struct is packed — a u64 then an s32, twelve bytes, the fd at 8 — and
+    "ms" is the only layout that packs (gcc-sysv refuses `_pack_`), so
+    keep names it; loaded with the warning as an error, the size holds."""
+    code = ("import ctypes, importlib.util, sys\n"
+            "spec = importlib.util.spec_from_file_location('keep', sys.argv[1])\n"
+            "k = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(k)\n"
+            "print(ctypes.sizeof(k.path_beneath_attr), k.path_beneath_attr.parent_fd.offset)\n")
+    r = subprocess.run([sys.executable, "-W", "error::DeprecationWarning", "-c", code, str(KEEP)],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.split() == ["12", "8"], r.stdout
+
+
 @needs_landlock
 def test_a_program_reads_what_it_was_handed_and_not_the_file_beside_it(tmp_path):
     """The whole card in one run: grant one file, and the neighbour is
