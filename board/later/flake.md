@@ -1,6 +1,6 @@
 # flake — a red that vanishes on retry is met with memory, and the tree keeps no count
 
-    status   doing
+    status   shelved — 2026-09-24
     because  three times in six days a test failed once and passed on
              the re-run, and each time the session met it with "run it
              again" and its own recollection — nothing in the tree kept
@@ -183,3 +183,12 @@ fourth arrives, the ledger is a file nobody opens.  The evidence
 against is the busy rule: a load-sensitive threshold in the launcher
 will trip again on any loaded box, and the shake is how that is
 measured before it trips on the GPU.
+
+## Shelved — 2026-09-24
+
+Moved from `doing` to `later/` at Henri's "Move flake, hold and
+session-program to later/, kude to doing, then start working on kude."
+— his answer to `card:one-piece.md`'s second mark, so the one card in
+`doing` is chapter 1's (`card:kude.md`, journal.md §"The narration").
+What is built stays built; nothing here was undone.  It waits on his
+word: a chapter of its own, or back to `open`.

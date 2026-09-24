@@ -37,7 +37,8 @@ change it, or refuse it?)*
 `flake`, `session-program`, finish it, put it back to `open`, or move it
 to `later/`?  The gate cannot be turned on before this is answered: a
 gate is turned on after the tree is clean, never as a way of announcing
-that it should be.)*
+that it should be.  henri: Move flake, hold and session-program to
+later/, kude to doing 2026-09-24)*
 
 ## What the gate is, and is not
 

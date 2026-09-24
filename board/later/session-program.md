@@ -1,6 +1,6 @@
 # session-program — a node tend runs is a program, not a session, until it carries the cords
 
-    status   doing
+    status   shelved — 2026-09-24
     because  the grant half of "a session is a program" is built: any
              node runs under one boundary — budget, grant, lifecycle —
              and adding one is adding a directory (card:keep.md,
@@ -2075,3 +2075,12 @@ no line of the reasoning").  And the question the three pairs of sixes
 now put plainly, for `card:model-acceptance.md`: gemma4 with a card in
 hand has made no call in eighteen of eighteen turns across three
 cards; the door is open, and what walks through it reads nothing.
+
+## Shelved — 2026-09-24
+
+Moved from `doing` to `later/` at Henri's "Move flake, hold and
+session-program to later/, kude to doing, then start working on kude."
+— his answer to `card:one-piece.md`'s second mark, so the one card in
+`doing` is chapter 1's (`card:kude.md`, journal.md §"The narration").
+What is built stays built; nothing here was undone.  It waits on his
+word: a chapter of its own, or back to `open`.

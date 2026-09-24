@@ -1,6 +1,6 @@
 # hold — a node that should be up is up only while something happens to pull it
 
-    status   doing
+    status   shelved — 2026-09-24
     because  a node's liveness is an accident of pull traffic: the llm
              node stops 60 s after the last pull (`idle 60` in its grant)
              and pays 80 s reloading the model on the next one, and there
@@ -502,3 +502,12 @@ at Henri's "Lets card it"; a new card arrives unplaced and the tiebreak
 is his.  It is the canvas strand's next want after day two landed the
 same morning, and the first place the owed crash-loop backoff (item 9)
 has somewhere to sit.
+
+## Shelved — 2026-09-24
+
+Moved from `doing` to `later/` at Henri's "Move flake, hold and
+session-program to later/, kude to doing, then start working on kude."
+— his answer to `card:one-piece.md`'s second mark, so the one card in
+`doing` is chapter 1's (`card:kude.md`, journal.md §"The narration").
+What is built stays built; nothing here was undone.  It waits on his
+word: a chapter of its own, or back to `open`.

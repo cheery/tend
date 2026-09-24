@@ -198,11 +198,11 @@ sys.path.insert(0, str(ROOT / "tools"))
 import signed  # noqa: E402  — the one reader of a `done` line, shared with the commit-msg hook
 
 #: Cards that were `doing` before this gate, 2026-09-23, with no signed
-#: `done` line.  Each waits on his word (card:one-piece.md's second
-#: mark): finished, put back to `open`, or moved to `later/`.  The list
+#: `done` line.  Each waited on his word (card:one-piece.md's second
+#: mark), and on 2026-09-24 all three went to `later/` at it.  The list
 #: only shrinks — the test below refuses a name here that is no longer
 #: `doing`, so an exception cannot outlive its reason.
-BEFORE_THE_GATE = {"flake.md", "hold.md", "session-program.md"}
+BEFORE_THE_GATE: set[str] = set()
 
 
 def test_a_done_line_is_signed_only_by_his_hand():

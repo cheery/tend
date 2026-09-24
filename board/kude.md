@@ -1,6 +1,6 @@
 # kude — Kude writes a line filter and a two-party protocol, and nothing in this tree or on his desk uses it yet
 
-    status   open
+    status   doing
     because  card:protocol.md named its own failure in its last
              section: "If the `done` line runs and nothing in this
              tree, or on his desk, ever hands a program to the checker

@@ -52,41 +52,23 @@ between two workable cards is Henri's.
    programs run on this machine with no budget, no grant and no
    lifecycle; the enforcement boundary must live outside the session's
    write access, which is why this tree exists at all.
-2. **[session-program](session-program.md)** — a node tend runs is a
-   program, not a session, until it carries the cords: a limit, a lamp,
-   a way to reach the person.  The grant half of "a session is a
-   program" is built; this is the half `keep` and `resolver` named and
-   did not build.  *Placed here by a session on 2026-08-26, at Henri's
-   "open the cords card for the session's program", below the build
-   cards and above the count-only ones; the tiebreak is his and this is
-   his to move.*  Unblocked 2026-08-28 at Henri's "I think that 'not yet'
-   lifts now": the first node may lead work.  The substrate is built —
-   the llm node answers under keep (`card:node-install.md`) — and the
-   card carries the road from there (delivery, a minimal work loop, the
-   node's own cords; ~2–4 sittings to gemma4 working the board next to
-   gemma4 cold, the conditioning measurement).  *On 2026-08-29 evening,
-   asked which model leads, Henri said "both": a door (`doors/`,
-   `tools/door.sh`, `lead.sh NODE --door NAME`) sends the same turn
-   through OpenRouter or Anthropic's chat wire, unkept, and the node
-   with no door is the loop as it was; a kept turn through a door is
-   not built and says so.*
-3. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
+2. **[kaizen-ingestion](kaizen-ingestion.md)** — a kaizen is written at
    the end of every sitting and nothing ever reads it back, so a lesson
    is re-learned rather than promoted to a standing rule.  *Placed here
    by the session that opened it on 2026-08-25, at Henri's "open the
    kaizen-ingestion card", below the active build and above the
    count-only cards; the build is his lead and the tiebreak is his.*
-4. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
+3. **[sitting-everywhere](sitting-everywhere.md)** — the sitting limit
    holds only for sessions started in two directories, and the grant it
    offers has no shape: on 2026-08-26 the desk was retaken within
    minutes after 8 of 9 blocks, by hand.  *Placed last by a gestate
    session on 2026-08-27, as a new card arrives; the tiebreak is his.*
-5. **[silent-cord](silent-cord.md)** — the andon sounds only through a
+4. **[silent-cord](silent-cord.md)** — the andon sounds only through a
    reach row the session must be allowed, so narrowing reach cuts the
    cord.  *Placed last by the session that wrote it on 2026-08-28 at
    Henri's "andon card"; day one is the sound on the person's side, red
    first with the row off; the tiebreak is his.*
-6. **[canvas](canvas.md)** — a pulled node's death is a line in a file
+5. **[canvas](canvas.md)** — a pulled node's death is a line in a file
    nobody is looking at: nothing on the person's side shows what they
    are holding, and a death and a cord pull are events on one timeline
    seen in two places or in none.  *Placed last by the session that
@@ -94,87 +76,62 @@ between two workable cards is Henri's.
    a canvas directory of `name.pin` files and the panel showing a row
    per pin with the stop's reason in the log column; the tiebreak is
    his.*
-7. **[model-acceptance](model-acceptance.md)** — something breaks when
+6. **[model-acceptance](model-acceptance.md)** — something breaks when
    nobody picks the mind, and the keeper is the only check.  *Woken
    from `later/` on 2026-08-28 by a session at Henri's "do
    session-program", on the event it waited for — a door where a
    model is admitted (the llm node's cords) — with `tools/compare.py`
    as its first instrument; placed last; the tiebreak is his.*
-8. **[hold](hold.md)** — a node that should be up is up only while
-   something happens to pull it: the llm node idles out 60 s after the
-   last pull and reloads for 80 s on the next, and nowhere on the
-   person's side says "keep this alive".  *Placed last by the session
-   that wrote it on 2026-08-29 at Henri's "Lets card it"; its day one is
-   a `<name>.hold` file beside the pin whose presence is a standing pull
-   and whose mtime re-asserts it after a death; the tiebreak is his.
-   Day one landed the same day at his "do the hold", and its second
-   pass at his review — the hold names its node inside the file, the
-   panel shows holds as rows, and a hold not kept is loud; its third
-   pass put the person's hand in the panel — hold, pin, unhold, and the
-   resolver run on every write and on entry — and the hold-to-death flow
-   test found `serve` silent on a node with no state directory yet.
-   The evening landed the tick — the resolver with no hand on it:
-   `resolve.sh --tick` leaves a stamp the panel reads (`NO TICK` /
-   `TICK STALE` under a hold), and `install.sh --tick` is Ubuntu's
-   carrier, a user timer running the installed copy; systemd is the
-   implementation, never the dependency (Henri's words).*
-9. **[flake](flake.md)** — a red that vanishes on retry is met with
-   the session's memory, and the tree keeps no count: three times in
-   six days, each real once counted.  *Placed last by the session that
-   wrote it on 2026-08-29 at Henri's "lets card it, then do it"; day
-   one is the failure ledger the suite writes and reads back, and the
-   shake — one test N times with every core burning; the tiebreak is
-   his.*
-10. **[tools](tools.md)** — a mind at the door can say and cannot do,
-    and the tree has no shape for what it may do: the three acts a
-    model has (read a tree file, propose, pull the andon) are run by a
-    fixed loop it never calls, and a tool executor with the person's
-    reach would be a session with no fence.  *Placed last by the
-    session that wrote it on 2026-08-30 at Henri's "ok. write a tools
-    card."; day one is two read-only tools under keep with every call
-    a line on the record; the tiebreak is his.  Day one landed the
-    same afternoon at his pick from a round of three: `tools/executor.py`
-    one process under keep per call, `deliver.sh` the courier, the `C:`
-    line on the record and on the talk screen, the injection red
-    measured; the door's `tools` line is his to write, and the
-    `compare.py` measurement is owed.*
-11. **[private](private.md)** — a mind's thinking is on display, and it
-    has no place of its own to write: the talk screen shows the
-    reasoning text as the turn runs, and everything a session or a
-    door mind writes is the record, the tree or a proposal, public by
-    construction.  *Placed last by the session that wrote it on
-    2026-08-30 at Henri's "also make a card:private.md"; his rule:
-    "private is private" — thinking shown as a state, a private place
-    keyed by the tree, readable on ask and out of sight by default,
-    and acts never private; the tiebreak is his.*
-12. **[edge](edge.md)** — a node cannot pull a node: every pull is a
-    person's command or the hold's resolver, so the value stream Henri
-    described on 2026-09-02 — nodes depending on nodes, a directed
-    acyclic graph with the canvas at its end — has no edge to be made
-    of.  *Placed last by the session that wrote it on 2026-09-02 at
-    Henri's "tee sille kortti", after the talk on
-    `card:session-program.md`; the edge is the hold card's lock held by
-    a process, taken at `pull` and dropped by the kernel at exit, and a
-    grant word with the cycle check at its door.  Day one is two nodes
-    that are nothing but the edge — a die and a solitaire that pulls
-    it — because there is nothing in them but the thing being tested.
-    The tiebreak is his.  Day one landed the same day, the 13:03
-    sitting, after his two answers on reconfiguration by pull —
-    property 5's second half means the origin and waits on the store;
-    the node's grant is the floor and the user adds to it, *ehkä* —
-    neither of which day one needed: `pull NODE` as a grant word, the
-    edge a shared `flock` the puller's process holds on
-    `NODE/state/pulled/<puller>`, the cycle refused at the door from
-    either end, `die/` and `solitaire/` in the tree, and the flow
-    measured by the lock: the die came up because it was pulled and
-    idled out because it was let go.  The afternoon's 15:13 sitting put
-    the conversation on it: `connect PORT` as a grant word (keep had the
-    half since 08-28), `ask/` — the third node of tend's own, `pull llm`
-    for the signal and `connect 18080` for the talk — and three live
-    runs from his shell, the third answered in 52 s from edge to
-    `ask/state/answer`, the pulled node coming up at the lock and not
-    at the tick.*
-13. **[meter](meter.md)** — the trees are getting better, and the only
+7. **[tools](tools.md)** — a mind at the door can say and cannot do,
+   and the tree has no shape for what it may do: the three acts a
+   model has (read a tree file, propose, pull the andon) are run by a
+   fixed loop it never calls, and a tool executor with the person's
+   reach would be a session with no fence.  *Placed last by the
+   session that wrote it on 2026-08-30 at Henri's "ok. write a tools
+   card."; day one is two read-only tools under keep with every call
+   a line on the record; the tiebreak is his.  Day one landed the
+   same afternoon at his pick from a round of three: `tools/executor.py`
+   one process under keep per call, `deliver.sh` the courier, the `C:`
+   line on the record and on the talk screen, the injection red
+   measured; the door's `tools` line is his to write, and the
+   `compare.py` measurement is owed.*
+8. **[private](private.md)** — a mind's thinking is on display, and it
+   has no place of its own to write: the talk screen shows the
+   reasoning text as the turn runs, and everything a session or a
+   door mind writes is the record, the tree or a proposal, public by
+   construction.  *Placed last by the session that wrote it on
+   2026-08-30 at Henri's "also make a card:private.md"; his rule:
+   "private is private" — thinking shown as a state, a private place
+   keyed by the tree, readable on ask and out of sight by default,
+   and acts never private; the tiebreak is his.*
+9. **[edge](edge.md)** — a node cannot pull a node: every pull is a
+   person's command or the hold's resolver, so the value stream Henri
+   described on 2026-09-02 — nodes depending on nodes, a directed
+   acyclic graph with the canvas at its end — has no edge to be made
+   of.  *Placed last by the session that wrote it on 2026-09-02 at
+   Henri's "tee sille kortti", after the talk on
+   `card:session-program.md`; the edge is the hold card's lock held by
+   a process, taken at `pull` and dropped by the kernel at exit, and a
+   grant word with the cycle check at its door.  Day one is two nodes
+   that are nothing but the edge — a die and a solitaire that pulls
+   it — because there is nothing in them but the thing being tested.
+   The tiebreak is his.  Day one landed the same day, the 13:03
+   sitting, after his two answers on reconfiguration by pull —
+   property 5's second half means the origin and waits on the store;
+   the node's grant is the floor and the user adds to it, *ehkä* —
+   neither of which day one needed: `pull NODE` as a grant word, the
+   edge a shared `flock` the puller's process holds on
+   `NODE/state/pulled/<puller>`, the cycle refused at the door from
+   either end, `die/` and `solitaire/` in the tree, and the flow
+   measured by the lock: the die came up because it was pulled and
+   idled out because it was let go.  The afternoon's 15:13 sitting put
+   the conversation on it: `connect PORT` as a grant word (keep had the
+   half since 08-28), `ask/` — the third node of tend's own, `pull llm`
+   for the signal and `connect 18080` for the talk — and three live
+   runs from his shell, the third answered in 52 s from edge to
+   `ask/state/answer`, the pulled node coming up at the lock and not
+   at the tick.*
+10. **[meter](meter.md)** — the trees are getting better, and the only
     instrument that says so is a feeling: the tree keeps a kaizen per
     sitting, an F-number per defect, a date on every card and a line
     per red, and nothing reads any of it back over time.  *Placed last
@@ -183,7 +140,7 @@ between two workable cards is Henri's.
     -dokumenttiin"; day one is `tools/meter.py`, one row per week read
     from files and git, keeper.md's third act, and the first run kept
     verbatim in `doc/`; the tiebreak is his.*
-14. **[done-when](done-when.md)** — work was done on a spec nobody had
+11. **[done-when](done-when.md)** — work was done on a spec nobody had
     written, and the card form has no place for what done looks like:
     on 2026-09-06 fifteen commits landed on the windows card before
     the concept was written and showed them to be the read half of a
@@ -197,7 +154,7 @@ between two workable cards is Henri's.
     no signed card and no F-number, and the board refuses a card at
     `doing` with an unsigned goal — the three from before the gate
     named, waiting on his word.*
-15. **[kude](kude.md)** — Kude writes a line filter and a two-party
+12. **[kude](kude.md)** — Kude writes a line filter and a two-party
     protocol, and nothing in this tree or on his desk uses it yet.
     *Placed last by the session that wrote it on 2026-09-23, at Henri's
     "This works.  Lets leave a card where to continue from, then we can
@@ -210,8 +167,10 @@ between two workable cards is Henri's.
     node-and-llm conversation as a Kude type and a node written in
     Kude — signed as the `done` line, and chapter 1 of the narration
     in journal.md; then, at his "The model writes a program", a door
-    model writing the same node, its tries counted.*
-16. **[one-piece](one-piece.md)** — the board works every card at
+    model writing the same node, its tries counted.  `doing` from
+    2026-09-24, at his "kude to doing, then start working on kude" —
+    the one card in `doing`.*
+13. **[one-piece](one-piece.md)** — the board works every card at
     once, and a card in `doing` can sit for weeks: three have, since
     2026-08-30, 08-31 and 09-06.  *Placed last by the session that
     wrote it on 2026-09-23, at Henri's "Write the goal into vision.md
@@ -219,7 +178,8 @@ between two workable cards is Henri's.
     on; the other gate is `card:done-when.md`'s day one, already on the
     board.  Its `done` line is unsigned, and the three `doing` cards
     wait on his word before the gate can be turned on; the tiebreak is
-    his.*
+    his.  The three went to `later/` on 2026-09-24 at his word; the
+    `done` line is still unsigned, so the gate is not built.*
 
 ## Finished
 
@@ -252,6 +212,13 @@ the one entry that made a lamp nagging); `lander` a measurement (a week
 of `lander.log` read from 2026-09-04, to say whether the lamp needs an
 actor); `rewritten-command` an event (a commit message found corrupted,
 the one question its refuse-the-route day one left open).
+
+Three more went there on 2026-09-24, at Henri's "Move flake, hold and
+session-program to later/, kude to doing" — the three cards that sat at
+`doing` from before the done-when gate (`card:one-piece.md`'s second
+mark), so the one card in `doing` is chapter 1's.  `flake`, `hold` and
+`session-program` each keep what was built, and each waits on his word:
+a chapter of its own, or back to `open`.
 
 **Defects go to [`fixme/`](../fixme/README.md)** with an F-number —
 `fixme/F000.md` open, `fixme/resolved/F000.md` closed with the gate
