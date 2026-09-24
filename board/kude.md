@@ -217,3 +217,46 @@ From his shell — the key is under his home, which a session cannot see:
 
 Then the count and the run's line go into the chapter, whether or not a
 try passes.
+
+## Chapter 1, the model's half — the count, 2026-09-24
+
+His run of `tools/kudewrite.py --door anthropic` at 18:44, the record
+`proposals/kudewrite/2026-09-24-1844/` — on his machine and not in the
+tree, since `proposals/` is what a person lands by hand; the checks are
+quoted here as they were, and try 3 is `ask-kude-model/node.kude`:
+
+    tries 3, refused 2, checked at try 3 — from the refusal's words alone
+
+- **try 1, refused**: `type Llm is the llm wire's and cannot be defined`
+  — it copied the three types into the program, though the task said the
+  program does not define them.  Its clauses were one `main` per branch.
+- **try 2, refused**: `the branch on llm is chosen at entry — `llm . up`
+  comes before any action` — the types gone, the two `main` clauses
+  still branching after `llm . pull`.
+- **try 3, checks**: `main` pulls and calls `cont(llm: LlmWait; answer:
+  Str)`, one clause per branch — the shape of `ask-kude/ask.kude`, which
+  it was never shown, reached from the second refusal's words.  Its
+  `down` clause gives the reason bare, where ask.kude prefixes it.
+
+Then his run of the model's program against the real llm: `node.kude`
+byte for byte try 3, the edge 18:44:51, the answer 18:46:26 — the same
+dictionary entry as ask-kude's, word for word, the same question at
+temperature 0 — and "exited 0: ask-kude-model stopped by itself".
+
+**What the count says, and what it does not.**  No try asked early,
+asked twice or failed to let go: all three put the conversation in the
+type's order from the first reply, and both refusals were the language's
+own rules (a world's names are not the program's; a branch opens a
+clause), not the protocol.  So on this one run the type told the writer
+the order, and the checker's words taught it the language, each in one
+refusal.  It is one run of one model at the door's temperature: a count
+of one, and not a rate.  The refusals were enough on their own — no word
+was added to them — which is the transcript's bet measured once.
+
+**The done line, read against what happened**: the conversation is a
+Kude session type; a node holding it is a Kude program, run from his
+shell against the real llm with its answer; asking early, twice or
+never letting go are refused at the check naming the type and the
+clause; and a door model, given the type and the language's reference,
+wrote the node — every try through the check, and the count above,
+written here.  Met, as written.  Closing the card and the chapter is his.

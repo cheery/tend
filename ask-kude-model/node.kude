@@ -1,0 +1,15 @@
+main(llm: Llm; answer: Str) <-
+    llm . pull,
+    cont(llm; answer).
+
+cont(llm: LlmWait; answer: Str) <-
+    llm . up,
+    llm . ask,
+    llm ! "What is tend for?  Answer in one sentence.",
+    llm ? answer,
+    llm . let_go.
+
+cont(llm: LlmWait; answer: Str) <-
+    llm . down,
+    llm ? answer,
+    llm . let_go.

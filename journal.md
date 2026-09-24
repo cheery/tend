@@ -414,3 +414,13 @@ act of caring for something …", the cold arm's dictionary entry, since
 the node is handed no tree.  The first half of the goal is met: the wire
 is a type, the node is Kude, it ran against the real llm, and the wrong
 orders are refused at the check.  Owed: the door model's half.
+
+At 18:44 the other author: Sonnet through the Anthropic door, handed
+the three types and kude.py's header and nothing else (his picks, "anthropic
+sonnet" and "Type + language reference"), wrote the node in three tries
+— refused for defining the llm's types, refused for branching after an
+action, then checked, in the shape of the session's own node, which it
+never saw — each fix from the refusal's words alone.  No try broke the
+protocol; both refusals were the language's.  Its program, run from his
+shell against the real llm, got the same answer.  One wire, two
+authors: the goal is met as written, and the chapter's close is his.
