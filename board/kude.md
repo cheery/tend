@@ -98,3 +98,29 @@ A session's reading, offered and not decided: 3 or 4 is where Kude
 stops being built for its own joy — 3 makes the tree use it, 4 says
 whether it matters to anyone; 1 and 2 are what either of them will
 need along the way, and can be pulled in as the road asks.
+
+## Chapter 1, day one — the plan, 2026-09-24
+
+A session's draft, read off `kude/kude.py` and `ask/ask.py` and not yet
+built; the sitting's clock ended before code.  The llm wire goes in
+beside `Console`: a type the checker owns, which a program cannot
+define, and a runtime party that plays it the way `ask.py` does today.
+The node's side:
+
+    type Llm   = +{ pull: Wait }.
+    type Wait  = &{ up: +{ ask: !Str . ?Str . LetGo }, down: ?Str . LetGo }.
+    type LetGo = +{ let_go: end }.
+
+`pull` takes the shared flock on the edge in `$TEND_PULLS`; `up` is
+`/health` answering and `down`, with its reason, is the llm's death in
+`stopped` or the wait running out; `ask` and a Str is the one POST, and
+the answer comes back as a Str; `let_go` closes the edge.  With that
+type, the done line's three refusals need no new check: an ask before
+`up` is an action `Wait` does not offer, a second ask is one `LetGo`
+does not offer, and a node that never lets go ends with its channel
+open, which the check already refuses.  Red first, in
+`test/test_kude.py`: the three refusals, the node checking, and a run
+against a stand-in llm like `test/test_launch.py`'s `_Llm`.  Then a
+node directory whose program is `kude.py run`, run from his shell
+against the real llm.  Open for his eye: the labels' names, and
+whether `down` belongs in the type or should end the run.
