@@ -1,0 +1,9 @@
+# ask-kude-model — the ask node as a door model wrote it (card:kude.md, chapter 1's second half, 2026-09-24):
+# the same wire as ask-kude/, and the program is whatever try of tools/kudewrite.py passed the check first,
+# written here as node.kude — never edited by hand, so a run of it is the model's program against the real llm.
+# Until a try checks there is no node.kude, and a run says the file is not there.
+allow node.kude
+allow ../kude/kude.py
+pull llm
+connect 18080
+program /usr/bin/python3 $NODE/../kude/kude.py run $NODE/node.kude 'main(llm)'

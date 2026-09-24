@@ -187,3 +187,33 @@ chooses no exit status; the question is a literal in `ask.kude`, since
 the shell's call carries no text; the token cap's cut is marked in the
 answer and no test holds it; and the door model writing the node,
 the chapter's second half.
+
+## Chapter 1, the model's half — the instrument, 2026-09-24
+
+His two answers, the same sitting: the door, "anthropic sonnet" —
+`doors/anthropic`, whose model line already said `claude-sonnet-5`; and
+what the model is handed, his pick of three, "Type + language reference":
+the three `Llm` types, kude.py's header, and one task, with no example
+programs and not `ask.kude`.  The header's llm paragraph says `down`'s
+clause lets go too, which the type already says; it rides because it is
+the reference.
+
+`tools/kudewrite.py --door anthropic` asks, reads each reply's first
+fenced block (or the whole reply) as the program, and runs `kude.py
+check` on it.  A refusal goes back as the checker's words and nothing
+else; up to five tries.  The record is `proposals/kudewrite/<stamp>/`:
+`handed.md`, each try's reply, program and check, the conversation, and
+`count` — tries, refused, the try that checked, and whether it was the
+first or came from the refusal's words alone.  A try that checks becomes
+`ask-kude-model/node.kude`, a node with ask-kude's grant, never edited by
+hand.  `--handed` prints the hand-over, 7880 characters.  Held by
+`test/test_kudewrite.py` (6, red first) against a stand-in door, and
+four mutate rows, all red.
+
+From his shell — the key is under his home, which a session cannot see:
+
+    tools/kudewrite.py --door anthropic
+    tools/launch.sh ask-kude-model run && tail -1 ask-kude-model/state/log
+
+Then the count and the run's line go into the chapter, whether or not a
+try passes.

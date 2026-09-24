@@ -235,6 +235,11 @@ test/test_kude.py	kude: let_go keeps the edge until the exit	sed -i 's/os.close(
 test/test_kude.py	kude: a death while pulled is not read	sed -i 's/if stopped.stat().st_mtime > edge_at:/if False:/' kude/kude.py
 test/test_kude.py	kude: a refusal at a named type does not name it	sed -i 's/at = "" if chans\[ch\]\[0\] != "name"/at = "" if True/' kude/kude.py
 test/test_launch.py	ask-kude: the grant does not let the node read its checker	sed -i '/^allow ..\/kude\/kude.py$/d' ask-kude/grant
+# test_kudewrite.py against tools/kudewrite.py — card:kude.md chapter 1's second half, 2026-09-24
+test/test_kudewrite.py	kudewrite: the refusal goes back with words added	sed -i 's/messages.append({"role": "user", "content": said})/messages.append({"role": "user", "content": "Fix this: " + said})/' tools/kudewrite.py
+test/test_kudewrite.py	kudewrite: the fence around the program is not read	sed -i 's/return m.group(1) if m else reply/return reply/' tools/kudewrite.py
+test/test_kudewrite.py	kudewrite: a try that checks is not written to the node	sed -i 's|(node / "node.kude").write_text|(node / "node.kude.not").write_text|' tools/kudewrite.py
+test/test_kudewrite.py	kudewrite: an example program rides in the hand-over	sed -i 's|^        f"{k.__doc__}"$|        f"{k.__doc__}" + (ROOT / "kude" / "bank.kude").read_text()|' tools/kudewrite.py
 # test_precommit.py and test_board.py against tools/signed.py — card:done-when.md, 2026-09-23
 test/test_precommit.py	signed: every done line reads as signed	sed -i 's/return bool(SIGNATURE.search(done))/return True/' tools/signed.py
 test/test_precommit.py	signed: no change is a program	sed -i 's/    if not changed:/    if True:/' tools/signed.py
