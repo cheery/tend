@@ -174,7 +174,9 @@ A dictionary entry, which is the cold arm `card:material.md` measured on
 2026-09-04: ask-kude's grant has no `material` word, so the llm answers
 about the English word and not this tree.  That is the answer to the
 question it was given, and the done line asks for its answer, not a good
-one.  Above it in his paste, keep's deprecation warning — F030.  So the
+one.  Above it in his paste, keep's deprecation warning — F030, resolved
+by his second run at 18:28:51: the same answer word for word (temperature
+0), and no warning before it.  So the
 done line's first half is met: the type, the node in Kude, the run
 against the real llm, the three refusals at the check.  Its second half
 — a door model writing the node, its tries counted — is not begun.
