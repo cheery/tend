@@ -58,6 +58,23 @@ type `Console` is played by the terminal:
 Both names are the terminal's and a program cannot define them, so a
 write after `close`, a clause that ends with the console open, or a
 number written where text is due is refused like any channel's misuse.
+
+**The llm is a channel** — card:kude.md chapter 1, 2026-09-24: tend's
+own wire, the conversation between a node and the llm it pulls.  A
+channel from the shell at `Llm` is played by the llm node, reached as
+ask/ask.py reaches it (the edge in $TEND_PULLS, /health, one chat
+completion):
+
+    type Llm      = +{ pull: LlmWait }.
+    type LlmWait  = &{ up: +{ ask: !Str . ?Str . LlmLetGo }, down: ?Str . LlmLetGo }.
+    type LlmLetGo = +{ let_go: end }.
+
+So an ask before the llm is up, a second ask, and a node that never
+lets go are refused at the check, each naming the type and the clause,
+with nothing in the check that knows about the llm; `down` carries the
+reason — a death in the llm's `stopped`, keep refusing the port, no
+edge, the wait run out — and the node's own clause for it lets go too.
+ask-kude/ is the node.
 **Values are `Int` and `Str`**: a head input `s: Str`, an output
 `s: Str`, a message `!Str`, a literal `"text"` (escapes `\\n \\t \\" \\\\`);
 every variable has one, and a value where the other is due — sent, passed,
@@ -94,7 +111,8 @@ backtracking — so a test belongs in the guards or nowhere.
 **Not built**, and said here so it is not mistaken for built: sending a
 channel over a channel, the replicable service `!A`, polymorphism, a
 file as a channel, a cut side that is more than one call, more than one
-channel from the shell, text in the shell's call, reading a number out
+channel from the shell, text in the shell's call, an exit status a
+program chooses (ask-kude exits 0 with its llm down), reading a number out
 of text, and depth for a call that is not last — that is still a Python
 frame, so a non-tail recursion a thousand deep is a run error.  The
 runner asserts what the check proved — exactly one clause holds, every
@@ -104,9 +122,16 @@ wrong must be able to say so.
 """
 
 import collections
+import fcntl
 import itertools
+import json
+import os
+import pathlib
 import re
 import sys
+import time
+import urllib.error
+import urllib.request
 
 BUILTINS = {"mod": (("Int", "Int"), ("Int",)), "add": (("Int", "Int"), ("Int",)),
             "sub": (("Int", "Int"), ("Int",)), "cat": (("Str", "Str"), ("Str",)),
@@ -413,11 +438,18 @@ def show(term):
 
 
 # The terminal's protocol, as the program sees it: the partner at the other
-# end of a channel from the shell at `Console` is the terminal itself.
+# end of a channel from the shell at `Console` is the terminal itself.  And
+# the llm's, card:kude.md chapter 1: at the other end of `Llm` is the llm
+# node, reached over the edge as ask/ask.py reaches it.
 WORLD_TEXT = """
 type Console = +{ read: Input, write: !Str . Console, close: end }.
 type Input   = &{ line: ?Str . Console, eof: Console }.
+type Llm      = +{ pull: LlmWait }.
+type LlmWait  = &{ up: +{ ask: !Str . ?Str . LlmLetGo }, down: ?Str . LlmLetGo }.
+type LlmLetGo = +{ let_go: end }.
 """
+WORLD_OWNER = {"Console": "the terminal's", "Input": "the terminal's",
+               "Llm": "the llm wire's", "LlmWait": "the llm wire's", "LlmLetGo": "the llm wire's"}
 
 
 def check(program):
@@ -427,7 +459,7 @@ def check(program):
     world = parse(WORLD_TEXT)[0]
     for name in types:
         if name in world:
-            raise Refusal(f"type {name} is the terminal's and cannot be defined: {tshow(world[name])}")
+            raise Refusal(f"type {name} is {WORLD_OWNER[name]} and cannot be defined: {tshow(world[name])}")
     types = {**world, **types}
     for name, t in types.items():
         names_exist(t, types, f"type {name}")
@@ -568,7 +600,8 @@ def modes(c, preds, types):
                 raise Refusal(f"{here}: `{ch} . {g['label']}` — {ch} is at {tshow(chans[ch])}, which has no branches")
             branches = dict(cur[1])
             if g["label"] not in branches:
-                raise Refusal(f"{here}: {g['label']} is not a branch of {ch}'s {tshow(cur)}")
+                at = "" if chans[ch][0] != "name" else f"{tshow(chans[ch])} = "   # the type by its name, when it has one
+                raise Refusal(f"{here}: {g['label']} is not a branch of {ch}'s {at}{tshow(cur)}")
             if cur[0] == "offer":
                 if acted:
                     raise Refusal(f"{here}: the branch on {ch} is chosen at entry — `{ch} . {g['label']}` comes before any action")
@@ -767,6 +800,98 @@ class Console:
         yield   # a generator like End.take; the terminal answers at once
 
 
+class LlmWire:
+    """The llm node, at the other end of a channel from the shell at `Llm`,
+    reached as ask/ask.py reaches it — card:kude.md chapter 1.  `pull`
+    takes a shared flock on the edge named `llm=` in $TEND_PULLS and waits:
+    `up` when $ASK_URL/health answers, `down` and the reason when the llm's
+    `stopped` says it died after the edge was taken, when keep refuses the
+    port, when there is no edge, or when $ASK_WAIT seconds (300) run out.
+    `ask` and a Str is one chat completion of $ASK_TOKENS (800), and its
+    answer comes back as a Str; `let_go` closes the edge.  Like `Console`,
+    it keeps no watch on order: the check walked the program along `Llm`."""
+
+    def __init__(self, name):
+        self.name, self.pending, self.asking, self.fd = name, collections.deque(), False, None
+
+    def __str__(self):
+        return self.name
+
+    def put(self, item, sign, rt):
+        if self.asking:
+            self.asking = False
+            self.pending.append(self.ask(item))
+        elif item == ("label", "pull"):
+            why = self.pull()
+            self.pending.extend([("label", "up")] if why is None else [("label", "down"), why])
+        elif item == ("label", "ask"):
+            self.asking = True
+        elif item == ("label", "let_go") and self.fd is not None:
+            os.close(self.fd)   # the edge let go before the exit, on purpose
+            self.fd = None
+
+    def take(self, rt, what, kind):
+        if not self.pending:
+            raise RunError(f"the check let this through: the llm was asked {what} before a pull")
+        item = self.pending.popleft()
+        return item[1] if kind is None else item
+        yield   # a generator like End.take; the llm's answer is waited for in put
+
+    def pull(self):
+        """Take the edge and wait for the llm: None when it is up, or why it is down."""
+        pulls = dict(kv.split("=", 1) for kv in os.environ.get("TEND_PULLS", "").split())
+        edge = pulls.get("llm")
+        if not edge:
+            return "the grant names no edge to llm — `pull llm` is the word (card:edge.md)"
+        self.url = os.environ.get("ASK_URL", "http://127.0.0.1:18080").rstrip("/")
+        start = time.time()
+        self.fd = os.open(edge, os.O_RDONLY)
+        fcntl.flock(self.fd, fcntl.LOCK_SH)   # the pull: in force until let_go or exit
+        deadline = start + float(os.environ.get("ASK_WAIT", "300"))
+        # a death newer than the edge is one the resolver will not undo on this edge (card:hold.md), so it is
+        # said at once — ask.py's reading of the pulled node's state, which is the interface
+        stopped = pathlib.Path(edge).parent.parent / "stopped"
+        edge_at = os.stat(edge).st_mtime
+        while True:
+            try:
+                if stopped.stat().st_mtime > edge_at:
+                    first = (stopped.read_text().splitlines() or [""])[0]
+                    if first.startswith("exited ") and not first.startswith("exited 0"):
+                        return f"llm died while pulled — {first}; pull again once the cause is fixed"
+            except OSError:
+                pass
+            try:
+                if urllib.request.urlopen(self.url + "/health", timeout=2).status == 200:
+                    return None
+            except urllib.error.URLError as e:
+                if isinstance(e.reason, PermissionError):   # the kernel's refusal: keep has no connect rule
+                    return "connect refused by keep — `connect PORT` is the word for the talk (card:edge.md)"
+            except OSError:
+                pass
+            if time.time() >= deadline:
+                return f"pulled llm for {time.time() - start:.0f}s and it never answered /health"
+            time.sleep(1)
+
+    def ask(self, question):
+        cap = int(os.environ.get("ASK_TOKENS", "800"))
+        body = json.dumps({"messages": [{"role": "user", "content": question}],
+                           "max_tokens": cap, "temperature": 0}).encode()
+        req = urllib.request.Request(self.url + "/v1/chat/completions", data=body,
+                                     headers={"Content-Type": "application/json"})
+        try:
+            reply = json.load(urllib.request.urlopen(req, timeout=600))
+        except (OSError, ValueError) as e:
+            raise RunError(f"the llm was up and the ask failed — {e}")
+        choice = (reply.get("choices") or [{}])[0]
+        answer = (choice.get("message", {}).get("content") or "").strip()
+        if not answer:
+            raise RunError(f"the llm returned no answer within {cap} tokens — raise ASK_TOKENS; "
+                           f"{json.dumps(reply)[:300]}")
+        if choice.get("finish_reason") == "length":   # a cut that says nothing is the F010 family; this one says
+            answer += f" [cut: the {cap}-token cap ended it — raise ASK_TOKENS]"
+        return answer
+
+
 KINDS = {"Int": "a number", "Str": "text", None: "a choice"}
 
 
@@ -931,7 +1056,7 @@ def run(types, preds, text):
         else:
             if re.fullmatch(r"-?\d+", g):
                 raise Refusal(f"{pname} is a channel at {tshow(ptype)}, and {g} is not a name for one")
-            args.append(Console(g) if ptype == ("name", "Console") else Stdio(g))
+            args.append({("name", "Console"): Console, ("name", "Llm"): LlmWire}.get(ptype, Stdio)(g))
             channels.append(g)
     if len(channels) > 1:
         raise Refusal(f"one channel from the shell per run — {name} has {len(channels)}; "

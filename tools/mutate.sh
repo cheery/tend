@@ -229,6 +229,12 @@ test/test_kude.py	kude: an output bound to the wrong value type is let through	s
 test/test_kude.py	kude: a comparison of text with a number is let through	sed -i 's/if known(left) and known(right) and ttype(left) != ttype(right):/if False:/' kude/kude.py
 test/test_kude.py	kude: two messages of different types are the same	sed -i 's/return ua\[2\] == ub\[2\] and same/return same/' kude/kude.py
 test/test_kude.py	kude: a program may redefine the terminal's types	sed -i 's/if name in world:/if False:/' kude/kude.py
+# test_kude.py against kude/kude.py's llm wire — card:kude.md chapter 1, 2026-09-24
+test/test_kude.py	kude: the pull never takes the edge	sed -i 's/fcntl.flock(self.fd, fcntl.LOCK_SH)/pass/' kude/kude.py
+test/test_kude.py	kude: let_go keeps the edge until the exit	sed -i 's/os.close(self.fd)   # the edge let go/pass   # the edge let go/' kude/kude.py
+test/test_kude.py	kude: a death while pulled is not read	sed -i 's/if stopped.stat().st_mtime > edge_at:/if False:/' kude/kude.py
+test/test_kude.py	kude: a refusal at a named type does not name it	sed -i 's/at = "" if chans\[ch\]\[0\] != "name"/at = "" if True/' kude/kude.py
+test/test_launch.py	ask-kude: the grant does not let the node read its checker	sed -i '/^allow ..\/kude\/kude.py$/d' ask-kude/grant
 # test_precommit.py and test_board.py against tools/signed.py — card:done-when.md, 2026-09-23
 test/test_precommit.py	signed: every done line reads as signed	sed -i 's/return bool(SIGNATURE.search(done))/return True/' tools/signed.py
 test/test_precommit.py	signed: no change is a program	sed -i 's/    if not changed:/    if True:/' tools/signed.py

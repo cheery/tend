@@ -1385,6 +1385,57 @@ def test_the_ask_node_reads_the_llms_death_from_its_state_and_stops_at_once(tmp_
             p.kill(); p.wait()
 
 
+# ── the same conversation, written in Kude: ask-kude (card:kude.md, chapter 1, 2026-09-24) ──
+
+def ask_kude_nodes(tmp_path, port, connect=True):
+    """The tree's `ask-kude`, copied with the checker beside it at ../kude/kude.py as in the tree, its edge
+    pointed at a scratch `llm` and its talk at the stand-in's port."""
+    llm = tmp_path / "llm"; (llm / "state").mkdir(parents=True)
+    (llm / "grant").write_text("program true\n")
+    (tmp_path / "kude").mkdir()
+    shutil.copy(ROOT / "kude" / "kude.py", tmp_path / "kude" / "kude.py")
+    node = tmp_path / "ask-kude"
+    shutil.copytree(ROOT / "ask-kude", node, ignore=shutil.ignore_patterns("state", "__pycache__"))
+    g = (node / "grant").read_text().replace("\npull llm\n", "\npull ../llm\n")
+    g = g.replace("\nconnect 18080\n", f"\nconnect {port}\n" if connect else "\nbind 1\n")
+    g += f"env ASK_URL=http://127.0.0.1:{port}\nenv ASK_WAIT=4\n"
+    (node / "grant").write_text(g)
+    return llm, node
+
+
+@needs_syspy
+def test_the_ask_node_in_kude_pulls_the_llm_asks_once_and_lets_go_under_keep(tmp_path):
+    """The Kude node under its grant: kude.py checks ask.kude and runs it,
+    the channel at `Llm` takes the edge, waits for /health, asks the one
+    question, and lets go; the answer is the run's line in the log."""
+    llm_stub = _Llm()
+    try:
+        llm, node = ask_kude_nodes(tmp_path, llm_stub.port)
+        r = launch(node, "run", state=node / "state", timeout=60)
+        log = (node / "state" / "log").read_text()
+        assert r.returncode == 0, (r.stderr, log)
+        assert "answer = ANSWER to: What is tend for?  Answer in one sentence." in log, log
+        edge = llm / "state" / "pulled" / "ask-kude"
+        assert edge.exists() and wait(lambda: not locked(edge)), "the edge was not let go"   # F019
+    finally:
+        llm_stub.close()
+
+
+@needs_syspy
+def test_without_connect_the_kude_node_is_down_naming_the_word(tmp_path):
+    """The signal without the talk: keep refuses the port, and the channel
+    says so as `down` — the node's own clause for it runs, and lets go."""
+    llm_stub = _Llm()
+    try:
+        llm, node = ask_kude_nodes(tmp_path, llm_stub.port, connect=False)
+        r = launch(node, "run", state=node / "state", timeout=60)
+        log = (node / "state" / "log").read_text()
+        assert r.returncode == 0, (r.stderr, log)
+        assert "answer = the llm is down: connect refused by keep" in log and "`connect PORT` is the word" in log, log
+    finally:
+        llm_stub.close()
+
+
 @needs_syspy
 def test_a_partial_answer_the_token_cap_cut_is_said_and_not_passed_off_as_whole(tmp_path):
     """card:material.md, 2026-09-03: gemma4's answer was cut mid-sentence at

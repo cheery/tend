@@ -1,0 +1,24 @@
+-- The ask node in Kude — card:kude.md, chapter 1, 2026-09-24.  tend's own
+-- wire: pull the llm, wait until it answers, one question, one answer, let go.
+--
+--     tools/launch.sh ask-kude run          (its grant runs: kude.py run ask.kude 'main(llm)')
+--
+-- `llm` is a channel from the shell at `Llm`, and the llm is the party at its
+-- other end, reached as ask/ask.py reaches it: the edge named in $TEND_PULLS,
+-- /health, one chat completion.  Its type is the checker's, not this file's:
+--
+--     type Llm      = +{ pull: LlmWait }.
+--     type LlmWait  = &{ up: +{ ask: !Str . ?Str . LlmLetGo }, down: ?Str . LlmLetGo }.
+--     type LlmLetGo = +{ let_go: end }.
+--
+-- So the check refuses an ask before the llm is up (LlmWait offers up or
+-- down, and nothing to choose), a second ask (LlmLetGo offers only let_go),
+-- and a node that never lets go (the channel is not at its end when the
+-- clause ends).
+
+main(llm: Llm; answer: Str) <- llm.pull, asked(llm; answer).
+
+-- The llm is up or it is down; the branch is chosen at entry, one clause each.
+asked(llm: LlmWait; answer: Str) <- llm.up, llm.ask, llm ! "What is tend for?  Answer in one sentence.",
+                                    llm ? answer, llm.let_go.
+asked(llm: LlmWait; answer: Str) <- llm.down, llm ? why, llm.let_go, cat("the llm is down: ", why; answer).

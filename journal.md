@@ -398,4 +398,15 @@ first of them a checked protocol.  It will need more of the language
 on the way — a channel to something other than the terminal, at
 least — pulled in as the chapter asks for it, not before.
 
-*Not yet begun.  What happened goes here as it happens.*
+*What happened goes here as it happens.*
+
+**2026-09-24.**  Begun at his "Move flake, hold and session-program to
+later/, kude to doing, then start working on kude": the three old
+`doing` cards shelved, so this chapter's card is the one in `doing`.
+The sitting's first fifteen minutes gave a plan; he extended the time
+("Continue on building the wire") and the wire was built — the llm as
+a channel at `Llm`, whose type the checker owns, so asking early,
+asking twice and never letting go are refused by the type alone, each
+naming it and the clause.  The node is `ask-kude/`, run under keep
+against a stand-in llm.  Owed: his run against the real llm, and the
+door model's half.

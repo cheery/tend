@@ -532,3 +532,191 @@ def test_the_console_types_are_the_terminals(tmp_path):
     err = refused(tmp_path, "type Console = end.\nf(c: Console; ) <- c.close.\n")
     assert "Console" in err and "terminal" in err, err
 
+
+
+# ── card:kude.md, chapter 1: tend's own wire — the ask node in Kude ──────
+#
+# A channel from the shell at the type `Llm` is played by the llm, reached
+# as ask/ask.py reaches it: `pull` takes a shared flock on the edge named
+# in $TEND_PULLS; the llm is `up` when /health answers, and `down`, with
+# its reason, when its `stopped` says it died after the edge was taken, or
+# keep refuses the port, or the wait runs out; `ask` and a Str is one chat
+# completion, and its answer comes back as a Str; `let_go` closes the edge.
+# The three refusals the chapter's done line names are the type's alone.
+#
+# Red first, 2026-09-24: every test below was run before `Llm` existed.
+
+ASK = ROOT / "ask-kude" / "ask.kude"
+ASK_TEXT = ASK.read_text(encoding="utf-8")
+
+
+class _Llm:
+    """A stand-in for llama-server's two doors — /health and one chat
+    completion — on a free port, in a thread.  It records each question,
+    and whether the edge was pulled while it was asked: an exclusive
+    flock on the edge fails while the node holds its shared one."""
+
+    def __init__(self, edge):
+        import fcntl, http.server, json, os, threading
+        seen = self.seen = []
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"ok")
+
+            def do_POST(self):
+                body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                fd = os.open(edge, os.O_RDONLY)
+                try:
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    pulled = False
+                except BlockingIOError:
+                    pulled = True
+                os.close(fd)
+                seen.append((body["messages"][-1]["content"], pulled))
+                out = {"choices": [{"message": {"role": "assistant", "content": "Tend tends."}}]}
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(out).encode())
+
+        self.srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.srv.server_address[1]}"
+
+    def close(self):
+        self.srv.shutdown()
+
+
+def edge_in(tmp_path):
+    """The edge as the launcher lays it out: `llm/state/pulled/<puller>`,
+    the pulled node's `stopped` two directories up."""
+    edge = tmp_path / "llm" / "state" / "pulled" / "ask"
+    edge.parent.mkdir(parents=True)
+    edge.write_text("")
+    return edge
+
+
+def wire(tmp_path, *call, env):
+    import os
+    return subprocess.run([sys.executable, str(KUDE), *map(str, call)], capture_output=True, text=True,
+                          cwd=ROOT, env=dict(os.environ, **env), timeout=60)
+
+
+def test_the_ask_node_checks():
+    r = kude("check", ASK)
+    assert r.returncode == 0, r.stderr
+    assert "main(llm: Llm; answer: Str): 1 clause" in r.stdout, r.stdout
+    assert "asked(llm: LlmWait; answer: Str): 2 clauses" in r.stdout, r.stdout
+
+
+def test_an_ask_before_the_llm_answers_is_refused_naming_the_type_and_the_clause(tmp_path):
+    err = refused(tmp_path, 'main(llm: Llm; a: Str) <- llm.pull, llm.ask, llm ! "q", llm ? a, llm.let_go.\n')
+    assert "ask is not a branch" in err and "LlmWait" in err and "main(llm: Llm; a: Str)" in err, err
+
+
+def test_a_second_ask_is_refused_naming_the_type_and_the_clause(tmp_path):
+    err = refused(tmp_path, ASK_TEXT.replace("llm ? answer, llm.let_go.",
+                                             'llm ? answer, llm.ask, llm ! "again", llm ? more, llm.let_go.'))
+    assert "ask is not a branch" in err and "LlmLetGo" in err and "asked(llm: LlmWait; answer: Str)" in err, err
+
+
+def test_a_node_that_never_lets_go_is_refused_naming_the_type_and_the_clause(tmp_path):
+    err = refused(tmp_path, ASK_TEXT.replace("llm ? answer, llm.let_go.", "llm ? answer."))
+    assert "llm is at LlmLetGo when the clause ends" in err and "asked(llm: LlmWait; answer: Str)" in err, err
+
+
+def test_the_llm_types_are_the_worlds(tmp_path):
+    err = refused(tmp_path, "type Llm = end.\nf(c: Llm; ) <- c.let_go.\n")
+    assert "Llm" in err and "llm" in err and "cannot be defined" in err, err
+
+
+def test_the_ask_node_pulls_the_llm_and_asks_once(tmp_path):
+    edge = edge_in(tmp_path)
+    llm = _Llm(edge)
+    try:
+        r = wire(tmp_path, "run", ASK, "main(llm)", env={"TEND_PULLS": f"llm={edge}", "ASK_URL": llm.url})
+    finally:
+        llm.close()
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines() == ["answer = Tend tends."], r.stdout
+    assert llm.seen == [("What is tend for?  Answer in one sentence.", True)], llm.seen
+
+
+def test_let_go_lets_go_of_the_edge_before_the_run_ends(tmp_path, monkeypatch):
+    """The process's exit drops the lock whether or not `let_go` did, so a
+    run cannot tell — the party is driven here in this process, and the
+    edge is tried between `let_go` and the end."""
+    import fcntl, importlib.util, os
+    spec = importlib.util.spec_from_file_location("kude", KUDE)
+    k = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(k)
+    edge = edge_in(tmp_path)
+    llm = _Llm(edge)
+    monkeypatch.setenv("TEND_PULLS", f"llm={edge}")
+    monkeypatch.setenv("ASK_URL", llm.url)
+
+    def free():
+        fd = os.open(edge, os.O_RDONLY)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+        except BlockingIOError:
+            return False
+        finally:
+            os.close(fd)
+
+    def took(party, kind):
+        try:
+            next(party.take(None, "here", kind))
+        except StopIteration as done:
+            return done.value
+        raise AssertionError("the llm's end never waits")
+
+    try:
+        w = k.LlmWire("llm")
+        w.put(("label", "pull"), ".", None)
+        assert took(w, None) == "up" and not free()
+        w.put(("label", "ask"), ".", None)
+        w.put("q", "!", None)
+        assert took(w, "Str") == "Tend tends." and not free()
+        w.put(("label", "let_go"), ".", None)
+        assert free(), "let_go left the edge held"
+    finally:
+        llm.close()
+
+
+def test_a_death_after_the_pull_is_down_with_its_reason(tmp_path):
+    import os
+    edge = edge_in(tmp_path)
+    stopped = edge.parent.parent / "stopped"
+    stopped.write_text("exited 1 (the loader)\n")
+    os.utime(edge, (1, 1))           # the edge older than the death
+    llm = _Llm(edge)
+    try:
+        r = wire(tmp_path, "run", ASK, "main(llm)",
+                 env={"TEND_PULLS": f"llm={edge}", "ASK_URL": "http://127.0.0.1:9", "ASK_WAIT": "5"})
+    finally:
+        llm.close()
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.startswith("answer = the llm is down: ") and "exited 1 (the loader)" in r.stdout, r.stdout
+    assert llm.seen == [], "a down llm is never asked"
+
+
+def test_no_edge_to_the_llm_is_down_naming_the_grant_word(tmp_path):
+    r = wire(tmp_path, "run", ASK, "main(llm)", env={"TEND_PULLS": "", "ASK_URL": "http://127.0.0.1:9"})
+    assert r.returncode == 0, r.stderr
+    assert "the llm is down: " in r.stdout and "pull llm" in r.stdout, r.stdout
+
+
+def test_an_llm_that_never_answers_is_down_saying_how_long(tmp_path):
+    edge = edge_in(tmp_path)
+    r = wire(tmp_path, "run", ASK, "main(llm)",
+             env={"TEND_PULLS": f"llm={edge}", "ASK_URL": "http://127.0.0.1:9", "ASK_WAIT": "2"})
+    assert r.returncode == 0, r.stderr
+    assert "the llm is down: " in r.stdout and "never answered /health" in r.stdout, r.stdout

@@ -124,3 +124,53 @@ against a stand-in llm like `test/test_launch.py`'s `_Llm`.  Then a
 node directory whose program is `kude.py run`, run from his shell
 against the real llm.  Open for his eye: the labels' names, and
 whether `down` belongs in the type or should end the run.
+
+## Chapter 1, day one — the wire, built, 2026-09-24
+
+At his "I extended the time.  Continue on building the wire."  The plan
+above, with its two inner names prefixed — `LlmWait`, `LlmLetGo` —
+because the world's names cannot be defined by a program, and a bare
+`Wait` would have taken a common word from every program:
+
+    type Llm      = +{ pull: LlmWait }.
+    type LlmWait  = &{ up: +{ ask: !Str . ?Str . LlmLetGo }, down: ?Str . LlmLetGo }.
+    type LlmLetGo = +{ let_go: end }.
+
+`kude/kude.py` carries them beside `Console`, and `LlmWire` plays the
+llm's end the way `ask/ask.py` does: the shared flock on the edge,
+/health, a death in the llm's `stopped`, keep's refusal of the port,
+one chat completion, the edge closed at `let_go`.  Nothing in the check
+learned about the llm; two refusals' words changed — a world's name says
+whose it is (the terminal's, the llm wire's), and a label refusal at a
+named type names it (`llm's LlmWait = &{…}`) — so each of the done
+line's three refusals says the type and the clause:
+
+    ask is not a branch of llm's LlmWait = &{up: …, down: …}      (asks early, clause main)
+    ask is not a branch of llm's LlmLetGo = +{let_go: end}        (asks twice, clause asked)
+    llm is at LlmLetGo when the clause ends                       (never lets go, clause asked)
+
+The node is `ask-kude/`: `ask.kude`, three clauses, and a grant like
+ask's (`pull llm`, `connect 18080`) whose program is `kude.py run
+ask.kude 'main(llm)'`, with the checker read from the tree and not copied.
+`tools/launch.sh ask-kude check` is green from a session's seat except
+for the state, which it says it cannot see from here.
+
+Measured: `test/test_kude.py` 64 (ten new: the node checks, the three
+refusals, the world's names, a run against a stand-in llm that saw the
+edge held while it was asked, `let_go` letting go before the run ends,
+a death, no edge, a wait run out), red first on `no type Llm`;
+`test/test_launch.py` two flow tests, the node under keep against the
+stand-in and without `connect`; five mutate rows, all red.
+
+**Not yet**: the run from his shell against the real llm — the done
+line's words, and his hand:
+
+    tools/launch.sh ask-kude run
+    tail -3 ask-kude/state/log        # answer = …
+
+Also not built: the answer is only the log's line (ask/ writes
+`state/answer`); a node whose llm is down exits 0, since a Kude program
+chooses no exit status; the question is a literal in `ask.kude`, since
+the shell's call carries no text; the token cap's cut is marked in the
+answer and no test holds it; and the door model writing the node,
+the chapter's second half.

@@ -1,0 +1,10 @@
+# ask-kude — the ask node written in Kude (card:kude.md, chapter 1, 2026-09-24, at Henri's "Continue on
+# building the wire"): the same conversation as ask/, pull the llm, wait for it to answer, ask it one thing,
+# let go, and its order held by the check before it runs — `ask.kude` holds a channel at `Llm`, whose type is
+# the checker's.  `pull llm` is the signal and `connect 18080` the talk, as for ask/; the answer is the run's
+# `answer = …` line, in this node's log.  kude.py is read from the tree, not copied: one checker.
+allow ask.kude
+allow ../kude/kude.py
+pull llm
+connect 18080
+program /usr/bin/python3 $NODE/../kude/kude.py run $NODE/ask.kude 'main(llm)'
