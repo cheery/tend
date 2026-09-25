@@ -164,6 +164,14 @@ between two workable cards is Henri's.
     wait on his word before the gate can be turned on; the tiebreak is
     his.  The three went to `later/` on 2026-09-24 at his word; the
     `done` line is still unsigned, so the gate is not built.*
+13. **[one-off](one-off.md)** — a task done once on a computer is a
+    command that vanishes: the output lands, the way it was made is
+    gone, and tend's model has no place for a task that is not a
+    long-lived program.  *Placed last by the session that wrote it on
+    2026-09-25, at Henri's "yes, bound to vision.md and write the
+    card", after his words on a process that delivers what the user
+    wants, kept for next time; its `done` line is a session's draft
+    and unsigned; the tiebreak is his.*
 
 ## Finished
 

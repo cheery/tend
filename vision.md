@@ -141,6 +141,26 @@ holds for every session either way.  Point 1's "what you meet is tend"
 is the full form; inside another desktop, the canvas is a window and
 the rest of the picture stands.
 
+**The bound** — so the direction says when it has arrived.  *A
+session's wording, 2026-09-25, of a shape he called good ("leads to the
+right place"), extrapolated at his "it'd be worthwhile to make it
+something that doesn't depend on me … It should be possible to work
+from the canvas."*
+
+Arrived when: a person, on their own machine over an ordinary
+distribution, works from the canvas for one week of their ordinary
+work — the canvas is where they do it, not only where they look.  Each
+point of the picture above has a check that says when it does not
+hold, and every check reads green at the end of the week.
+
+Outside the bound: a kernel of its own, a distribution, machines
+connecting, the store (`spec/os.md` property 5's second half).
+
+henri: yes, bound to vision.md — 2026-09-25
+
+What a task done once becomes on such a machine — a command, or a
+process kept for the next time — is open: `card:one-off.md`.
+
 ## Ease of use and efficiency
 
 2026-08-24 (gestate, 2026-08-16): It's so much ceremony, to get a simple
