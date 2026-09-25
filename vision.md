@@ -82,6 +82,65 @@ done, and every step off the method was refused or shown by something in
 tend, not by memory.  Weeks are skipped when they are; a week the
 yardstick is not run is slack, not a failure.
 
+## What it will be
+
+*2026-09-25, at Henri's "we still haven't answered what it will be … it'd
+be worthwhile to answer partially at least."  A partial answer, and it
+says so: what is not here has not been decided.*
+
+**The picture.**  *A session's draft, drawn from his own words
+(`spec/os.md`, the numbers in brackets); he answered it point by point
+— yes to the first seven, "maybe.  I'm not sure about the last one" to
+the eighth, which is replaced below by his answer on the keeper.*
+
+1. You turn on the machine.  Linux boots from an encrypted disk [16];
+   what you meet is tend, not a Linux desktop.
+2. You see everything running on one screen, the canvas.  Each thing
+   is there because something pulls it — you, or another program that
+   depends on it.  When nothing pulls it, it closes; opened again, it
+   is where it was left [8, 13].
+3. Nothing touches your files unless it was given them: a program sees
+   what its grant hands it and nothing else (open problem 1).
+4. Installing a program means getting a node.  Its version is
+   identifiable, its configuration is recorded in the node, no central
+   server is needed, and trying out an install is easy [2, 5, 6].
+5. Failures are not silent: a crash is shown, and a hang is treated as
+   a crash [9, 14].
+6. Tend's own programs are written in Kude, and the checker holds their
+   interfaces before they run [4, 15]; ordinary Linux programs run as
+   guests.
+7. An AI session is a program like any other — a grant, a budget, a
+   sitting clock — that can pull the andon and cannot edit its own
+   fence [12].
+
+**His answers**, 2026-09-25, to what the picture left open:
+
+2026-09-25: canvas is the desktop itself, but it can be also like it is
+now, eg. live inside another desktop environment.
+
+2026-09-25: I think it's per-user like it's now.  User has two canvases:
+one that pulls when machine is on, another that pulls when user has
+logged in.
+
+2026-09-25: I think that tend would be designed such that people can
+choose to be a keeper, but it's optional to benefit from it.
+
+2026-09-25: People and sessions write kude, it's supposed to be an
+ordinary programming language in that sense.
+
+2026-09-25: It can be installed on top of any distribution, but I
+probably won't be ready to make it itself a distribution yet.
+
+*A session's reading, his to strike.*  The two canvases put the
+lifecycle on the person's side: what the machine's canvas pulls runs
+while the machine is on, what the login canvas pulls runs while the
+user is logged in, and nothing runs that neither pulls.  The method —
+the board, `done` lines, kaizen, the marks — is what a keeper takes up
+(`keeper.md`); the environment serves a person who has not, and point 7
+holds for every session either way.  Point 1's "what you meet is tend"
+is the full form; inside another desktop, the canvas is a window and
+the rest of the picture stands.
+
 ## Ease of use and efficiency
 
 2026-08-24 (gestate, 2026-08-16): It's so much ceremony, to get a simple
