@@ -170,8 +170,9 @@ between two workable cards is Henri's.
     long-lived program.  *Placed last by the session that wrote it on
     2026-09-25, at Henri's "yes, bound to vision.md and write the
     card", after his words on a process that delivers what the user
-    wants, kept for next time; its `done` line is a session's draft
-    and unsigned; the tiebreak is his.*
+    wants, kept for next time; its `done` line is a session's draft,
+    signed 2026-09-25 at his "done line reads ok, sign it"; the
+    tiebreak is his.*
 
 ## Finished
 

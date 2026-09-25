@@ -12,7 +12,7 @@
     done     when a task done once from the canvas leaves a kept
              process behind, and pulling it again gives the output
              again or says why it cannot.  (a session's draft,
-             2026-09-25; unsigned)
+             2026-09-25; henri: signed 2026-09-25)
     asked    Henri, 2026-09-25 — "yes, bound to vision.md and write
              the card."
     see      vision.md §"What it will be" (the bound: work from the
@@ -129,4 +129,4 @@ changeset's type says which of its effects are reversible, "auto-apply
 only the reversible" is held by Kude's checker before the process runs.
 
 *(question, his call — the `done` line above: sign it as it stands,
-change it, or refuse it?)*
+change it, or refuse it?  henri: done line reads ok, sign it. — 2026-09-25)*
