@@ -121,7 +121,12 @@ item simply has no reverse.  It is the same timeline `card:canvas.md`
 asks for — a death, a cord pull and now a change to the machine, seen
 in one place — and "won't do anything unexpected silently" held by
 construction: a change that is not a log item did not happen through
-tend.
+tend.  And two more, said in talk and put here at his "put the other
+two on the card too.  They're all good.": the log is what a keeper
+reads — a week of it is what the kept processes actually did to the
+machine, which is kaizen on the processes themselves; and if a
+changeset's type says which of its effects are reversible, "auto-apply
+only the reversible" is held by Kude's checker before the process runs.
 
 *(question, his call — the `done` line above: sign it as it stands,
 change it, or refuse it?)*
