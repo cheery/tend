@@ -14,9 +14,11 @@ does).  Being wrong has to be visible, so every one of those has a
 check that says when it is not in force, and a lamp rather than a rule
 wherever a check cannot reach.
 
-**What it is not.**  Not an operating system — that is a later
-question, `spec/os.md` holds the properties it would have to keep.  Not
-a fork of `~/gestate`: it is the second tree run by the method that
+**What it is not.**  Not a kernel: Linux runs the hardware, and tend is
+the operating system as the person meets it over Linux — where a
+program is started, granted, seen and stopped (`vision.md` §"The goal",
+2026-09-25).  A kernel of its own is a later question; `spec/os.md`
+holds the properties it would have to keep.  Not a fork of `~/gestate`: it is the second tree run by the method that
 grew there, and it carries that method's *mechanisms* and none of its
 prose, one at a time, each named where it came from.  And not a
 platform that needs an account, a service, or your presence:

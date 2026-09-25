@@ -27,6 +27,28 @@ creator, we need slacked, weeks can be skipped.
 tastes, immediate things I see in computers when I open them today, and
 personal enjoyment on the work itself of building this.
 
+2026-09-25: I would want an OS-like coverage or feel to it.  That it
+feels like an operating system that can run linux software.
+
+*A session's reading, at his "accompany your reading below it"; his to
+strike.*  "Operating system" names what the person meets, not what
+runs the hardware.  Linux stays the kernel, the drivers and the boot;
+tend is where a program is started, granted, seen and stopped.  Four
+things make a system feel like one's own: how programs start and stop,
+what each may touch, what is seen running without asking, and where
+work lives and how it comes back.  Tend has a first form of each — the
+pull and the idle-out, the grant under keep, the canvas and the panel,
+plain files.  Linux software comes in two tiers: a native program (a
+node, Kude) gets all of it — the pull, the lifecycle, the grant, the
+record; a Linux program is a guest — under a grant and a budget, on
+the canvas, stoppable by the person, and never made to know it is
+pulled.  This is `spec/os.md` property 7 ("it must be able to run
+Linux, and that must not weaken security") said from the person's
+side; a kernel of its own stays the later question of §"What tend
+won't be".  The goal is big and each chapter stays small: a chapter
+gives something usable if the next one never comes, which is the 09-23
+line above — weeks can be skipped.
+
 *The rest of this section is a session's draft at Henri's "I'd like us
 to make this somewhat concrete", corrected by him the same hour —
 "principles seem correct but may require refinement later on".  His to
